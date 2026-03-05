@@ -205,6 +205,99 @@
             gap: 1rem;
             margin-top: 1rem;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 200px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 1rem;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                min-height: auto;
+                position: sticky;
+                top: 0;
+                z-index: 1100;
+            }
+
+            .sidebar-logo {
+                margin-bottom: 0;
+                width: 100px;
+            }
+
+            .sidebar-menu {
+                display: flex !important;
+                gap: 5px;
+                margin-top: 0;
+                overflow-x: auto;
+                padding-bottom: 5px;
+                flex: 1;
+                margin-left: 10px;
+                /* Ensure links don't wrap */
+                white-space: nowrap;
+            }
+
+            .sidebar-menu li {
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .sidebar-menu a {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                gap: 5px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .sidebar-menu a span {
+                display: inline;
+            }
+
+            .admin-content {
+                padding: 1rem;
+            }
+
+            .admin-panel {
+                padding: 1rem;
+            }
+
+            .cms-field {
+                padding: 0.8rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .user-table th:nth-child(1),
+            .user-table td:nth-child(1),
+            .user-table th:nth-child(3),
+            .user-table td:nth-child(3) {
+                display: none;
+            }
+
+            /* Stack CMS Header */
+            .cms-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 1rem !important;
+            }
+
+            .sync-container {
+                width: 100% !important;
+                align-items: stretch !important;
+            }
+        }
     </style>
 </head>
 
@@ -215,16 +308,18 @@
                 <img src="static/sherpa_logo_embroidered.jpg" alt="Logo" data-cms="global-navbar-logo">
             </div>
             <ul class="sidebar-menu">
-                <li><a onclick="showPanel('users')" class="active" id="btn-users"><i class="fa-solid fa-users"></i> User
-                        Management</a></li>
-                <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i> Website
-                        Editor</a></li>
-                <li><a onclick="showPanel('models')" id="btn-models"><i class="fa-solid fa-microchip"></i> Model
-                        Status</a></li>
-                <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> Back to Site</a></li>
-                <li style="margin-top: 1rem;"><a onclick="showPanel('convoy')" id="btn-convoy">Convoy Settings</a></li>
+                <li><a onclick="showPanel('users')" class="active" id="btn-users"><i class="fa-solid fa-users"></i>
+                        <span>Users</span></a></li>
+                <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i>
+                        <span>Editor</span></a></li>
+                <li><a onclick="showPanel('models')" id="btn-models"><i class="fa-solid fa-microchip"></i>
+                        <span>Status</span></a></li>
+                <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
+                </li>
+                <li style="margin-top: 1rem;"><a onclick="showPanel('convoy')" id="btn-convoy"><span>Convoy</span></a>
+                </li>
                 <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
-                            class="fa-solid fa-sign-out-alt"></i> Secure Logout</a></li>
+                            class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
             </ul>
             <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
         </aside>
@@ -262,14 +357,14 @@
             </div>
 
             <div id="panel-cms" class="admin-panel">
-                <div
+                <div class="cms-header"
                     style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; gap: 2rem;">
                     <div>
                         <h2>Live Content Editor</h2>
                         <p style="color: var(--secondary); margin-bottom: 0;">Edit tracked elements below. Changes will
                             reflect instantly on the public site.</p>
                     </div>
-                    <div
+                    <div class="sync-container"
                         style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; width: 300px;">
                         <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
                             style="white-space: nowrap; box-shadow: 0 4px 15px rgba(192, 108, 59, 0.2); width: 100%;">
@@ -646,73 +741,81 @@
             const progressBar = document.getElementById('sync-progress-bar');
             const originalText = btn.innerHTML;
 
-            if (!confirm("This will synchronize all local changes (including CMS updates and file edits) to the live GitHub repository. Proceed?")) return;
+            // Use custom confirmation modal instead of native confirm()
+            document.getElementById('confirm-modal-text').innerText = "This will synchronize all local changes (including CMS updates and file edits) to the live GitHub repository. Proceed?";
+            document.getElementById('confirm-modal-btn').innerText = "Yes, Deploy";
+            document.getElementById('confirm-modal-btn').className = "btn btn-primary";
+            document.getElementById('confirm-modal-btn').onclick = async () => {
+                closeModal('confirm-modal');
+                await startSync();
+            };
+            document.getElementById('confirm-modal').classList.add('active');
 
-            btn.disabled = true;
-            btn.style.opacity = '0.7';
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
+            async function startSync() {
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
 
-            // Reset and show progress UI
-            progressContainer.style.display = 'flex';
-            progressBar.style.width = '0%';
-            progressBar.style.background = 'var(--primary)';
-            progressText.innerText = 'Preparing upload...';
-            progressText.style.color = 'var(--secondary)';
-            progressPercent.innerText = '0%';
-            progressPercent.style.color = 'var(--secondary)';
+                // Reset and show progress UI
+                progressContainer.style.display = 'flex';
+                progressBar.style.width = '0%';
+                progressBar.style.background = 'var(--primary)';
+                progressText.innerText = 'Preparing upload...';
+                progressText.style.color = 'var(--secondary)';
+                progressPercent.innerText = '0%';
+                progressPercent.style.color = 'var(--secondary)';
 
-            // Start polling the server for progress
-            const pollInterval = setInterval(async () => {
-                try {
-                    const progRes = await fetch('/api/sync-progress');
-                    if (progRes.ok) {
-                        const progData = await progRes.json();
-                        console.log('Sync Progress:', progData);
-
-                        if ((progData.status === 'uploading' || progData.status === 'starting' || progData.status === 'completed') && progData.total > 0) {
-                            const remaining = progData.total - progData.current;
-                            progressText.innerText = progData.status === 'completed' ? 'Finalizing...' : `${remaining} file${remaining !== 1 ? 's' : ''} remaining`;
-                            progressPercent.innerText = `${progData.percentage}%`;
-                            progressBar.style.width = `${progData.percentage}%`;
+                // Start polling the server for progress
+                const pollInterval = setInterval(async () => {
+                    try {
+                        const progRes = await fetch('/api/sync-progress');
+                        if (progRes.ok) {
+                            const progData = await progRes.json();
+                            if ((progData.status === 'uploading' || progData.status === 'starting' || progData.status === 'completed') && progData.total > 0) {
+                                const remaining = progData.total - progData.current;
+                                progressText.innerText = progData.status === 'completed' ? 'Finalizing...' : `${remaining} file${remaining !== 1 ? 's' : ''} remaining`;
+                                progressPercent.innerText = `${progData.percentage}%`;
+                                progressBar.style.width = `${progData.percentage}%`;
+                            }
                         }
+                    } catch (e) { console.error('Polling error:', e); }
+                }, 500);
+
+                try {
+                    const res = await fetch('/api/sync-github', { method: 'POST' });
+                    clearInterval(pollInterval);
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        progressBar.style.width = '100%';
+                        progressBar.style.background = '#2ecc71'; // Success green
+                        progressText.innerText = 'Upload Complete';
+                        progressText.style.color = '#2ecc71';
+                        progressPercent.innerText = '100%';
+                        progressPercent.style.color = '#2ecc71';
+
+                        setTimeout(() => {
+                            progressContainer.style.display = 'none';
+                            alert('Deployment Successful! Your changes have been pushed to GitHub. The live site will update within 60 seconds.');
+                        }, 800);
+                    } else {
+                        progressBar.style.background = '#e74c3c'; // Error red
+                        progressText.innerText = 'Upload Failed';
+                        progressText.style.color = '#e74c3c';
+                        alert('Deployment Failed: ' + (data.message || 'The server encountered an error during sync.'));
                     }
-                } catch (e) { console.error('Polling error:', e); }
-            }, 500);
-
-            try {
-                const res = await fetch('/api/sync-github', { method: 'POST' });
-                clearInterval(pollInterval);
-                const data = await res.json();
-
-                if (res.ok) {
-                    progressBar.style.width = '100%';
-                    progressBar.style.background = '#2ecc71'; // Success green
-                    progressText.innerText = 'Upload Complete';
-                    progressText.style.color = '#2ecc71';
-                    progressPercent.innerText = '100%';
-                    progressPercent.style.color = '#2ecc71';
-
-                    setTimeout(() => {
-                        progressContainer.style.display = 'none';
-                        alert('Deployment Successful! Your changes have been pushed to GitHub. The live site will update within 60 seconds.');
-                    }, 800);
-                } else {
-                    progressBar.style.background = '#e74c3c'; // Error red
-                    progressText.innerText = 'Upload Failed';
+                } catch (error) {
+                    clearInterval(pollInterval);
+                    progressBar.style.background = '#e74c3c';
+                    progressText.innerText = 'Connection Error';
                     progressText.style.color = '#e74c3c';
-                    alert('Deployment Failed: ' + (data.message || 'The server encountered an error during sync.'));
+                    alert('Connection Error: Could not reach the deployment server.');
+                    console.error(error);
+                } finally {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerHTML = originalText;
                 }
-            } catch (error) {
-                clearInterval(pollInterval);
-                progressBar.style.background = '#e74c3c';
-                progressText.innerText = 'Connection Error';
-                progressText.style.color = '#e74c3c';
-                alert('Connection Error: Could not reach the deployment server.');
-                console.error(error);
-            } finally {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.innerHTML = originalText;
             }
         }
 
