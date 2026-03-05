@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherpa Solutions LLC | Our Services</title>
+    <!-- Modern Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC" data-cms="global-navbar-logo">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html" class="active">Our Services</a></li>
+            <li><a href="merchandise.html">Merchandise</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+    </header>
+
+    <div class="page-header">
+        <h1 data-cms="services-page-head">Our Services</h1>
+        <p data-cms="services-page-sub">Comprehensive strategies and solutions to outfit your business for the journey
+            ahead.</p>
+    </div>
+
+
+    <div style="text-align:center; padding-top:1rem; margin-bottom: 2rem;">
+        <h2 style="color:var(--primary); font-size:2.5rem; font-family:'Outfit',sans-serif;">Choose Your Route</h2>
+        <p style="color:var(--secondary); font-size:1.1rem; margin-top:0.5rem;">The Partnership Path versus the Line of
+            Services.</p>
+    </div>
+
+    <section class="animated-services-canvas">
+        <div class="trail-container" id="trail-container">
+            <!-- Background Mountain/Trail Graphic via SVG -->
+            <svg class="trail-svg" viewBox="0 0 1000 600" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#E8F1F5" />
+                        <stop offset="100%" stop-color="#FFFFFF" />
+                    </linearGradient>
+                    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFD6A5" />
+                        <stop offset="100%" stop-color="#FF9E79" />
+                    </linearGradient>
+                    <linearGradient id="mountainBase" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(122, 142, 99, 0.15)" />
+                        <stop offset="100%" stop-color="rgba(122, 142, 99, 0.02)" />
+                    </linearGradient>
+                    <linearGradient id="mountainFore" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(74, 92, 74, 0.2)" />
+                        <stop offset="100%" stop-color="rgba(74, 92, 74, 0.05)" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                        <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                    <filter id="softGlow">
+                        <feGaussianBlur stdDeviation="8" result="coloredBlur" />
+                        <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Sky Background -->
+                <rect width="1000" height="600" fill="url(#skyGrad)" />
+
+                <!-- The Sun -->
+                <circle cx="200" cy="150" r="60" fill="url(#sunGrad)" filter="url(#softGlow)" opacity="0.8" />
+
+                <!-- Birds in the Distance -->
+                <g fill="#4a5c4a" opacity="0.6">
+                    <path d="M 600 120 Q 610 110 620 120 Q 610 115 600 120 Z" />
+                    <path d="M 620 120 Q 630 110 640 120 Q 630 115 620 120 Z" />
+
+                    <path d="M 650 140 Q 658 132 666 140 Q 658 136 650 140 Z" />
+                    <path d="M 666 140 Q 674 132 682 140 Q 674 136 666 140 Z" />
+
+                    <path d="M 580 155 Q 586 148 592 155 Q 586 152 580 155 Z" />
+                    <path d="M 592 155 Q 598 148 604 155 Q 598 152 592 155 Z" />
+                </g>
+
+                <!-- Background Mountains (Lighter) -->
+                <path d="M-100,600 L150,250 L350,400 L600,150 L850,350 L1100,600 Z" fill="url(#mountainBase)" />
+                <!-- Background Snowcaps -->
+                <path d="M150,250 L200,287.5 L175,320 L150,280 L125,320 L100,287.5 Z" fill="#ffffff" opacity="0.9" />
+                <path d="M600,150 L650,190 L625,230 L590,190 L560,230 L535,190 Z" fill="#ffffff" opacity="0.9" />
+
+                <!-- Foreground Mountains (Darker, sharper) -->
+                <path d="M0,600 L400,100 L650,450 L950,200 L1100,350 L1100,600 Z" fill="url(#mountainFore)" />
+                <!-- Foreground Snowcaps -->
+                <path d="M400,100 L450,170 L410,210 L390,160 L350,220 L330,170 Z" fill="#ffffff" opacity="0.95" />
+                <path d="M950,200 L980,240 L950,270 L930,230 L900,280 L880,240 Z" fill="#ffffff" opacity="0.95" />
+
+                <!-- Mountain Ridges / Definition Lines -->
+                <path d="M400,100 L480,280 L450,450" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" />
+                <path d="M400,100 L320,350" stroke="rgba(0,0,0,0.05)" stroke-width="3" fill="none" />
+                <path d="M950,200 L920,350" stroke="rgba(0,0,0,0.05)" stroke-width="2" fill="none" />
+
+                <!-- The Straight Partnership Path (Left to Peak) -->
+                <path id="partnership-path" d="M100,550 L400,100" stroke="var(--accent)" stroke-width="8"
+                    stroke-dasharray="10,10" fill="none" filter="url(#glow)" />
+
+                <!-- The Winding Traditional Services Path -->
+                <path id="ts-path"
+                    d="M100,550 C 300,550 200,400 450,450 C 600,450 650,350 800,300 C 850,300 930,250 950,200"
+                    stroke="var(--primary)" stroke-width="4" stroke-dasharray="6,6" fill="none" opacity="0.6" />
+            </svg>
+
+            <!-- Partnership Summit Node -->
+            <a href="#sherpa-advantage" class="trail-node partnership-summit"
+                style="left: 40%; top: 16%; transform: translate(-50%, -50%);">
+                <div class="node-icon"><i class="fa-solid fa-flag"></i></div>
+            </a>
+
+
+            <!-- Partnership Path Nodes (Intermediate) -->
+            <a href="#sherpa-advantage" class="trail-node pp-node"
+                style="left: 17.50%; top: 72.91%; transform: translate(-50%, -50%);">
+                <i class="fa-solid fa-flag node-flag pp-flag"></i>
+            </a>
+            <a href="#sherpa-advantage" class="trail-node pp-node"
+                style="left: 25.00%; top: 54.17%; transform: translate(-50%, -50%);">
+                <i class="fa-solid fa-flag node-flag pp-flag"></i>
+            </a>
+            <a href="#sherpa-advantage" class="trail-node pp-node"
+                style="left: 32.50%; top: 35.42%; transform: translate(-50%, -50%);">
+                <i class="fa-solid fa-flag node-flag pp-flag"></i>
+            </a>
+
+            <!-- Traditional Services Nodes (7 waypoints) -->
+            <!-- Approximate percentages corresponding to the SVG curve -->
+            <!-- Base camp -->
+            <a href="index.html" class="trail-node ts-node" data-idx="0"
+                style="left: 10.00%; top: 91.67%; transform: translate(-50%, -50%);">
+                <div class="node-label">Basecamp</div>
+            </a>
+            <a href="#service-competitor-analysis" class="trail-node ts-node" data-idx="1"
+                style="left: 21.79%; top: 86.33%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>Competitor Analysis</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+            <a href="#service-operational-review" class="trail-node ts-node" data-idx="2"
+                style="left: 31.65%; top: 74.15%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>Operational Review</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+            <a href="#service-quality-assessment" class="trail-node ts-node" data-idx="3"
+                style="left: 45.89%; top: 74.98%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>Quality Assessment</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+            <a href="#service-marketing-strategy" class="trail-node ts-node" data-idx="4"
+                style="left: 58.72%; top: 69.28%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>Marketing Strategy</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+            <a href="#service-leadership-coaching" class="trail-node ts-node" data-idx="5"
+                style="left: 70.97%; top: 56.79%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>Leadership Coaching</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+            <a href="#service-ai-integration" class="trail-node ts-node" data-idx="6"
+                style="left: 84.32%; top: 48.48%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>AI Integration Review</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+            <a href="#service-strategy-development" class="trail-node ts-node" data-idx="7"
+                style="left: 95.00%; top: 33.33%; transform: translate(-50%, -50%);">
+                <div class="node-tooltip">
+                    <h4>Strategy Development</h4>
+                </div>
+                <i class="fa-solid fa-flag node-flag"></i>
+            </a>
+
+            <!-- Animated Followers Container -->
+            <div id="followers-container"></div>
+            <!-- Path Legends -->
+            <div class="map-legend-frame">
+                <div class="legend-title">Trail Routes</div>
+                <div class="path-legends">
+                    <div class="legend-box legend-accent">
+                        <h4>The Partnership Path</h4>
+                        <p>Zero-Cost Assessment<br>Performance-Based Solution</p>
+                    </div>
+                    <div class="legend-box legend-primary">
+                        <h4>Services Path</h4>
+                        <p>Traditional Consulting<br>Hourly & Project-Based</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        // Refined Convoy Animation Logic
+        document.addEventListener("DOMContentLoaded", () => {
+            const tsPath = document.getElementById('ts-path');
+            const ppPath = document.getElementById('partnership-path');
+            const container = document.getElementById('followers-container');
+            if (!tsPath || !ppPath || !container) return;
+
+            const tsLength = tsPath.getTotalLength();
+            const ppLength = ppPath.getTotalLength();
+
+            // Nodes mapped to their approximate path fractions
+            const tsNodes = [
+                { frac: 0.13, el: document.querySelectorAll('.ts-node')[1] }, // Competitor Analysis
+                { frac: 0.26, el: document.querySelectorAll('.ts-node')[2] }, // Operational Review
+                { frac: 0.41, el: document.querySelectorAll('.ts-node')[3] }, // Quality Assessment
+                { frac: 0.55, el: document.querySelectorAll('.ts-node')[4] }, // Marketing Strategy
+                { frac: 0.70, el: document.querySelectorAll('.ts-node')[5] }, // Leadership Coaching
+                { frac: 0.85, el: document.querySelectorAll('.ts-node')[6] }, // AI Integration
+                { frac: 0.95, el: document.querySelectorAll('.ts-node')[7] }  // Strategy Development
+            ];
+
+            const sherpaIcons = ["fa-person-hiking"];
+            const peopleIcons = ["fa-person-walking", "fa-person-walking-with-cane", "fa-person", "fa-person-dress"];
+
+            const sherpaColors = ["var(--accent)"];
+            const peopleColors = ["#4a5c4a", "#5a6d5a", "var(--primary)", "#6b8a6b"];
+
+            function spawnConvoy() {
+                const pathChoice = Math.random() < 0.3 ? 'pp' : 'ts';
+                const convoySpeed = 15000 + Math.random() * 10000;
+                const convoyPauses = true;
+
+                const targetPath = pathChoice === 'ts' ? tsPath : ppPath;
+                const totalLength = pathChoice === 'ts' ? tsLength : ppLength;
+
+                // Unified convoy state
+                const convoy = {
+                    progress: 0,
+                    isPaused: false,
+                    pauseTimeRemaining: 0,
+                    members: []
+                };
+
+                // Helper to create a member
+                function createMember(isSherpa, delayOffset) {
+                    const follower = document.createElement("div");
+                    follower.className = "walking-sherpa";
+
+                    const iconList = isSherpa ? sherpaIcons : peopleIcons;
+                    const colorList = isSherpa ? sherpaColors : peopleColors;
+
+                    const iconClass = iconList[Math.floor(Math.random() * iconList.length)];
+                    const color = colorList[Math.floor(Math.random() * colorList.length)];
+
+                    follower.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+                    follower.style.color = color;
+                    follower.style.zIndex = isSherpa ? "20" : "15";
+
+                    const scale = isSherpa ? 1.0 : (0.7 + Math.random() * 0.2);
+
+                    container.appendChild(follower);
+
+                    convoy.members.push({
+                        el: follower,
+                        offsetProgress: delayOffset / convoySpeed,
+                        scale: scale
+                    });
+                }
+
+                createMember(true, 0);
+
+                const numFollowers = Math.floor(Math.random() * 3) + 1;
+                for (let i = 0; i < numFollowers; i++) {
+                    createMember(false, (i + 1) * 200 + Math.random() * 100);
+                }
+
+                let lastTime = performance.now();
+                let activeNodeTooltip = null;
+
+                function animateConvoy(time) {
+                    const dt = time - lastTime;
+                    lastTime = time;
+
+                    if (convoy.isPaused) {
+                        convoy.pauseTimeRemaining -= dt;
+                        if (convoy.pauseTimeRemaining <= 0) {
+                            convoy.isPaused = false;
+                            if (activeNodeTooltip) {
+                                activeNodeTooltip.style.visibility = '';
+                                activeNodeTooltip.style.opacity = '';
+                                activeNodeTooltip.style.zIndex = '';
+                                activeNodeTooltip = null;
+                            }
+                            // 40% chance to disappear after a service stop
+                            convoy.pauseCount = (convoy.pauseCount || 0) + 1;
+                            if (convoy.pauseCount >= 1 && Math.random() < 0.4) {
+                                // Fade out and remove
+                                for (let member of convoy.members) {
+                                    member.el.style.transition = 'opacity 0.8s';
+                                    member.el.style.opacity = '0';
+                                }
+                                setTimeout(() => {
+                                    for (let member of convoy.members) {
+                                        member.el.remove();
+                                    }
+                                }, 800);
+                                return; // stop animation loop
+                            }
+                        }
+                    } else {
+                        const oldProgress = convoy.progress;
+                        convoy.progress += dt / convoySpeed;
+
+                        if (pathChoice === 'ts' && convoyPauses) {
+                            for (let nodeObj of tsNodes) {
+                                if (oldProgress < nodeObj.frac && convoy.progress >= nodeObj.frac) {
+                                    if (Math.random() < 0.4) {
+                                        convoy.isPaused = true;
+                                        convoy.pauseTimeRemaining = 2500 + Math.random() * 1500;
+                                        convoy.progress = nodeObj.frac;
+
+                                        if (nodeObj.el) {
+                                            const tooltip = nodeObj.el.querySelector('.node-tooltip');
+                                            if (tooltip) {
+                                                activeNodeTooltip = tooltip;
+                                                tooltip.style.visibility = 'visible';
+                                                tooltip.style.opacity = '1';
+                                                tooltip.style.zIndex = '100';
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    let allFinished = true;
+
+                    for (let member of convoy.members) {
+                        let memberProgress = convoy.progress - member.offsetProgress;
+
+                        if (memberProgress < 0) {
+                            member.el.style.display = 'none';
+                            allFinished = false;
+                            continue;
+                        } else {
+                            member.el.style.display = 'block';
+                        }
+
+                        if (memberProgress >= 1) {
+                            member.el.style.display = 'none';
+                            continue;
+                        }
+
+                        allFinished = false;
+
+                        const pt = targetPath.getPointAtLength(memberProgress * totalLength);
+
+                        const xPct = (pt.x / 1000) * 100;
+                        const yPct = (pt.y / 600) * 100;
+
+                        let flip = 1;
+                        if (memberProgress < 0.99) {
+                            const nextPt = targetPath.getPointAtLength((memberProgress + 0.01) * totalLength);
+                            if (nextPt.x < pt.x) {
+                                flip = -1;
+                            }
+                        }
+
+                        member.el.style.left = `${xPct}%`;
+                        member.el.style.top = `${yPct}%`;
+                        member.el.style.transform = `translate(-50%, -100%) scaleX(${flip}) scale(${member.scale})`;
+
+                        const bounce = convoy.isPaused ? 0 : Math.abs(Math.sin(time / 150)) * 5;
+                        member.el.style.marginTop = `-${bounce}px`;
+                    }
+
+                    if (allFinished) {
+                        for (let member of convoy.members) {
+                            member.el.remove();
+                        }
+                        return;
+                    }
+
+                    requestAnimationFrame(animateConvoy);
+                }
+
+                requestAnimationFrame(animateConvoy);
+            }
+
+            spawnConvoy();
+            setTimeout(spawnConvoy, 2000);
+            setTimeout(spawnConvoy, 4000);
+            setTimeout(spawnConvoy, 6000);
+
+            setInterval(() => {
+                spawnConvoy();
+            }, 4000 + Math.random() * 2000);
+        });
+    </script>
+    <script>
+        // Scroll to a target element, offset by the fixed header height
+        function scrollToSection(target) {
+            if (!target) return;
+            const headerHeight = document.querySelector('header') ? document.querySelector('header').offsetHeight : 80;
+            const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 8;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        }
+
+        // Trail-node flags → scroll to service detail
+        document.querySelectorAll('a.trail-node').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('href').replace('#', '');
+                scrollToSection(document.getElementById(id));
+            });
+        });
+    </script>
+
+    <section id="sherpa-advantage" class="partnership-hero">
+        <div class="partnership-container">
+            <div class="partnership-text">
+                <div class="hero-badge">The Sherpa Advantage</div>
+                <h2 data-cms="partners-head">The Sherpa Partnership Model</h2>
+                <p class="lead" data-cms="partners-desc">You take zero financial risk. We succeed only when you do,
+                    unlocking meaningful gains in operational efficiency and profitability.</p>
+
+                <div class="path-steps">
+                    <div class="path-step">
+                        <div class="step-number">01</div>
+                        <div class="step-content">
+                            <h4 data-cms="step1-head">Complimentary Strategic Discovery</h4>
+                            <p data-cms="step1-desc">We begin with a thorough, no-cost diagnostic review of your
+                                operations, technology stack, and organizational structure—uncovering hidden
+                                inefficiencies, untapped opportunities, and sources of profit leakage that often go
+                                unnoticed.</p>
+                        </div>
+                    </div>
+                    <div class="path-step">
+                        <div class="step-number">02</div>
+                        <div class="step-content">
+                            <h4 data-cms="step2-head">Aligned, Results-Driven Partnership</h4>
+                            <p data-cms="step2-desc">Only when clear potential for improvement is identified do we
+                                proceed. We then design and execute targeted interventions to capture that value. Our
+                                compensation is purely performance-contingent: we earn <strong>27% of the verifiable
+                                    incremental profit or cost savings</strong> we help generate. Should our work not
+                                deliver measurable financial benefit, you owe nothing.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="partnership-case-study">
+                <div class="case-card">
+                    <div class="case-header">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span data-cms="case-label">Real Impact Example</span>
+                    </div>
+                    <h3 data-cms="case-title">AI Code Vibing</h3>
+                    <p data-cms="case-desc">By integrating advanced AI code vibing workflows into the client's
+                        development pipeline, we multiplied their engineering throughput. This velocity surge allowed
+                        them to launch critical new features months ahead of schedule, driving massive new subscription
+                        revenue.</p>
+
+                    <div class="math-breakdown">
+                        <div class="math-row">
+                            <span data-cms="math-1-lbl">Original Dev Throughput:</span>
+                            <strong data-cms="math-1-val">Baseline (1x)</strong>
+                        </div>
+                        <div class="math-row" style="color: #4a5c4a;">
+                            <span data-cms="math-2-lbl">AI-Augmented Velocity:</span>
+                            <strong data-cms="math-2-val">300% Increase (3x)</strong>
+                        </div>
+                        <div class="math-row">
+                            <span data-cms="math-3-lbl">Time-to-Market Accelerated:</span>
+                            <strong data-cms="math-3-val">4 Months Early</strong>
+                        </div>
+                        <div class="math-divider"></div>
+                        <div class="math-row">
+                            <span data-cms="math-4-lbl">Gross Revenue Gen:</span>
+                            <strong data-cms="math-4-val" style="color:var(--primary);">$560,000 / yr</strong>
+                        </div>
+                        <div class="math-row">
+                            <span data-cms="math-5-lbl">Sherpa Performance Fee (27%):</span>
+                            <strong data-cms="math-5-val" style="color:#000;">-$151,200</strong>
+                        </div>
+                    </div>
+
+                    <div class="our-fee" style="background:#3C7A3C;">
+                        <span data-cms="fee-lbl">Net Additional Profit:</span>
+                        <strong data-cms="fee-val" style="color:#fff;">$408,800 / yr</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Detail Sections -->
+    <section id="service-competitor-analysis" class="service-detail">
+        <h3><i class="fa-solid fa-search service-detail-icon"></i> Competitive Ascent: Scout the Terrain,
+            Claim the High Ground</h3>
+        <p class="lead">We don't just map the landscape—we lead you through it. As your Sherpa, we guide you past rival
+            peaks, reveal hidden routes to advantage, and help you summit market dominance with confidence and zero
+            downside risk.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Rivals lurk in the fog of competition, blocking paths with superior positioning, pricing traps, or
+                untapped customer loyalty. Without a seasoned guide who’s traversed these routes before, your ascent
+                slows, and opportunities slip away.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>We blaze the trail ahead:</p>
+            <ul>
+                <li><strong>Terrain Scouting</strong> — Identify every competitor (direct, indirect, emerging) and chart
+                    their positions, strengths, and vulnerabilities.</li>
+                <li><strong>Path Analysis</strong> — Deeply survey pricing routes, feature strongholds, go-to-market
+                    trails, and customer sentiment slopes to expose exploitable gaps.</li>
+                <li><strong>Summit Strategy</strong> — Plot clear paths to differentiation, faster capture of share, and
+                    sustained leads.</li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive (Deliverables)</strong>
+            <ul>
+                <li>A detailed Competitor Terrain Matrix (visual map of the landscape)</li>
+                <li>Actionable Trail Recommendations to exploit weaknesses</li>
+                <li>A Differentiation Roadmap guiding short- and long-term moves to higher ground</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> Past ascents have delivered up to 200% faster market gains. We only earn our
+            27% share of the verifiable elevation in profit or revenue—no summit, no fee.
+        </div>
+
+        <div class="service-cta">
+            <p>Ready to Lead the Ascent? Schedule your Basecamp Consultation. We'll scout your competitive terrain
+                risk-free and show the clearest path forward.</p>
+            <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+    </section>
+    <section id="service-operational-review" class="service-detail">
+        <h3><i class="fa-solid fa-cogs service-detail-icon"></i> Operational Ascent: Clear the Path,
+            Lighten the Load, Accelerate to the Summit</h3>
+        <p class="lead">We walk beside you to eliminate drag and bottlenecks. As your Sherpa, we audit the route, remove
+            obstacles, and optimize every step so your operations scale smoothly and efficiently—risk-free.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Hidden inefficiencies create avalanches of waste: slow cycles, misallocated gear (resources/tech), and
+                clogged trails that exhaust teams and erode margins.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>We lead the way through optimization:</p>
+            <ul>
+                <li><strong>Full Route Audit</strong> — Map end-to-end workflows, inspect your tech stack and resource
+                    allocation.</li>
+                <li><strong>Obstacle Removal</strong> — Use value-stream mapping and lean techniques to clear
+                    bottlenecks and reduce drag.</li>
+                <li><strong>Summit Blueprint</strong> — Prioritize fixes, provide tools for sustained speed.</li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive</strong>
+            <ul>
+                <li>Workflow & Bottleneck Maps</li>
+                <li>Prioritized Ascent Plan with timelines and expected gains</li>
+                <li>KPI Summit Dashboard Templates</li>
+                <li>Change-Management Guidance to keep momentum high</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> Clients reach 20–50% faster cycles and major cost reductions. Our fee? Only
+            27% of the verifiable altitude gained.
+        </div>
+
+        <div class="service-cta">
+            <p>Ready to Scale the Heights? Start with a free Basecamp session—we carry the initial load.</p>
+            <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+    </section>
+    <section id="service-quality-assessment" class="service-detail">
+        <h3><i class="fa-solid fa-check-circle service-detail-icon"></i> Quality Ascent: Fortify Every
+            Step, Reach Flawless Summits</h3>
+        <p class="lead">We ensure no slip-ups derail the climb. As your Sherpa, we evaluate and strengthen quality
+            systems so your products/services stand unbreakable at the peak—delivering lasting client trust.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Defects and inconsistencies create dangerous crevasses: rework, complaints, lost loyalty, and eroded
+                reputation.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>We secure the route:</p>
+            <ul>
+                <li><strong>Quality Terrain Benchmarking</strong> — Against ISO, Six Sigma, and industry standards.</li>
+                <li><strong>Root-Cause Expedition</strong> — Deep analysis of defects, complaints, and findings.</li>
+                <li><strong>Reinforcement Plan</strong> — Build controls, training, and continuous improvement loops.
+                </li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive</strong>
+            <ul>
+                <li>Quality Maturity Assessment Report</li>
+                <li>Prevention & Control Toolkit</li>
+                <li>Continuous Improvement Cycles Framework</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> 40–70% defect reductions and soaring satisfaction scores. We succeed only
+            when you do.
+        </div>
+
+        <div class="service-cta">
+            <p>Ready to Build an Unbreakable Ascent? Book your no-risk review.</p>
+            <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+    </section>
+    <section id="service-marketing-strategy" class="service-detail">
+        <h3><i class="fa-solid fa-bullhorn service-detail-icon"></i> Marketing Ascent: Chart the Funnel
+            Trail, Convert at Every Camp</h3>
+        <p class="lead">We guide data-driven campaigns that resonate and pull in revenue. As your Sherpa, we map the
+            full marketing route—from awareness basecamp to conversion summit—ensuring efficient, high-ROI progress.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Scattered efforts waste oxygen (budget) on wrong trails, missing ideal audiences and growth velocity.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>We lead the full-funnel journey:</p>
+            <ul>
+                <li><strong>Audience & Goal Scouting</strong> — Segment and align with business objectives.</li>
+                <li><strong>Messaging & Channel Trailblazing</strong> — Craft frameworks, optimize mix.</li>
+                <li><strong>Execution & Tracking</strong> — Tactical plans, briefs, real-time dashboards.</li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive</strong>
+            <ul>
+                <li>Full-Funnel Marketing Route Plan</li>
+                <li>Messaging & Audience Playbooks</li>
+                <li>Tactical Calendar & ROI Dashboards</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> 20–60% conversion uplifts and efficient scaling.
+        </div>
+
+        <div class="service-cta">
+            <p>Ready to Ignite the Ascent? Schedule Basecamp now.</p>
+            <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+    </section>
+    <section id="service-leadership-coaching" class="service-detail">
+        <h3><i class="fa-solid fa-user-tie service-detail-icon"></i> Leadership Ascent: Elevate Executives
+            to Lead the Expedition</h3>
+        <p class="lead">We climb alongside leaders to build vision, presence, and alignment. As your Sherpa, we provide
+            one-on-one guidance so your executives guide teams to higher peaks with confidence.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Decision fog, communication gaps, and change resistance slow the whole expedition.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>Personalized summit preparation:</p>
+            <ul>
+                <li><strong>Assessment Basecamp</strong> — Psychometrics, 360° feedback.</li>
+                <li><strong>Tailored Trail Development</strong> — Focus on strategy, influence, resilience.</li>
+                <li><strong>Ongoing Summit Support</strong> — Accountability and application.</li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive</strong>
+            <ul>
+                <li>Custom Leadership Development Route</li>
+                <li>Enhanced Executive Toolkit</li>
+                <li>Measurable gains in presence and team alignment</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> 20–40% better alignment and execution speed.
+        </div>
+
+        <div class="service-cta">
+            <p>Ready to Elevate Your Leaders? Schedule your consultation now.</p>
+            <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+    </section>
+    <section id="service-ai-integration" class="service-detail">
+        <h3><i class="fa-solid fa-brain service-detail-icon"></i> AI Ascent: Navigate the Frontier, Deploy
+            Intelligence That Wins</h3>
+        <p class="lead">We lead pragmatic AI adoption—assessing terrain, prototyping paths, and only scaling proven
+            routes. As your Sherpa, we ensure AI accelerates your climb without unnecessary risks.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Hype clouds judgment; poor data or rushed deployments lead to dead ends.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>Step-by-step frontier exploration:</p>
+            <ul>
+                <li><strong>Readiness Scouting</strong> — Data, models, architecture review.</li>
+                <li><strong>Proof-of-Concept Expeditions</strong> — Build/test with clear value criteria.</li>
+                <li><strong>Summit Roadmap</strong> — Technical path, risk safeguards, ROI forecast.</li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive</strong>
+            <ul>
+                <li>AI Integration Roadmap</li>
+                <li>Risk Mitigation Gear</li>
+                <li>Prioritized Value Initiatives</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> Like our AI Code Vibing ascent: 300% throughput, massive revenue
+            acceleration.
+        </div>
+
+        <div class="service-cta">
+            <p>Ready to Harness the Frontier? Book your Basecamp review.</p>
+            <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+    </section>
+    <section id="service-strategy-development" class="service-detail">
+        <h3><i class="fa-solid fa-compass service-detail-icon"></i> Strategy Ascent: Plot the Long-Term Route
+            to Lasting Summits</h3>
+        <p class="lead">We facilitate clear, data-grounded visions and executable roadmaps. As your Sherpa, we guide
+            workshops, scenario planning, and governance so your organization reaches sustainable heights.</p>
+
+        <div class="service-subsection">
+            <strong>The Challenge</strong>
+            <p>Unclear priorities and shifting conditions cause detours and stalled progress.</p>
+        </div>
+
+        <div class="service-subsection">
+            <strong>Our Sherpa-Led Approach</strong>
+            <p>Collaborative route planning:</p>
+            <ul>
+                <li><strong>Vision & Analysis Basecamp</strong> — Workshops, market/scenario scouting.</li>
+                <li><strong>Goal & Portfolio Mapping</strong> — Define objectives across products/markets.</li>
+                <li><strong>Execution Trail</strong> — Milestones, governance for adaptive climbing.</li>
+            </ul>
+        </div>
+
+        <div class="service-subsection">
+            <strong>What You Receive</strong>
+            <ul>
+                <li>Living Strategy Document</li>
+                <li>Detailed Ascent Roadmap</li>
+                <li>Governance Framework</li>
+            </ul>
+        </div>
+
+        <div class="service-impact">
+            <strong>Proven Impact:</strong> Clearer direction, faster pivots, accelerated growth.
+        </div>
+
+
+    </section>
+
+
+
+
+
+
+
+
+    <section class="cta-form-section">
+        <h2>Ready for the Climb?</h2>
+        <a href="contact.html" class="btn btn-primary" style="display:inline-block; margin: 1rem 0;">Schedule Basecamp
+            Consultation</a>
+        <p class="trust-bullets">No upfront fees &bull; Verifiable results only &bull; 100% alignment</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+    </footer>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tsPath = document.getElementById('ts-path');
+            const totalLength = tsPa
+            const fractions = [0.0, 0.13, 0.26, 0.41, 0.55, 0.70, 0.85, 0.95];
+            const out = [];
+            for (let f of fractions) {
+                const pt = tsPath.getPointAtLength(f * totalLength);
+                out.push(`left: ${(pt.x / 10).toFixed(2)}%; top: ${(pt.y / 6).toFixed(2)}%;`);
+            }
+            console.log("---- NODE POSITIONS ----");
+            console.log(out.join('\n'));
+        });
+    </script>
+
+</body>
+
+</html>
