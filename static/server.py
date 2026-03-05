@@ -183,9 +183,26 @@ async def update_user_password(user_id: int, update: PasswordUpdate, user: str =
     return {"status": "success"}
 import subprocess
 
+@app.get("/api/sync-progress")
+async def sync_progress(user: str = Depends(require_admin)):
+    progress_file = r"C:\tmp\github_sync_progress.json"
+    if os.path.exists(progress_file):
+        try:
+            with open(progress_file, 'r') as f:
+                import json
+                return JSONResponse(json.load(f))
+        except:
+            return JSONResponse({"status": "error", "message": "Failed to read progress"})
+    return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
+
 @app.post("/api/sync-github")
 async def sync_github(user: str = Depends(require_admin)):
     try:
+        # Clear previous progress file
+        progress_file = r"C:\tmp\github_sync_progress.json"
+        if os.path.exists(progress_file):
+            os.remove(progress_file)
+            
         # Run the existing upload script
         # Using the same interpreter and absolute path for reliability
         script_path = r"C:\tmp\github_final_upload.py"
