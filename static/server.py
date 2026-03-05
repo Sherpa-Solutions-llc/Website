@@ -11,6 +11,9 @@ import database
 
 from fastapi.middleware.cors import CORSMiddleware
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
 app = FastAPI()
 
 app.add_middleware(
@@ -128,13 +131,16 @@ import os
 
 @app.post("/api/upload")
 async def upload_image(file: UploadFile = File(...), user: str = Depends(require_admin)):
-    file_location = os.path.join("static", file.filename)
+    # Ensure static directory exists
+    if not os.path.exists(STATIC_DIR):
+        os.makedirs(STATIC_DIR)
+        
+    file_location = os.path.join(STATIC_DIR, file.filename)
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
-    # Automatically update the database with this new static path if the original 
-    # client caller wants to wrap this endpoint in a chain. 
-    # For now, we just return the saved relative path so the frontend can submit it to the CMS.
-    return {"url": f"/{file_location}"}
+    
+    # Return the relative URL for browser use
+    return {"url": f"/static/{file.filename}"}
 
 # --- Admin API Routes ---
 
