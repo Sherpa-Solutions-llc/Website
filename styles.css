@@ -62,6 +62,7 @@ header {
     object-fit: contain;
     border-radius: 8px;
     transition: var(--transition);
+    mix-blend-mode: multiply;
 }
 
 .logo-container img:hover {
