@@ -1203,6 +1203,15 @@ footer {
     bottom: 100%;
 }
 
+/* Toolpit position fix for edge nodes */
+.node-tooltip.tooltip-left-limit {
+    transform: translateX(-85%);
+}
+
+.node-tooltip.tooltip-left-limit::after {
+    left: 85%;
+}
+
 
 
 .node-tooltip h4 {
