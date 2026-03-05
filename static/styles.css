@@ -1372,3 +1372,186 @@ footer {
     scroll-margin-top: 120px;
     /* Offset for fixed header */
 }
+
+/* --- Mobile Responsiveness --- */
+
+/* Hamburger Menu Button */
+.menu-toggle {
+    display: none;
+    font-size: 1.8rem;
+    color: var(--primary);
+    cursor: pointer;
+    transition: var(--transition);
+    z-index: 1001;
+}
+
+@media (max-width: 1024px) {
+    header {
+        padding: 0.8rem 5% !important;
+        height: 70px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .logo-container img {
+        height: 50px !important;
+    }
+
+    .menu-toggle {
+        display: block !important;
+        order: 2;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 70px);
+        background: var(--bg-color);
+        flex-direction: column;
+        align-items: center;
+        padding-top: 2rem;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        display: flex !important;
+    }
+
+    .nav-links.active {
+        left: 0;
+    }
+
+    .nav-links li {
+        margin: 1rem 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links a {
+        font-size: 1.3rem;
+        display: block;
+        padding: 1rem;
+    }
+
+    .nav-cta {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Hero Section Stacking */
+    .hero {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        padding-top: 100px !important;
+        min-height: auto !important;
+        padding-bottom: 3rem !important;
+        gap: 2rem !important;
+    }
+
+    .hero-content {
+        max-width: 100% !important;
+        text-align: center !important;
+        padding: 0 5% !important;
+        margin-bottom: 2rem !important;
+        animation: none !important;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-content p {
+        font-size: 1rem !important;
+        margin-top: 1rem !important;
+    }
+
+    .hero-buttons {
+        justify-content: center !important;
+        margin-top: 2rem !important;
+    }
+
+    .hero-animation {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 350px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .trail-svg {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 350px !important;
+    }
+
+    /* Trail elements scaling */
+    .trail-node circle {
+        r: 12 !important;
+    }
+
+    .flag-icon {
+        font-size: 1.4rem !important;
+    }
+
+    /* Sections */
+    section {
+        padding: 3rem 5% !important;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem !important;
+    }
+
+    /* Features Grid */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    /* Services cards */
+    .service-card {
+        padding: 1.2rem !important;
+    }
+
+    /* Merchandise Grid */
+    .merch-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 0.5rem 5% !important;
+    }
+
+    .hero-content h1 {
+        font-size: 1.7rem !important;
+    }
+
+    .logo-container img {
+        height: 40px !important;
+    }
+
+    .hero-buttons {
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+    }
+
+    .hero-buttons .btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .logo-container {
+        gap: 0.5rem !important;
+    }
+}
