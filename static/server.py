@@ -22,7 +22,7 @@ app.add_middleware(
 )
 
 # Mount static files (css, images)
-app.mount("/static", StaticFiles(directory="."), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # In-memory session store for simplicity (token -> user_id)
 # In production, use Redis or signed JWT cookies
@@ -128,7 +128,7 @@ import os
 
 @app.post("/api/upload")
 async def upload_image(file: UploadFile = File(...), user: str = Depends(require_admin)):
-    file_location = f"static/{file.filename}"
+    file_location = os.path.join("static", file.filename)
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
     # Automatically update the database with this new static path if the original 
@@ -181,3 +181,30 @@ async def update_user_password(user_id: int, update: PasswordUpdate, user: str =
     # but for this demo any authenticated admin can change passwords.
     await database.edit_admin_password(user_id, update.new_password)
     return {"status": "success"}
+import subprocess
+
+@app.post("/api/sync-github")
+async def sync_github(user: str = Depends(require_admin)):
+    try:
+        # Run the existing upload script
+        # Using the same interpreter and absolute path for reliability
+        script_path = r"C:\tmp\github_final_upload.py"
+        python_exe = r"C:\Users\choos\AppData\Local\Python\pythoncore-3.14-64\python.exe"
+        
+        result = subprocess.run(
+            [python_exe, script_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return {"status": "success", "output": result.stdout}
+    except subprocess.CalledProcessError as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": f"Sync failed: {e.stderr}"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": str(e)}
+        )
