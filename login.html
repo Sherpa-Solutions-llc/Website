@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherpa Solutions LLC | Admin Login</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-color) 0%, rgba(122, 142, 99, 0.1) 100%);
+        }
+
+        .login-card {
+            background: #FFFFFF;
+            padding: 4rem 3rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .login-card .logo-container {
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-card h2 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .error-message {
+            color: #d9534f;
+            background: #fdf7f7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+            border: 1px solid #d9534f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-container">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC" data-cms="global-navbar-logo">
+            </div>
+            <h2>Admin Portal Access</h2>
+
+            <div id="errorBox" class="error-message">
+                <i class="fa-solid fa-circle-exclamation"></i> Invalid username or password.
+            </div>
+
+            <form action="/api/login" method="POST" class="contact-form" style="padding: 0; box-shadow: none;">
+                <div class="form-group" style="text-align: left;">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter admin username">
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter admin password">
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; margin-top: 1rem;">Secure Login <i
+                        class="fa-solid fa-arrow-right"></i></button>
+            </form>
+            <p style="margin-top: 2rem; color: var(--secondary); font-size: 0.9rem;">
+                <a href="/" style="color: var(--accent); text-decoration: none;"><i class="fa-solid fa-arrow-left"></i>
+                    Return to Main Site</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Check URL for error params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            document.getElementById('errorBox').style.display = 'block';
+        }
+    </script>
+    <script src="/static/cms.js"></script>
+</body>
+
+</html>
