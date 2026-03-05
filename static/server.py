@@ -195,6 +195,8 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
+import asyncio
+
 @app.post("/api/sync-github")
 async def sync_github(user: str = Depends(require_admin)):
     try:
@@ -208,18 +210,20 @@ async def sync_github(user: str = Depends(require_admin)):
         script_path = r"C:\tmp\github_final_upload.py"
         python_exe = r"C:\Users\choos\AppData\Local\Python\pythoncore-3.14-64\python.exe"
         
-        result = subprocess.run(
-            [python_exe, script_path],
-            capture_output=True,
-            text=True,
-            check=True
+        process = await asyncio.create_subprocess_exec(
+            python_exe, script_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
-        return {"status": "success", "output": result.stdout}
-    except subprocess.CalledProcessError as e:
-        return JSONResponse(
-            status_code=500,
-            content={"status": "error", "message": f"Sync failed: {e.stderr}"}
-        )
+        stdout, stderr = await process.communicate()
+        
+        if process.returncode != 0:
+            return JSONResponse(
+                status_code=500,
+                content={"status": "error", "message": f"Sync failed: {stderr.decode()}"}
+            )
+            
+        return {"status": "success", "output": stdout.decode()}
     except Exception as e:
         return JSONResponse(
             status_code=500,
