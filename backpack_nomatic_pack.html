@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Sherpa Solutions LLC | NOMATIC Travel Pack</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="/static/styles.css" rel="stylesheet" />
+  <style>
+    .product-detail {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .product-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .gallery-main {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8f8f8;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gallery-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: zoom-in;
+      transition: transform 0.3s;
+    }
+
+    .gallery-main img:hover {
+      transform: scale(1.03);
+    }
+
+    .thumb-strip {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .thumb-strip img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .thumb-strip img:hover,
+    .thumb-strip img.active {
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .product-title-lg {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .product-brand {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .product-price-lg {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0.8rem 0 1.2rem;
+    }
+
+    .product-desc {
+      color: #555;
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-head {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.4rem;
+      margin: 1.5rem 0 0.8rem;
+    }
+
+    .features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.2rem;
+    }
+
+    .features-list li {
+      padding: 0.4rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .features-list li::before {
+      content: "\f00c";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.8rem;
+      top: 0.5rem;
+    }
+
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    .specs-table tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    .specs-table td {
+      padding: 0.55rem 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .specs-table td:first-child {
+      font-weight: 600;
+      color: var(--primary);
+      width: 42%;
+    }
+
+    .specs-table td:last-child {
+      color: #555;
+    }
+
+    .btn-close-lg {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 1.5rem;
+    }
+
+    .btn-close-lg:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f0f4f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #444;
+    }
+
+    @media (max-width: 768px) {
+      .product-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC"
+          src="/static/sherpa_logo.png?v=1772586788" /></a></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="services.html">Our Services</a></li>
+      <li><a class="active" href="merchandise.html">Merchandise</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a class="btn btn-primary" href="contact.html">Start Your Ascent</a>
+  </header>
+
+  <div class="page-header">
+    <h1>NOMATIC Travel Pack</h1>
+    <p>The most functional bag ever made — for 1–3 day trips.</p>
+  </div>
+
+  <div class="product-detail">
+    <div class="product-layout">
+      <div>
+        <div class="gallery-main">
+          <img alt="NOMATIC Travel Pack" id="main-img" src="/static/bp_nomatic_pack_1_user.jpg?v=1772586788" />
+        </div>
+        <div class="thumb-strip" id="thumb-strip">
+          <img alt="View 1" class="active" onclick="switchImg(this)" src="/static/bp_nomatic_pack_1_user.jpg?v=1772586788" />
+          <img alt="View 2" onclick="switchImg(this)" src="/static/bp_nomatic_pack_2.png?v=1772586788" />
+          <img alt="View 3" onclick="switchImg(this)" src="/static/bp_nomatic_pack_3.png?v=1772586788" />
+          <img alt="View 4" onclick="switchImg(this)" src="/static/bp_nomatic_pack_4.png?v=1772586788" />
+          <img alt="View 5" onclick="switchImg(this)" src="/static/bp_nomatic_pack_5_user.jpg?v=1772586788" />
+          <img alt="View 6" onclick="switchImg(this)" src="/static/bp_nomatic_pack_6.png?v=1772586788" />
+        </div>
+      </div>
+      <div>
+        <div class="product-brand">NOMATIC </div>
+        <h2 class="product-title-lg">NOMATIC Travel Pack</h2>
+        
+        <div class="product-price-lg">$359.99</div>
+        <p class="product-desc">
+          The NOMATIC Travel Pack is your ultimate companion for life's adventures. Its innovative, patented
+          strap system
+          seamlessly transforms this backpack into a sleek briefcase for professional moments. With a full
+          perimeter zipper
+          granting access to 22 purposeful pockets — including RFID-safe storage and hidden compartments —
+          your valuables
+          stay secure at all times. Navigate airport security effortlessly with the TSA-approved fold-down
+          laptop pocket.
+          
+        </p>
+        <div class="section-head">Key Features</div>
+        <ul class="features-list">
+          <li>Converts from backpack to briefcase carry via patented strap system</li>
+          <li>TSA-approved fold-down laptop &amp; tablet compartment</li>
+          <li>Expands from 20L to 30L (or 14L to 21L in smaller version)</li>
+          <li>22 purposeful pockets including RFID-safe &amp; hidden compartments</li>
+          <li>Luggage handle pass-through integrates with roller bags</li>
+          <li>Magnetic water bottle pockets close when not in use</li>
+          <li>Includes sunglasses case &amp; retractable key leash</li>
+          <li>100% vegan construction with water-resistant tarpaulin shell</li>
+          <li>Durable YKK zippers throughout</li>
+          <li>Ideal for 1–3 day trips; available in 20L and 14L sizes</li>
+        </ul>
+        <div class="section-head">Specifications</div>
+        <table class="specs-table">
+          <tr>
+            <td>Capacity</td>
+            <td>20L (expands to 30L) | 14L (expands to 21L)</td>
+          </tr>
+          <tr>
+            <td>Weight (20L)</td>
+            <td>4.1 lbs</td>
+          </tr>
+          <tr>
+            <td>Weight (14L)</td>
+            <td>3.5 lbs</td>
+          </tr>
+          <tr>
+            <td>Dimensions (20L)</td>
+            <td>18.5" H × 12" W × 6–9.5" D</td>
+          </tr>
+          <tr>
+            <td>Dimensions (14L)</td>
+            <td>17.5" H × 11" W × 5.5–6" D</td>
+          </tr>
+          <tr>
+            <td>Laptop Compartment</td>
+            <td>Up to 16" (20L) / 15" (14L)</td>
+          </tr>
+          <tr>
+            <td>Tablet Compartment</td>
+            <td>Up to 14" (20L) / 13" (14L)</td>
+          </tr>
+          <tr>
+            <td>Shell Material</td>
+            <td>Water-resistant tarpaulin (nylon/polyester)</td>
+          </tr>
+          <tr>
+            <td>Zippers</td>
+            <td>Durable YKK throughout</td>
+          </tr>
+          <tr>
+            <td>Construction</td>
+            <td>100% vegan</td>
+          </tr>
+          
+        </table>
+        <a class="btn-close-lg" href="merch_backpacks.html"><i class="fas fa-arrow-left"></i> Back to
+          Backpacks</a>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+  </footer>
+  <script>function switchImg(el) { document.getElementById('main-img').src = el.src; document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active')); el.classList.add('active'); }</script>
+</body>
+
+</html>

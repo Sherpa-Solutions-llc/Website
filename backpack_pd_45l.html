@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Sherpa Solutions LLC | Peak Design Travel Backpack 45L</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="/static/styles.css" rel="stylesheet" />
+  <style>
+    .product-detail {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .product-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .gallery-main {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8f8f8;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gallery-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: zoom-in;
+      transition: transform 0.3s;
+    }
+
+    .gallery-main img:hover {
+      transform: scale(1.03);
+    }
+
+    .thumb-strip {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .thumb-strip img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .thumb-strip img:hover,
+    .thumb-strip img.active {
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .product-title-lg {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .product-brand {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .product-price-lg {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0.8rem 0 1.2rem;
+    }
+
+    .product-desc {
+      color: #555;
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-head {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.4rem;
+      margin: 1.5rem 0 0.8rem;
+    }
+
+    .features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.2rem;
+    }
+
+    .features-list li {
+      padding: 0.4rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .features-list li::before {
+      content: "\f00c";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.8rem;
+      top: 0.5rem;
+    }
+
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    .specs-table tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    .specs-table td {
+      padding: 0.55rem 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .specs-table td:first-child {
+      font-weight: 600;
+      color: var(--primary);
+      width: 42%;
+    }
+
+    .specs-table td:last-child {
+      color: #555;
+    }
+
+    .btn-close-lg {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 1.5rem;
+    }
+
+    .btn-close-lg:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f0f4f0;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #444;
+    }
+
+    @media (max-width: 768px) {
+      .product-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC"
+          src="/static/sherpa_logo.png?v=1772582868" /></a></div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="services.html">Our Services</a></li>
+      <li><a class="active" href="merchandise.html">Merchandise</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a class="btn btn-primary" href="contact.html">Start Your Ascent</a>
+  </header>
+
+  <div class="page-header">
+    <h1>Peak Design Travel Backpack 45L</h1>
+    <p>The ultimate carry-on. No two trips the same.</p>
+  </div>
+
+  <div class="product-detail">
+    <div class="product-layout">
+
+      <!-- Gallery -->
+      <div>
+        <div class="gallery-main">
+          <img alt="Peak Design Travel Backpack 45L" id="main-img" src="/static/thumb_pro_pd45.jpg?v=1772630796" />
+        </div>
+        <div class="thumb-strip" id="thumb-strip">
+          <img alt="View 1" class="active" onclick="switchImg(this)" src="/static/thumb_pro_pd45.jpg?v=1772630796" />
+          <img alt="View 2" onclick="switchImg(this)" src="/static/bp_pd_45l_2.jpg?v=1772582868" />
+          <img alt="View 3" onclick="switchImg(this)" src="/static/bp_pd_45l_3.jpg?v=1772582868" />
+          <img alt="View 4" onclick="switchImg(this)" src="/static/bp_pd_45l_4.jpg?v=1772582868" />
+          <img alt="View 5" onclick="switchImg(this)" src="/static/bp_pd_45l_5.jpg?v=1772582868" />
+          <img alt="View 6" onclick="switchImg(this)" src="/static/bp_pd_45l_6.jpg?v=1772582868" />
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <div class="product-brand">Peak Design </div>
+        <h2 class="product-title-lg">Travel Backpack 45L</h2>
+        
+        <div class="product-price-lg">$309.95</div>
+
+        <p class="product-desc">
+          A rugged, expandable, and brilliantly accessible carry-on travel backpack driven by a simple truth:
+          <em>No Two Trips The Same™</em>. Features top, side, front and rear access via weatherproof #8 and
+          #10
+          UltraZips which can withstand decades of use thanks to their proprietary abrasion-resistant thread.
+          Crafted from 100% recycled 400D nylon canvas — Fair Trade Certified and 100% carbon neutral.
+          
+        </p>
+
+        <div class="section-head">Key Features</div>
+        <ul class="features-list">
+          <li>4-way access: top, side, front, and rear panel zip entry</li>
+          <li>Weatherproof #8 and #10 UltraZip closures — built to last decades</li>
+          <li>Expands from 35L to 45L with full-perimeter expansion zipper</li>
+          <li>Dedicated padded laptop (16") and tablet compartments</li>
+          <li>Tuck-away shoulder straps with optional hip belt accessory</li>
+          <li>360° grab handles for grab-and-go carry</li>
+          <li>Cleverly concealed external carry straps for jacket/tripod</li>
+          <li>Expansive side pockets fit water bottles, tripods, and more</li>
+          <li>Meets international carry-on size requirements</li>
+          <li>Fair Trade Certified &bull; 100% carbon neutral &bull; Lifetime warranty</li>
+        </ul>
+
+        <div class="section-head">Specifications</div>
+        <table class="specs-table">
+          <tr>
+            <td>Capacity</td>
+            <td>35L compressed / 45L expanded</td>
+          </tr>
+          <tr>
+            <td>Weight</td>
+            <td>5.21 lbs (2.36 kg)</td>
+          </tr>
+          <tr>
+            <td>Dimensions</td>
+            <td>22" H × 14" W × 8.5–10.5" D</td>
+          </tr>
+          <tr>
+            <td>Laptop Compartment</td>
+            <td>Fits up to 16" laptops</td>
+          </tr>
+          <tr>
+            <td>Tablet Compartment</td>
+            <td>Fits up to 13" tablets</td>
+          </tr>
+          <tr>
+            <td>Shell Material</td>
+            <td>400D recycled nylon canvas</td>
+          </tr>
+          <tr>
+            <td>Base Material</td>
+            <td>900D recycled nylon</td>
+          </tr>
+          <tr>
+            <td>Zippers</td>
+            <td>Weatherproof UltraZip #8 and #10</td>
+          </tr>
+          <tr>
+            <td>Carry-On</td>
+            <td>Yes — international compliant</td>
+          </tr>
+          <tr>
+            <td>Certification</td>
+            <td>Fair Trade Certified, Carbon Neutral</td>
+          </tr>
+          <tr>
+            <td>Warranty</td>
+            <td>Lifetime guarantee</td>
+          </tr>
+          
+        </table>
+
+        <a class="btn-close-lg" href="merch_backpacks.html"><i class="fas fa-arrow-left"></i> Back to
+          Backpacks</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+  </footer>
+  <script>
+    function switchImg(el) {
+      document.getElementById('main-img').src = el.src;
+      document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+    }
+  </script>
+</body>
+
+</html>
