@@ -269,10 +269,29 @@
                         <p style="color: var(--secondary); margin-bottom: 0;">Edit tracked elements below. Changes will
                             reflect instantly on the public site.</p>
                     </div>
-                    <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
-                        style="white-space: nowrap; box-shadow: 0 4px 15px rgba(192, 108, 59, 0.2);">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
-                    </button>
+                    <div
+                        style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; width: 300px;">
+                        <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
+                            style="white-space: nowrap; box-shadow: 0 4px 15px rgba(192, 108, 59, 0.2); width: 100%;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
+                        </button>
+
+                        <!-- Progress Meter UI (Hidden by default) -->
+                        <div id="sync-progress-container"
+                            style="display: none; width: 100%; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--secondary); font-weight: 500;">
+                                <span id="sync-progress-text">Preparing...</span>
+                                <span id="sync-progress-percent">0%</span>
+                            </div>
+                            <div
+                                style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="sync-progress-bar"
+                                    style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s ease, background 0.3s ease;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="cms-fields"
@@ -621,24 +640,71 @@
 
         async function syncToGitHub() {
             const btn = document.getElementById('btn-sync-github');
+            const progressContainer = document.getElementById('sync-progress-container');
+            const progressText = document.getElementById('sync-progress-text');
+            const progressPercent = document.getElementById('sync-progress-percent');
+            const progressBar = document.getElementById('sync-progress-bar');
             const originalText = btn.innerHTML;
 
-            if (!confirm("This will synchronize all local changes (including CMS updates and file edits) to the live GitHub repository. This process takes about 10-20 seconds. Proceed?")) return;
+            if (!confirm("This will synchronize all local changes (including CMS updates and file edits) to the live GitHub repository. Proceed?")) return;
+
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
+
+            // Reset and show progress UI
+            progressContainer.style.display = 'flex';
+            progressBar.style.width = '0%';
+            progressBar.style.background = 'var(--primary)';
+            progressText.innerText = 'Preparing upload...';
+            progressText.style.color = 'var(--secondary)';
+            progressPercent.innerText = '0%';
+            progressPercent.style.color = 'var(--secondary)';
+
+            // Start polling the server for progress
+            const pollInterval = setInterval(async () => {
+                try {
+                    const progRes = await fetch('/api/sync-progress');
+                    if (progRes.ok) {
+                        const progData = await progRes.json();
+                        if (progData.status === 'uploading' && progData.total > 0) {
+                            const remaining = progData.total - progData.current;
+                            progressText.innerText = `${remaining} file${remaining !== 1 ? 's' : ''} remaining`;
+                            progressPercent.innerText = `${progData.percentage}%`;
+                            progressBar.style.width = `${progData.percentage}%`;
+                        }
+                    }
+                } catch (e) { /* ignore polling errors */ }
+            }, 500);
 
             try {
-                btn.disabled = true;
-                btn.style.opacity = '0.7';
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
-
                 const res = await fetch('/api/sync-github', { method: 'POST' });
+                clearInterval(pollInterval);
                 const data = await res.json();
 
                 if (res.ok) {
-                    alert('Deployment Successful! Your changes have been pushed to GitHub. The live site will update within 60 seconds.');
+                    progressBar.style.width = '100%';
+                    progressBar.style.background = '#2ecc71'; // Success green
+                    progressText.innerText = 'Upload Complete';
+                    progressText.style.color = '#2ecc71';
+                    progressPercent.innerText = '100%';
+                    progressPercent.style.color = '#2ecc71';
+
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        alert('Deployment Successful! Your changes have been pushed to GitHub. The live site will update within 60 seconds.');
+                    }, 800);
                 } else {
+                    progressBar.style.background = '#e74c3c'; // Error red
+                    progressText.innerText = 'Upload Failed';
+                    progressText.style.color = '#e74c3c';
                     alert('Deployment Failed: ' + (data.message || 'The server encountered an error during sync.'));
                 }
             } catch (error) {
+                clearInterval(pollInterval);
+                progressBar.style.background = '#e74c3c';
+                progressText.innerText = 'Connection Error';
+                progressText.style.color = '#e74c3c';
                 alert('Connection Error: Could not reach the deployment server.');
                 console.error(error);
             } finally {
