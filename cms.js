@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         // Fetch the dynamic content map from the backend CMS
-        const res = await fetch('http://localhost:8001/api/content');
+        const res = await fetch('/api/content');
         if (res.ok) {
             const content = await res.json();
 
@@ -42,7 +42,7 @@ async function autoRegisterTags() {
         // meaning if we already edited this via the CMS, it WON'T overwrite the DB text,
         // it will just ensure the key itself actually exists in the DB so the admin Editor renders it.
         try {
-            await fetch('http://localhost:8001/api/content/register', {
+            await fetch('/api/content/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ element_id: key, default_content: originalContent })
