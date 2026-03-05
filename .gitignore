@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Caches
+tmp_cache.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Processing Scripts (Local Only)
+add_*.py
+fix_*.py
+generate_*.py
+swap_*.py
+remove_*.py
+scrape_*.py
+test_*.py
+clean_html.py
+hardcode_node_positions.py
+move_animation*.py
+move_legends.py
+move_path_end.py
+multi_sherpas.py
+patch_cart.py
+prepare_contact_sheet.py
+restore_pd.py
+sync_individual_pages.py
+wipe_nomatic.py
+apply_*.py
+build_*.py
+convoy_*.py
+download_*.py
+extract_urls.py
+fetch_*.py
+find_pd.py
+brand_alts.py
+isolate_*.py
+make_grid.py
+strict_convoy_sherpas.py
+view_candidates.html
+advanced_convoy_sherpas.py
+check_logo.py
+align_nodes.py
