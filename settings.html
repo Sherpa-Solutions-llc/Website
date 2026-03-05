@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherpa Solutions LLC | Settings</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            margin-bottom: 3rem;
+        }
+
+        .sidebar-logo img {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            flex: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .admin-content {
+            padding: 3rem;
+            background: #f4f6f4;
+        }
+
+        .admin-panel {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .user-table th,
+        .user-table td {
+            text-align: left;
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .btn-danger {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #c9302c;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .form-row input {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            flex: 1;
+        }
+
+        .cms-field {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #eaeaea;
+            border-radius: 12px;
+        }
+
+        .cms-field label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            text-transform: capitalize;
+        }
+
+        .cms-field textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-height: 100px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .cms-field input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .custom-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="/static/sherpa_logo.png" alt="Logo" data-cms="global-navbar-logo">
+            </div>
+            <ul class="sidebar-menu">
+                <li><a onclick="showPanel('users')" class="active" id="btn-users"><i class="fa-solid fa-users"></i> User
+                        Management</a></li>
+                <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i> Website
+                        Editor</a></li>
+                <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> Back to Site</a></li>
+                <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
+                            class="fa-solid fa-sign-out-alt"></i> Secure Logout</a></li>
+            </ul>
+            <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
+        </aside>
+
+        <main class="admin-content">
+            <div id="panel-users" class="admin-panel active">
+                <h2>Admin User Management</h2>
+                <p style="color: var(--secondary); margin-bottom: 2rem;">Manage the administrators authorized to access
+                    this portal.</p>
+
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
+                    <h3>Provision New Administrator</h3>
+                    <form id="add-user-form" class="form-row">
+                        <input type="text" id="new-username" placeholder="New Username" required autocomplete="off">
+                        <input type="password" id="new-password" placeholder="Secure Password" required
+                            autocomplete="new-password">
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
+                            Account</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="panel-cms" class="admin-panel">
+                <h2>Live Content Editor</h2>
+                <p style="color: var(--secondary); margin-bottom: 2rem;">Edit tracked elements below. Changes will
+                    reflect instantly on the public site.</p>
+
+                <div id="cms-fields"
+                    style="display: flex; flex-direction: column; gap: 1.5rem; max-height: 65vh; overflow-y: auto; padding-right: 1rem;">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
+    <div id="password-modal" class="custom-modal">
+        <div class="modal-content">
+            <h3 id="pw-modal-title">Change Password</h3>
+            <p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
+            </p>
+            <input type="password" id="pw-modal-input" placeholder="New Secure Password">
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal('password-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="custom-modal">
+        <div class="modal-content">
+            <h3>Confirm Action</h3>
+            <p id="confirm-modal-text" style="color: var(--secondary); margin-bottom: 2rem;">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
+                <button class="btn-danger" id="confirm-modal-btn">Yes, Revoke</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentActionUserId = null;
+        let currentActionUsername = null;
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function showPanel(panelName) {
+            document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            document.getElementById('panel-' + panelName).classList.add('active');
+            document.getElementById('btn-' + panelName).classList.add('active');
+            if (panelName === 'users') loadUsers();
+            if (panelName === 'cms') loadCMS();
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/users');
+                if (res.ok) {
+                    const users = await res.json();
+                    const tbody = document.getElementById('user-table-body');
+                    tbody.innerHTML = '';
+                    if (users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No users found in database payload.</td></tr>';
+                    }
+                    users.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>#${u.id}</td>
+                            <td style="font-weight: 600;">${u.username}</td>
+                            <td>${u.is_admin ? '<span class="hero-badge" style="padding:0.4rem 0.8rem; font-size:0.8rem; margin:0;"><i class="fa-solid fa-shield-halved"></i> Admin</span>' : '<span style="color: #aaa; font-size: 0.9rem;"><i class="fa-solid fa-user"></i> User</span>'}</td>
+                            <td style="display: flex; gap: 0.5rem; align-items: center;">
+                                ${u.is_admin ? `<button class="btn-outline" style="padding: 6px 10px; border-radius: 6px; font-size: 0.9rem;" onclick="changePassword(${u.id}, '${u.username}')" title="Change Password"><i class="fa-solid fa-key"></i> Edit Pass</button>` : ''}
+                                ${u.id !== 1 ? `${u.is_admin ? `<button class="btn-outline" style="padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; color: #c06c3b; border-color: #c06c3b;" onclick="revokeUser(${u.id})" title="Revoke Access"><i class="fa-solid fa-ban"></i> Revoke</button>` : ''} <button class="btn-danger" style="padding: 6px 10px; border-radius: 6px; font-size: 0.9rem;" onclick="deleteUser(${u.id})" title="Delete Account"><i class="fa-solid fa-trash"></i> Remove</button>` : '<span style="color: #aaa; font-size: 0.9rem; margin-left: 0.5rem;"><i class="fa-solid fa-lock"></i> Root</span>'}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    if (res.status === 401) window.location.href = '/login.html';
+                    else alert('Server replied with status: ' + res.status);
+                }
+            } catch (error) {
+                alert('JS Execution Error: ' + error.message);
+            }
+        }
+
+        document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('new-username').value;
+            const p = document.getElementById('new-password').value;
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            });
+            if (res.ok) {
+                document.getElementById('add-user-form').reset();
+                loadUsers();
+            } else {
+                alert('Action failed! Username may already exist.');
+            }
+        });
+
+        function revokeUser(id) {
+            document.getElementById('confirm-modal-text').innerText = "Are you sure you want to revoke this user's admin access? They will be demoted to a regular user and lose portal access.";
+            document.getElementById('confirm-modal-btn').innerText = "Yes, Revoke";
+            document.getElementById('confirm-modal-btn').className = "btn-outline";
+            document.getElementById('confirm-modal-btn').style.color = "#c06c3b";
+            document.getElementById('confirm-modal-btn').style.borderColor = "#c06c3b";
+            document.getElementById('confirm-modal-btn').onclick = async () => {
+                closeModal('confirm-modal');
+                const res = await fetch('/api/users/' + id + '/revoke', { method: 'PUT' });
+                if (res.ok) loadUsers();
+                else alert('Failed to revoke user. Refresh and try again.');
+            };
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function deleteUser(id) {
+            document.getElementById('confirm-modal-text').innerText = "Are you absolutely sure you want to permanently remove this user from the system?";
+            document.getElementById('confirm-modal-btn').innerText = "Yes, Remove";
+            document.getElementById('confirm-modal-btn').className = "btn-danger";
+            document.getElementById('confirm-modal-btn').removeAttribute("style");
+            document.getElementById('confirm-modal-btn').onclick = async () => {
+                closeModal('confirm-modal');
+                const res = await fetch('/api/users/' + id, { method: 'DELETE' });
+                if (res.ok) loadUsers();
+                else alert('Failed to remove user. Refresh and try again.');
+            };
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function changePassword(id, username) {
+            currentActionUserId = id;
+            currentActionUsername = username;
+            document.getElementById('pw-modal-title').innerText = `Editing '${username}'`;
+            document.getElementById('pw-modal-input').value = '';
+            document.getElementById('password-modal').classList.add('active');
+        }
+
+        async function submitPasswordChange() {
+            const newPassword = document.getElementById('pw-modal-input').value;
+            if (!newPassword || newPassword.trim() === '') return;
+
+            closeModal('password-modal');
+
+            const res = await fetch('/api/users/' + currentActionUserId + '/password', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ new_password: newPassword })
+            });
+
+            if (res.ok) {
+                // Flash green background as success indicator instead of alert
+                document.getElementById('password-modal').style.background = 'rgba(46, 204, 113, 0.4)';
+                setTimeout(() => document.getElementById('password-modal').style.background = 'rgba(0,0,0,0.5)', 500);
+            } else {
+                alert(`Failed to update password for ${currentActionUsername}.`);
+            }
+        }
+
+        async function loadCMS() {
+            const res = await fetch('/api/content');
+            if (res.ok) {
+                const content = await res.json();
+                const container = document.getElementById('cms-fields');
+                container.innerHTML = '';
+
+                const keys = Object.keys(content);
+                if (keys.length === 0) {
+                    container.innerHTML = '<div style="background: #fdfbf7; padding: 2rem; border-radius: 8px; text-align: center;"><i class="fa-solid fa-leaf" style="font-size: 2rem; color: var(--secondary); margin-bottom: 1rem;"></i><p>No customizable content tags have been registered yet.</p><p style="color: var(--secondary); font-size: 0.9rem;">Visit the main website pages to auto-register `data-cms` tags into the database.</p></div>';
+                    return;
+                }
+
+                keys.forEach(k => {
+                    const val = content[k];
+                    const div = document.createElement('div');
+                    div.className = 'cms-field';
+
+                    // Function to convert hyphenated string to Title Case
+                    const formatLabel = (str) => {
+                        return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    };
+
+                    // Display differently if it looks like an image relative path
+                    if (val.trim().endsWith('.png') || val.trim().endsWith('.jpg')) {
+                        div.innerHTML = `
+                            <label><i class="fa-solid fa-image"></i> Image Source: <strong>${formatLabel(k)}</strong></label>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                                <img src="${val}" alt="Current Image" style="max-height: 80px; width: auto; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 4px; background: white; align-self: flex-start;">
+                                <input type="hidden" id="cms-${k}" value="${val}">
+                                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+                                    <input type="file" id="cms-file-${k}" accept="image/*" style="font-size: 0.9rem;">
+                                    <button onclick="uploadImageCMS('${k}')" class="btn btn-outline" style="white-space: nowrap;"><i class="fa-solid fa-cloud-arrow-up"></i> Upload & Save</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        div.innerHTML = `
+                            <label><i class="fa-solid fa-align-left"></i> Text Content: <strong>${formatLabel(k)}</strong></label>
+                            <textarea id="cms-${k}">${val}</textarea>
+                            <button onclick="saveCMS('${k}')" class="btn btn-outline" style="margin-top:1rem;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Content</button>
+                        `;
+                    }
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        async function saveCMS(key) {
+            const val = document.getElementById('cms-' + key).value;
+            const res = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ element_id: key, html_content: val })
+            });
+            if (res.ok) {
+                alert('CMS changes successfully saved! Return to the live site to see them applied.');
+                loadCMS(); // Reload to show updated image preview if applicable
+            } else {
+                alert('Critical error saving CMS updates.');
+            }
+        }
+
+        async function uploadImageCMS(key) {
+            const fileInput = document.getElementById('cms-file-' + key);
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select an image file to upload first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (uploadRes.ok) {
+                const data = await uploadRes.json();
+                // Set the hidden input to the new URL and trigger the standard saveCMS function
+                document.getElementById('cms-' + key).value = data.url;
+                saveCMS(key);
+            } else {
+                alert('Failed to upload the image to the server.');
+            }
+        }
+
+        // Initialize dashboard on load
+        loadUsers();
+    </script>
+</body>
+
+</html>
