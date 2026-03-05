@@ -667,14 +667,16 @@
                     const progRes = await fetch('/api/sync-progress');
                     if (progRes.ok) {
                         const progData = await progRes.json();
-                        if (progData.status === 'uploading' && progData.total > 0) {
+                        console.log('Sync Progress:', progData);
+
+                        if ((progData.status === 'uploading' || progData.status === 'starting' || progData.status === 'completed') && progData.total > 0) {
                             const remaining = progData.total - progData.current;
-                            progressText.innerText = `${remaining} file${remaining !== 1 ? 's' : ''} remaining`;
+                            progressText.innerText = progData.status === 'completed' ? 'Finalizing...' : `${remaining} file${remaining !== 1 ? 's' : ''} remaining`;
                             progressPercent.innerText = `${progData.percentage}%`;
                             progressBar.style.width = `${progData.percentage}%`;
                         }
                     }
-                } catch (e) { /* ignore polling errors */ }
+                } catch (e) { console.error('Polling error:', e); }
             }, 500);
 
             try {
