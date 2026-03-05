@@ -200,10 +200,11 @@ import asyncio
 @app.post("/api/sync-github")
 async def sync_github(user: str = Depends(require_admin)):
     try:
-        # Clear previous progress file
+        # Initialize progress file with starting state
         progress_file = r"C:\tmp\github_sync_progress.json"
-        if os.path.exists(progress_file):
-            os.remove(progress_file)
+        with open(progress_file, 'w') as f:
+            import json
+            json.dump({"current": 0, "total": 0, "status": "starting", "message": "Initializing...", "percentage": 0}, f)
             
         # Run the existing upload script
         # Using the same interpreter and absolute path for reliability
