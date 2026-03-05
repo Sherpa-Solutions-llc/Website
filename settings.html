@@ -219,7 +219,10 @@
                         Management</a></li>
                 <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i> Website
                         Editor</a></li>
+                <li><a onclick="showPanel('models')" id="btn-models"><i class="fa-solid fa-microchip"></i> Model
+                        Status</a></li>
                 <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> Back to Site</a></li>
+                <li style="margin-top: 1rem;"><a onclick="showPanel('convoy')" id="btn-convoy">Convoy Settings</a></li>
                 <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
                             class="fa-solid fa-sign-out-alt"></i> Secure Logout</a></li>
             </ul>
@@ -259,14 +262,104 @@
             </div>
 
             <div id="panel-cms" class="admin-panel">
-                <h2>Live Content Editor</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Edit tracked elements below. Changes will
-                    reflect instantly on the public site.</p>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; gap: 2rem;">
+                    <div>
+                        <h2>Live Content Editor</h2>
+                        <p style="color: var(--secondary); margin-bottom: 0;">Edit tracked elements below. Changes will
+                            reflect instantly on the public site.</p>
+                    </div>
+                    <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
+                        style="white-space: nowrap; box-shadow: 0 4px 15px rgba(192, 108, 59, 0.2);">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
+                    </button>
+                </div>
 
                 <div id="cms-fields"
                     style="display: flex; flex-direction: column; gap: 1.5rem; max-height: 65vh; overflow-y: auto; padding-right: 1rem;">
                     <!-- Loaded via JS -->
                 </div>
+            </div>
+
+            <div id="panel-models" class="admin-panel">
+                <h2>AI Models & Service Status</h2>
+                <p style="color: var(--secondary); margin-bottom: 2rem;">Current availability of large language models
+                    powering your Sherpa Solutions.</p>
+
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Model Name</th>
+                            <th>Provider</th>
+                            <th>Status Indicator</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Gemini 1.5 Flash</strong></td>
+                            <td>Google DeepMind</td>
+                            <td><span class="hero-badge"
+                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
+                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gemini 1.5 Pro</strong></td>
+                            <td>Google DeepMind</td>
+                            <td><span class="hero-badge"
+                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
+                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GPT-4o</strong></td>
+                            <td>OpenAI</td>
+                            <td><span class="hero-badge"
+                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
+                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Claude 3.5 Sonnet</strong></td>
+                            <td>Anthropic</td>
+                            <td><span class="hero-badge"
+                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
+                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
+                        </tr>
+                        <tr>
+                            <td><span style="color: #aaa;">GPT-3.5 Turbo</span></td>
+                            <td>OpenAI</td>
+                            <td><span class="hero-badge"
+                                    style="background: #ffebee; color: #c62828; padding: 0.4rem 0.8rem; border: 1px solid #ffcdd2;"><i
+                                        class="fa-solid fa-circle-xmark"></i> Red U (Unavailable)</span>
+                                <div style="font-size: 0.8rem; color: #c62828; margin-top: 5px; font-weight: 500;">
+                                    <i class="fa-solid fa-clock"></i> Available: 04:00 AM EST
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span style="color: #aaa;">Llama 3</span></td>
+                            <td>Meta</td>
+                            <td><span class="hero-badge"
+                                    style="background: #ffebee; color: #c62828; padding: 0.4rem 0.8rem; border: 1px solid #ffcdd2;"><i
+                                        class="fa-solid fa-circle-xmark"></i> Red U (Unavailable)</span>
+                                <div style="font-size: 0.8rem; color: #c62828; margin-top: 5px; font-weight: 500;">
+                                    <i class="fa-solid fa-clock"></i> Available: 08:00 AM EST
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="panel-convoy" class="admin-panel">
+                <h2>Convoy Animation Settings</h2>
+                <p style="color: var(--secondary); margin-bottom: 2rem;">Adjust the spacing between the lead Sherpa and
+                    their group.</p>
+                <div class="form-row">
+                    <label for="convoy-delay-input" style="font-weight: 500;">Follower Spacing Delay (ms):</label>
+                    <input type="number" id="convoy-delay-input" min="0" step="100" value="800" style="width: 120px;" />
+                    <button class="btn btn-primary" onclick="saveConvoyDelay()">Save</button>
+                </div>
+                <p style="color: var(--secondary); margin-top:0.5rem; font-size: 0.9rem;">Higher delay = more space
+                    between characters.</p>
             </div>
         </main>
     </div>
@@ -369,11 +462,30 @@
             document.getElementById('confirm-modal-btn').style.borderColor = "#c06c3b";
             document.getElementById('confirm-modal-btn').onclick = async () => {
                 closeModal('confirm-modal');
-                const res = await fetch('/api/users/' + id + '/revoke', { method: 'PUT' });
+                currentActionUsername = null;
+                const res = await fetch('/api/users/' + id + '/revoke', { method: 'POST' });
                 if (res.ok) loadUsers();
-                else alert('Failed to revoke user. Refresh and try again.');
+                else alert('Action failed.');
             };
             document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function loadConvoyDelay() {
+            const input = document.getElementById('convoy-delay-input');
+            if (!input) return;
+            const stored = localStorage.getItem('convoyBaseDelay');
+            if (stored) input.value = stored;
+        }
+
+        function saveConvoyDelay() {
+            const input = document.getElementById('convoy-delay-input');
+            const val = parseInt(input.value, 10);
+            if (isNaN(val) || val < 0) {
+                alert('Please enter a valid non‑negative number');
+                return;
+            }
+            localStorage.setItem('convoyBaseDelay', val);
+            alert('Convoy base delay saved. Reload the Services page to see the effect.');
         }
 
         function deleteUser(id) {
@@ -507,8 +619,38 @@
             }
         }
 
+        async function syncToGitHub() {
+            const btn = document.getElementById('btn-sync-github');
+            const originalText = btn.innerHTML;
+
+            if (!confirm("This will synchronize all local changes (including CMS updates and file edits) to the live GitHub repository. This process takes about 10-20 seconds. Proceed?")) return;
+
+            try {
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
+
+                const res = await fetch('/api/sync-github', { method: 'POST' });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Deployment Successful! Your changes have been pushed to GitHub. The live site will update within 60 seconds.');
+                } else {
+                    alert('Deployment Failed: ' + (data.message || 'The server encountered an error during sync.'));
+                }
+            } catch (error) {
+                alert('Connection Error: Could not reach the deployment server.');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = originalText;
+            }
+        }
+
         // Initialize dashboard on load
         loadUsers();
+        loadConvoyDelay();
     </script>
 </body>
 
