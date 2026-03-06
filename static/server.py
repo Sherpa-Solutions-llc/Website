@@ -212,25 +212,19 @@ async def sync_github(user: str = Depends(require_admin)):
             import json
             json.dump({"current": 0, "total": 0, "status": "starting", "message": "Initializing...", "percentage": 0}, f)
             
-        # Run the existing upload script
+        # Run the existing upload script in the background
         # Using the same interpreter and absolute path for reliability
         script_path = r"C:\tmp\github_final_upload.py"
         python_exe = r"C:\Users\choos\AppData\Local\Python\pythoncore-3.14-64\python.exe"
         
-        process = await asyncio.create_subprocess_exec(
-            python_exe, script_path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-        
-        if process.returncode != 0:
-            return JSONResponse(
-                status_code=500,
-                content={"status": "error", "message": f"Sync failed: {stderr.decode()}"}
-            )
+        # We DON'T await process.communicate() here, so the API returns immediately
+        # and allows the frontend to poll for progress while the script runs.
+        subprocess.Popen([python_exe, script_path], 
+                         stdout=subprocess.DEVNULL, 
+                         stderr=subprocess.DEVNULL,
+                         creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
             
-        return {"status": "success", "output": stdout.decode()}
+        return {"status": "success", "message": "Deployment started in background."}
     except Exception as e:
         return JSONResponse(
             status_code=500,
