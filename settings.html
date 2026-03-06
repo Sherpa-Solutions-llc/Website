@@ -772,8 +772,12 @@
                         if (progRes.ok) {
                             const progData = await progRes.json();
                             if ((progData.status === 'uploading' || progData.status === 'starting' || progData.status === 'completed') && progData.total > 0) {
-                                const remaining = progData.total - progData.current;
-                                progressText.innerText = progData.status === 'completed' ? 'Finalizing...' : `${remaining} file${remaining !== 1 ? 's' : ''} remaining`;
+                                // Update progress text with file counts and message
+                                if (progData.status === 'completed') {
+                                    progressText.innerText = 'All files transferred.';
+                                } else {
+                                    progressText.innerText = `${progData.current} / ${progData.total} files • ${progData.message || 'Processing...'}`;
+                                }
                                 progressPercent.innerText = `${progData.percentage}%`;
                                 progressBar.style.width = `${progData.percentage}%`;
                             }
