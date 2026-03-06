@@ -1329,6 +1329,9 @@ footer {
     width: 175px;
     text-align: left;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .legend-box h4 {
@@ -1354,16 +1357,38 @@ footer {
 }
 
 @media (max-width: 768px) {
-    .path-legends {
-        bottom: 15px;
-        right: 15px;
+    .map-legend-frame {
+        position: relative;
+        bottom: 0;
+        right: 0;
+        margin-top: 10px;
+        width: 100%;
+        display: flex;
         flex-direction: column;
-        gap: 10px;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.1);
+        border: none;
+        backdrop-filter: none;
+    }
+
+    .path-legends {
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+        gap: 8px;
     }
 
     .legend-box {
-        width: 150px;
-        padding: 0.5rem 0.75rem;
+        width: 48%;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .legend-box h4 {
+        font-size: 0.75rem;
+    }
+
+    .legend-box p {
+        display: none; /* Hide descriptions on mobile to save space */
     }
 }
 
@@ -1538,7 +1563,7 @@ footer {
     }
 
     .logo-container img {
-        height: 40px !important;
+        height: 65px !important;
     }
 
     .hero-buttons {
