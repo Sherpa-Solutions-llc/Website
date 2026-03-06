@@ -768,22 +768,24 @@
                 // Start polling the server for progress
                 const pollInterval = setInterval(async () => {
                     try {
-                        const progRes = await fetch('/api/sync-progress');
+                        const progRes = await fetch('/api/sync-progress?t=' + Date.now());
                         if (progRes.ok) {
                             const progData = await progRes.json();
-                            if ((progData.status === 'uploading' || progData.status === 'starting' || progData.status === 'completed') && progData.total > 0) {
-                                // Update progress text with file counts and message
+                            console.log('Sync Progress:', progData);
+                            if (progData.total > 0) {
                                 if (progData.status === 'completed') {
                                     progressText.innerText = 'All files transferred.';
+                                    progressPercent.innerText = '100%';
+                                    progressBar.style.width = '100%';
                                 } else {
                                     progressText.innerText = `${progData.current} / ${progData.total} files • ${progData.message || 'Processing...'}`;
+                                    progressPercent.innerText = `${progData.percentage}%`;
+                                    progressBar.style.width = `${progData.percentage}%`;
                                 }
-                                progressPercent.innerText = `${progData.percentage}%`;
-                                progressBar.style.width = `${progData.percentage}%`;
                             }
                         }
                     } catch (e) { console.error('Polling error:', e); }
-                }, 500);
+                }, 400);
 
                 try {
                     const res = await fetch('/api/sync-github', { method: 'POST' });
