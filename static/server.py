@@ -230,3 +230,66 @@ async def sync_github(user: str = Depends(require_admin)):
             status_code=500,
             content={"status": "error", "message": str(e)}
         )
+
+# --- Lead Capture: Roadmap Form ---
+
+class LeadCapture(BaseModel):
+    email: str
+
+@app.post("/api/lead-capture")
+async def lead_capture(lead: LeadCapture):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    visitor_email = lead.email.strip()
+    to_address = "basecamp@sherpa-solutions-llc.com"
+
+    # SMTP credentials read from environment variables (set these on the server).
+    # Example:  set SMTP_USER=your.gmail@gmail.com  &&  set SMTP_PASS=your_app_password
+    smtp_user = os.environ.get("SMTP_USER", "")
+    smtp_pass = os.environ.get("SMTP_PASS", "")
+
+    if not smtp_user or not smtp_pass:
+        # Log the lead server-side even if SMTP isn't configured yet
+        print(f"[LEAD CAPTURE] New roadmap request from: {visitor_email}")
+        return JSONResponse({"status": "success", "message": "Lead recorded (SMTP not configured)"})
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"📍 New Roadmap Request: {visitor_email}"
+        msg["From"] = smtp_user
+        msg["To"] = to_address
+        msg["Reply-To"] = visitor_email
+
+        body_html = f"""
+        <html><body style="font-family: Arial, sans-serif; color: #2d3f2e;">
+            <h2 style="color: #C06C3B;">New AI Roadmap Lead 🏔️</h2>
+            <p>A visitor submitted the <strong>AI Strategy Roadmap</strong> form on the Sherpa Solutions homepage.</p>
+            <table style="border-collapse: collapse; width: 100%; max-width: 500px;">
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Email</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">{visitor_email}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Requested</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">AI Strategy Roadmap for Mid-Size Companies</td>
+                </tr>
+            </table>
+            <p style="margin-top: 20px;">Reply directly to this email to reach the prospect.</p>
+        </body></html>
+        """
+        msg.attach(MIMEText(body_html, "html"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, to_address, msg.as_string())
+
+        print(f"[LEAD CAPTURE] Email sent for: {visitor_email}")
+        return JSONResponse({"status": "success"})
+
+    except Exception as e:
+        print(f"[LEAD CAPTURE] SMTP error for {visitor_email}: {e}")
+        # Still return success to the user — don't expose SMTP errors publicly
+        return JSONResponse({"status": "success", "note": "logged"})
+
