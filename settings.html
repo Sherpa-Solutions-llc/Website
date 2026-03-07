@@ -754,7 +754,7 @@
             async function startSync() {
                 btn.disabled = true;
                 btn.style.opacity = '0.7';
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deploying...';
 
                 // Reset and show progress UI
                 progressContainer.style.display = 'flex';
@@ -765,63 +765,57 @@
                 progressPercent.innerText = '0%';
                 progressPercent.style.color = 'var(--secondary)';
 
-                // Start polling the server for progress
-                const pollInterval = setInterval(async () => {
-                    try {
-                        const progRes = await fetch('/api/sync-progress?t=' + Date.now());
-                        if (progRes.ok) {
-                            const progData = await progRes.json();
-                            console.log('Sync Progress:', progData);
-                            if (progData.total > 0) {
-                                if (progData.status === 'completed') {
-                                    progressText.innerText = 'All files transferred.';
-                                    progressPercent.innerText = '100%';
-                                    progressBar.style.width = '100%';
-                                } else {
-                                    progressText.innerText = `${progData.current} / ${progData.total} files • ${progData.message || 'Processing...'}`;
-                                    progressPercent.innerText = `${progData.percentage}%`;
-                                    progressBar.style.width = `${progData.percentage}%`;
-                                }
-                            }
-                        }
-                    } catch (e) { console.error('Polling error:', e); }
-                }, 400);
-
+                // Step 1: Kick off the background deploy — this returns immediately
                 try {
                     const res = await fetch('/api/sync-github', { method: 'POST' });
-                    clearInterval(pollInterval);
-                    const data = await res.json();
-
-                    if (res.ok) {
-                        progressBar.style.width = '100%';
-                        progressBar.style.background = '#2ecc71'; // Success green
-                        progressText.innerText = 'Upload Complete';
-                        progressText.style.color = '#2ecc71';
-                        progressPercent.innerText = '100%';
-                        progressPercent.style.color = '#2ecc71';
-
-                        setTimeout(() => {
-                            progressContainer.style.display = 'none';
-                            alert('Deployment Successful! Your changes have been pushed to GitHub. The live site will update within 60 seconds.');
-                        }, 800);
-                    } else {
-                        progressBar.style.background = '#e74c3c'; // Error red
-                        progressText.innerText = 'Upload Failed';
+                    if (!res.ok) {
+                        const data = await res.json();
+                        progressBar.style.background = '#e74c3c';
+                        progressText.innerText = 'Failed to start deployment';
                         progressText.style.color = '#e74c3c';
-                        alert('Deployment Failed: ' + (data.message || 'The server encountered an error during sync.'));
+                        alert('Deployment Failed: ' + (data.message || 'Server error.'));
+                        btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                        return;
                     }
                 } catch (error) {
-                    clearInterval(pollInterval);
                     progressBar.style.background = '#e74c3c';
                     progressText.innerText = 'Connection Error';
                     progressText.style.color = '#e74c3c';
-                    alert('Connection Error: Could not reach the deployment server.');
-                    console.error(error);
-                } finally {
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.innerHTML = originalText;
+                    alert('Connection Error: Could not reach the server.');
+                    btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                    return;
                 }
+
+                // Step 2: Poll progress file until Python script reports 'completed'
+                const pollInterval = setInterval(async () => {
+                    try {
+                        const progRes = await fetch('/api/sync-progress?t=' + Date.now());
+                        if (!progRes.ok) return;
+                        const p = await progRes.json();
+                        console.log('Sync Progress:', p);
+
+                        if (p.total > 0) {
+                            progressPercent.innerText = `${p.percentage}%`;
+                            progressBar.style.width = `${p.percentage}%`;
+                            progressText.innerText = `${p.current} / ${p.total} files uploaded`;
+                        }
+
+                        if (p.status === 'completed') {
+                            clearInterval(pollInterval);
+                            progressBar.style.width = '100%';
+                            progressBar.style.background = '#2ecc71';
+                            progressText.innerText = `✓ All ${p.total} files deployed`;
+                            progressText.style.color = '#2ecc71';
+                            progressPercent.innerText = '100%';
+                            progressPercent.style.color = '#2ecc71';
+                            btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                            setTimeout(() => {
+                                progressContainer.style.display = 'none';
+                                alert('✅ Deployment Successful!\n\nAll files pushed to GitHub. The live site updates within 60 seconds.');
+                            }, 1200);
+                        }
+                    } catch (e) { console.error('Polling error:', e); }
+                }, 600);
             }
         }
 
