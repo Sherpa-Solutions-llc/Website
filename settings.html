@@ -11,6 +11,48 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css">
     <style>
+        /* ============================================================
+           SETTINGS PAGE THEME LOCK — always light regardless of
+           global data-theme attribute set by theme.js / styles.css
+           ============================================================ */
+        .admin-layout {
+            --primary: #2D3F2E;
+            --secondary: #6b8a6b;
+            --accent: #D28052;
+            --surface-color: #ffffff;
+            --bg-color: #f4f6f4;
+            --text-dark: #1a2e1a;
+            --text-light: #ffffff;
+            --border-color: rgba(45, 63, 46, 0.2);
+        }
+
+        /* Hard-reset any global dark-mode text rules */
+        .admin-content h2,
+        .admin-content h3,
+        .admin-content h4 {
+            color: #1a2e1a !important;
+        }
+
+        .admin-content p {
+            color: #4a5c4a !important;
+        }
+
+        .admin-panel {
+            background: #ffffff !important;
+            color: #1a2e1a !important;
+        }
+
+        .user-table th,
+        .user-table td {
+            color: #1a2e1a !important;
+        }
+
+        .sidebar-menu a span,
+        .sidebar-menu a i {
+            color: inherit !important;
+            /* inherit from <a> which we control */
+        }
+
         .admin-layout {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -89,26 +131,29 @@
         .cms-tab {
             padding: 0.45rem 1rem;
             border-radius: 8px;
-            border: 1px solid #d4dbd4;
-            background: white;
-            color: var(--primary);
+            border: 1.5px solid #c0ccc0;
+            background: #f8faf8;
+            /* light sage — matches sidebar pills */
+            color: #1a2e1a;
+            /* dark forest green text */
             font-size: 0.88rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             font-family: inherit;
             transition: all 0.15s;
         }
 
         .cms-tab:hover {
-            background: #f0f4f0;
-            border-color: var(--accent);
+            background: #eef2ee;
+            border-color: #1a2e1a;
+            color: #1a2e1a;
         }
 
         .cms-tab.active {
             background: var(--accent);
             color: white;
             border-color: var(--accent);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .admin-panel.active {
@@ -281,19 +326,48 @@
             }
 
             .sidebar-menu li {
-                margin-bottom: 0;
+                margin: 0 !important;
+                /* kill desktop margin-top spacers */
                 flex-shrink: 0;
+                align-self: center;
+                /* vertical alignment within the flex row */
             }
 
             .sidebar-menu a {
-                padding: 8px 12px;
+                padding: 8px 14px;
                 font-size: 0.85rem;
-                gap: 5px;
-                background: rgba(255, 255, 255, 0.05);
+                gap: 6px;
+                background: #f0f4f0;
+                /* light sage pill */
+                color: #1a2e1a !important;
+                /* always dark text */
+                border: 1.5px solid #c0ccc0;
+                border-radius: 8px;
+                font-weight: 600;
+                white-space: nowrap;
             }
 
             .sidebar-menu a span {
-                display: inline;
+                display: inline !important;
+                color: #1a2e1a !important;
+            }
+
+            .sidebar-menu a i {
+                color: #1a2e1a !important;
+            }
+
+            .sidebar-menu a:hover,
+            .sidebar-menu a.active {
+                background: #1a2e1a !important;
+                color: #ffffff !important;
+                border-color: #1a2e1a !important;
+            }
+
+            .sidebar-menu a:hover span,
+            .sidebar-menu a.active span,
+            .sidebar-menu a:hover i,
+            .sidebar-menu a.active i {
+                color: #ffffff !important;
             }
 
             .admin-content {
@@ -352,8 +426,6 @@
                         <span>Users</span></a></li>
                 <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i>
                         <span>Editor</span></a></li>
-                <li><a onclick="showPanel('models')" id="btn-models"><i class="fa-solid fa-microchip"></i>
-                        <span>Status</span></a></li>
                 <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
                 </li>
                 <li style="margin-top: 1rem;"><a onclick="showPanel('convoy')" id="btn-convoy"><span>Convoy</span></a>
@@ -428,9 +500,9 @@
                         <span id="sync-progress-text">Preparing...</span>
                         <span id="sync-progress-percent">0%</span>
                     </div>
-                    <div style="width:100%; background:#e0e0e0; height:8px; border-radius:4px; overflow:hidden;">
+                    <div style="width:100%; background:#dce6dc; height:8px; border-radius:4px; overflow:hidden;">
                         <div id="sync-progress-bar"
-                            style="width:0%; height:100%; background:var(--primary); transition:width 0.3s ease, background 0.3s ease;">
+                            style="width:0%; height:100%; background:#1a2e1a; transition:width 0.3s ease, background 0.3s ease;">
                         </div>
                     </div>
                 </div>
@@ -448,7 +520,7 @@
 
                 <!-- Status bar -->
                 <div id="cms-status-bar"
-                    style="background:#f0f4f0; border:1px solid #d4dbd4; border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--secondary); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+                    style="background:#f0f6f0; border:1.5px solid #c0ccc0; border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:#4a5c4a; display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
                     <span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
                         fields. Click to start editing.</span>
                     <span id="cms-unsaved-badge"
@@ -458,78 +530,11 @@
 
                 <!-- The full-page iframe editor -->
                 <iframe id="cms-iframe" src="/api/edit-page/index"
-                    style="width:100%; height:78vh; border:1px solid #d4dbd4; border-radius:0 0 8px 8px; display:block;"
+                    style="width:100%; height:78vh; border:1.5px solid #c0ccc0; border-radius:0 0 8px 8px; display:block;"
                     sandbox="allow-scripts allow-same-origin">
                 </iframe>
             </div>
 
-            <div id="panel-models" class="admin-panel">
-                <h2>AI Models & Service Status</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Current availability of large language models
-                    powering your Sherpa Solutions.</p>
-
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Model Name</th>
-                            <th>Provider</th>
-                            <th>Status Indicator</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Gemini 1.5 Flash</strong></td>
-                            <td>Google DeepMind</td>
-                            <td><span class="hero-badge"
-                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
-                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Gemini 1.5 Pro</strong></td>
-                            <td>Google DeepMind</td>
-                            <td><span class="hero-badge"
-                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
-                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>GPT-4o</strong></td>
-                            <td>OpenAI</td>
-                            <td><span class="hero-badge"
-                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
-                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Claude 3.5 Sonnet</strong></td>
-                            <td>Anthropic</td>
-                            <td><span class="hero-badge"
-                                    style="background: #e8f5e9; color: #2e7d32; padding: 0.4rem 0.8rem; border: 1px solid #c8e6c9;"><i
-                                        class="fa-solid fa-circle-check"></i> Green R (Ready)</span></td>
-                        </tr>
-                        <tr>
-                            <td><span style="color: #aaa;">GPT-3.5 Turbo</span></td>
-                            <td>OpenAI</td>
-                            <td><span class="hero-badge"
-                                    style="background: #ffebee; color: #c62828; padding: 0.4rem 0.8rem; border: 1px solid #ffcdd2;"><i
-                                        class="fa-solid fa-circle-xmark"></i> Red U (Unavailable)</span>
-                                <div style="font-size: 0.8rem; color: #c62828; margin-top: 5px; font-weight: 500;">
-                                    <i class="fa-solid fa-clock"></i> Available: 04:00 AM EST
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><span style="color: #aaa;">Llama 3</span></td>
-                            <td>Meta</td>
-                            <td><span class="hero-badge"
-                                    style="background: #ffebee; color: #c62828; padding: 0.4rem 0.8rem; border: 1px solid #ffcdd2;"><i
-                                        class="fa-solid fa-circle-xmark"></i> Red U (Unavailable)</span>
-                                <div style="font-size: 0.8rem; color: #c62828; margin-top: 5px; font-weight: 500;">
-                                    <i class="fa-solid fa-clock"></i> Available: 08:00 AM EST
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
             <div id="panel-convoy" class="admin-panel">
                 <h2>Convoy Animation Settings</h2>
@@ -817,7 +822,7 @@
             const originalText = btn.innerHTML;
 
             // Use custom confirmation modal instead of native confirm()
-            document.getElementById('confirm-modal-text').innerText = "This will synchronize all local changes (including CMS updates and file edits) to the live GitHub repository. Proceed?";
+            document.getElementById('confirm-modal-text').innerText = "This will check all local files and upload only changed ones to GitHub. Unchanged files are skipped to save time. Proceed?";
             document.getElementById('confirm-modal-btn').innerText = "Yes, Deploy";
             document.getElementById('confirm-modal-btn').className = "btn btn-primary";
             document.getElementById('confirm-modal-btn').onclick = async () => {
@@ -835,7 +840,7 @@
                 progressContainer.style.display = 'flex';
                 progressBar.style.width = '0%';
                 progressBar.style.background = 'var(--primary)';
-                progressText.innerText = 'Preparing upload...';
+                progressText.innerText = 'Checking files for changes...';
                 progressText.style.color = 'var(--secondary)';
                 progressPercent.innerText = '0%';
                 progressPercent.style.color = 'var(--secondary)';
@@ -872,21 +877,22 @@
                         if (p.total > 0) {
                             progressPercent.innerText = `${p.percentage}%`;
                             progressBar.style.width = `${p.percentage}%`;
-                            progressText.innerText = `${p.current} / ${p.total} files uploaded`;
+                            // Show the detailed message from the script (includes uploaded vs skipped counts)
+                            progressText.innerText = p.message || `${p.current} / ${p.total} files checked`;
                         }
 
                         if (p.status === 'completed') {
                             clearInterval(pollInterval);
                             progressBar.style.width = '100%';
                             progressBar.style.background = '#2ecc71';
-                            progressText.innerText = `✓ All ${p.total} files deployed`;
+                            progressText.innerText = `✓ ${p.message || 'Deployment complete'}`;
                             progressText.style.color = '#2ecc71';
                             progressPercent.innerText = '100%';
                             progressPercent.style.color = '#2ecc71';
                             btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
                             setTimeout(() => {
                                 progressContainer.style.display = 'none';
-                                alert('✅ Deployment Successful!\n\nAll files pushed to GitHub. The live site updates within 60 seconds.');
+                                alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates within 60 seconds.');
                             }, 1200);
                         }
                     } catch (e) { console.error('Polling error:', e); }
