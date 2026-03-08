@@ -15,17 +15,7 @@
 <header>
 <div class="logo-container">
 <a href="index.html">
-<img alt="Sherpa Solutions LLC" data-cms="global-navbar-logo" src="static/sherpa_logo_embroidered.jpg"/>
-</a>
-</div>
-<ul class="nav-links">
-<li><a href="index.html">Home</a></li>
-<li><a href="about.html">About Us</a></li>
-<li><a href="services.html">Our Services</a></li>
-<li><a class="active" href="merchandise.html">Merchandise</a></li>
-<li><a href="contact.html">Contact</a></li>
-</ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
+<img alt="Sherpa Solutions LLC" data-cms="global-navbar-logo" src="/static\Sherpa Logo High Res.png"/>/static\Sherpa Logo High Res.png</i></button></div>
 <a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
 </header>
 <div class="page-header">
@@ -59,125 +49,7 @@
 <!-- Product 2 -->
 <div class="product-card" id="card-quartzip">
 <div class="product-img">
-<img id="quartzip-color-img" alt="Sherpa Basecamp Quarter-Zip" data-cms="merch-img-2" src="static/merch_pullover_pro.png?v=1772650922"/>
-</div>
-<div class="product-info">
-<h3 class="product-title" data-cms="merch-title-2">Basecamp Quarter-Zip</h3>
-<p class="product-price" data-cms="merch-price-2">$85.00</p>
-<div class="product-options" style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: center;">
-<select aria-label="Size" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit; color: var(--text-dark);">
-<option disabled="" selected="" value="">Size</option>
-<option value="S">Small</option>
-<option value="M">Medium</option>
-<option value="L">Large</option>
-<option value="XL">X-Large</option>
-</select>
-<select aria-label="Color" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit; color: var(--text-dark);" onchange="var img=document.getElementById('quartzip-color-img');if(this.value==='Black'){img.src='/static/merch_pullover_black.png';img.alt='Black Basecamp Quarter-Zip';}else if(this.value==='Olive'){img.src='/static/merch_pullover_pro.png?v=1772650922';img.alt='Sherpa Basecamp Quarter-Zip';}">
-<option disabled="" selected="" value="">Color</option>
-<option value="Olive">Olive Green</option>
-<option value="Black">Black</option>
-</select>
-</div>
-<div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-<label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
-</div>
-<a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-quartzip','Basecamp Quarter-Zip',85,'/static/merch_pullover_pro.png')">Add to Cart</a>
-</div>
-</div>
-<!-- Product 3 -->
-<div class="product-card" id="card-powerbank">
-<div class="product-img">
-<img alt="Sherpa Summit Powerbank" data-cms="merch-img-3" src="static/merch_powerbank_pro.png?v=1772650922"/>
-</div>
-<div class="product-info">
-<h3 class="product-title" data-cms="merch-title-3">Summit Powerbank</h3>
-<p class="product-price" id="powerbank-price">$55.00</p>
-<div style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: center;">
-<select id="powerbank-mah" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: white; flex: 1; font-family: inherit;" onchange="document.getElementById('powerbank-price').textContent = this.value === '200000' ? '$75.00' : '$55.00';">
-<option value="100000">100,000 mAh — $55</option>
-<option value="200000">200,000 mAh — $75</option>
-</select>
-</div>
-<div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-<label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
-</div>
-<a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-powerbank','Summit Powerbank',55,'/static/merch_powerbank_pro.png')">Add to Cart</a>
-</div>
-</div>
-<!-- Product 4 -->
-<div class="product-card" id="card-polos">
-<div class="product-img">
-<img alt="Sherpa Performance Polos" data-cms="merch-img-4" src="static/merch_shirt_polo_user.png?v=1772648820"/>
-</div>
-<div class="product-info">
-<h3 class="product-title" data-cms="merch-title-4">Performance Polos</h3>
-<p class="product-price" data-cms="merch-price-4">$65.00</p>
-<div class="product-options" style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: center;">
-<select aria-label="Size" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit; color: var(--text-dark);">
-<option disabled="" selected="" value="">Size</option>
-<option value="S">Small</option>
-<option value="M">Medium</option>
-<option value="L">Large</option>
-<option value="XL">X-Large</option>
-</select>
-<select aria-label="Color" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit; color: var(--text-dark);">
-<option disabled="" selected="" value="">Color</option>
-<option value="Navy">Navy Blue</option>
-<option value="White">White</option>
-<option value="Black">Black</option>
-</select>
-</div>
-<div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-<label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
-</div>
-<a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-polos','Performance Polos',65,'/static/merch_shirt_polo_user.png')">Add to Cart</a>
-</div>
-</div>
-<!-- Product 5 -->
-<div class="product-card" id="card-socks">
-<div class="product-img">
-<img alt="Sherpa Mountaineering Socks" data-cms="merch-img-5" src="static/merch_socks_pro.png?v=1772650259"/>
-</div>
-<div class="product-info">
-<h3 class="product-title" data-cms="merch-title-5">Mountaineering Socks</h3>
-<p class="product-price" data-cms="merch-price-5">$25.00</p>
-<div style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: center;">
-<select aria-label="Size" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit;">
-<option disabled="" selected="" value="">Size</option>
-<option value="S">Small (6-8)</option>
-<option value="M">Medium (8-10)</option>
-<option value="L">Large (10-12)</option>
-<option value="XL">X-Large (12-14)</option>
-</select>
-</div>
-<div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-<label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
-</div>
-<a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-socks','Mountaineering Socks',25,'/static/merch_socks_pro.png')">Add to Cart</a>
-</div>
-</div>
-</div>
-</section>
-<section class="cta-banner">
-<div class="cta-content">
-<h2 data-cms="merch-cta-head">Outfit Your Team</h2>
-<p data-cms="merch-cta-desc">We offer bulk discounts for corporate orders to ensure your entire team is
-                equipped for the climb.</p>
-<a class="btn btn-primary" href="contact.html" >Contact for Bulk Orders</a>
-</div>
-</section>
-<footer>
-<p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
-</footer>
-<script src="static/cms.js"></script>
-
-<!-- Cart FAB -->
-<div id="cart-fab" onclick="openCart()" style="position:fixed;bottom:2rem;right:2rem;width:60px;height:60px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(192,108,59,0.4);z-index:999;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-<i class="fas fa-shopping-cart" style="color:white;font-size:1.4rem;"></i>
+<img id="quartzip-color-img" alt="Sherpa Basecamp Quarter-Zip" data-cms="merch-img-2" src="/static/merch_pullover.png"/>/static/merch_pullover.png</i>
 <span id="cart-badge" style="position:absolute;top:-4px;right:-4px;background:var(--primary);color:white;font-size:0.7rem;font-weight:700;width:22px;height:22px;border-radius:50%;display:none;align-items:center;justify-content:center;">0</span>
 </div>
 
