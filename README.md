@@ -23,7 +23,7 @@ Sherpa Solutions LLC provides navigational expertise, operational infrastructure
 ## Local Development
 1. Ensure Python 3.8+ is installed.
 2. Install dependencies: `pip install fastapi uvicorn pydantic jinja2`
-3. Start the server: `python -m uvicorn server:app --port 8000`
+3. Start the server: `python -m uvicorn server:app --port 8001`
 4. Visit `http://localhost:8000`
 
 ## Credits
