@@ -333,14 +333,53 @@
 
                     // Nodes mapped to their approximate path fractions
                     const tsNodes = [
-                        { frac: 0.13, el: document.querySelectorAll('.ts-node')[1] }, // Competitor Analysis
-                        { frac: 0.26, el: document.querySelectorAll('.ts-node')[2] }, // Operational Review
-                        { frac: 0.41, el: document.querySelectorAll('.ts-node')[3] }, // Quality Assessment
-                        { frac: 0.55, el: document.querySelectorAll('.ts-node')[4] }, // Marketing Strategy
-                        { frac: 0.70, el: document.querySelectorAll('.ts-node')[5] }, // Leadership Coaching
-                        { frac: 0.85, el: document.querySelectorAll('.ts-node')[6] }, // AI Integration
-                        { frac: 0.95, el: document.querySelectorAll('.ts-node')[7] }  // Strategy Development
+                        { frac: 0.13, el: document.querySelectorAll('.ts-node')[1] }, // Cloud Strategy
+                        { frac: 0.26, el: document.querySelectorAll('.ts-node')[2] }, // Digital Transformation
+                        { frac: 0.41, el: document.querySelectorAll('.ts-node')[3] }, // Cybersecurity
+                        { frac: 0.55, el: document.querySelectorAll('.ts-node')[4] }, // IT Project Mgmt
+                        { frac: 0.70, el: document.querySelectorAll('.ts-node')[5] }, // Program Recovery
+                        { frac: 0.85, el: document.querySelectorAll('.ts-node')[6] }, // AI & Automation
+                        { frac: 0.95, el: document.querySelectorAll('.ts-node')[7] }  // Strategic Ascent
                     ];
+
+                    // Snap each flag node pixel-perfectly onto the SVG path using
+                    // getPointAtLength() + getScreenCTM() for exact coordinate mapping.
+                    function snapFlagsToPath() {
+                        const svg = tsPath.ownerSVGElement;
+                        const trailContainer = document.getElementById('trail-container');
+                        if (!svg || !trailContainer) return;
+
+                        const containerRect = trailContainer.getBoundingClientRect();
+                        const ctm = svg.getScreenCTM();
+                        if (!ctm) return;
+
+                        const totalLen = tsPath.getTotalLength();
+
+                        tsNodes.forEach(({ frac, el }) => {
+                            if (!el) return;
+                            // Get the point on the bezier at this fraction
+                            const pt = tsPath.getPointAtLength(frac * totalLen);
+
+                            // Convert SVG coordinates → screen coordinates via CTM
+                            const svgPt = svg.createSVGPoint();
+                            svgPt.x = pt.x;
+                            svgPt.y = pt.y;
+                            const screenPt = svgPt.matrixTransform(ctm);
+
+                            // Convert screen coords → % relative to the trail-container
+                            const leftPct = ((screenPt.x - containerRect.left) / containerRect.width) * 100;
+                            const topPct = ((screenPt.y - containerRect.top) / containerRect.height) * 100;
+
+                            el.style.left = leftPct + '%';
+                            el.style.top = topPct + '%';
+                            // transform is handled by CSS: translate(-50%, -100%)
+                            // which plants the flag pole base exactly on the path point
+                        });
+                    }
+
+                    // Run immediately and re-run on resize so flags stay on the line
+                    snapFlagsToPath();
+                    window.addEventListener('resize', snapFlagsToPath);
 
                     const sherpaIcons = ["fa-person-hiking"];
                     const peopleIcons = ["fa-person-walking", "fa-person-dress"];
