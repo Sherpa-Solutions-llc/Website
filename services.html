@@ -15,6 +15,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css?v=1.4">
+    <script src="static/theme.js"></script>
 </head>
 
 <body>
@@ -35,7 +36,7 @@
             <li><a href="merchandise.html">Merchandise</a></li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
-        <a href="contact.html" class="btn btn-primary nav-cta">Schedule Basecamp Consultation</a>
+        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button><a href="contact.html" class="btn btn-primary nav-cta">Schedule Basecamp Consultation</a></div>
     </header>
 
     <div class="page-header">
@@ -207,13 +208,20 @@
     </section>
 
     <!-- Service Detail Sections -->
-    <section id="service-cloud-strategy" class="service-detail">
-        <h3><i class="fa-solid fa-cloud service-detail-icon"></i> Cloud Strategy: Navigating the Hybrid Horizon</h3>
+    <section id="service-cloud-strategy" class="service-detail service-detail-bg" style="background-image: url('static/cloud_strategy.png');">
+        <div class="service-detail-wrapper">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-cloud service-detail-icon"></i> Cloud Strategy: Navigating the Hybrid Horizon</h3>
         <p class="lead">We guide your organization through the complexities of cloud adoption. As your Sherpa, we
             ensure your cloud infrastructure is scalable, cost-effective, and perfectly aligned with your business
             objectives.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>The Problem</strong>
             <p>Disconnected cloud environments, spiraling costs, and "cloud-first" mandates without a roadmap lead to
                 operational drag and wasted investment.</p>
@@ -238,6 +246,8 @@
                 <li>Battle-tested disaster recovery and business continuity.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>Proven Impact:</strong> Average of 25% cost reduction and 40% improvement in resource uptime.
@@ -247,13 +257,23 @@
             <p>Ready for a clearer cloud horizon? Schedule your Basecamp Consultation.</p>
             <a href="contact.html" class="btn btn-primary">Schedule a Consultation</a>
         </div>
+            </div>
+            
+        </div>
     </section>
-    <section id="service-digital-transformation" class="service-detail">
-        <h3><i class="fa-solid fa-rocket service-detail-icon"></i> Digital Transformation: Modernizing Your Mission</h3>
+    <section id="service-digital-transformation" class="service-detail service-detail-bg" style="background-image: url('static/digital_transformation.png');">
+        <div class="service-detail-wrapper reverse">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-rocket service-detail-icon"></i> Digital Transformation: Modernizing Your Mission</h3>
         <p class="lead">We partner with you to align your technology with your business mission. As your Sherpa, we
             modernize your operations, ensuring your team has the right tools for the long-term climb.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>The Problem</strong>
             <p>Legacy systems and manual workflows act as heavy anchors, slowing your organization's growth and
                 frustrating both employees and customers.</p>
@@ -276,6 +296,8 @@
                 <li>Future-proofed infrastructure that scales with your ambition.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>Proven Impact:</strong> Clients typically reach 30–50% faster operational cycles.
@@ -285,14 +307,24 @@
             <p>Ready to unlock your digital potential? Book your no-risk review.</p>
             <a href="contact.html" class="btn btn-primary">Talk to an Expert</a>
         </div>
+            </div>
+            
+        </div>
     </section>
-    <section id="service-cybersecurity-strategy" class="service-detail">
-        <h3><i class="fa-solid fa-shield-halved service-detail-icon"></i> Cybersecurity Strategy: Securing the Ascent
+    <section id="service-cybersecurity-strategy" class="service-detail service-detail-bg" style="background-image: url('static/cybersecurity.png');">
+        <div class="service-detail-wrapper">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-shield-halved service-detail-icon"></i> Cybersecurity Strategy: Securing the Ascent
         </h3>
         <p class="lead">Protect your organizational value from cyber threats. As your Sherpa, we build unbreakable
             defenses and a culture of security, ensuring your climb remains safe and focused.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>The Problem</strong>
             <p>Breaches and data leaks are the "avalanches" of the digital world—sudden, devastating, and capable of
                 destroying years of hard-won progress.</p>
@@ -316,6 +348,8 @@
                 <li>Enhanced trust from clients and partners.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>Proven Impact:</strong> Significant reduction in cyber-risk exposure and immediate compliance
@@ -326,13 +360,23 @@
             <p>Is your flank secured? Schedule your security review now.</p>
             <a href="contact.html" class="btn btn-primary">Schedule a Consultation</a>
         </div>
+            </div>
+            
+        </div>
     </section>
-    <section id="service-ai-automation" class="service-detail">
-        <h3><i class="fa-solid fa-robot service-detail-icon"></i> AI & Automation: Exponential Velocity</h3>
+    <section id="service-ai-automation" class="service-detail service-detail-bg" style="background-image: url('static/ai_automation.png');">
+        <div class="service-detail-wrapper reverse">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-robot service-detail-icon"></i> AI & Automation: Exponential Velocity</h3>
         <p class="lead">We lead pragmatic AI adoption—assessing terrain, prototyping paths, and only scaling proven
             routes. As your Sherpa, we ensure AI accelerates your climb without unnecessary risks.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>The Problem</strong>
             <p>Hype clouds judgment; many organizations invest in AI without a clear ROI, leading to expensive dead ends
                 and technical debt.</p>
@@ -356,6 +400,8 @@
                 <li>Competitive advantage through rapid technological adoption.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>Proven Impact:</strong> Our AI Code Vibing workflows have delivered 3x throughput for engineering
@@ -366,15 +412,25 @@
             <p>Ready to automate your success? Book your AI review.</p>
             <a href="contact.html" class="btn btn-primary">Request a Quote</a>
         </div>
+            </div>
+            
+        </div>
     </section>
 
-    <section id="service-it-project-management" class="service-detail">
-        <h3><i class="fa-solid fa-diagram-project service-detail-icon"></i> IT Project Management: Disciplined Execution
+    <section id="service-it-project-management" class="service-detail service-detail-bg" style="background-image: url('static/it_project_management.png');">
+        <div class="service-detail-wrapper">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-diagram-project service-detail-icon"></i> IT Project Management: Disciplined Execution
         </h3>
         <p class="lead">Delivering complex technology programs on time and within scope. As your Sherpa, we provide
             the leadership and framework required to reach your most ambitious project goals.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>The Problem</strong>
             <p>Over 70% of IT projects fail to meet their original objectives, suffering from scope creep, budget
                 overruns, and lack of stakeholder alignment.</p>
@@ -400,6 +456,8 @@
                 <li>Higher return on technology investments.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>Proven Impact:</strong> Over 25 years of successful delivery in enterprise environments.
@@ -409,15 +467,25 @@
             <p>Need a steady hand on the helm? Schedule a consultation.</p>
             <a href="contact.html" class="btn btn-primary">Schedule a Consultation</a>
         </div>
+            </div>
+            
+        </div>
     </section>
 
-    <section id="service-program-recovery" class="service-detail">
-        <h3><i class="fa-solid fa-life-ring service-detail-icon"></i> Program Recovery: Rescuing the Mission</h3>
+    <section id="service-program-recovery" class="service-detail service-detail-bg" style="background-image: url('static/program_recovery.png');">
+        <div class="service-detail-wrapper reverse">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-life-ring service-detail-icon"></i> Program Recovery: Rescuing the Mission</h3>
         <p class="lead">We step in when projects stalle or fail. As your Sherpa, we conduct rapid "search and rescue"
             for
             failing implementations, getting your most critical programs back on the path to success.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>The Problem</strong>
             <p>A failing million-dollar IT project creates more than just financial loss—it creates organizational
                 trauma, erodes trust, and threatens the business mission.</p>
@@ -443,6 +511,8 @@
                 <li>A clear, realistic path to a successful (though modified) summit.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>Proven Impact:</strong> Rescued multiple multi-million dollar ERP and EMR implementations.
@@ -451,6 +521,9 @@
         <div class="service-cta">
             <p>Is your project in trouble? Don't wait for total failure. Contact us immediately.</p>
             <a href="contact.html" class="btn btn-primary" style="background: #a13d3d;">Emergency Program Rescue</a>
+        </div>
+            </div>
+            
         </div>
     </section>
 
@@ -461,13 +534,20 @@
 
 
 
-    <section id="service-strategic-ascent" class="service-detail">
-        <h3><i class="fa-solid fa-flag service-detail-icon"></i> Strategic Ascent: The Summit</h3>
+    <section id="service-strategic-ascent" class="service-detail service-detail-bg" style="background-image: url('static/strategic_ascent.png');">
+        <div class="service-detail-wrapper">
+            <div class="service-detail-content">
+                <h3><i class="fa-solid fa-flag service-detail-icon"></i> Strategic Ascent: The Summit</h3>
         <p class="lead">Strategic Ascent is the culmination of your Sherpa journey — the point where operational
             transformation becomes self-sustaining growth. As your Sherpa, we don't just help you reach the top;
             we ensure you thrive there.</p>
 
-        <div class="service-subsection">
+        <div class="accordion">
+            <button class="accordion-header">
+                View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="accordion-content">
+                <div class="service-subsection">
             <strong>What the Summit Looks Like</strong>
             <p>Organizations that reach Strategic Ascent have moved beyond reactive IT and operational firefighting.
                 They operate with aligned technology, empowered teams, measurable KPIs, and a culture of continuous
@@ -494,6 +574,8 @@
                 <li>The confidence and capability to lead your market.</li>
             </ul>
         </div>
+            </div>
+        </div>
 
         <div class="service-impact">
             <strong>The View from the Summit:</strong> Clients at Strategic Ascent report sustained 30–60%
@@ -503,6 +585,9 @@
         <div class="service-cta">
             <p>Ready to begin your ascent? Your summit starts with a single conversation.</p>
             <a href="contact.html" class="btn btn-primary">Schedule Basecamp Consultation</a>
+        </div>
+            </div>
+            
         </div>
     </section>
 
@@ -533,6 +618,33 @@
         });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll('.service-detail').forEach(el => observer.observe(el));
+            
+            document.querySelectorAll('.accordion-header').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('.fa-chevron-down');
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        });
+    </script>
     <script src="static/cms.js"></script>
 </body>
 
