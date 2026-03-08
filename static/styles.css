@@ -327,7 +327,7 @@ header {
 
 /* Generic Page Header */
 .page-header {
-    padding: 12rem 5% 5rem;
+    padding: 11.5rem 5% 3rem;
     background: linear-gradient(135deg, var(--bg-color) 0%, rgba(122, 142, 99, 0.1) 100%);
     text-align: center;
     position: relative;
@@ -335,11 +335,13 @@ header {
 }
 
 .page-header h1 {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 8vw, 4rem);
     color: var(--primary);
     margin-bottom: 1rem;
     position: relative;
     z-index: 2;
+    word-wrap: break-word;
+    /* Ensure long words break if they still overflow */
 }
 
 .page-header p {
@@ -789,6 +791,10 @@ footer {
 
     .contact-layout {
         grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        padding: 5.5rem 5% 2rem;
     }
 }
 
