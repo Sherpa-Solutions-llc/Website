@@ -2348,10 +2348,149 @@ body.light-theme .node-tooltip p {
         gap: 1rem !important;
     }
 
-    /* Sherpa Method: collapse to 2 columns on tablet */
+    /* Sherpa Method: stack to 1 column on mobile, tighter spacing */
     .framework-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 2rem !important;
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+        margin-top: 2rem !important;
+    }
+
+    .framework-step {
+        padding: 1.5rem 1.25rem !important;
+    }
+
+    .framework-step h3 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .framework-step p {
+        font-size: 0.9rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .step-num {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+        top: -16px !important;
+    }
+
+    /* Tighter section padding on mobile */
+    .framework-section {
+        padding: 2rem 5% !important;
+    }
+
+    /* Testimonials — smaller cards on mobile */
+    .testimonial-card {
+        padding: 1.5rem !important;
+        border-radius: 16px !important;
+    }
+
+    .quote-icon {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .testimonial-card p {
+        font-size: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .testimonials-grid {
+        gap: 1.25rem !important;
+        margin-top: 2rem !important;
+    }
+
+    .testimonials-section {
+        padding: 2.5rem 5% !important;
+    }
+
+    /* ── Sherpa Insights ── */
+    .insights-section {
+        padding: 2.5rem 5% !important;
+    }
+
+    .insights-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        margin-top: 1.5rem !important;
+    }
+
+    .insight-card {
+        padding: 1.25rem !important;
+        border-radius: 16px !important;
+    }
+
+    .insight-card h3 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .insight-card p {
+        font-size: 0.9rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* ── Lead Gen Section ── */
+    .lead-gen-section {
+        padding: 2.5rem 5% !important;
+    }
+
+    .lead-gen-card {
+        flex-direction: column !important;
+        border-radius: 16px !important;
+    }
+
+    .lead-gen-content {
+        padding: 1.5rem !important;
+    }
+
+    .lead-gen-content h2 {
+        font-size: 1.5rem !important;
+    }
+
+    .lead-gen-image {
+        display: none !important;
+        /* hide decorative image column on mobile */
+    }
+
+    .lead-gen-form {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    /* ── Pricing Model ── */
+    .pricing-model-section {
+        padding: 2rem 5% !important;
+    }
+
+    .pricing-grid {
+        gap: 1rem !important;
+        margin: 1.25rem auto !important;
+    }
+
+    .pricing-card {
+        padding: 1.25rem 1.5rem !important;
+        min-width: unset !important;
+    }
+
+    /* ── Deep Dive ── */
+    .service-deep-dive {
+        padding: 2.5rem 5% !important;
+    }
+
+    .deep-dive-grid {
+        gap: 1.5rem !important;
+    }
+
+    /* ── Section headers ── */
+    .section-header {
+        margin-bottom: 0 !important;
+    }
+
+    .section-header p {
+        font-size: 0.95rem !important;
     }
 }
 
@@ -2382,10 +2521,7 @@ body.light-theme .node-tooltip p {
         gap: 0.5rem !important;
     }
 
-    /* Sherpa Method: stack to 1 column on phone */
-    .framework-grid {
-        grid-template-columns: 1fr !important;
-    }
+    /* framework-grid already 1 column from 768px rule above */
 }
 
 .service-detail {
