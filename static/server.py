@@ -84,19 +84,19 @@ async def login(response: Response, username: str = Form(...), password: str = F
             "username": username,
             "expires": datetime.now() + timedelta(days=1)
         }
-        response = RedirectResponse(url="/settings.html", status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse(url="/settings.html", status_code=status.HTTP_303_SEE_OTHER)
         response.set_cookie(key="session_token", value=token, httponly=True, max_age=86400)
         return response
     
     # Return error param
-    return RedirectResponse(url="/login.html?error=1", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(url="/login.html?error=1", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.post("/api/logout")
 async def logout(request: Request, response: Response):
     token = request.cookies.get("session_token")
     if token in sessions:
         del sessions[token]
-    response = RedirectResponse(url="/login.html", status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(url="/login.html", status_code=status.HTTP_303_SEE_OTHER)
     response.delete_cookie("session_token")
     return response
 
