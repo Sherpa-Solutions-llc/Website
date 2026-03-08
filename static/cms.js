@@ -1,7 +1,37 @@
 document.addEventListener("DOMContentLoaded", async () => {
     try {
+        // Automatically make all standard elements editable if they don't already have a data-cms tag.
+        // This ensures the entire website is editable within the iframe.
+        let cmsCounter = 1;
+        const validTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SPAN', 'LI', 'A', 'IMG', 'B', 'STRONG', 'EM', 'I', 'TD', 'TH', 'BUTTON'];
+        const pageSource = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+
+        document.querySelectorAll('body *').forEach(el => {
+            if (validTags.includes(el.tagName) && !el.hasAttribute('data-cms')) {
+                // Ignore elements within SVG/editor UI
+                if (el.closest('svg') || el.closest('.trail-svg') || el.closest('[id^="_cms_"]') || el.closest('.custom-modal')) return;
+
+                // Only target leaf nodes (no structural block children)
+                let hasBlockChildren = false;
+                for (let child of el.children) {
+                    if (['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'TABLE', 'SECTION', 'HEADER', 'FOOTER', 'NAV', 'FORM'].includes(child.tagName)) {
+                        hasBlockChildren = true;
+                        break;
+                    }
+                }
+
+                if (!hasBlockChildren) {
+                    let hasText = el.textContent.trim().length > 0;
+                    if (el.tagName === 'IMG' || hasText || el.querySelector('img')) {
+                        el.setAttribute('data-cms', 'auto-' + pageSource + '-' + el.tagName.toLowerCase() + '-' + cmsCounter);
+                        cmsCounter++;
+                    }
+                }
+            }
+        });
+
         // Fetch the dynamic content map from the backend CMS
-        const res = await fetch('/api/content');
+        const res = await fetch('/api/content', { cache: 'no-store' });
         if (res.ok) {
             const content = await res.json();
 
@@ -59,6 +89,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function autoRegisterTags() {
     // Collect all elements with a data-cms tag natively embedded
     const elements = document.querySelectorAll('[data-cms]');
+    const registerPromises = [];
+
     for (const el of elements) {
         const key = el.getAttribute('data-cms');
 
@@ -68,14 +100,16 @@ async function autoRegisterTags() {
         // Blindly fire it to the server. The backend uses ON CONFLICT DO UPDATE
         // meaning if we already edited this via the CMS, it WON'T overwrite the DB text,
         // it will just ensure the key itself actually exists in the DB so the admin Editor renders it.
-        try {
-            await fetch('/api/content/register', {
+        registerPromises.push(
+            fetch('/api/content/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ element_id: key, default_content: originalContent })
-            });
-        } catch (e) {
-            // Ignore passive tracking errors
-        }
+            }).catch(e => {
+                // Ignore passive tracking errors
+            })
+        );
     }
+
+    await Promise.all(registerPromises);
 }
