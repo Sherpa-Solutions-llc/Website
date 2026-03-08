@@ -6,93 +6,283 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sherpa Solutions LLC | Admin Login</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css">
     <style>
-        .login-container {
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--bg-color) 0%, rgba(122, 142, 99, 0.1) 100%);
+            background: linear-gradient(135deg, #0d1a0d 0%, #1a2e1a 50%, #0d1a0d 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle mountain silhouette texture */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 70%, rgba(210, 128, 82, 0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 20%, rgba(157, 181, 129, 0.07) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 1.5rem;
         }
 
         .login-card {
-            background: #FFFFFF;
-            padding: 4rem 3rem;
+            background: #ffffff;
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 450px;
+            padding: 3rem 2.5rem 2.5rem;
+            box-shadow:
+                0 32px 64px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
             text-align: center;
         }
 
-        .login-card .logo-container {
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-
-        .login-card h2 {
-            color: var(--primary);
-            margin-bottom: 2rem;
-            font-size: 2rem;
-        }
-
-        .error-message {
-            color: #d9534f;
-            background: #fdf7f7;
-            padding: 1rem;
-            border-radius: 8px;
+        /* Logo */
+        .login-logo {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 16px;
             margin-bottom: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Title */
+        .login-card h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1a2e1a;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.02em;
+        }
+
+        .login-subtitle {
+            font-size: 0.875rem;
+            color: #6b7c6b;
+            margin-bottom: 2rem;
+        }
+
+        /* Divider */
+        .login-divider {
+            height: 1px;
+            background: #e8ede8;
+            margin-bottom: 1.75rem;
+        }
+
+        /* Form fields */
+        .field-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #3a4e3a;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.5rem;
+        }
+
+        .field-group .input-wrap {
+            position: relative;
+        }
+
+        .field-group .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aaa9a;
+            font-size: 0.85rem;
+        }
+
+        .field-group input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.75rem;
+            border: 1.5px solid #d8e4d8;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: #1a2e1a;
+            background: #f8faf8;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .field-group input:focus {
+            border-color: #D28052;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(210, 128, 82, 0.12);
+        }
+
+        .field-group input::placeholder {
+            color: #b0bdb0;
+        }
+
+        /* Submit button */
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem 1.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #D28052 0%, #b86a3e 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 16px rgba(210, 128, 82, 0.35);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(210, 128, 82, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Error box */
+        .error-message {
+            background: #fff5f5;
+            border: 1.5px solid #e8b4b4;
+            color: #c0392b;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
             display: none;
-            border: 1px solid #d9534f;
+            text-align: left;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .error-message.visible {
+            display: flex;
+        }
+
+        /* Return link */
+        .return-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #7a8e7a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .return-link:hover {
+            color: #D28052;
+        }
+
+        /* Security badge */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #f0f8f0;
+            border: 1px solid #d0e4d0;
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+            color: #3a6e3a;
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
     </style>
-    <script src="static/theme.js"></script>
 </head>
 
 <body>
-    <div class="login-container">
+    <div class="login-wrapper">
         <div class="login-card">
-            <div class="logo-container">
-                <img src="static/sherpa_logo_embroidered.jpg" alt="Sherpa Solutions LLC" data-cms="global-navbar-logo">
+
+            <img src="static/sherpa_logo_embroidered.jpg" alt="Sherpa Solutions LLC" class="login-logo">
+
+            <h2>Admin Portal</h2>
+            <p class="login-subtitle">Sherpa Solutions LLC · Secure Access</p>
+
+            <div class="login-divider"></div>
+
+            <div class="security-badge">
+                <i class="fa-solid fa-shield-halved"></i> Authorized Personnel Only
             </div>
-            <h2>Admin Portal Access</h2>
 
             <div id="errorBox" class="error-message">
-                <i class="fa-solid fa-circle-exclamation"></i> Invalid username or password.
+                <i class="fa-solid fa-circle-exclamation"></i>
+                Invalid username or password. Please try again.
             </div>
 
-            <form action="/api/login" method="POST" class="contact-form" style="padding: 0; box-shadow: none;">
-                <div class="form-group" style="text-align: left;">
+            <form action="/api/login" method="POST">
+                <div class="field-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required placeholder="Enter admin username">
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" id="username" name="username" required placeholder="Admin username"
+                            autocomplete="username">
+                    </div>
                 </div>
-                <div class="form-group" style="text-align: left;">
+
+                <div class="field-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter admin password">
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" required placeholder="Admin password"
+                            autocomplete="current-password">
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"
-                    style="width: 100%; justify-content: center; margin-top: 1rem;">Secure Login <i
-                        class="fa-solid fa-arrow-right"></i></button>
+
+                <button type="submit" class="btn-login">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Secure Login
+                </button>
             </form>
-            <p style="margin-top: 2rem; color: var(--secondary); font-size: 0.9rem;">
-                <a href="/" style="color: var(--accent); text-decoration: none;"><i class="fa-solid fa-arrow-left"></i>
-                    Return to Main Site</a>
-            </p>
+
+            <a href="/" class="return-link">
+                <i class="fa-solid fa-arrow-left"></i> Return to Main Site
+            </a>
+
         </div>
     </div>
 
     <script>
-        // Check URL for error params
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('error')) {
-            document.getElementById('errorBox').style.display = 'block';
+            document.getElementById('errorBox').classList.add('visible');
         }
     </script>
-    <script src="static/cms.js"></script>
 </body>
 
 </html>
