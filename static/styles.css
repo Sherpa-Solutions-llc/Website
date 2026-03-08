@@ -2147,11 +2147,19 @@ body.light-theme .node-tooltip p {
         top: 70px;
         left: -100%;
         width: 100%;
+        /* Use dvh (dynamic viewport height) which shrinks when Android URL bar is visible;
+           fall back to 100vh for older browsers */
+        height: calc(100dvh - 70px);
         height: calc(100vh - 70px);
+        /* fallback */
         background: var(--bg-color);
         flex-direction: column;
         align-items: center;
-        padding-top: 2rem;
+        /* Tighter top padding + bottom safe-area for Samsung gesture bar */
+        padding-top: 1.5rem;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        overflow-y: auto;
+        /* scroll if items don't fit */
         transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 999;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -2163,15 +2171,16 @@ body.light-theme .node-tooltip p {
     }
 
     .nav-links li {
-        margin: 1rem 0;
+        margin: 0.6rem 0;
+        /* was 1rem — tighter so all 5 links fit on small screens */
         width: 100%;
         text-align: center;
     }
 
     .nav-links a {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         display: block;
-        padding: 1rem;
+        padding: 0.85rem 1rem;
     }
 
     .nav-cta {
