@@ -462,8 +462,13 @@
                     <h3>Provision New Administrator</h3>
                     <form id="add-user-form" class="form-row">
                         <input type="text" id="new-username" placeholder="New Username" required autocomplete="off">
-                        <input type="password" id="new-password" placeholder="Secure Password" required
-                            autocomplete="new-password">
+                        <div style="position: relative; flex: 1; display: flex;">
+                            <input type="password" id="new-password" placeholder="Secure Password" required
+                                autocomplete="new-password" style="flex: 1; padding-right: 40px;">
+                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;">
+                                <i class="fa-solid fa-eye" id="new-password-eye"></i>
+                            </button>
+                        </div>
                         <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
                             Account</button>
                     </form>
@@ -557,7 +562,12 @@
             <h3 id="pw-modal-title">Change Password</h3>
             <p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
             </p>
-            <input type="password" id="pw-modal-input" placeholder="New Secure Password">
+            <div style="position: relative; margin-bottom: 1.5rem;">
+                <input type="password" id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;">
+                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;">
+                    <i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
+                </button>
+            </div>
             <div class="modal-actions">
                 <button class="btn-outline" onclick="closeModal('password-modal')">Cancel</button>
                 <button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
@@ -579,6 +589,20 @@
     <script>
         let currentActionUserId = null;
         let currentActionUsername = null;
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + '-eye');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
