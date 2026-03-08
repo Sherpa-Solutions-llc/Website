@@ -565,7 +565,7 @@ async def lead_capture(lead: LeadCapture):
 
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"📍 New Roadmap Request: {visitor_email}"
+        msg["Subject"] = "send me a sample roadmap to using AI"
         msg["From"] = smtp_user
         msg["To"] = to_address
         msg["Reply-To"] = visitor_email
