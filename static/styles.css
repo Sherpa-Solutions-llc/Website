@@ -1492,6 +1492,11 @@ body.light-theme .node-tooltip p {
     paint-order: stroke fill;
 }
 
+/* Remove browser default <a> underline from orange partnership flags */
+.pp-node {
+    text-decoration: none;
+}
+
 
 /* Path Legends at Bottom */
 .animated-services-canvas {
@@ -2719,4 +2724,74 @@ header {
 
 #admin-login-link:hover {
     opacity: 1;
+}
+
+/* ============================================================
+   DARK MODE — Trail / Mountain Section Fixes
+   The SVG uses hardcoded black strokes and light sky gradients
+   that disappear on the near-black dark background.
+   ============================================================ */
+
+[data-theme="dark"] #ts-path {
+    stroke: #9DB581 !important;
+    /* light sage green — visible on dark background */
+}
+
+[data-theme="dark"] #partnership-path {
+    stroke: #9DB581 !important;
+    /* match ts-path green in dark mode */
+}
+
+[data-theme="dark"] .trail-container {
+    /* Add a subtle very-dark-green tint so the SVG mountains
+       have something to render against instead of pure black */
+    background: rgba(20, 35, 22, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Trail-hint "SELECT A FLAG TO EXPLORE" pill — keep readable in dark */
+[data-theme="dark"] .trail-hint {
+    background: rgba(20, 35, 22, 0.92) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .trail-hint i,
+[data-theme="dark"] .trail-hint span {
+    color: #ffffff !important;
+}
+
+/* Legend box borders in dark mode */
+[data-theme="dark"] .legend-accent {
+    border-left-color: var(--accent);
+}
+
+[data-theme="dark"] .legend-primary {
+    border-left-color: #2D3F2E;
+}
+
+/* Trail Paths legend ALWAYS uses a white background + black text so it reads
+   clearly over the SVG mountain canvas in both light and dark theme */
+[data-theme="dark"] .map-legend-frame {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: rgba(45, 63, 46, 0.2) !important;
+}
+
+[data-theme="dark"] .legend-title {
+    color: #1a2e1a !important;
+    border-bottom-color: rgba(45, 63, 46, 0.15) !important;
+}
+
+[data-theme="dark"] .legend-accent {
+    background: #ffffff !important;
+}
+
+[data-theme="dark"] .legend-primary {
+    background: #ffffff !important;
+}
+
+[data-theme="dark"] .legend-box,
+[data-theme="dark"] .legend-box h4,
+[data-theme="dark"] .legend-box p {
+    color: #000000 !important;
 }
