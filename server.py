@@ -16,9 +16,19 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI()
 
+# Allow both local dev and the live GitHub Pages site
+ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:8001",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8001",
+    "https://sherpa-solutions-llc.com",
+    "https://www.sherpa-solutions-llc.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", "http://127.0.0.1:8000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,6 +58,11 @@ def require_admin(request: Request):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return user
+
+@app.get("/api/health")
+async def health_check():
+    """Railway healthcheck endpoint"""
+    return {"status": "ok", "service": "sherpa-solutions-api"}
 
 @app.on_event("startup")
 async def startup_event():
