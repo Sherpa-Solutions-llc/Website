@@ -2946,3 +2946,8 @@ header {
 [data-theme="dark"] .legend-box p {
     color: #000000 !important;
 }
+/* Fix: dropdown selects always use dark text regardless of theme */
+select, select option {
+    color: #1a1a1a !important;
+    background-color: #ffffff !important;
+}
