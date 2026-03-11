@@ -53,6 +53,19 @@ window.toggleLayer = function (layerName) {
     updateGlobeData();
 };
 
+// Panel Collapse Toggle
+window.toggleLayersPanel = function () {
+    const panel = document.getElementById('layers-panel');
+    const icon = document.getElementById('layers-toggle-icon');
+    
+    if (panel.classList.contains('collapsed')) {
+        panel.classList.remove('collapsed');
+        icon.className = 'fa-solid fa-chevron-down';
+    } else {
+        panel.classList.add('collapsed');
+        icon.className = 'fa-solid fa-chevron-up';
+    }
+};
 
 // ----- CESIUM INITIALIZATION -----
 const viewer = new Cesium.Viewer('globe-container', {
@@ -219,9 +232,9 @@ async function fetchEarthquakes() {
 
 async function fetchSatellites() {
     try {
-        // Fetch real, live active satellite TLEs from CelesTrak
-        const res = await fetch('https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle');
-        if (!res.ok) throw new Error('CelesTrak API Error');
+        // Fetch real, live active satellite TLEs from our backend proxy entirely bypassing CORS restrictions
+        const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/satellites');
+        if (!res.ok) throw new Error('Proxy API Error');
         const text = await res.text();
 
         const lines = text.split('\n').filter(l => l.trim().length > 0);
