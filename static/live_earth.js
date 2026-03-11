@@ -123,7 +123,7 @@ const airplaneSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/
 
 async function fetchFlights() {
     try {
-        const res = await fetch('https://sherpa-solutions-api.railway.app/api/flights');
+        const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/flights');
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
 
@@ -287,7 +287,7 @@ const majorCities = [
 
 async function fetchCCTVs() {
     try {
-        const res = await fetch('https://sherpa-solutions-api.railway.app/api/cameras?_t=' + Date.now());
+        const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/cameras?_t=' + Date.now());
         if (!res.ok) throw new Error('cameras API unavailable');
         const data = await res.json();
         state.cctv_cameras = data;
@@ -780,7 +780,7 @@ async function fetchFlightRoute(target) {
     // Use our own server-side proxy to avoid CORS restrictions on the OpenSky browser API
     if (!target.isMilitary && target.callsign && !target.callsign.includes('UNKNOWN') && target.callsign.trim() !== '') {
         try {
-            const res = await fetch(`https://sherpa-solutions-api.railway.app/api/flight-route?callsign=${encodeURIComponent(target.callsign.trim())}`);
+            const res = await fetch(`https://sherpa-solutions-api-production.up.railway.app/api/flight-route?callsign=${encodeURIComponent(target.callsign.trim())}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.origin && data.destination) {
