@@ -851,6 +851,18 @@ async def get_flights():
         print(f"Database query failed: {e}")
         return JSONResponse(generate_mock_flights())
 
+@app.get("/api/satellites")
+async def get_satellites():
+    """Proxy the Celestrak TLE data server-side to bypass frontend CORS blocks"""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get("https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle")
+            resp.raise_for_status()
+            # Return plain text exactly as Celestrak formats it so the frontend parser works unchanged
+            return Response(content=resp.text, media_type="text/plain")
+    except Exception as e:
+        print(f"Satellite proxy fetch failed: {e}")
+        return Response(content="", status_code=502)
 
 # --- Camera Image Proxy ---
 # Fetches public camera snapshot images server-side so the browser gets them
