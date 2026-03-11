@@ -434,34 +434,42 @@ html {
         max-height: 45vh;
         border-radius: 12px 12px 0 0;
         border-bottom: none;
+        transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* Scroll layer items horizontally in a single row */
+    .panel-left.collapsed {
+        max-height: 48px; /* Height of just the title bar */
+        overflow: hidden;
+    }
+
+    /* Scroll layer items vertically */
     .panel-content {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         gap: 8px;
-        overflow-x: auto;
-        overflow-y: hidden;
+        overflow-y: auto;
+        overflow-x: hidden;
         padding: 10px;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
     }
 
+    /* Show scrollbar to indicate more items below */
     .panel-content::-webkit-scrollbar {
-        display: none; /* Chrome/Safari */
+        display: block;
+        width: 6px;
     }
 
-    /* Each layer card: fixed compact width, no flex-grow */
+    /* Each layer card: full width */
     .layer-item {
-        flex: 0 0 150px;
+        width: 100%;
+        flex: none;
         margin-bottom: 0;
-        padding: 8px;
+        padding: 12px;
     }
 
-    /* Layer options (dropdowns): hide on mobile to save space */
+    /* Layer options (dropdowns): show on mobile so user can toggle specific sub-items */
     .layer-options {
-        display: none;
+        display: flex;
     }
 
     /* Counts: smaller font */
