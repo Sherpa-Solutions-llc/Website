@@ -59,6 +59,11 @@ def get_current_user(request: Request):
         
     return session_data["username"]
 
+@app.get("/api/health")
+async def health_check():
+    """Railway internal healthcheck hook"""
+    return {"status": "ok", "service": "sherpa-solutions-api"}
+
 def require_admin(request: Request):
     user = get_current_user(request)
     if not user:
