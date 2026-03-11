@@ -26,6 +26,10 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:8001",
     "https://sherpa-solutions-llc.com",
     "https://www.sherpa-solutions-llc.com",
+    "https://sherpa-solutions-llc.com/",
+    "https://www.sherpa-solutions-llc.com/",
+    "https://sherpa-solutions-llc.github.io",
+    "https://sherpa-solutions-llc.github.io/"
 ]
 
 app.add_middleware(
