@@ -1125,19 +1125,72 @@ function renderTargetDetails() {
 
 
 // Search Logic
+async function executeSearch() {
+    const searchInput = document.getElementById('target-search');
+    const query = searchInput.value.trim().toUpperCase();
+    if (!query) return;
+
+    // 1. Check Flights
+    const foundFlight = state.flights.find(f => f.callsign && f.callsign.includes(query) || f.id === query);
+    if (foundFlight) {
+        lockTarget(foundFlight);
+        if (foundFlight.isMilitary && !state.layers.military) toggleLayer('military');
+        if (!foundFlight.isMilitary && !state.layers.flights) toggleLayer('flights');
+        searchInput.value = '';
+        return;
+    }
+    
+    // 2. Check CCTV
+    const foundCCTV = state.cctv_cameras.find(c => c.id.toUpperCase().includes(query) || (c.origin && c.origin.toUpperCase().includes(query)));
+    if (foundCCTV) {
+        lockTarget(foundCCTV);
+        if (!state.layers.cctv) toggleLayer('cctv');
+        searchInput.value = '';
+        return;
+    }
+
+    // 3. Fallback to OpenStreetMap Geocoding (Locations)
+    try {
+        searchInput.placeholder = "Searching global map...";
+        searchInput.value = '';
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`);
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            
+            // Clear any active target locks to allow free-fly
+            const closeBtn = document.getElementById('close-target');
+            if (closeBtn) closeBtn.click();
+            
+            // Command Cesium to smoothly glide to the new coordinate
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(lon, lat, 200000), // Fly to 200km altitude
+                duration: 2.0
+            });
+            
+            searchInput.placeholder = `Found: ${data[0].display_name.split(',')[0]}`;
+            setTimeout(() => { searchInput.placeholder = "Search callsign, CCTV, or location..."; }, 4000);
+        } else {
+            alert('Target not found as an active flight, CCTV camera, or physical location.');
+            searchInput.placeholder = "Search callsign, CCTV, or location...";
+        }
+    } catch (e) {
+        console.error("Geocoding failed:", e);
+        alert("Location search failed due to a network error.");
+        searchInput.placeholder = "Search callsign, CCTV, or location...";
+    }
+}
+
 document.getElementById('target-search').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
-        const query = this.value.toUpperCase();
-        const found = state.flights.find(f => f.callsign && f.callsign.includes(query) || f.id === query);
-        if (found) {
-            lockTarget(found);
-            if (found.isMilitary && !state.layers.military) toggleLayer('military');
-            if (!found.isMilitary && !state.layers.flights) toggleLayer('flights');
-            this.value = '';
-        } else {
-            alert('Target not found active in airspace.');
-        }
+        executeSearch();
     }
+});
+
+document.getElementById('target-search-btn').addEventListener('click', function () {
+    executeSearch();
 });
 
 // Boot Sequence
