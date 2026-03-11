@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/static/live_earth.css?v=7">
+    <link rel="stylesheet" href="/static/live_earth.css?v=8">
 
     <!-- CesiumJS -->
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
@@ -39,7 +39,8 @@
 
         <div class="hud-search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="target-search" placeholder="Search callsign or flight (e.g., UAL123)">
+            <input type="text" id="target-search" placeholder="Search callsign, CCTV, or location...">
+            <button id="target-search-btn" class="search-btn">GO</button>
         </div>
 
         <div class="hud-status">
@@ -221,6 +222,6 @@
         <p style="opacity: 0.7;">Acquiring OpenSky Network telemetry...</p>
     </div>
     <!-- Application Script -->
-    <script src="/static/live_earth.js?v=10"></script>
+    <script src="/static/live_earth.js?v=11"></script>
 </body>
 </html>
