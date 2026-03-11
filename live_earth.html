@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/static/live_earth.css?v=4">
+    <link rel="stylesheet" href="/static/live_earth.css?v=7">
 
     <!-- CesiumJS -->
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
@@ -57,9 +57,12 @@
 
     <!-- UI Overlay Panels -->
     <!-- Left Panel: Layer Controls -->
-    <aside class="hud-panel panel-left">
-        <h2 class="panel-title"><i class="fa-solid fa-layer-group"></i> DATA LAYERS</h2>
-        <div class="panel-content">
+    <aside class="hud-panel panel-left" id="layers-panel">
+        <h2 class="panel-title" onclick="toggleLayersPanel()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <span style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-layer-group"></i> DATA LAYERS</span>
+            <i id="layers-toggle-icon" class="fa-solid fa-chevron-down"></i>
+        </h2>
+        <div class="panel-content" id="layers-content">
             <!-- Civilian Flights -->
             <div class="layer-item active" id="layer-flights" onclick="toggleLayer('flights')">
                 <div class="layer-icon"><i class="fa-solid fa-plane"></i></div>
