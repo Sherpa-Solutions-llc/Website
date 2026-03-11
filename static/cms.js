@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         // Fetch the dynamic content map from the backend CMS
-        const res = await fetch('/api/content', { cache: 'no-store' });
+        const res = await fetch('https://sherpa-solutions-api.railway.app/api/content', { cache: 'no-store' });
         if (res.ok) {
             const content = await res.json();
 
@@ -101,7 +101,7 @@ async function autoRegisterTags() {
         // meaning if we already edited this via the CMS, it WON'T overwrite the DB text,
         // it will just ensure the key itself actually exists in the DB so the admin Editor renders it.
         registerPromises.push(
-            fetch('/api/content/register', {
+            fetch('https://sherpa-solutions-api.railway.app/api/content/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ element_id: key, default_content: originalContent })
