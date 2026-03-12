@@ -283,6 +283,57 @@ async function initCesium() {
         setupFlightClustering(flightsDataSource, Cesium.Color.WHITE);
         setupFlightClustering(militaryDataSource, Cesium.Color.ORANGE);
 
+        // Setup CCTV Clustering
+        const setupCCTVClustering = (dataSource) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                cluster.label.show = true;
+                cluster.label.text = clusteredEntities.length.toLocaleString();
+                cluster.label.font = 'bold 14px "Share Tech Mono"';
+                cluster.label.fillColor = Cesium.Color.WHITE;
+                cluster.label.outlineColor = Cesium.Color.BLACK;
+                cluster.label.outlineWidth = 3;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                
+                cluster.billboard.show = true;
+                cluster.billboard.image = cctvSvg;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
+                cluster.billboard.scale = isMobile ? 0.6 : 0.8;
+            });
+        };
+        setupCCTVClustering(cctvDataSource);
+
+        // Setup Earthquake Clustering
+        const setupEarthquakeClustering = (dataSource) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                cluster.label.show = true;
+                cluster.label.text = clusteredEntities.length.toLocaleString();
+                cluster.label.font = 'bold 14px "Share Tech Mono"';
+                cluster.label.fillColor = Cesium.Color.WHITE;
+                cluster.label.outlineColor = Cesium.Color.BLACK;
+                cluster.label.outlineWidth = 3;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                
+                cluster.point.show = true;
+                cluster.point.color = Cesium.Color.fromHsl(0.16, 1.0, 0.5, 0.9);
+                cluster.point.pixelSize = 20;
+                cluster.point.outlineColor = Cesium.Color.YELLOW;
+                cluster.point.outlineWidth = 2;
+            });
+        };
+        setupEarthquakeClustering(earthquakesDataSource);
+
         viewer.targetFrameRate = 30;
         if (isMobile) viewer.resolutionScale = 0.75;
         viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
@@ -314,6 +365,14 @@ async function initCesium() {
                             if (state.layers.traffic) candidates = candidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
                             if (state.layers.flights) candidates = candidates.concat((state.flights || []).map(f => f.customData || f));
                             if (state.layers.military) candidates = candidates.concat((state.military || []).map(f => f.customData || f));
+                            if (state.layers.cctv) candidates = candidates.concat((state.cctv_cameras || []).map(c => ({...c, type: 'cctv'})));
+                            if (state.layers.earthquakes) candidates = candidates.concat(
+                                (state.earthquakes || []).map(q => ({
+                                    type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
+                                    lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], 
+                                    mag: q.properties?.mag || 1, time: q.properties?.time
+                                }))
+                            );
 
                             // Calculate distance squared for each to find the localized pack
                             const dist = (item) => Math.pow((item.lat||0) - lat, 2) + Math.pow((item.lng||0) - lng, 2);
