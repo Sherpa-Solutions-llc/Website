@@ -85,6 +85,19 @@ async def startup_event():
     await database.init_db()
     await init_flights_db()
     await init_satellites_db()
+    
+    # Run initial sync for empty databases
+    async with aiosqlite.connect(SATELLITES_DB) as db:
+        async with db.execute("SELECT COUNT(*) FROM satellites") as cursor:
+            row = await cursor.fetchone()
+            if not row or row[0] == 0:
+                print("[Satellites] DB empty on startup, fetching...")
+                await fetch_satellites_logic()
+            else:
+                print("[Satellites] DB already populated, skipping startup fetch.")
+                
+    await fetch_vessels_logic()
+
     asyncio.create_task(fetch_flights_loop())
     asyncio.create_task(aisstream_proxy_loop())
     asyncio.create_task(update_satellites_loop())
@@ -649,61 +662,63 @@ import time
 # Thread-safe in-memory cache of active vessels
 active_vessels = {}
 
+async def fetch_vessels_logic():
+    global active_vessels
+    try:
+        async with httpx.AsyncClient() as client:
+            print("[AIS Proxy] Fetching live vessels from DigiTraffic...")
+            res = await client.get('https://meri.digitraffic.fi/api/ais/v1/locations', timeout=15.0)
+            res.raise_for_status()
+            data = res.json()
+            
+            # data is a list of features: {"mmsi": 230983580, "geometry": {"coordinates": [24.1, 59.9]}, "properties": {"sog": 10.5, "cog": 120}}
+            count = 0
+            for item in data.get("features", []):
+                mmsi = item.get("mmsi")
+                coords = item.get("geometry", {}).get("coordinates", [])
+                props = item.get("properties", {})
+                
+                if mmsi and len(coords) == 2:
+                    lng, lat = coords[0], coords[1]
+                    speed = props.get("sog", 0) * 1.852 # knots to km/h
+                    heading = props.get("cog", 0)
+                    
+                    vesselObj = active_vessels.get(mmsi)
+                    if vesselObj:
+                        vesselObj["lat"] = lat
+                        vesselObj["lng"] = lng
+                        vesselObj["heading"] = heading
+                        vesselObj["velocityKmH"] = speed
+                        vesselObj["lastUpdate"] = time.time()
+                    else:
+                        active_vessels[mmsi] = {
+                            "id": mmsi,
+                            "title": f"Vessel {mmsi}",
+                            "lat": lat,
+                            "lng": lng,
+                            "heading": heading,
+                            "velocityKmH": speed,
+                            "country": "FIN/BALTIC",
+                            "type": "vessel",
+                            "lastUpdate": time.time()
+                        }
+                    count += 1
+                    
+                    # Memory management
+                    if len(active_vessels) > 1500:
+                        sorted_vessels = sorted(active_vessels.items(), key=lambda item: item[1]["lastUpdate"])
+                        for k, _ in sorted_vessels[:500]:
+                            del active_vessels[k]
+            
+            print(f"[AIS Proxy] Successfully processed {count} vessels.")
+    except Exception as e:
+        print("[AIS Proxy] Failure:", str(e))
+
 async def aisstream_proxy_loop():
     """Background task pulling open AIS data from DigiTraffic Finland to get real vessels."""
-    global active_vessels
-    
+    import time
     while True:
-        try:
-            async with httpx.AsyncClient() as client:
-                print("[AIS Proxy] Fetching live vessels from DigiTraffic...")
-                res = await client.get('https://meri.digitraffic.fi/api/ais/v1/locations', timeout=15.0)
-                res.raise_for_status()
-                data = res.json()
-                
-                # data is a list of features: {"mmsi": 230983580, "geometry": {"coordinates": [24.1, 59.9]}, "properties": {"sog": 10.5, "cog": 120}}
-                count = 0
-                for item in data.get("features", []):
-                    mmsi = item.get("mmsi")
-                    coords = item.get("geometry", {}).get("coordinates", [])
-                    props = item.get("properties", {})
-                    
-                    if mmsi and len(coords) == 2:
-                        lng, lat = coords[0], coords[1]
-                        speed = props.get("sog", 0) * 1.852 # knots to km/h
-                        heading = props.get("cog", 0)
-                        
-                        vesselObj = active_vessels.get(mmsi)
-                        if vesselObj:
-                            vesselObj["lat"] = lat
-                            vesselObj["lng"] = lng
-                            vesselObj["heading"] = heading
-                            vesselObj["velocityKmH"] = speed
-                            vesselObj["lastUpdate"] = time.time()
-                        else:
-                            active_vessels[mmsi] = {
-                                "id": mmsi,
-                                "title": f"Vessel {mmsi}",
-                                "lat": lat,
-                                "lng": lng,
-                                "heading": heading,
-                                "velocityKmH": speed,
-                                "country": "FIN/BALTIC",
-                                "type": "vessel",
-                                "lastUpdate": time.time()
-                            }
-                        count += 1
-                        
-                        # Memory management
-                        if len(active_vessels) > 1500:
-                            sorted_vessels = sorted(active_vessels.items(), key=lambda item: item[1]["lastUpdate"])
-                            for k, _ in sorted_vessels[:500]:
-                                del active_vessels[k]
-                
-                print(f"[AIS Proxy] Successfully processed {count} vessels.")
-        except Exception as e:
-            print("[AIS Proxy] Failure:", str(e))
-        
+        await fetch_vessels_logic()
         # Poll every 60 seconds
         await asyncio.sleep(60)
 
@@ -843,87 +858,89 @@ async def init_satellites_db():
         ''')
         await db.commit()
 
-async def update_satellites_loop():
+async def fetch_satellites_logic():
     import httpx
     import csv
     from io import StringIO
-    while True:
-        try:
-            print("[Satellites] Starting daily sync from Celestrak...")
-            
-            satellites_cache = []
-            
-            async with httpx.AsyncClient(timeout=45.0, verify=False, follow_redirects=True) as client:
-                satcat_dict = {}
-                print("  -> Fetching SATCAT metadata dictionary...")
-                try:
-                    resp_cat = await client.get("https://celestrak.org/pub/satcat.csv")
-                    if resp_cat.status_code == 200:
-                        reader = csv.reader(StringIO(resp_cat.text))
-                        headers = next(reader)
-                        for row in reader:
-                            if len(row) > 5:
-                                norad_id = row[2].strip()
-                                status_code = row[4].strip()
-                                owner = row[5].strip()
-                                is_active = "active" if status_code in ['+', 'P', 'B'] else "inactive"
-                                satcat_dict[norad_id] = {"country": owner, "status": is_active}
-                    else:
-                        print(f"  -> SATCAT Fetch failed: HTTP {resp_cat.status_code}")
-                except Exception as e:
-                    print(f"  -> SATCAT Exception: {e}")
-
-                print("  -> Fetching universal active TLE group...")
-                url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
-                try:
-                    resp = await client.get(url)
-                    if resp.status_code == 200:
-                        text = resp.text
-                        lines = [l.strip() for l in text.split('\n') if l.strip()]
-                        
-                        for i in range(0, len(lines), 3):
-                            if i + 2 < len(lines):
-                                name = lines[i]
-                                line1 = lines[i+1]
-                                line2 = lines[i+2]
-                                
-                                if line1.startswith('1 ') and line2.startswith('2 '):
-                                    catalog_num = line1[2:7].strip()
-                                    sat_id = f"{name}_{catalog_num}"
-                                    
-                                    meta = satcat_dict.get(catalog_num, {"country": "UNKNOWN", "status": "unknown"})
-                                    
-                                    # Heuristic Categorization since Celestrak's military group only contains 22 nodes
-                                    upper_name = name.upper()
-                                    if any(k in upper_name for k in ['USA ', 'COSMOS ', 'KOSMOS ', 'YAOGAN', 'NROL', 'MILSTAR', 'WGS', 'AEHF', 'SBIRS', 'GPS', 'GLONASS', 'NAVSTAR', 'BEIDOU', 'GALILEO', 'SKYN', 'SYRACUSE', 'SICRAL', 'GSAT', 'OFEQ', 'MUOS', 'DMSP', 'DSP ', 'ORS', 'TJSW', 'FLTSATCOM', 'UFO']):
-                                        sat_type = "military"
-                                    elif any(k in upper_name for k in ['STARLINK', 'ONEWEB', 'IRIDIUM', 'GLOBALSTAR']):
-                                        sat_type = "commercial"
-                                    else:
-                                        sat_type = "private"
-                                        
-                                    satellites_cache.append((sat_id, name, line1, line2, sat_type, meta["country"], meta["status"]))
-                    else:
-                        print(f"    - Failed to fetch active group: HTTP {resp.status_code}")
-                except Exception as e:
-                    print(f"    - Error fetching active group: {e}")
-            
-            # Update Database
-            if satellites_cache:
-                async with aiosqlite.connect(SATELLITES_DB) as db:
-                    await db.execute('DELETE FROM satellites')
-                    await db.executemany('''
-                        INSERT OR REPLACE INTO satellites (id, name, line1, line2, type, country, status)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                    ''', satellites_cache)
-                    await db.commit()
-                print(f"[Satellites] Daily sync complete. {len(satellites_cache)} satellites stored.")
-            else:
-                print("[Satellites] Daily sync failed. No data retrieved.")
-                
-        except Exception as e:
-            print(f"[Satellites] BG Loop Error: {e}")
+    try:
+        print("[Satellites] Starting sync from Celestrak...")
         
+        satellites_cache = []
+        
+        async with httpx.AsyncClient(timeout=45.0, verify=False, follow_redirects=True) as client:
+            satcat_dict = {}
+            print("  -> Fetching SATCAT metadata dictionary...")
+            try:
+                resp_cat = await client.get("https://celestrak.org/pub/satcat.csv")
+                if resp_cat.status_code == 200:
+                    reader = csv.reader(StringIO(resp_cat.text))
+                    headers = next(reader)
+                    for row in reader:
+                        if len(row) > 5:
+                            norad_id = row[2].strip()
+                            status_code = row[4].strip()
+                            owner = row[5].strip()
+                            is_active = "active" if status_code in ['+', 'P', 'B'] else "inactive"
+                            satcat_dict[norad_id] = {"country": owner, "status": is_active}
+                else:
+                    print(f"  -> SATCAT Fetch failed: HTTP {resp_cat.status_code}")
+            except Exception as e:
+                print(f"  -> SATCAT Exception: {e}")
+
+            print("  -> Fetching universal active TLE group...")
+            url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
+            try:
+                resp = await client.get(url)
+                if resp.status_code == 200:
+                    text = resp.text
+                    lines = [l.strip() for l in text.split('\n') if l.strip()]
+                    
+                    for i in range(0, len(lines), 3):
+                        if i + 2 < len(lines):
+                            name = lines[i]
+                            line1 = lines[i+1]
+                            line2 = lines[i+2]
+                            
+                            if line1.startswith('1 ') and line2.startswith('2 '):
+                                catalog_num = line1[2:7].strip()
+                                sat_id = f"{name}_{catalog_num}"
+                                
+                                meta = satcat_dict.get(catalog_num, {"country": "UNKNOWN", "status": "unknown"})
+                                
+                                # Heuristic Categorization since Celestrak's military group only contains 22 nodes
+                                upper_name = name.upper()
+                                if any(k in upper_name for k in ['USA ', 'COSMOS ', 'KOSMOS ', 'YAOGAN', 'NROL', 'MILSTAR', 'WGS', 'AEHF', 'SBIRS', 'GPS', 'GLONASS', 'NAVSTAR', 'BEIDOU', 'GALILEO', 'SKYN', 'SYRACUSE', 'SICRAL', 'GSAT', 'OFEQ', 'MUOS', 'DMSP', 'DSP ', 'ORS', 'TJSW', 'FLTSATCOM', 'UFO']):
+                                    sat_type = "military"
+                                elif any(k in upper_name for k in ['STARLINK', 'ONEWEB', 'IRIDIUM', 'GLOBALSTAR']):
+                                    sat_type = "commercial"
+                                else:
+                                    sat_type = "private"
+                                    
+                                satellites_cache.append((sat_id, name, line1, line2, sat_type, meta["country"], meta["status"]))
+                else:
+                    print(f"    - Failed to fetch active group: HTTP {resp.status_code}")
+            except Exception as e:
+                print(f"    - Error fetching active group: {e}")
+        
+        # Update Database
+        if satellites_cache:
+            async with aiosqlite.connect(SATELLITES_DB) as db:
+                await db.execute('DELETE FROM satellites')
+                await db.executemany('''
+                    INSERT OR REPLACE INTO satellites (id, name, line1, line2, type, country, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', satellites_cache)
+                await db.commit()
+            print(f"[Satellites] Sync complete. {len(satellites_cache)} satellites stored.")
+        else:
+            print("[Satellites] Sync failed. No data retrieved.")
+            
+    except Exception as e:
+        print(f"[Satellites] Sync Error: {e}")
+
+async def update_satellites_loop():
+    while True:
+        await fetch_satellites_logic()
         # Sleep for 24 hours (86400 seconds)
         await asyncio.sleep(86400)
 
