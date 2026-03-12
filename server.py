@@ -86,21 +86,31 @@ async def startup_event():
     await init_flights_db()
     await init_satellites_db()
     
-    # Run initial sync for empty databases
-    async with aiosqlite.connect(SATELLITES_DB) as db:
-        async with db.execute("SELECT COUNT(*) FROM satellites") as cursor:
-            row = await cursor.fetchone()
-            if not row or row[0] == 0:
-                print("[Satellites] DB empty on startup, fetching...")
-                await fetch_satellites_logic()
-            else:
-                print("[Satellites] DB already populated, skipping startup fetch.")
-                
-    await fetch_vessels_logic()
-
+    # We must NEVER block the startup_event with network fetches, or Railway will kill Uvicorn for failing the 30s healthcheck.
+    # Instead, we spin off a background task that safely primes empty databases while the server accepts incoming connections.
+    async def prime_databases_background():
+        try:
+            async with aiosqlite.connect(SATELLITES_DB) as db:
+                async with db.execute("SELECT COUNT(*) FROM satellites") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] == 0:
+                        print("[Satellites] DB empty on startup, fetching in background...")
+                        await fetch_satellites_logic()
+                    else:
+                        print("[Satellites] DB already populated, skipping initial fetch.")
+            
+            # Immediately begin background polling loops after priming
+            asyncio.create_task(update_satellites_loop())
+        except Exception as e:
+            print(f"[Startup] Background prime failed: {e}")
+            
+    async def prime_vessels_background():
+        await fetch_vessels_logic()
+        asyncio.create_task(aisstream_proxy_loop())
+            
+    asyncio.create_task(prime_databases_background())
+    asyncio.create_task(prime_vessels_background())
     asyncio.create_task(fetch_flights_loop())
-    asyncio.create_task(aisstream_proxy_loop())
-    asyncio.create_task(update_satellites_loop())
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
