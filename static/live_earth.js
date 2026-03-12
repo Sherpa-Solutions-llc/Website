@@ -1157,6 +1157,7 @@ function updateEarthquakesLayer() {
                 const quakeColor = Cesium.Color.fromHsl(0.16, 1.0, lightness, 0.9);
 
                 earthquakesDataSource.entities.add({
+                    id: q.id,
                     position: Cesium.Cartesian3.fromDegrees(q.geometry.coordinates[0], q.geometry.coordinates[1], q.geometry.coordinates[2] * 1000),
                     point: { 
                         pixelSize: mag * 4, 
