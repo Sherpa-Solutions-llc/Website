@@ -272,8 +272,8 @@ async function initCesium() {
                 cluster.billboard.image = airplaneSvg;
                 cluster.billboard.color = color;
                 cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.billboard.heightReference = Cesium.HeightReference.NONE;
-                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
                 cluster.billboard.scale = isMobile ? 0.35 : 0.45;
                 // Keep clusters flat/unrotated since they represent many different headings
                 cluster.billboard.alignedAxis = new Cesium.Cartesian3(0, 0, -1);
@@ -349,49 +349,48 @@ async function initCesium() {
         handler.setInputAction(function (movement) {
             const pickedObject = viewer.scene.pick(movement.position);
             if (Cesium.defined(pickedObject) && pickedObject.id) {
-                if (pickedObject.id.customData) {
-                    lockTarget(pickedObject.id.customData);
-                } else if (pickedObject.id.position) {
-                    // It's likely a Cluster Billboard
-                    try {
-                        const clusterPos = pickedObject.id.position.getValue(viewer.clock.currentTime);
-                        if (clusterPos) {
-                            const carto = Cesium.Cartographic.fromCartesian(clusterPos);
-                            const lat = Cesium.Math.toDegrees(carto.latitude);
-                            const lng = Cesium.Math.toDegrees(carto.longitude);
+                
+                let targetIdToLoad = null;
 
-                            let candidates = [];
-                            // Gather all potential points from visible active layers
-                            if (state.layers.traffic) candidates = candidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
-                            if (state.layers.flights) candidates = candidates.concat((state.flights || []).map(f => ({...f, type: 'flight'})));
-                            if (state.layers.military) candidates = candidates.concat((state.military || []).map(f => ({...f, type: 'flight', isMilitary: true})));
-                            if (state.layers.cctv) candidates = candidates.concat((state.cctv_cameras || []).map(c => ({...c, type: 'cctv'})));
-                            if (state.layers.earthquakes) candidates = candidates.concat(
-                                (state.earthquakes || []).map(q => ({
-                                    type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
-                                    lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], 
-                                    mag: q.properties?.mag || 1, time: q.properties?.time
-                                }))
-                            );
+                // If pickedObject.id is an Array, this is a Cesium Cluster!
+                if (Array.isArray(pickedObject.id)) {
+                    const clusteredEntities = pickedObject.id;
+                    if (clusteredEntities.length > 0) {
+                        // Pick a random entity directly from the native Cesium cluster payload
+                        const randEntity = clusteredEntities[Math.floor(Math.random() * clusteredEntities.length)];
+                        targetIdToLoad = randEntity.id || randEntity;
+                    }
+                } else {
+                    // It's a single entity pick
+                    if (pickedObject.id.customData) {
+                        lockTarget(pickedObject.id.customData);
+                        return; // Fast exit if customData survived
+                    } else {
+                        targetIdToLoad = pickedObject.id.id || pickedObject.id;
+                    }
+                }
 
-                            // Calculate distance squared for each to find the localized pack
-                            const dist = (item) => Math.pow((item.lat||0) - lat, 2) + Math.pow((item.lng||0) - lng, 2);
-                            candidates.sort((a,b) => dist(a) - dist(b));
-
-                            // Determine cluster size from the text label, or default to 5
-                            let clusterSize = 5;
-                            if (pickedObject.id.label && pickedObject.id.label.text) {
-                                clusterSize = parseInt(pickedObject.id.label.text._value || pickedObject.id.label.text.getValue?.()) || 5;
-                            }
-                            
-                            const poolSize = Math.min(candidates.length, clusterSize);
-                            if (poolSize > 0) {
-                                // Randomly select one entity from the localized cluster pool
-                                const selected = candidates[Math.floor(Math.random() * poolSize)];
-                                lockTarget(selected);
-                            }
-                        }
-                    } catch(e) { console.warn("Failed to process cluster click", e); }
+                if (targetIdToLoad) {
+                    // Safe Fallback: Assemble all candidates and lock via ID
+                    let allCandidates = [];
+                    if (state.layers.traffic) allCandidates = allCandidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
+                    if (state.layers.flights) allCandidates = allCandidates.concat((state.flights || []).map(f => ({...f, type: 'flight'})));
+                    if (state.layers.military) allCandidates = allCandidates.concat((state.military || []).map(f => ({...f, type: 'flight', isMilitary: true})));
+                    if (state.layers.cctv) allCandidates = allCandidates.concat((state.cctv_cameras || []).map(c => ({...c, type: 'cctv'})));
+                    if (state.layers.earthquakes) allCandidates = allCandidates.concat(
+                        (state.earthquakes || []).map(q => ({
+                            type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
+                            lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], 
+                            mag: q.properties?.mag || 1, time: q.properties?.time
+                        }))
+                    );
+                    
+                    const match = allCandidates.find(c => c.id === targetIdToLoad || ('vessel_' + c.id) === targetIdToLoad);
+                    if (match) {
+                        lockTarget(match);
+                    } else {
+                        console.warn("Could not resolve backing data for target:", targetIdToLoad);
+                    }
                 }
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -1013,7 +1012,7 @@ function updateFlightsLayer() {
                             scale: isMobile ? 0.35 : 0.45,
                             rotation: 0,
                             alignedAxis: new Cesium.CallbackProperty(() => f.alignedAxis || Cesium.Cartesian3.ZERO, false),
-                            disableDepthTestDistance: Number.POSITIVE_INFINITY
+                            disableDepthTestDistance: 0
                         },
                         label: {
                             text: f.callsign || 'N/A',
