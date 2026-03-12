@@ -238,9 +238,9 @@ async function initCesium() {
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
             cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-            cluster.label.fillColor = Cesium.Color.WHITE;
-            cluster.label.outlineColor = Cesium.Color.BLACK;
-            cluster.label.outlineWidth = 3;
+            cluster.label.fillColor = Cesium.Color.BLACK;
+            cluster.label.outlineColor = Cesium.Color.WHITE;
+            cluster.label.outlineWidth = 2;
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
@@ -248,7 +248,7 @@ async function initCesium() {
             
             cluster.billboard.show = true;
             cluster.billboard.image = shipSvg;
-            cluster.billboard.rotation = Cesium.Math.PI_OVER_TWO;
+            cluster.billboard.rotation = -Cesium.Math.PI_OVER_TWO;
             cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
             // Provide occlusion instead of letting clusters bleed through earth
@@ -1244,7 +1244,7 @@ function updateShippingLayer() {
                         }, false),
                         billboard: {
                             image: shipSvg,
-                            rotation: Cesium.Math.PI_OVER_TWO,
+                            rotation: -Cesium.Math.PI_OVER_TWO,
                             scale: isMobile ? 0.15 : 0.20,
                             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
