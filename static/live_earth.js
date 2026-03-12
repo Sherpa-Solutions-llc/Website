@@ -1384,10 +1384,14 @@ function lockTarget(obj) {
         } catch(e) { console.warn("Could not calculate satellite target focus."); }
     }
 
+    // Offset the camera's actual destination slightly East (+Longitude) 
+    // This physically shifts the target leftward on the viewport, perfectly centering it between the HUD menus.
+    const lngOffset = (zoomRange / 100000) * 0.2; 
+    const viewLng = targetLng + lngOffset;
+
     viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(targetLng, targetLat, zoomRange),
+        destination: Cesium.Cartesian3.fromDegrees(viewLng, targetLat, zoomRange),
         duration: 1.5,
-        // Optional down-tilt for 3D effect
         orientation: {
             heading: 0.0,
             pitch: -Cesium.Math.PI_OVER_TWO, // Look straight down
@@ -1424,14 +1428,19 @@ document.getElementById('close-target').addEventListener('click', () => {
         if (prevTarget.type === 'vessel') zoomRange = 30000;         // 30km exposing the local fleet
         else if (prevTarget.type === 'cctv') zoomRange = 15000;      // 15km exposing the city
         else if (prevTarget.type === 'satellite') zoomRange = 3000000; // 3000km exposing the orbital constellation
-        else if (prevTarget.type === 'earthquake') zoomRange = 750000; // 750km exposing the regional faultline
+        else if (prevTarget.type === 'earthquake') zoomRange = 5000000; // 5000km exposing the regional faultline and globe
         else if (prevTarget.type === 'flight') zoomRange = 150000;   // 150km exposing area traffic
 
         let lat = prevTarget.lat || 0;
         let lng = prevTarget.lng || 0;
 
+        // Re-apply the optical HUD offset proportionally to the new back-off altitude
+        // This ensures the target stays perfectly locked in the visual center while pulling back
+        const lngOffset = (zoomRange / 100000) * 0.2; 
+        const viewLng = lng + lngOffset;
+
         viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(lng, lat, zoomRange),
+            destination: Cesium.Cartesian3.fromDegrees(viewLng, lat, zoomRange),
             duration: 1.5,
             orientation: { heading: 0.0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0.0 }
         });
