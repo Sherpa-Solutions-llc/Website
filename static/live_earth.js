@@ -248,6 +248,7 @@ async function initCesium() {
             
             cluster.billboard.show = true;
             cluster.billboard.image = shipSvg;
+            cluster.billboard.rotation = Cesium.Math.PI_OVER_TWO;
             cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
             // Provide occlusion instead of letting clusters bleed through earth
@@ -1243,6 +1244,7 @@ function updateShippingLayer() {
                         }, false),
                         billboard: {
                             image: shipSvg,
+                            rotation: Cesium.Math.PI_OVER_TWO,
                             scale: isMobile ? 0.15 : 0.20,
                             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
