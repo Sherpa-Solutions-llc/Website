@@ -231,9 +231,9 @@ async function initCesium() {
         shippingDataSource.clustering.minimumClusterSize = 2;
         shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
             const count = clusteredEntities.length;
-            const extraScale = Math.log10(count) * 0.15;
-            const baseScale = isMobile ? 0.15 : 0.20;
-            const fontSize = Math.floor(13 + (Math.log10(count) * 4));
+            const extraScale = Math.log10(count) * 0.3;
+            const baseScale = isMobile ? 0.30 : 0.40;
+            const fontSize = Math.floor(11 + (Math.log10(count) * 2));
 
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
@@ -265,9 +265,9 @@ async function initCesium() {
 
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
                 const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.2;
-                const baseScale = isMobile ? 0.35 : 0.45;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+                const extraScale = Math.log10(count) * 0.4;
+                const baseScale = isMobile ? 0.70 : 0.90;
+                const fontSize = Math.floor(12 + (Math.log10(count) * 2));
 
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
@@ -302,9 +302,9 @@ async function initCesium() {
             dataSource.clustering.minimumClusterSize = 2;
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
                 const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.3;
-                const baseScale = isMobile ? 0.6 : 0.8;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+                const extraScale = Math.log10(count) * 0.4;
+                const baseScale = isMobile ? 0.7 : 0.9;
+                const fontSize = Math.floor(12 + (Math.log10(count) * 2));
 
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
@@ -335,8 +335,8 @@ async function initCesium() {
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
                 const count = clusteredEntities.length;
                 const extraScale = Math.log10(count) * 0.2;
-                const baseScale = isMobile ? 0.25 : 0.35;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+                const baseScale = isMobile ? 0.35 : 0.45;
+                const fontSize = Math.floor(12 + (Math.log10(count) * 2));
 
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
