@@ -5,6 +5,9 @@ const isMobile = window.innerWidth <= 768;
 // keep this reasonable. Flights use viewport culling instead (no hard cap).
 const SAT_DISPLAY_CAP = isMobile ? 200 : 1500;
 
+let viewer;
+let viewerInitPromise;
+
 const state = {
     layers: {
         flights: true,
@@ -15,6 +18,15 @@ const state = {
         weather: false,
         cctv: false
     },
+    dataSources: {
+        flights: 'opensky',
+        military: 'adsblol',
+        earthquakes: 'usgs',
+        satellites: 'celestrak',
+        traffic: 'aisstream',
+        weather: 'rainviewer',
+        cctv: 'public'
+    },
     flights: [],
     satellites: [],
     earthquakes: [],
@@ -24,6 +36,18 @@ const state = {
     target: null,
     lastFetchTime: 0
 };
+
+let _fetchingSatellites = false;
+let _fetchingEarthquakes = false;
+
+// Global DataSources for efficient entity tracking
+const flightsDataSource = new Cesium.CustomDataSource('flights');
+const militaryDataSource = new Cesium.CustomDataSource('military');
+const satellitesDataSource = new Cesium.CustomDataSource('satellites');
+const earthquakesDataSource = new Cesium.CustomDataSource('earthquakes');
+const cctvDataSource = new Cesium.CustomDataSource('cctvs');
+const shippingDataSource = new Cesium.CustomDataSource('shipping');
+const weatherDataSource = new Cesium.CustomDataSource('weather');
 
 // Active weather imagery layer (RainViewer) — stored outside entities so
 // it persists across entity refresh calls
@@ -40,17 +64,31 @@ setInterval(() => {
 window.toggleLayer = function (layerName) {
     state.layers[layerName] = !state.layers[layerName];
     const el = document.getElementById(`layer-${layerName}`);
+    if (!el) return;
     const toggleIcon = el.querySelector('.layer-toggle i');
 
     if (state.layers[layerName]) {
         el.classList.add('active');
-        toggleIcon.className = 'fa-solid fa-toggle-on';
+        if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-on';
+        
+        // Trigger fetch if we have no data yet
+        if (layerName === 'satellites' && state.satellites.length === 0) fetchSatellites();
+        if (layerName === 'earthquakes' && state.earthquakes.length === 0) fetchEarthquakes();
+        if (layerName === 'weather' && state.weatherData.length === 0) fetchWeather();
+        if (layerName === 'traffic' && state.traffic.length === 0) fetchTraffic();
+        if (layerName === 'cctv' && state.cctv_cameras.length === 0) fetchCCTVs();
     } else {
         el.classList.remove('active');
-        toggleIcon.className = 'fa-solid fa-toggle-off';
+        if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-off';
     }
 
-    updateGlobeData();
+    if (layerName === 'flights' || layerName === 'military') updateFlightsLayer();
+    else if (layerName === 'satellites') updateSatellitesLayer();
+    else if (layerName === 'earthquakes') updateEarthquakesLayer();
+    else if (layerName === 'weather') updateWeatherLayer();
+    else if (layerName === 'traffic') updateShippingLayer();
+    else if (layerName === 'cctv') updateCCTVLayer();
+    updateHUDCounts();
 };
 
 // Panel Collapse Toggle
@@ -67,210 +105,534 @@ window.toggleLayersPanel = function () {
     }
 };
 
-// ----- CESIUM INITIALIZATION -----
-const viewer = new Cesium.Viewer('globe-container', {
-    imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
-        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
-    }),
-    animation: false,
-    timeline: false,
-    infoBox: false,
-    selectionIndicator: false,
-    navigationHelpButton: false,
-    baseLayerPicker: false,
-    geocoder: false,
-    homeButton: false,
-    sceneModePicker: false,
-    fullscreenButton: false,
-    scene3DOnly: true
+window.toggleSettingsPanel = function() {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return;
+    if (modal.style.display === 'none') {
+        modal.style.display = 'block';
+    } else {
+        modal.style.display = 'none';
+    }
+};
+
+// Bind settings toggles
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('settings-toggle-btn');
+    const closeBtn = document.getElementById('close-settings-btn');
+    if (toggleBtn) toggleBtn.addEventListener('click', window.toggleSettingsPanel);
+    if (closeBtn) closeBtn.addEventListener('click', window.toggleSettingsPanel);
+
+    // Bind Data Source Checkers
+    const bindSource = (layerName, fetchFunc) => {
+        const el = document.getElementById(`setting-source-${layerName}`);
+        if(el) {
+            el.addEventListener('change', (e) => {
+                state.dataSources[layerName] = e.target.value;
+                console.log(`[Settings] Changed ${layerName} source to:`, e.target.value);
+                // Wipe local cache array
+                state[layerName] = [];
+                // Force engine to re-draw and re-fetch if active
+                if (state.layers[layerName]) {
+                    fetchFunc();
+                }
+            });
+        }
+    };
+
+    bindSource('flights', window.fetchFlights);
+    bindSource('military', window.updateFlightsLayer); // Shares fetch with civilian usually
+    bindSource('earthquakes', window.fetchEarthquakes);
+    bindSource('satellites', window.fetchSatellites);
+    bindSource('traffic', window.fetchTraffic);
+    bindSource('weather', window.fetchWeather);
+    bindSource('cctv', window.fetchCCTVs);
 });
 
-// ----- PERFORMANCE SETTINGS -----
-// requestRenderMode: only re-render when the scene actually changes.
-// This is the single biggest CPU win when the user isn't rotating the globe.
-viewer.scene.requestRenderMode = true;
-viewer.scene.maximumRenderTimeChange = Infinity; // don't re-render on timeouts alone
+window.setSystemOffline = function() {
+    const indicator = document.getElementById('system-status-indicator');
+    const text = document.getElementById('system-status-text');
+    if (indicator) indicator.classList.add('offline');
+    if (text) text.innerText = 'SYSTEM OFFLINE';
+};
 
-// Cap frame rate at 30fps — halves render cost with barely perceptible quality loss.
-viewer.targetFrameRate = 30;
-
-// Lower resolution scale on mobile to cut GPU fill-rate cost.
-if (isMobile) {
-    viewer.resolutionScale = 0.75;
-}
-
-// Remove default double-click behavior
-viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-
-// Hide cesium credit bottom bar visually
-const creditContainer = document.querySelector('.cesium-viewer-bottom');
-if (creditContainer) creditContainer.style.display = 'none';
-
-// Hover/Click Object Picking
-const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
-// MOUSE_MOVE hover detection: skip on mobile (saves CPU; no hover on touch anyway)
-if (!isMobile) {
-    handler.setInputAction(function (movement) {
-        const pickedObject = viewer.scene.pick(movement.position);
-        document.body.style.cursor =
-            (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData)
-            ? 'pointer' : 'default';
-    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-}
-
-handler.setInputAction(function (movement) {
-    const pickedObject = viewer.scene.pick(movement.position);
-    if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData) {
-        lockTarget(pickedObject.id.customData);
+window.updateLastFetchTime = function(layerName) {
+    const el = document.getElementById(`last-update-${layerName}`);
+    if (el) {
+        const now = new Date();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const yy = String(now.getFullYear()).slice(-2);
+        const time = now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        el.innerText = `${mm}/${dd}/${yy} ${time}`;
     }
-}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+};
+
+// ----- CESIUM INITIALIZATION -----
+// Safety fallback: ensure overlay is dismissed after 10s even if initial fetches hang
+setTimeout(() => {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay && overlay.style.display !== 'none') {
+        console.warn('[Safety] Forcing overlay dismissal after 10s timeout.');
+        overlay.style.display = 'none';
+    }
+}, 10000);
+
+// --- CESIUM INITIALIZATION ---
+
+async function initCesium() {
+    if (typeof Cesium === 'undefined') {
+        console.error("Cesium library failed to load.");
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.innerHTML = '<div style="color:red; font-size:2rem; font-family:sans-serif;">FATAL: CESIUM LIBRARY NOT LOADED</div>';
+        return;
+    }
+
+    try {
+        console.log('[Cesium] Initializing Viewer (Async)...');
+        
+        // Use the modern static factory to ensure compatibility with Cesium 1.107+
+        const imageryProvider = await Cesium.ArcGisMapServerImageryProvider.fromUrl(
+            'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+            { enablePickFeatures: false }
+        );
+
+        viewer = new Cesium.Viewer('globe-container', {
+            imageryProvider: imageryProvider,
+            animation: false,
+            timeline: false,
+            infoBox: false,
+            selectionIndicator: false,
+            navigationHelpButton: false,
+            baseLayerPicker: false,
+            geocoder: false,
+            homeButton: false,
+            sceneModePicker: false,
+            fullscreenButton: false,
+            scene3DOnly: true,
+            requestRenderMode: false // Disable to ensure smooth initial rendering
+        });
+
+        // Setup DataSources
+        await viewer.dataSources.add(flightsDataSource);
+        await viewer.dataSources.add(militaryDataSource);
+        await viewer.dataSources.add(satellitesDataSource);
+        await viewer.dataSources.add(earthquakesDataSource);
+        await viewer.dataSources.add(cctvDataSource);
+        await viewer.dataSources.add(shippingDataSource);
+        await viewer.dataSources.add(weatherDataSource);
+
+        // Setup Shipping Cluster Features
+        shippingDataSource.clustering.enabled = true;
+        shippingDataSource.clustering.pixelRange = 40;
+        shippingDataSource.clustering.minimumClusterSize = 2;
+
+        shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+            cluster.label.show = true;
+            cluster.label.text = clusteredEntities.length.toLocaleString();
+            cluster.label.font = 'bold 14px "Share Tech Mono"';
+            cluster.label.fillColor = Cesium.Color.WHITE;
+            cluster.label.outlineColor = Cesium.Color.BLACK;
+            cluster.label.outlineWidth = 3;
+            cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+            cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+            cluster.label.pixelOffset = new Cesium.Cartesian2(25, -15);
+            cluster.billboard.show = true;
+            cluster.billboard.image = shipSvg;
+            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+            cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+            // Provide occlusion instead of letting clusters bleed through earth
+            cluster.billboard.disableDepthTestDistance = 0;
+            cluster.billboard.scale = isMobile ? 0.15 : 0.20;
+            cluster.billboard.rotation = -Math.PI / 2;
+            cluster.billboard.alignedAxis = Cesium.Cartesian3.UNIT_Z;
+        });
+
+        // Setup Flights Cluster Features
+        const setupFlightClustering = (dataSource, color) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                cluster.label.show = true;
+                cluster.label.text = clusteredEntities.length.toLocaleString();
+                cluster.label.font = 'bold 14px monospace';
+                cluster.label.fillColor = Cesium.Color.WHITE;
+                cluster.label.outlineColor = Cesium.Color.BLACK;
+                cluster.label.outlineWidth = 3;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                
+                cluster.billboard.show = true;
+                cluster.billboard.image = airplaneSvg;
+                cluster.billboard.color = color;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.billboard.heightReference = Cesium.HeightReference.NONE;
+                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                cluster.billboard.scale = isMobile ? 0.35 : 0.45;
+                // Keep clusters flat/unrotated since they represent many different headings
+                cluster.billboard.alignedAxis = new Cesium.Cartesian3(0, 0, -1);
+            });
+        };
+
+        setupFlightClustering(flightsDataSource, Cesium.Color.WHITE);
+        setupFlightClustering(militaryDataSource, Cesium.Color.ORANGE);
+
+        viewer.targetFrameRate = 30;
+        if (isMobile) viewer.resolutionScale = 0.75;
+        viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+        // Setup Handlers
+        const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        if (!isMobile) {
+            handler.setInputAction(function (movement) {
+                const pickedObject = viewer.scene.pick(movement.position);
+                document.body.style.cursor = (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData) ? 'pointer' : 'default';
+            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        }
+        handler.setInputAction(function (movement) {
+            const pickedObject = viewer.scene.pick(movement.position);
+            if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData) {
+                lockTarget(pickedObject.id.customData);
+            }
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        
+        console.log('[Cesium] Viewer Ready.');
+        
+        // ----- HUD UPDATER -----
+        // Update target HUD panel continuously if active
+        viewer.scene.preUpdate.addEventListener(function (scene, time) {
+            if (state.target && document.getElementById('target-panel').style.display !== 'none') {
+                // ONLY update the HUD constantly for moving targets like flights
+                if (state.target.type === 'flight') {
+                    renderTargetDetails();
+                }
+            }
+        });
+
+        // Initial data sync
+        updateFlightsLayer();
+        if (state.layers.satellites) updateSatellitesLayer();
+        if (state.layers.earthquakes) updateEarthquakesLayer();
+        if (state.layers.cctv) updateCCTVLayer();
+        if (state.layers.traffic) updateShippingLayer();
+        if (state.layers.weather) updateWeatherLayer();
+        updateHUDCounts();
+        
+    } catch (initErr) {
+        console.error("CRITICAL FATAL CESIUM INIT ERROR:", initErr);
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+}
+
+// Start initialization immediately
+viewerInitPromise = initCesium();
 
 
 // ----- AIRPLANE ICON GENERATOR -----
-// SVG string for an airplane pointing upwards (0 degrees heading)
-const airplaneSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32"><path fill="WHITE" d="M448 336v-40L288 192V79.2c0-17.7-14.8-31.2-32-31.2s-32 13.5-32 31.2V192L64 296v40l160-48v113.6l-48 31.2V464l80-16 80 16v-31.2l-48-31.2V288l160 48z"/></svg>`;
+// Base64 encoded SVG to avoid Cesium "Error loading image" bug
+const airplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik00NDggMzM2di00MEwyODggMTkyVjc5LjJjMC0xNy43LTE0LjgtMzEuMi0zMi0zMS4ycy0zMiAxMy41LTMyIDMxLjJWMTkyTDY0IDI5NnY0MGwxNjAtNDh2MTEzLjZsLTQ4IDMxLjJWNDY0bDgwLTE2IDgwIDE2di0zMS4ybC00OC0zMS4yVjI4OGwxNjAgNDh6Ii8+PC9zdmc+`;
+const militaryAirplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9Im9yYW5nZSIgZD0iTTQ0OCAzMzZ2LTQwTDI4OCAxOTJWNzkuMmMwLTE3LjctMTQuOC0zMS4yLTMyLTMxLjJzLTMyIDEzLjUtMzIgMzEuMlYxOTJMNjQgMjk2djQwbDE2MC00OHYxMTMuNmwtNDggMzEuMlY0NjRsODAtMTYgODAgMTZ2LTMxLjJsLTQ4LTMxLjJWMjg4bDE2MCA0OHoiLz48L3N2Zz4=`;
+const satelliteSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMyZWQ1NzMiIGQ9Ik05OCA2MmwtODggODhDLTIuNSAxNjIuNS0zLjMgMTgyLjggNS44IDE5NC4ybDU2LjUgNzAuNkwxOCAzMTAuNmMtNy45IDcuOS03LjkgMjAuNiAwIDI4LjVsNzAuOSA3MC45YzcuOSA3LjkgMjAuNiA3LjkgMjguNSAwbDQ1LjgtNDUuOCA3MC42IDU2LjVjMTEuNCA5LjEgMzEuOCA4LjMgNDQuMy00LjJsODgtODhjMTIuNS0xMi41IDEyLjUtMzIuOCAwLTQ1LjNMMTQzLjMgNjJjLTEyLjUtMTIuNS0zMi44LTEyLjUtNDUuMyAwek0xMjggMTYwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyIDMyIDE0LjMgMzIgMzItMTQuMyAzMi0zMiAzMnptMzQ0LTk2Yy0xMy4zIDAtMjQgMTAuNy0yNCAyNHMxMC43IDI0IDI0IDI0IDI0LTEwLjcgMjQtMjQtMTAuNy0yNC0yNC0yNHptMCA5NmMtMTMuMyAwLTI0IDEwLjctMjQgMjRzMTAuNyAyNCAyNCAyNCAyNC0xMC43IDI0LTI0LTEwLjctMjQtMjQtMjR6bTAgOTZjLTEzLjMgMC0yNCAxMC43LTI0IDI0czEwLjcgMjQgMjQgMjQgMjQtMTAuNyAyNC0yNC0xMC43LTI0LTI0LTI0eiIvPjwvc3ZnPg==`;
+const shipSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjcuMiBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyNCBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZmlsbD0iI2ZmNmI4MSIgZD0iTTE5MiAzMmMwLTE3LjcgMTQuMy0zMiAzMi0zMkwzNTIgMGMxNy43IDAgMzIgMTQuMyAzMiAzMmwwIDMyIDQ4IDBjMjYuNSAwIDQ4IDIxLjUgNDggNDhsMCAxMjggNDQuNCAxNC44YzIzLjEgNy43IDI5LjUgMzcuNSAxMS41IDUzLjlsLTEwMSA5Mi42Yy0xNi4yIDkuNC0zNC43IDE1LjEtNTAuOSAxNS4xYy0xOS42IDAtNDAuOC03LjctNTkuMi0yMC4zYy0yMi4xLTE1LjUtNTEuNi0xNS41LTczLjcgMGMtMTcuMSAxMS44LTM4IDIwLjMtNTkuMiAyMC4zYy0xNi4yIDAtMzQuNy01LjctNTAuOS0xNS4xbC0xMDEtOTIuNmMtMTgtMTYuNS0xMS42LTQ2LjIgMTEuNS01My45TDk2IDI0MGwwLTEyOGMwLTI2LjUgMjEuNS00OCA0OC00OGw0OCAwIDAtMzJ6TTE2MCAyMTguN2wxMDcuOC0zNS45YzEzLjEtNC40IDI3LjMtNC40IDQwLjUgMEw0MTYgMjE4LjdsMC05MC43LTI1NiAwIDAgOTAuN3pNMzA2LjUgNDIxLjlDMzI5IDQzNy40IDM1Ni41IDQ0OCAzODQgNDQ4YzI2LjkgMCA1NS40LTEwLjggNzcuNC0yNi4xYzAgMCAwIDAgMCAwYzExLjktOC41IDI4LjEtNy44IDM5LjIgMS43YzE0LjQgMTEuOSAzMi41IDIxIDUwLjYgMjUuMmMxNy4yIDQgMjcuOSAyMS4yIDIzLjkgMzguNHMtMjEuMiAyNy45LTM4LjQgMjMuOWMtMjQuNS01LjctNDQuOS0xNi41LTU4LjItMjVDNDQ5LjUgNTAxLjcgNDE3IDUxMiAzODQgNTEyYy0zMS45IDAtNjAuNi05LjktODAuNC0xOC45Yy01LjgtMi43LTExLjEtNS4zLTE1LjYtNy43Yy00LjUgMi40LTkuNyA1LjEtMTUuNiA3LjdjLTE5LjggOS00OC41IDE4LjktODAuNCAxOC45Yy0zMyAwLTY1LjUtMTAuMy05NC41LTI1LjhjLTEzLjQgOC40LTMzLjcgMTkuMy01OC4yIDI1Yy0xNy4yIDQtMzQuNC02LjctMzguNC0yMy45czYuNy0zNC40IDIzLjktMzguNGMxOC4xLTQuMiAzNi4yLTEzLjMgNTAuNi0yNS4yYzExLjEtOS40IDI3LjMtMTAuMSAzOS4yLTEuN2MwIDAgMCAwIDAgMEMxMzYuNyA0MzcuMiAxNjUuMSA0NDggMTkyIDQ0OGMyNy41IDAgNTUtMTAuNiA3Ny41LTI2LjFjMTEuMS03LjkgMjUuOS03LjkgMzcgMHoiLz48L3N2Zz4=`;
+const cctvSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NEgzMjBjMzUuMyAwIDY0IDI4LjcgNjQgNjRWMzg0YzAgMzUuMy0yOC43IDY0LTY0IDY0SDY0Yy0zNS4zIDAtNjQtMjguNy02NC02NFYxMjh6TTU1OS4xIDk5LjhjMTAuNCA1LjYgMTYuOSAxNi40IDE2LjkgMjguMlYzODRjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xVjMyMCAxOTIgMTc0LjlsMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi41LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=`;
+
 
 
 // ----- DATA FETCHING -----
 
 async function fetchFlights() {
     try {
-        const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/flights');
-        if (!res.ok) throw new Error('API Error');
-        const data = await res.json();
+        let activeStates = [];
+        let timestamp = Math.floor(Date.now() / 1000);
 
-        const timestamp = data.time;
-        const activeStates = data.states || [];
+        if (state.dataSources.flights === 'opensky') {
+            const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/flights');
+            if (!res.ok) throw new Error('OpenSky API Error');
+            const data = await res.json();
+            timestamp = data.time || timestamp;
+            activeStates = data.states || [];
+            console.log(`[Flights] Fetched ${activeStates.length} raw states from OpenSky API`);
+        } else if (state.dataSources.flights === 'adsblol') {
+            const res = await fetch('https://api.adsb.lol/v2/ladd');
+            if (!res.ok) throw new Error('ADSB.lol API Error');
+            const data = await res.json();
+            timestamp = Math.floor(data.now / 1000) || timestamp;
+            
+            // Map ADSB.lol `.ac` array into OpenSky tuple format for uniform pipeline execution
+            const ac = data.ac || [];
+            activeStates = ac.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => [
+                a.hex || 'UNKNOWN',     // [0] icao24
+                a.flight || '',         // [1] callsign
+                'Unknown',              // [2] origin_country
+                null,                   // [3] time_position
+                null,                   // [4] last_contact
+                a.lon,                  // [5] longitude
+                a.lat,                  // [6] latitude
+                a.alt_baro || 10000,    // [7] baro_altitude
+                false,                  // [8] on_ground
+                (a.mach || 0.8) * 340,  // [9] velocity (m/s fallback approximation if mach is provided, else rough guess)
+                a.track || 0,           // [10] true_track
+                0,                      // [11] vertical_rate
+                null,                   // [12] sensors
+                a.alt_geom || null,     // [13] geo_altitude
+                null,                   // [14] squawk
+                false,                  // [15] spi
+                0                       // [16] position_source
+            ]);
+            // Attempt to resolve real velocity if available in knots (1 kt = 0.51444 m/s)
+            activeStates.forEach((s, i) => {
+                if (ac[i].gs) s[9] = ac[i].gs * 0.51444; 
+                else if (ac[i].tas) s[9] = ac[i].tas * 0.51444;
+            });
+            console.log(`[Flights] Fetched ${activeStates.length} raw states from ADSB.lol API`);
+        }
+
+        // Always hide the loading overlay as soon as we get any valid response
+        document.getElementById('loading-overlay').style.display = 'none';
+
+        const oldFlightsMap = new Map(state.flights.map(f => [f.id, f]));
 
         state.flights = activeStates
             .filter(s => s[5] !== null && s[6] !== null && s[8] === false)
             .map(s => {
-                const velocityKmH = (s[9] || 0) * 3.6;
-                const isMilitary = s[1] ? s[1].trim().startsWith("RCH") || s[1].trim().startsWith("AF") || s[1].trim().startsWith("RRR") || s[1].trim().startsWith("CNV") : false;
+                try {
+                    const velocityKmH = (s[9] || 0) * 3.6;
+                    const isMilitary = s[1] ? s[1].trim().startsWith("RCH") || s[1].trim().startsWith("AF") || s[1].trim().startsWith("RRR") || s[1].trim().startsWith("CNV") : false;
 
-                // Precompute perfectly stable ECEF AlignedAxis vector for 3D orientation
-                const lngRad = Cesium.Math.toRadians(s[5]);
-                const latRad = Cesium.Math.toRadians(s[6]);
-                const headingRad = Cesium.Math.toRadians(s[10] || 0);
+                    // Precompute perfectly stable ECEF AlignedAxis vector for 3D orientation
+                    const lngRad = Cesium.Math.toRadians(s[5]);
+                    const latRad = Cesium.Math.toRadians(s[6]);
+                    const headingRad = Cesium.Math.toRadians(s[10] || 0);
 
-                const cosLat = Math.cos(latRad);
-                const sinLat = Math.sin(latRad);
-                const cosLng = Math.cos(lngRad);
-                const sinLng = Math.sin(lngRad);
+                    const cosLat = Math.cos(latRad);
+                    const sinLat = Math.sin(latRad);
+                    const cosLng = Math.cos(lngRad);
+                    const sinLng = Math.sin(lngRad);
 
-                // Local East and North tangent vectors
-                const eastX = -sinLng;
-                const eastY = cosLng;
-                const eastZ = 0;
+                    // Local East and North tangent vectors
+                    const eastX = -sinLng;
+                    const eastY = cosLng;
+                    const eastZ = 0;
 
-                const northX = -sinLat * cosLng;
-                const northY = -sinLat * sinLng;
-                const northZ = cosLat;
+                    const northX = -sinLat * cosLng;
+                    const northY = -sinLat * sinLng;
+                    const northZ = cosLat;
 
-                // Compass heading mapping: 0 = North, 90 = East
-                const cosH = Math.cos(headingRad);
-                const sinH = Math.sin(headingRad);
+                    // Compass heading mapping: 0 = North, 90 = East
+                    const cosH = Math.cos(headingRad);
+                    const sinH = Math.sin(headingRad);
 
-                const alignedAxis = new Cesium.Cartesian3(
-                    northX * cosH + eastX * sinH,
-                    northY * cosH + eastY * sinH,
-                    northZ * cosH + eastZ * sinH
-                );
+                    const alignedAxis = new Cesium.Cartesian3(
+                        northX * cosH + eastX * sinH,
+                        northY * cosH + eastY * sinH,
+                        northZ * cosH + eastZ * sinH
+                    );
 
-                return {
-                    id: s[0],
-                    callsign: s[1] ? s[1].trim() : 'UNKNOWN',
-                    country: s[2],
-                    startLng: s[5], 
-                    startLat: s[6],
-                    lng: s[5], 
-                    lat: s[6],
-                    alt: s[7] || 10000,
-                    velocity: s[9] || 0,
-                    velocityKmH: velocityKmH,
-                    heading: s[10] || 0,
-                    alignedAxis: alignedAxis,
-                    lastUpdate: timestamp,
-                    fetchTime: performance.now(),
-                    isMilitary: isMilitary,
-                    type: 'flight'
-                };
-            });
+                    const oldFlight = oldFlightsMap.get(s[0]);
+                    if (oldFlight) {
+                        // True API target (Destination)
+                        const targetLat = s[6];
+                        const targetLng = s[5];
+                        
+                        // Current visual location (Origination)
+                        const startLat = typeof oldFlight.lat === 'number' ? oldFlight.lat : targetLat;
+                        const startLng = typeof oldFlight.lng === 'number' ? oldFlight.lng : targetLng;
+
+                        // Calculate path from Origination -> Destination
+                        const lat1 = Cesium.Math.toRadians(startLat);
+                        const lon1 = Cesium.Math.toRadians(startLng);
+                        const lat2 = Cesium.Math.toRadians(targetLat);
+                        const lon2 = Cesium.Math.toRadians(targetLng);
+
+                        const dLon = lon2 - lon1;
+                        const dLat = lat2 - lat1;
+
+                        // Haversine distance
+                        const a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLon / 2), 2);
+                        const c = 2 * Math.asin(Math.sqrt(a));
+                        const distanceMeters = c * 6371000;
+
+                        // Bearing
+                        const y = Math.sin(dLon) * Math.cos(lat2);
+                        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                        let brng = Math.atan2(y, x);
+
+                        // If the distance is too small (e.g. stationary or extremely slow), fallback to API heading
+                        if (distanceMeters < 1) {
+                            brng = Cesium.Math.toRadians(s[10] || 0); 
+                        }
+
+                        // Plot course: 10 second travel time to destination
+                        oldFlight.startLat = startLat;
+                        oldFlight.startLng = startLng;
+                        
+                        // The mathematically perfect speed to reach destination exactly when next data arrives
+                        oldFlight.computedVelocity = distanceMeters / 10.0; 
+                        oldFlight.computedHeading = Cesium.Math.toDegrees(brng); 
+                        
+                        // Retain true API properties for UI filtering and visual nose rotation
+                        oldFlight.trueVelocity = s[9] || 0;
+                        oldFlight.trueVelocityKmH = oldFlight.trueVelocity * 3.6; 
+                        oldFlight.trueHeading = s[10] || 0;
+
+                        // Update alignedAxis based on true airplane nose heading (crosswind/crab angle support)
+                        const trueHeadingRad = Cesium.Math.toRadians(oldFlight.trueHeading);
+                        const cH = Math.cos(trueHeadingRad), sH = Math.sin(trueHeadingRad);
+                        const eastX_true = -Math.sin(lon2), eastY_true = Math.cos(lon2), eastZ_true = 0;
+                        const northX_true = -Math.sin(lat2) * Math.cos(lon2), northY_true = -Math.sin(lat2) * Math.sin(lon2), northZ_true = Math.cos(lat2);
+                        oldFlight.alignedAxis = new Cesium.Cartesian3(
+                            northX_true * cH + eastX_true * sH,
+                            northY_true * cH + eastY_true * sH,
+                            northZ_true * cH + eastZ_true * sH
+                        );
+
+                        // Reset fetch time to reboot the integration engine
+                        oldFlight.fetchTime = performance.now();
+                        oldFlight.alt = s[7] || 10000;
+                        oldFlight.lastUpdate = timestamp;
+                        oldFlight.isMilitary = isMilitary;
+                        
+                        // For UI filtering
+                        oldFlight.velocityKmH = oldFlight.trueVelocityKmH;
+                        
+                        return oldFlight;
+                    }
+
+                    return {
+                        id: s[0],
+                        callsign: s[1] ? s[1].trim() : 'UNKNOWN',
+                        country: s[2],
+                        startLng: s[5], 
+                        startLat: s[6],
+                        lng: s[5], 
+                        lat: s[6],
+                        alt: s[7] || 10000,
+                        velocity: s[9] || 0,
+                        computedVelocity: s[9] || 0, // Fallback for first frame
+                        velocityKmH: velocityKmH,
+                        heading: s[10] || 0,
+                        computedHeading: s[10] || 0, // Fallback for first frame
+                        trueHeading: s[10] || 0,
+                        alignedAxis: alignedAxis,
+                        lastUpdate: timestamp,
+                        fetchTime: performance.now(),
+                        isMilitary: isMilitary,
+                        type: 'flight'
+                    };
+                } catch(err) {
+                    console.error("Failed to map flight:", s, err);
+                    return null;
+                }
+            })
+            .filter(f => f !== null);
 
         document.getElementById('loading-overlay').style.display = 'none';
-        updateGlobeData();
+        window.updateLastFetchTime('flights');
+        window.updateLastFetchTime('military');
+        updateFlightsLayer();
+        updateHUDCounts();
     } catch (e) {
         console.error("Flight fetch failed:", e);
+        window.setSystemOffline();
         document.getElementById('loading-overlay').style.display = 'none';
         setTimeout(fetchFlights, 10000);
     }
 }
 
 async function fetchEarthquakes() {
+    if (_fetchingEarthquakes) return;
+    _fetchingEarthquakes = true;
     try {
-        const duration = document.getElementById('quake-duration')?.value || 'days';
-        let url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
-        if (duration === 'weeks') url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
-        if (duration === 'months') url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
+        const duration = document.getElementById('quake-duration')?.value || 'day';
+        // Use our local proxy to avoid CORS issues and ensure reliable fetching
+        let url = `/api/earthquakes?duration=${duration == 'days' ? 'day' : (duration == 'weeks' ? 'week' : 'month')}`;
+
+        if (state.dataSources.earthquakes === 'emsc') {
+            const limit = duration === 'weeks' ? 2000 : (duration === 'months' ? 5000 : 500);
+            url = `https://www.seismicportal.eu/fdsnws/event/1/query?limit=${limit}&format=json`;
+        }
 
         const res = await fetch(url);
         const data = await res.json();
-        state.earthquakes = data.features.map(f => ({
-            id: f.id,
-            lat: f.geometry.coordinates[1],
-            lng: f.geometry.coordinates[0],
-            mag: f.properties.mag,
-            title: f.properties.title,
-            type: 'earthquake'
-        }));
-        updateGlobeData();
+        if (!data || !data.features) {
+            console.warn('[Earthquakes] Invalid data received:', data);
+            return;
+        }
+        // Store as features to match updateGlobeData's expectation
+        state.earthquakes = data.features;
+        console.log(`[Earthquakes] Loaded ${state.earthquakes.length} events.`);
+        window.updateLastFetchTime('earthquakes');
+        updateEarthquakesLayer();
+        updateHUDCounts();
     } catch (e) {
         console.error("Earthquake fetch failed:", e);
+        window.setSystemOffline();
+    } finally {
+        _fetchingEarthquakes = false;
     }
 }
 
 async function fetchSatellites() {
+    if (_fetchingSatellites) return;
+    _fetchingSatellites = true;
+    console.log('[Satellites] Fetching cached satellite definitions from local database...');
     try {
-        // Fetch real, live active satellite TLEs from our backend proxy entirely bypassing CORS restrictions
         const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/satellites');
         if (!res.ok) throw new Error('Proxy API Error');
-        const text = await res.text();
+        const data = await res.json();
 
-        const lines = text.split('\n').filter(l => l.trim().length > 0);
+        if (!data || data.length === 0) throw new Error('Empty satellite response');
+
         state.satellites = [];
+        let parseErrors = 0;
 
-        // Parse TLE data (3 lines per satellite)
-        for (let i = 0; i < lines.length; i += 3) {
-            if (i + 2 >= lines.length) break;
+        for (let i = 0; i < data.length; i++) {
+            const sat = data[i];
+            const name = sat.name.trim();
+            const tleLine1 = sat.line1.trim();
+            const tleLine2 = sat.line2.trim();
+            const subtype = sat.type; // explicitly provided by the backend now
+            const country = sat.country;
+            const status = sat.status;
 
-            const name = lines[i].trim();
-            const tleLine1 = lines[i + 1];
-            const tleLine2 = lines[i + 2];
+            // Validate TLE format
+            if (!tleLine1.startsWith('1 ') || !tleLine2.startsWith('2 ')) {
+                parseErrors++;
+                continue;
+            }
 
-            // Initialize satellite record using satellite.js
-            const satRec = satellite.twoline2satrec(tleLine1, tleLine2);
+            try {
+                // Initialize satellite record using satellite.js
+                const satRec = satellite.twoline2satrec(tleLine1, tleLine2);
+                if (!satRec || satRec.error !== 0) continue; // skip invalid records
 
-            // Try to figure out type loosely based on name
-            let subtype = 'commercial';
-            const upperName = name.toUpperCase();
-            if (upperName.includes('STARLINK') || upperName.includes('ONEWEB')) subtype = 'commercial';
-            else if (upperName.includes('USA') || upperName.includes('COSMOS') || upperName.includes('MILSTAR')) subtype = 'military';
-            else if (upperName.includes('NOAA') || upperName.includes('GOES') || upperName.includes('ISS')) subtype = 'private'; // using 'private' bucket for gov/science for now
+                const catalogNum = tleLine1.substring(2, 7).trim();
+                const satId = name + '_' + catalogNum;
 
-            const catalogNum = tleLine1.substring(2, 7).trim();
-            const satId = name + '_' + catalogNum;
-
-            state.satellites.push({
-                id: satId,
-                type: 'satellite',
-                subtype: subtype,
-                satRec: satRec
-            });
+                state.satellites.push({
+                    id: satId,
+                    type: 'satellite',
+                    subtype: subtype,
+                    country: country,
+                    status: status,
+                    satRec: satRec
+                });
+            } catch (parseErr) {
+                parseErrors++; // skip malformed entries silently
+            }
         }
-        updateGlobeData();
+        console.log(`[Satellites] Parsed ${state.satellites.length} satellites (${parseErrors} skipped).`);
+        window.updateLastFetchTime('satellites');
+        updateSatellitesLayer();
+        updateHUDCounts();
     } catch (e) {
         console.error("Satellite fetch failed:", e);
+        window.setSystemOffline();
+    } finally {
+        _fetchingSatellites = false;
     }
 }
 
@@ -307,7 +669,11 @@ async function fetchCCTVs() {
         const cctvEl = document.getElementById('layer-cctv');
         if (cctvEl) cctvEl.querySelector('.layer-count').innerText = data.length;
         console.log(`[CCTV] Loaded ${data.length} cameras (WSDOT, Oregon, UK, Norway, BC Canada)`);
-        if (state.layers.cctv) updateGlobeData();
+        window.updateLastFetchTime('cctv');
+        if (state.layers.cctv) {
+            updateCCTVLayer();
+            updateHUDCounts();
+        }
     } catch (e) {
         console.warn('[CCTV] /api/cameras failed, falling back to static file:', e);
         try {
@@ -315,361 +681,504 @@ async function fetchCCTVs() {
             if (!res2.ok) throw new Error('static file also missing');
             const data = await res2.json();
             state.cctv_cameras = data;
-            if (state.layers.cctv) updateGlobeData();
+            if (state.layers.cctv) {
+                updateCCTVLayer();
+                updateHUDCounts();
+            }
         } catch (e2) {
             console.error('[CCTV] All camera sources failed:', e2);
+            window.setSystemOffline();
         }
     }
 }
 
 async function fetchWeather() {
     try {
+        // Fetch all cities in one batched request (open-meteo supports comma-separated lat/lng)
+        // and returns an array when multiple coordinates are supplied
         const lats = majorCities.map(c => c.lat).join(',');
         const lngs = majorCities.map(c => c.lng).join(',');
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m&timezone=auto`;
         const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
-        state.weatherData = data.map((d, i) => ({
-            city: majorCities[i].name,
-            lat: majorCities[i].lat,
-            lng: majorCities[i].lng,
-            temp: d.current.temperature_2m,
-            unit: d.current_units.temperature_2m
-        }));
+        // open-meteo returns an array when multiple lat/lng are provided
+        const dataArr = Array.isArray(data) ? data : [data];
 
-        if (state.layers.weather) updateGlobeData();
+        state.weatherData = dataArr.map((d, i) => ({
+            city: majorCities[i] ? majorCities[i].name : `City ${i}`,
+            lat: majorCities[i] ? majorCities[i].lat : 0,
+            lng: majorCities[i] ? majorCities[i].lng : 0,
+            temp: d.current ? d.current.temperature_2m : null,
+            unit: d.current_units ? d.current_units.temperature_2m : '°C'
+        })).filter(w => w.temp !== null && w.temp !== undefined);
+
+        console.log(`[Weather] Temperature data loaded for ${state.weatherData.length} cities`);
+        window.updateLastFetchTime('weather');
+        if (state.layers.weather) {
+            updateWeatherLayer();
+            updateHUDCounts();
+        }
     } catch (e) {
         console.error("Weather fetch failed:", e);
+        window.setSystemOffline();
     }
 }
 
 function fetchTraffic() {
-    state.traffic = [];
-    let id_counter = 0;
-    majorCities.forEach(city => {
-        // Generate 5-25 traffic spots clustered around each major city
-        const numSpots = Math.floor(Math.random() * 20) + 5;
-        for (let i = 0; i < numSpots; i++) {
-            state.traffic.push({
-                id: ++id_counter,
-                lat: city.lat + (Math.random() - 0.5) * 0.4,
-                lng: city.lng + (Math.random() - 0.5) * 0.4,
-                severity: Math.random() > 0.85 ? 'HIGH' : (Math.random() > 0.4 ? 'MODERATE' : 'LOW'),
-                size: Math.floor(Math.random() * 8) + 3,
-                type: 'traffic',
-                title: `${city.name.toUpperCase()} TRAFFIC ALERT`
-            });
-        }
-    });
+    try {
+        fetch('https://sherpa-solutions-api-production.up.railway.app/api/vessels?_t=' + Date.now())
+            .then(res => res.json())
+            .then(data => {
+                // Ensure data is an array
+                if (!Array.isArray(data)) return;
+                
+                // If the array is empty, clear the traffic state
+                if (data.length === 0) {
+                    state.traffic = [];
+                    updateShippingLayer();
+                    updateHUDCounts();
+                    return;
+                }
+                
+                const oldTrafficMap = new Map(state.traffic.map(t => [t.id, t]));
+
+                // Update traffic state with new data
+                state.traffic = data.map(v => {
+                    const oldVessel = oldTrafficMap.get(v.id);
+                    if (oldVessel) {
+                        // True API target (Destination)
+                        const targetLat = v.lat;
+                        const targetLng = v.lng;
+                        
+                        // Current visual location (Origination)
+                        const startLat = typeof oldVessel.lat === 'number' ? oldVessel.lat : targetLat;
+                        const startLng = typeof oldVessel.lng === 'number' ? oldVessel.lng : targetLng;
+                        
+                        // Calculate path from Origination -> Destination
+                        const lat1 = Cesium.Math.toRadians(startLat);
+                        const lon1 = Cesium.Math.toRadians(startLng);
+                        const lat2 = Cesium.Math.toRadians(targetLat);
+                        const lon2 = Cesium.Math.toRadians(targetLng);
+
+                        const dLon = lon2 - lon1;
+                        const dLat = lat2 - lat1;
+
+                        const a = Math.pow(Math.sin(dLat / 2), 2) +
+                                  Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLon / 2), 2);
+                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        const earthRadiusMeter = 6371000;
+                        const distMeters = earthRadiusMeter * c;
+
+                        // Target polling interval for vessels is ~10s
+                        let computedVelocity = distMeters / 10; 
+                        
+                        const y = Math.sin(dLon) * Math.cos(lat2);
+                        const x = Math.cos(lat1) * Math.sin(lat2) -
+                                  Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                        let computedHeading = Math.atan2(y, x);
+
+                        // If no distance traveled, hold position gracefully
+                        if (distMeters < 1) {
+                            computedVelocity = 0;
+                            computedHeading = Cesium.Math.toRadians(oldVessel.heading || v.heading || 0);
+                        }
+
+                        oldVessel.startLat = startLat;
+                        oldVessel.startLng = startLng;
+                        oldVessel.fetchTime = performance.now();
+                        
+                        oldVessel.trueHeading = v.heading || 0;
+                        oldVessel.computedHeading = computedHeading;
+                        oldVessel.computedVelocity = computedVelocity;
+                        
+                        oldVessel.velocityKmH = v.velocityKmH || 0;
+                        oldVessel.lastUpdate = v.lastUpdate;
+                        return oldVessel;
+                    }
+                    
+                    v.fetchTime = performance.now();
+                    v.startLat = v.lat;
+                    v.startLng = v.lng;
+                    v.computedVelocity = 0;
+                    v.computedHeading = Cesium.Math.toRadians(v.heading || 0);
+                    v.trueHeading = v.heading || 0;
+                    return v;
+                });
+            window.updateLastFetchTime('traffic');
+            if (state.layers.traffic) {
+                updateShippingLayer();
+                updateHUDCounts();
+            }
+            })
+            .catch(err => { console.error("AIS proxy fetch error:", err); window.setSystemOffline(); });
+    } catch (e) {
+        console.error("Traffic update failed:", e);
+        window.setSystemOffline();
+    }
 }
 
-function updateGlobeData() {
-    const counts = { flights: 0, military: 0, satellites: 0, earthquakes: 0, cctvs: 0, traffic: 0 };
+function filterBySpeed(f, speedRange) {
+    if (speedRange === 'all') return true;
+    const hSpeed = f.trueVelocityKmH || f.velocityKmH || 0;
+    if (speedRange === '0-500' && hSpeed <= 500) return true;
+    if (speedRange === '500-1000' && hSpeed > 500 && hSpeed <= 1000) return true;
+    if (speedRange === '1000+' && hSpeed > 1000) return true;
+    return false;
+}
 
-    // Using viewer.entities block updates requires suspendEvents to be fast
-    viewer.entities.suspendEvents();
-    viewer.entities.removeAll();
+// ------------------------------------------
+// DECOUPLED LAYER RENDERING ENGINES
+// ------------------------------------------
 
-    // Flight Layer — viewport culling: only render flights visible in the current camera view.
-    // This replaces the old fixed cap, allowing all flight data to be tracked while keeping entity
-    // counts proportional to zoom level (zoomed in = fewer flights, zoomed out = more area covered).
+function updateHUDCounts() {
+    const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+    const militarySpeed = document.getElementById('military-speed')?.value || 'all';
+    const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed));
+    const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
+
+    const satType = document.getElementById('satellite-type')?.value || 'all';
+    const satCountry = document.getElementById('satellite-country')?.value || 'all';
+    const satStatus = document.getElementById('satellite-status')?.value || 'all';
+    const visibleSatellites = (state.satellites || []).filter(s => {
+        if (satType !== 'all' && s.subtype !== satType) return false;
+        if (satCountry !== 'all' && s.country !== satCountry) return false;
+        if (satStatus !== 'all' && s.status !== satStatus) return false;
+        return true;
+    });
+
+    const counts = {
+        flights: visibleFlights.length,
+        military: visibleMilitary.length,
+        satellites: visibleSatellites.length,
+        earthquakes: (state.earthquakes || []).length,
+        cctvs: (state.cctv_cameras || []).length,
+        traffic: (state.traffic || []).length,
+        weather: (state.weatherData || []).length
+    };
+
+    try {
+        const hudMap = {
+            'count-flights': counts.flights,
+            'layer-military': counts.military,
+            'layer-satellites': counts.satellites,
+            'layer-earthquakes': counts.earthquakes,
+            'layer-cctv': counts.cctvs,
+            'layer-traffic': counts.traffic,
+            'layer-weather': counts.weather
+        };
+        for (const [id, count] of Object.entries(hudMap)) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            const countEl = (id === 'count-flights') ? el : el.querySelector('.layer-count');
+            if (countEl) countEl.innerText = count;
+        }
+    } catch (e) { console.error('[HUD] Update fail:', e); }
+}
+
+function updateFlightsLayer() {
+    if (typeof viewer === 'undefined' || !viewer) return;
+    
     if (state.layers.flights || state.layers.military) {
-        const flightType = document.getElementById('flight-type')?.value || 'all';
-        const flightSpeedFilter = document.getElementById('flight-speed')?.value || 'all';
-        const militarySpeedFilter = document.getElementById('military-speed')?.value || 'all';
+        const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+        const militarySpeed = document.getElementById('military-speed')?.value || 'all';
+        const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed));
+        const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
 
-        const earthRadius = 6371000;
+        try {
+            flightsDataSource.entities.suspendEvents();
+            militaryDataSource.entities.suspendEvents();
+            const currentIds = new Set();
+            
+            const processFlight = (f) => {
+                currentIds.add(f.id);
+                let ds = f.isMilitary ? militaryDataSource : flightsDataSource;
+                if (!ds.entities.getById(f.id)) {
+                    ds.entities.add({
+                        id: f.id,
+                        position: new Cesium.CallbackProperty(() => {
+                            const now = performance.now();
+                            const dt = (now - (f.fetchTime || now)) / 1000;
+                            const dist = (f.velocity || 0) * dt;
+                            const bearing = f.heading || 0;
+                            const R = 6371000;
+                            const lat1 = Cesium.Math.toRadians(f.lat);
+                            const lon1 = Cesium.Math.toRadians(f.lng);
+                            const lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist / R) + Math.cos(lat1) * Math.sin(dist / R) * Math.cos(Cesium.Math.toRadians(bearing)));
+                            const lon2 = lon1 + Math.atan2(Math.sin(Cesium.Math.toRadians(bearing)) * Math.sin(dist / R) * Math.cos(lat1), Math.cos(dist / R) - Math.sin(lat1) * Math.sin(lat2));
+                            return Cesium.Cartesian3.fromRadians(lon2, lat2, f.alt || 10000);
+                        }, false),
+                        billboard: {
+                            image: f.isMilitary ? militaryAirplaneSvg : airplaneSvg,
+                            color: Cesium.Color.WHITE,
+                            scale: isMobile ? 0.35 : 0.45,
+                            rotation: 0,
+                            alignedAxis: new Cesium.CallbackProperty(() => f.alignedAxis || Cesium.Cartesian3.ZERO, false),
+                            disableDepthTestDistance: Number.POSITIVE_INFINITY
+                        },
+                        label: {
+                            text: f.callsign || 'N/A',
+                            font: '12px monospace',
+                            fillColor: Cesium.Color.CYAN,
+                            pixelOffset: new Cesium.Cartesian2(0, -25),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2000000),
+                            show: !isMobile
+                        },
+                        customData: f
+                    });
+                }
+            };
 
-        // --- Viewport bounds via camera.computeViewRectangle ---
-        // Returns undefined when the camera is so high it can see the full globe (horizon clips);
-        // in that case we skip the spatial filter and rely on a generous safety cap.
-        const viewRect = viewer.camera.computeViewRectangle(viewer.scene.globe.ellipsoid);
-        let vWest, vEast, vSouth, vNorth;
-        const hasViewRect = Cesium.defined(viewRect);
-        if (hasViewRect) {
-            vWest  = Cesium.Math.toDegrees(viewRect.west);
-            vEast  = Cesium.Math.toDegrees(viewRect.east);
-            vSouth = Cesium.Math.toDegrees(viewRect.south);
-            vNorth = Cesium.Math.toDegrees(viewRect.north);
-        }
+            if (state.layers.flights) visibleFlights.forEach(processFlight);
+            if (state.layers.military) visibleMilitary.forEach(processFlight);
 
-        // Helper: is a flight within the visible viewport?
-        function inView(lat, lng) {
-            if (!hasViewRect) return true; // show all when full-globe view
-            if (lat < vSouth || lat > vNorth) return false;
-            // Handle antimeridian wrap (vWest > vEast when the rect spans the 180° line)
-            if (vWest <= vEast) return lng >= vWest && lng <= vEast;
-            return lng >= vWest || lng <= vEast;
-        }
-
-        // Walk all flights, apply user filters + viewport cull
-        const civFlights = [];
-        const milFlights = [];
-        // Full-globe safety cap (only used if computeViewRectangle returned undefined)
-        const GLOBAL_CAP = isMobile ? 1000 : 3000;
-
-        state.flights.forEach(f => {
-            const speedKmh = f.velocity * 3.6;
-
-            let speedMatch = true;
-            if (flightSpeedFilter === '0-500' && speedKmh >= 500) speedMatch = false;
-            if (flightSpeedFilter === '500-1000' && (speedKmh < 500 || speedKmh >= 1000)) speedMatch = false;
-            if (flightSpeedFilter === '1000+' && speedKmh < 1000) speedMatch = false;
-
-            let milSpeedMatch = true;
-            if (militarySpeedFilter === '0-500' && speedKmh >= 500) milSpeedMatch = false;
-            if (militarySpeedFilter === '500-1000' && (speedKmh < 500 || speedKmh >= 1000)) milSpeedMatch = false;
-            if (militarySpeedFilter === '1000+' && speedKmh < 1000) milSpeedMatch = false;
-
-            if (speedMatch && state.layers.flights && !f.isMilitary &&
-                (flightType === 'all' || (flightType === 'commercial' && f.callsign !== 'UNKNOWN') || (flightType === 'private' && f.callsign === 'UNKNOWN')) &&
-                inView(f.lat, f.lng)) {
-                civFlights.push(f);
-            }
-            if (milSpeedMatch && state.layers.military && f.isMilitary && inView(f.lat, f.lng)) {
-                milFlights.push(f);
-            }
-        });
-
-        // Apply cap only when full-globe (viewRect undefined) — visible count is naturally bounded otherwise
-        const civVisible = hasViewRect ? civFlights : civFlights.slice(0, Math.round(GLOBAL_CAP * 0.9));
-        const milVisible = hasViewRect ? milFlights : milFlights.slice(0, Math.round(GLOBAL_CAP * 0.1));
-
-        // Show total qualifying flights in UI (not just visible subset)
-        counts.flights  = civFlights.length;
-        counts.military = milFlights.length;
-
-        [...civVisible, ...milVisible].forEach(f => {
-            const colorHex = f.isMilitary ? '#ff4757' : '#00d2ff';
-            const headingRad = Cesium.Math.toRadians(f.heading);
-
-            viewer.entities.add({
-                id: f.id,
-                position: new Cesium.CallbackProperty((time, result) => {
-                    const now = performance.now();
-                    const dt = (now - f.fetchTime) / 1000;
-                    const dist = f.velocity * dt;
-                    const angularDist = dist / earthRadius;
-
-                    const startLatRad = Cesium.Math.toRadians(f.startLat);
-                    const startLngRad = Cesium.Math.toRadians(f.startLng);
-
-                    const newLatRad = Math.asin(
-                        Math.sin(startLatRad) * Math.cos(angularDist) +
-                        Math.cos(startLatRad) * Math.sin(angularDist) * Math.cos(headingRad)
-                    );
-                    const newLngRad = startLngRad + Math.atan2(
-                        Math.sin(headingRad) * Math.sin(angularDist) * Math.cos(startLatRad),
-                        Math.cos(angularDist) - Math.sin(startLatRad) * Math.sin(newLatRad)
-                    );
-
-                    f.lat = Cesium.Math.toDegrees(newLatRad);
-                    f.lng = Cesium.Math.toDegrees(newLngRad);
-
-                    const p2 = Cesium.Cartesian3.fromRadians(newLngRad, newLatRad, f.alt, viewer.scene.globe.ellipsoid, result);
-                    return p2;
-                }, false),
-                billboard: {
-                    image: airplaneSvg,
-                    color: Cesium.Color.fromCssColorString(colorHex),
-                    rotation: 0,
-                    alignedAxis: f.alignedAxis,
-                    scale: 0.6
-                },
-                customData: f
+            [flightsDataSource, militaryDataSource].forEach(ds => {
+                const toRemove = [];
+                ds.entities.values.forEach(e => { if (!currentIds.has(e.id)) toRemove.push(e.id); });
+                toRemove.forEach(id => ds.entities.removeById(id));
             });
-        });
-    }
-
-    // Satellites — also capped to SAT_DISPLAY_CAP
-    if (state.layers.satellites) {
-        const satType = document.getElementById('satellite-type')?.value || 'all';
-        let satCount = 0;
-
-        for (const s of state.satellites) {
-            if (satType !== 'all' && s.subtype !== satType) continue;
-            if (satCount >= SAT_DISPLAY_CAP) break;
-            satCount++;
-            counts.satellites++;
-
-                viewer.entities.add({
-                    id: s.id,
-                    position: new Cesium.CallbackProperty((time, result) => {
-                        const now = new Date();
-                        const positionAndVelocity = satellite.propagate(s.satRec, now);
-                        const positionEci = positionAndVelocity.position;
-
-                        if (!positionEci || isNaN(positionEci.x)) {
-                            // Can happen if TLE is invalid or too old
-                            return undefined;
-                        }
-
-                        const gmst = satellite.gstime(now);
-                        const positionGd = satellite.eciToGeodetic(positionEci, gmst);
-
-                        const lng = satellite.degreesLong(positionGd.longitude);
-                        const lat = satellite.degreesLat(positionGd.latitude);
-                        const alt = positionGd.height * 1000; // satellite.js height is in km, cesium expects meters
-
-                        // Keep internal state updated for the HUD
-                        s.lat = lat;
-                        s.lng = lng;
-                        s.alt = alt;
-
-                        const vVec = positionAndVelocity.velocity;
-                        if (vVec) {
-                            const speedKmS = Math.sqrt(vVec.x * vVec.x + vVec.y * vVec.y + vVec.z * vVec.z);
-                            s.velocityKmH = speedKmS * 3600;
-                        } else {
-                            s.velocityKmH = 0;
-                        }
-
-                        return Cesium.Cartesian3.fromDegrees(lng, lat, alt, viewer.scene.globe.ellipsoid, result);
-                    }, false),
-                    billboard: {
-                        image: '/static/satellite.png',
-                        scale: 0.12,
-                        verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER
-                    },
-                    description: `<b>${s.id}</b>`,
-                    customData: s
-            });
-        }
-    }
-
-    // Earthquakes
-    if (state.layers.earthquakes) {
-        state.earthquakes.forEach(e => {
-            counts.earthquakes++;
-            viewer.entities.add({
-                id: e.id,
-                position: Cesium.Cartesian3.fromDegrees(e.lng, e.lat, 0),
-                point: {
-                    pixelSize: Math.max(e.mag * 4, 4),
-                    color: Cesium.Color.ORANGE.withAlpha(0.6),
-                    outlineColor: Cesium.Color.RED,
-                    outlineWidth: 1
-                },
-                customData: e
-            });
-        });
-    }
-
-    // CCTV
-    if (state.layers.cctv) {
-        const cctvMode = document.getElementById('cctv-mode')?.value || 'all';
-        state.cctv_cameras.forEach(cam => {
-            if (cctvMode === 'usa' && cam.country !== 'USA') return;
-            if (cctvMode === 'uk' && cam.country !== 'UK') return;
-
-            counts.cctvs++;
-            viewer.entities.add({
-                id: cam.id,
-                // Raise altitude so icons clear terrain and are easier to click
-                position: Cesium.Cartesian3.fromDegrees(cam.lng, cam.lat, 500),
-                billboard: {
-                    // Larger icon (36x36) for better click target
-                    image: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="36" height="36"><path fill="%237bed9f" d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"/></svg>',
-                    scale: 1.0,
-                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    // Ensure it always renders on top of terrain/other entities
-                    disableDepthTestDistance: Number.POSITIVE_INFINITY
-                },
-                customData: cam
-            });
-        });
-    }
-
-    // Traffic
-    if (state.layers.traffic) {
-        const trafficSort = document.getElementById('traffic-type')?.value || 'current';
-        state.traffic.forEach(t => {
-            counts.traffic++;
-            viewer.entities.add({
-                id: 'traffic_' + t.id,
-                position: Cesium.Cartesian3.fromDegrees(t.lng, t.lat, 250),
-                point: {
-                    pixelSize: trafficSort === 'accidents' ? t.size + 4 : t.size,
-                    color: t.severity === 'HIGH' ? Cesium.Color.RED.withAlpha(0.9) : (t.severity === 'MODERATE' ? Cesium.Color.ORANGE.withAlpha(0.8) : Cesium.Color.YELLOW.withAlpha(0.7)),
-                    outlineColor: Cesium.Color.BLACK,
-                    outlineWidth: 1
-                },
-                customData: t
-            });
-        });
-    }
-
-    viewer.entities.resumeEvents();
-    // Force a redraw now that entities are updated (required in requestRenderMode)
-    viewer.scene.requestRender();
-
-    // Update UI
-    const flightCountEl = document.getElementById('count-flights');
-    if (flightCountEl) flightCountEl.innerText = counts.flights;
-    const milEl = document.getElementById('layer-military');
-    if (milEl) milEl.querySelector('.layer-count').innerText = counts.military;
-    const satEl = document.getElementById('layer-satellites');
-    if (satEl) satEl.querySelector('.layer-count').innerText = counts.satellites;
-    const eqEl = document.getElementById('layer-earthquakes');
-    if (eqEl) eqEl.querySelector('.layer-count').innerText = counts.earthquakes;
-    const cctvEl = document.getElementById('layer-cctv');
-    if (cctvEl) cctvEl.querySelector('.layer-count').innerText = counts.cctvs;
-    const trafficEl = document.getElementById('layer-traffic');
-    if (trafficEl) trafficEl.querySelector('.layer-count').innerText = counts.traffic;
-
-    // Weather: imagery layers are managed separately (not as entities)
-    if (state.layers.weather) {
-        const weatherType = document.getElementById('weather-layer')?.value || 'rain';
-        const weatherP = document.getElementById('layer-weather').querySelector('p');
-        if (weatherP) weatherP.innerText = `Active: ${weatherType}`;
-
-        if (weatherType === 'temperature' && state.weatherData) {
-            state.weatherData.forEach(w => {
-                viewer.entities.add({
-                    id: 'weather_' + w.city,
-                    position: Cesium.Cartesian3.fromDegrees(w.lng, w.lat, 10000),
-                    label: {
-                        text: `${w.city}\n${w.temp} ${w.unit}`,
-                        font: 'bold 14pt "Share Tech Mono"',
-                        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                        fillColor: Cesium.Color.fromCssColorString('#a4b0be'),
-                        outlineColor: Cesium.Color.BLACK,
-                        outlineWidth: 3,
-                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                        pixelOffset: new Cesium.Cartesian2(0, -10),
-                        showBackground: true,
-                        backgroundColor: new Cesium.Color(0.1, 0.1, 0.1, 0.7)
-                    },
-                    point: {
-                        pixelSize: 8,
-                        color: Cesium.Color.fromCssColorString('#a4b0be'),
-                        outlineColor: Cesium.Color.BLACK,
-                        outlineWidth: 2
-                    }
-                });
-            });
-            // Remove any tile-based layer if we switched to temperature
-            if (_weatherImageryLayer) {
-                viewer.imageryLayers.remove(_weatherImageryLayer, true);
-                _weatherImageryLayer = null;
-                _weatherLastType = null;
-            }
-        } else {
-            // Apply a real tile-based radar/cloud layer via RainViewer
-            if (_weatherLastType !== weatherType) {
-                applyWeatherLayer(weatherType);
-            }
+        } catch (e) { console.error('[Globe] Flights fail:', e); }
+        finally {
+            try { flightsDataSource.entities.resumeEvents(); } catch(e){}
+            try { militaryDataSource.entities.resumeEvents(); } catch(e){}
         }
     } else {
-        // Layer toggled off — remove weather imagery if present
-        if (_weatherImageryLayer) {
-            viewer.imageryLayers.remove(_weatherImageryLayer, true);
-            _weatherImageryLayer = null;
-            _weatherLastType = null;
-        }
+        flightsDataSource.entities.removeAll();
+        militaryDataSource.entities.removeAll();
     }
+    viewer.scene.requestRender();
+}
+
+function updateSatellitesLayer() {
+    if (typeof viewer === 'undefined' || !viewer) return;
+
+    if (state.layers.satellites) {
+        try {
+            satellitesDataSource.entities.suspendEvents();
+            const currentSatIds = new Set();
+            
+            const satType = document.getElementById('satellite-type')?.value || 'all';
+            const satCountry = document.getElementById('satellite-country')?.value || 'all';
+            const satStatus = document.getElementById('satellite-status')?.value || 'all';
+            const visibleSatellites = (state.satellites || []).filter(s => {
+                if (satType !== 'all' && s.subtype !== satType) return false;
+                if (satCountry !== 'all' && s.country !== satCountry) return false;
+                if (satStatus !== 'all' && s.status !== satStatus) return false;
+                return true;
+            });
+
+            visibleSatellites.forEach(s => {
+                currentSatIds.add(s.id);
+                if (!satellitesDataSource.entities.getById(s.id)) {
+                    satellitesDataSource.entities.add({
+                        id: s.id,
+                        position: new Cesium.CallbackProperty(() => {
+                            try {
+                                const now = new Date();
+                                const pv = satellite.propagate(s.satRec, now);
+                                if (!pv.position) return undefined;
+                                const gmst = satellite.gstime(now);
+                                const gd = satellite.eciToGeodetic(pv.position, gmst);
+                                return Cesium.Cartesian3.fromRadians(gd.longitude, gd.latitude, gd.height * 1000);
+                            } catch(e) { return undefined; }
+                        }, false),
+                        billboard: {
+                            image: satelliteSvg,
+                            scale: isMobile ? 0.35 : 0.45,
+                            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
+                        },
+                        customData: s
+                    });
+                }
+            });
+            const existingSats = satellitesDataSource.entities.values;
+            const toRemoveSats = [];
+            for (let i = 0; i < existingSats.length; i++) {
+                if (!currentSatIds.has(existingSats[i].id)) toRemoveSats.push(existingSats[i].id);
+            }
+            toRemoveSats.forEach(id => satellitesDataSource.entities.removeById(id));
+        } catch(e) { console.error('[Globe] Satellites fail:', e); }
+        finally { try { satellitesDataSource.entities.resumeEvents(); } catch(e){} }
+    } else {
+        satellitesDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
+
+function updateEarthquakesLayer() {
+    if (typeof viewer === 'undefined' || !viewer) return;
+
+    if (state.layers.earthquakes) {
+        try {
+            earthquakesDataSource.entities.suspendEvents();
+            earthquakesDataSource.entities.removeAll();
+            (state.earthquakes || []).forEach(q => {
+                const mag = q.properties.mag || 1;
+                // Calculate varying lightness of yellow based on magnitude (range mostly 1.0 to 8.0)
+                // HSL for yellow is ~60 degrees (1/6 = ~0.16)
+                // Lightness: lower magnitude = lighter yellow (closer to white/pale), higher magnitude = pure bright yellow
+                // We'll vary the Lightness from 0.8 (pale) down to 0.5 (bright/saturated)
+                const clampedMag = Math.max(1, Math.min(8, mag));
+                const lightness = 0.8 - ((clampedMag - 1) / 7) * 0.3; 
+                const quakeColor = Cesium.Color.fromHsl(0.16, 1.0, lightness, 0.9);
+
+                earthquakesDataSource.entities.add({
+                    position: Cesium.Cartesian3.fromDegrees(q.geometry.coordinates[0], q.geometry.coordinates[1], q.geometry.coordinates[2] * 1000),
+                    point: { 
+                        pixelSize: mag * 4, 
+                        color: quakeColor,
+                        outlineColor: Cesium.Color.fromHsl(0.16, 1.0, lightness * 0.8, 1.0), // slightly darker yellow outline
+                        outlineWidth: 1.5
+                    },
+                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], mag: mag, time: q.properties?.time }
+                });
+            });
+        } catch(e) { console.error('[Globe] Earthquakes fail:', e); }
+        finally { try { earthquakesDataSource.entities.resumeEvents(); } catch(e){} }
+    } else {
+        earthquakesDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
+
+function updateCCTVLayer() {
+    if (typeof viewer === 'undefined' || !viewer) return;
+
+    if (state.layers.cctv) {
+        try {
+            cctvDataSource.entities.suspendEvents();
+            cctvDataSource.entities.removeAll();
+            (state.cctv_cameras || []).forEach(cam => {
+                cctvDataSource.entities.add({
+                    id: cam.id,
+                    position: Cesium.Cartesian3.fromDegrees(cam.lng, cam.lat),
+                    billboard: {
+                        image: cctvSvg,
+                        scale: isMobile ? 0.6 : 0.8,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+                        disableDepthTestDistance: 0
+                    },
+                    customData: { ...cam, type: 'cctv' }
+                });
+            });
+        } catch(e) { console.error('[Globe] CCTV fail:', e); }
+        finally { try { cctvDataSource.entities.resumeEvents(); } catch(e){} }
+    } else {
+        cctvDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
+
+function updateShippingLayer() {
+    if (typeof viewer === 'undefined' || !viewer) return;
+
+    if (state.layers.traffic) {
+        try {
+            shippingDataSource.entities.suspendEvents();
+            const currentVesselIds = new Set((state.traffic || []).map(t => 'vessel_' + t.id));
+            const toRemove = [];
+            shippingDataSource.entities.values.forEach(e => { if (!currentVesselIds.has(e.id)) toRemove.push(e.id); });
+            toRemove.forEach(id => shippingDataSource.entities.removeById(id));
+
+            const earthRadius = 6371000;
+            (state.traffic || []).forEach(t => {
+                const existing = shippingDataSource.entities.getById('vessel_' + t.id);
+                const headingRad = Cesium.Math.toRadians(t.trueHeading || 0);
+                const imageRotationRad = -headingRad + (Math.PI / 2);
+
+                if (!existing) {
+                    shippingDataSource.entities.add({
+                        id: 'vessel_' + t.id,
+                        position: new Cesium.CallbackProperty((time, result) => {
+                            try {
+                                const now = performance.now();
+                                const dt = t.fetchTime ? (now - t.fetchTime) / 1000 : 0;
+                                const dist = (t.computedVelocity || 0) * dt;
+                                const angularDist = dist / earthRadius;
+                                const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
+                                const sLng = Cesium.Math.toRadians(t.startLng || t.lng);
+                                const head = t.computedHeading || 0;
+                                const nLat = Math.asin(Math.sin(sLat) * Math.cos(angularDist) + Math.cos(sLat) * Math.sin(angularDist) * Math.cos(head));
+                                const nLng = sLng + Math.atan2(Math.sin(head) * Math.sin(angularDist) * Math.cos(sLat), Math.cos(angularDist) - Math.sin(sLat) * Math.sin(nLat));
+                                t.lat = Cesium.Math.toDegrees(nLat);
+                                t.lng = Cesium.Math.toDegrees(nLng);
+                                return Cesium.Cartesian3.fromRadians(nLng, nLat, 0, viewer.scene.globe.ellipsoid, result);
+                            } catch (cpErr) {
+                                return undefined;
+                            }
+                        }, false),
+                        billboard: {
+                            image: shipSvg,
+                            rotation: imageRotationRad,
+                            scale: isMobile ? 0.15 : 0.20,
+                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                            disableDepthTestDistance: 0
+                        },
+                        customData: t
+                    });
+                } else {
+                    existing.billboard.rotation = imageRotationRad;
+                }
+            });
+        } catch (e) {
+            console.error('[Globe] Traffic fail:', e.name || 'Error', e.message || e, e.stack);
+        } finally {
+            shippingDataSource.entities.resumeEvents();
+        }
+    } else {
+        shippingDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
+
+function updateWeatherLayer() {
+    if (typeof viewer === 'undefined' || !viewer) return;
+
+    if (state.layers.weather) {
+        try {
+            weatherDataSource.entities.suspendEvents();
+            weatherDataSource.entities.removeAll();
+            const weatherType = document.getElementById('weather-layer')?.value || 'rain';
+            const weatherP = document.getElementById('layer-weather')?.querySelector('p');
+            if (weatherP) weatherP.innerText = `Active: ${weatherType}`;
+
+            if (weatherType === 'temperature' && state.weatherData) {
+                state.weatherData.forEach(w => {
+                    weatherDataSource.entities.add({
+                        id: 'weather_' + w.city,
+                        position: Cesium.Cartesian3.fromDegrees(w.lng || 0, w.lat || 0, 10000),
+                        label: {
+                            text: `${w.city}\n${w.temp} ${w.unit}`,
+                            font: 'bold 14pt "Share Tech Mono"',
+                            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                            fillColor: Cesium.Color.fromCssColorString('#a4b0be'),
+                            outlineColor: Cesium.Color.BLACK,
+                            outlineWidth: 3,
+                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                            pixelOffset: new Cesium.Cartesian2(0, -10),
+                            showBackground: false,
+                            backgroundColor: new Cesium.Color(0.1, 0.1, 0.1, 0.7)
+                        },
+                        point: { pixelSize: 8, color: Cesium.Color.fromCssColorString('#a4b0be'), outlineColor: Cesium.Color.BLACK, outlineWidth: 2 }
+                    });
+                });
+                if (_weatherImageryLayer) { viewer.imageryLayers.remove(_weatherImageryLayer, true); _weatherImageryLayer = null; _weatherLastType = null; }
+            } else {
+                if (_weatherLastType !== weatherType) applyWeatherLayer(weatherType);
+            }
+        } catch (e) {
+            console.error('[Globe] Weather fail:', e.name || 'Error', e.message || e, e.stack);
+        } finally {
+            weatherDataSource.entities.resumeEvents();
+        }
+    } else {
+        weatherDataSource.entities.removeAll();
+        if (_weatherImageryLayer) { viewer.imageryLayers.remove(_weatherImageryLayer, true); _weatherImageryLayer = null; _weatherLastType = null; }
+    }
+    viewer.scene.requestRender();
 }
 
 // ----- WEATHER IMAGERY (RainViewer) -----
@@ -760,19 +1269,6 @@ async function applyWeatherLayer(type) {
 }
 
 
-// ----- HUD UPDATER -----
-// Update target HUD panel continuously if active
-viewer.scene.preUpdate.addEventListener(function (scene, time) {
-    if (state.target && document.getElementById('target-panel').style.display !== 'none') {
-        // ONLY update the HUD constantly for moving targets like flights to prevent destroying 
-        // static elements like `<video>` or `<img>` tags 60 times a second.
-        if (state.target.type === 'flight') {
-            renderTargetDetails();
-        }
-    }
-});
-
-
 // ----- TARGETING LOGIC -----
 const majorAirports = ['JFK', 'LHR', 'CDG', 'HND', 'SYD', 'PEK', 'DXB', 'SIN', 'FRA', 'AMS', 'LAX', 'ORD', 'ATL', 'HKG', 'MAD', 'IST', 'SVO', 'PER', 'AKL', 'JNB', 'GIG', 'MEX', 'YYZ', 'GRU'];
 
@@ -823,18 +1319,52 @@ function lockTarget(obj) {
     renderTargetDetails();
 
     // Zoom Cesium camera
-    const entity = viewer.entities.getById(obj.id);
-    if (entity) {
-        let zoomRange = 500000;
-        if (obj.type === 'cctv') zoomRange = 5000;
-        else if (obj.type === 'traffic') zoomRange = 10000;
-        else if (obj.alt > 0) zoomRange = obj.alt * 2 + 50000;
+    let zoomRange = 500000;
+    if (obj.type === 'cctv') zoomRange = 5000;
+    else if (obj.type === 'vessel') zoomRange = 5000;
+    else if (obj.type === 'traffic') zoomRange = 10000;
+    else if (obj.alt > 0) zoomRange = obj.alt * 2 + 50000;
 
-        viewer.flyTo(entity, {
-            duration: 1.5,
-            offset: new Cesium.HeadingPitchRange(0, -Math.PI / 4, zoomRange)
-        });
+    let targetLat = obj.lat || 0;
+    let targetLng = obj.lng || 0;
+
+    if (obj.type === 'satellite' && obj.satRec) {
+        try {
+            const now = new Date();
+            const pv = satellite.propagate(obj.satRec, now);
+            if (pv.position) {
+                const gmst = satellite.gstime(now);
+                const gd = satellite.eciToGeodetic(pv.position, gmst);
+                targetLat = satellite.degreesLat(gd.latitude);
+                targetLng = satellite.degreesLong(gd.longitude);
+                obj.lat = targetLat; // populate for target details table
+                obj.lng = targetLng;
+                obj.alt = gd.height; // in km
+                zoomRange = gd.height * 1000 + 500000; // Zoom slightly above the satellite orbit
+            }
+        } catch(e) { console.warn("Could not calculate satellite target focus."); }
     }
+
+    viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(targetLng, targetLat, zoomRange),
+        duration: 1.5,
+        // Optional down-tilt for 3D effect
+        orientation: {
+            heading: 0.0,
+            pitch: -Cesium.Math.PI_OVER_TWO, // Look straight down
+            roll: 0.0
+        }
+    });
+
+    // Provide a neat little offset to track the object
+    viewer.scene.preRender.addEventListener(function trackTarget() {
+        if (!state.target || state.target.id !== obj.id) {
+            viewer.scene.preRender.removeEventListener(trackTarget);
+            return;
+        }
+        // If it's a moving object or we are close, you could optionally keep nudging the camera here,
+        // but for now, just initially flying to it is safer than viewer.flyTo() which bugs out.
+    });
 }
 
 document.getElementById('close-target').addEventListener('click', () => {
@@ -870,12 +1400,12 @@ function renderTargetDetails() {
 
     const html = `
         <div style="margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (isTraffic ? '#ff6b81' : 'var(--hud-cyan)'))};">
-                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (isTraffic ? 'fa-car-burst' : (isFlight ? 'fa-plane' : 'fa-satellite')))}"></i>
+            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : 'var(--hud-cyan)'))};">
+                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (isFlight ? 'fa-plane' : 'fa-satellite')))}"></i>
             </div>
             <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN')}</h3>
             <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px; text-transform: uppercase;">
-                ${t.country || t.subtype || (isTraffic ? 'ROAD INCIDENT' : 'UNKNOWN ORIGIN')}
+                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : 'UNKNOWN ORIGIN')}
             </div>
         </div>
         
@@ -965,10 +1495,16 @@ function renderTargetDetails() {
             }
             return '';
         })() : ''}
-            ${t.type !== 'cctv' && !isTraffic ? `
+            ${t.type !== 'cctv' && t.type !== 'vessel' && !isTraffic ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">IDENTIFIER</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${isFlight ? (t.id || 'N/A') : (t.id ? t.id.toString().split('_')[1] : 'N/A')}</td>
+            </tr>
+            ` : ''}
+            ${t.type === 'satellite' && t.status ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">OPERATIONAL STATUS</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-weight: bold; color: ${t.status === 'active' ? '#7bed9f' : '#ff4757'};">${t.status.toUpperCase()}</td>
             </tr>
             ` : ''}
             ${isTraffic ? `
@@ -993,7 +1529,7 @@ function renderTargetDetails() {
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; color: #fff; letter-spacing: 2px;">${t.destination || 'UNKNOWN'}</td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'satellite') && t.velocityKmH !== undefined ? `
+            ${(isFlight || t.type === 'satellite' || t.type === 'vessel') && t.velocityKmH !== undefined ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">VELOCITY</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.velocityKmH).toLocaleString()} <span style="font-size: 0.7rem;">km/h</span></td>
@@ -1005,7 +1541,7 @@ function renderTargetDetails() {
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.alt).toLocaleString()} <span style="font-size: 0.7rem;">m</span></td>
             </tr>
             ` : ''}
-            ${isFlight && t.heading !== undefined ? `
+            ${(isFlight || t.type === 'vessel') && t.heading !== undefined ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">HEADING</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.heading)}°</td>
@@ -1131,7 +1667,7 @@ async function executeSearch() {
     if (!query) return;
 
     // 1. Check Flights
-    const foundFlight = state.flights.find(f => f.callsign && f.callsign.includes(query) || f.id === query);
+    const foundFlight = state.flights.find(f => (f.callsign && String(f.callsign).toUpperCase().includes(query)) || String(f.id).toUpperCase() === query);
     if (foundFlight) {
         lockTarget(foundFlight);
         if (foundFlight.isMilitary && !state.layers.military) toggleLayer('military');
@@ -1141,7 +1677,7 @@ async function executeSearch() {
     }
     
     // 2. Check CCTV
-    const foundCCTV = state.cctv_cameras.find(c => c.id.toUpperCase().includes(query) || (c.origin && c.origin.toUpperCase().includes(query)));
+    const foundCCTV = state.cctv_cameras.find(c => String(c.id).toUpperCase().includes(query) || (c.origin && String(c.origin).toUpperCase().includes(query)));
     if (foundCCTV) {
         lockTarget(foundCCTV);
         if (!state.layers.cctv) toggleLayer('cctv');
@@ -1194,32 +1730,59 @@ document.getElementById('target-search-btn').addEventListener('click', function 
 });
 
 // Boot Sequence
-setTimeout(() => {
+// Set up intervals independent of layers so data is fresh when toggled
+setInterval(fetchFlights, 900000); // Poll flights every 15 minutes to allow native extrapolation
+setInterval(fetchSatellites, 30000);
+setInterval(fetchTraffic, 10000); // Poll AIS vessels every 10 seconds
+setInterval(fetchEarthquakes, 60000);
+setInterval(fetchWeather, 300000);
+setInterval(fetchCCTVs, 120000); // Refresh cameras every 2 minutes
 
+// Kick off initial fetches immediately to populate the map faster
+async function initialBoot() {
+    await viewerInitPromise; // Wait for Cesium to be ready
     fetchFlights();
-    fetchEarthquakes();
-    fetchSatellites();
-    fetchWeather();
     fetchTraffic();
-    fetchCCTVs();
+    fetchCCTVs(); 
+    fetchSatellites();
+    fetchEarthquakes();
+    fetchWeather();
+}
+initialBoot();
 
-    setInterval(fetchFlights, 15000);
-    setInterval(fetchEarthquakes, 60000);
-    setInterval(fetchWeather, 300000);
+// Safety fallback: if the loading overlay is still visible after 5 seconds, force-dismiss it.
+// This prevents the globe from being permanently blocked by a slow/failed initial flight fetch.
+setTimeout(() => {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay && overlay.style.display !== 'none') {
+        overlay.style.display = 'none';
+    }
+}, 5000);
 
-    document.querySelectorAll('.hud-select').forEach(select => {
-        select.addEventListener('change', () => {
-            if (select.id === 'quake-duration') fetchEarthquakes();
-            updateGlobeData();
-        });
+document.querySelectorAll('.hud-select').forEach(select => {
+    select.addEventListener('change', () => {
+        if (select.id === 'quake-duration') {
+            fetchEarthquakes();
+        } else if (select.id === 'flight-speed' || select.id === 'military-speed') {
+            updateFlightsLayer();
+        } else if (select.id === 'satellite-type' || select.id === 'satellite-country' || select.id === 'satellite-status') {
+            updateSatellitesLayer();
+        } else if (select.id === 'weather-layer') {
+            updateWeatherLayer();
+        }
+        updateHUDCounts();
     });
+});
 
-    // Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
-    // This ensures the viewport filter stays accurate without running every animation frame.
+// Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
+// This ensures the viewport filter stays accurate without running every animation frame.
+// Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
+// This ensures the viewport filter stays accurate without running every animation frame.
+if (viewer && viewer.camera) {
     viewer.camera.moveEnd.addEventListener(() => {
         if (state.layers.flights || state.layers.military) {
-            updateGlobeData();
+            updateFlightsLayer();
+            updateHUDCounts();
         }
     });
-
-}, 800);
+}
