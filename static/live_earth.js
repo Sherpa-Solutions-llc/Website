@@ -3,7 +3,12 @@ const isMobile = window.innerWidth <= 768;
 
 // Define your Railway backend URL here for production!
 // Example: "https://your-custom-app.up.railway.app"
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '' : 'https://sherpa-solutions-api-production.up.railway.app'; // <--- REPLACE THIS WITH YOUR REAL RAILWAY URL IF THIS IS INCORRECT
+let API_BASE = 'https://sherpa-solutions-api-production.up.railway.app';
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // 🌍 When testing UI changes locally without running the Python server, we route to Railway automatically!
+    // -> If you *DO* want to test the local python server backend logic, simply change this to:
+    // API_BASE = 'http://127.0.0.1:8000';
+}
 
 // Performance caps — satellite entities have per-frame CallbackProperty callbacks too;
 // keep this reasonable. Flights use viewport culling instead (no hard cap).
