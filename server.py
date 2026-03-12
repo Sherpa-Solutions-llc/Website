@@ -26,6 +26,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Allow both local dev and the live GitHub Pages site
 ALLOWED_ORIGINS = [
     "http://localhost:8000",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
     "http://localhost:8001",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:8001",
