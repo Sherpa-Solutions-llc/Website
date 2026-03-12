@@ -229,24 +229,30 @@ async function initCesium() {
         shippingDataSource.clustering.enabled = true;
         shippingDataSource.clustering.pixelRange = 40;
         shippingDataSource.clustering.minimumClusterSize = 2;
-
         shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+            const count = clusteredEntities.length;
+            const extraScale = Math.log10(count) * 0.15;
+            const baseScale = isMobile ? 0.15 : 0.20;
+            const fontSize = Math.floor(13 + (Math.log10(count) * 4));
+
             cluster.label.show = true;
-            cluster.label.text = clusteredEntities.length.toLocaleString();
-            cluster.label.font = 'bold 14px "Share Tech Mono"';
+            cluster.label.text = count.toLocaleString();
+            cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
             cluster.label.fillColor = Cesium.Color.WHITE;
             cluster.label.outlineColor = Cesium.Color.BLACK;
             cluster.label.outlineWidth = 3;
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-            cluster.label.pixelOffset = new Cesium.Cartesian2(25, -15);
+            cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+            
             cluster.billboard.show = true;
             cluster.billboard.image = shipSvg;
-            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
             // Provide occlusion instead of letting clusters bleed through earth
             cluster.billboard.disableDepthTestDistance = 0;
-            cluster.billboard.scale = isMobile ? 0.15 : 0.20;
+            cluster.billboard.scale = baseScale + extraScale;
             cluster.billboard.rotation = -Math.PI / 2;
             cluster.billboard.alignedAxis = Cesium.Cartesian3.UNIT_Z;
         });
@@ -258,15 +264,21 @@ async function initCesium() {
             dataSource.clustering.minimumClusterSize = 2;
 
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.2;
+                const baseScale = isMobile ? 0.35 : 0.45;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
                 cluster.label.show = true;
-                cluster.label.text = clusteredEntities.length.toLocaleString();
-                cluster.label.font = 'bold 14px monospace';
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px monospace`;
                 cluster.label.fillColor = Cesium.Color.WHITE;
                 cluster.label.outlineColor = Cesium.Color.BLACK;
                 cluster.label.outlineWidth = 3;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
                 
                 cluster.billboard.show = true;
                 cluster.billboard.image = airplaneSvg;
@@ -274,7 +286,7 @@ async function initCesium() {
                 cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
                 cluster.billboard.disableDepthTestDistance = 0;
-                cluster.billboard.scale = isMobile ? 0.35 : 0.45;
+                cluster.billboard.scale = baseScale + extraScale;
                 // Keep clusters flat/unrotated since they represent many different headings
                 cluster.billboard.alignedAxis = new Cesium.Cartesian3(0, 0, -1);
             });
@@ -289,22 +301,28 @@ async function initCesium() {
             dataSource.clustering.pixelRange = 40;
             dataSource.clustering.minimumClusterSize = 2;
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.3;
+                const baseScale = isMobile ? 0.6 : 0.8;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
                 cluster.label.show = true;
-                cluster.label.text = clusteredEntities.length.toLocaleString();
-                cluster.label.font = 'bold 14px "Share Tech Mono"';
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
                 cluster.label.fillColor = Cesium.Color.WHITE;
                 cluster.label.outlineColor = Cesium.Color.BLACK;
                 cluster.label.outlineWidth = 3;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
                 
                 cluster.billboard.show = true;
                 cluster.billboard.image = cctvSvg;
-                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
                 cluster.billboard.disableDepthTestDistance = 0;
-                cluster.billboard.scale = isMobile ? 0.6 : 0.8;
+                cluster.billboard.scale = baseScale + extraScale;
             });
         };
         setupCCTVClustering(cctvDataSource);
@@ -315,21 +333,29 @@ async function initCesium() {
             dataSource.clustering.pixelRange = 40;
             dataSource.clustering.minimumClusterSize = 2;
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.2;
+                const baseScale = isMobile ? 0.25 : 0.35;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
                 cluster.label.show = true;
-                cluster.label.text = clusteredEntities.length.toLocaleString();
-                cluster.label.font = 'bold 14px "Share Tech Mono"';
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
                 cluster.label.fillColor = Cesium.Color.WHITE;
                 cluster.label.outlineColor = Cesium.Color.BLACK;
                 cluster.label.outlineWidth = 3;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
                 
-                cluster.point.show = true;
-                cluster.point.color = Cesium.Color.fromHsl(0.16, 1.0, 0.5, 0.9);
-                cluster.point.pixelSize = 20;
-                cluster.point.outlineColor = Cesium.Color.YELLOW;
-                cluster.point.outlineWidth = 2;
+                cluster.billboard.show = true;
+                cluster.billboard.image = circleSvg;
+                cluster.billboard.color = Cesium.Color.GOLD;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
+                cluster.billboard.scale = baseScale + extraScale;
             });
         };
         setupEarthquakeClustering(earthquakesDataSource);
