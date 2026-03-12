@@ -272,9 +272,17 @@ async function initCesium() {
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
                 cluster.label.font = `bold ${fontSize}px monospace`;
-                cluster.label.fillColor = Cesium.Color.ORANGE;
-                cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 4;
+                
+                if (color === Cesium.Color.ORANGE) {
+                    cluster.label.fillColor = Cesium.Color.BLACK;
+                    cluster.label.outlineColor = Cesium.Color.WHITE;
+                    cluster.label.outlineWidth = 3;
+                } else {
+                    cluster.label.fillColor = Cesium.Color.ORANGE;
+                    cluster.label.outlineColor = Cesium.Color.BLACK;
+                    cluster.label.outlineWidth = 4;
+                }
+                
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
