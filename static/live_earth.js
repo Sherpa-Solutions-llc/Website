@@ -297,8 +297,43 @@ async function initCesium() {
         }
         handler.setInputAction(function (movement) {
             const pickedObject = viewer.scene.pick(movement.position);
-            if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData) {
-                lockTarget(pickedObject.id.customData);
+            if (Cesium.defined(pickedObject) && pickedObject.id) {
+                if (pickedObject.id.customData) {
+                    lockTarget(pickedObject.id.customData);
+                } else if (pickedObject.id.position) {
+                    // It's likely a Cluster Billboard
+                    try {
+                        const clusterPos = pickedObject.id.position.getValue(viewer.clock.currentTime);
+                        if (clusterPos) {
+                            const carto = Cesium.Cartographic.fromCartesian(clusterPos);
+                            const lat = Cesium.Math.toDegrees(carto.latitude);
+                            const lng = Cesium.Math.toDegrees(carto.longitude);
+
+                            let candidates = [];
+                            // Gather all potential points from visible active layers
+                            if (state.layers.traffic) candidates = candidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
+                            if (state.layers.flights) candidates = candidates.concat((state.flights || []).map(f => f.customData || f));
+                            if (state.layers.military) candidates = candidates.concat((state.military || []).map(f => f.customData || f));
+
+                            // Calculate distance squared for each to find the localized pack
+                            const dist = (item) => Math.pow((item.lat||0) - lat, 2) + Math.pow((item.lng||0) - lng, 2);
+                            candidates.sort((a,b) => dist(a) - dist(b));
+
+                            // Determine cluster size from the text label, or default to 5
+                            let clusterSize = 5;
+                            if (pickedObject.id.label && pickedObject.id.label.text) {
+                                clusterSize = parseInt(pickedObject.id.label.text._value || pickedObject.id.label.text.getValue?.()) || 5;
+                            }
+                            
+                            const poolSize = Math.min(candidates.length, clusterSize);
+                            if (poolSize > 0) {
+                                // Randomly select one entity from the localized cluster pool
+                                const selected = candidates[Math.floor(Math.random() * poolSize)];
+                                lockTarget(selected);
+                            }
+                        }
+                    } catch(e) { console.warn("Failed to process cluster click", e); }
+                }
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         
@@ -1372,6 +1407,7 @@ function lockTarget(obj) {
 }
 
 document.getElementById('close-target').addEventListener('click', () => {
+    const prevTarget = state.target;
     state.target = null;
     const panel = document.getElementById('target-panel');
     panel.style.transform = 'translateX(120%)';
@@ -1381,10 +1417,30 @@ document.getElementById('close-target').addEventListener('click', () => {
     clearInterval(_camRefreshInterval);
     _camRefreshInterval = null;
     if (window._hlsInstance) { window._hlsInstance.destroy(); window._hlsInstance = null; }
-    viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(-98.5, 39.8, 10000000),
-        duration: 1.5
-    });
+
+    // Execute Contextual Zoom Out based on previous target type
+    if (prevTarget) {
+        let zoomRange = 250000; // default 250km
+        if (prevTarget.type === 'vessel') zoomRange = 30000;         // 30km exposing the local fleet
+        else if (prevTarget.type === 'cctv') zoomRange = 15000;      // 15km exposing the city
+        else if (prevTarget.type === 'satellite') zoomRange = 3000000; // 3000km exposing the orbital constellation
+        else if (prevTarget.type === 'earthquake') zoomRange = 750000; // 750km exposing the regional faultline
+        else if (prevTarget.type === 'flight') zoomRange = 150000;   // 150km exposing area traffic
+
+        let lat = prevTarget.lat || 0;
+        let lng = prevTarget.lng || 0;
+
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(lng, lat, zoomRange),
+            duration: 1.5,
+            orientation: { heading: 0.0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0.0 }
+        });
+    } else {
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-98.5, 39.8, 10000000),
+            duration: 1.5
+        });
+    }
 });
 
 // Global cam refresh interval — cleared when panel closes or a new target is selected
