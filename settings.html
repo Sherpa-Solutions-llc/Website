@@ -499,15 +499,27 @@
 
                 <!-- GitHub progress meter -->
                 <div id="sync-progress-container"
-                    style="display:none; width:100%; flex-direction:column; gap:4px; margin-bottom:1rem;">
-                    <div
-                        style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
-                        <span id="sync-progress-text">Preparing...</span>
-                        <span id="sync-progress-percent">0%</span>
+                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid #c0ccc0; border-radius:8px; padding:12px; background:#f9fcf9;">
+                    
+                    <!-- GitHub Row -->
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500; margin-bottom:4px;">
+                            <span><i class="fa-brands fa-github"></i> Deploy to GitHub</span>
+                            <span id="sync-progress-percent">0%</span>
+                        </div>
+                        <div style="width:100%; background:#dce6dc; height:8px; border-radius:4px; overflow:hidden;">
+                            <div id="sync-progress-bar"
+                                style="width:0%; height:100%; background:#1a2e1a; transition:width 0.3s ease, background 0.3s ease;">
+                            </div>
+                        </div>
+                        <div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
                     </div>
-                    <div style="width:100%; background:#dce6dc; height:8px; border-radius:4px; overflow:hidden;">
-                        <div id="sync-progress-bar"
-                            style="width:0%; height:100%; background:#1a2e1a; transition:width 0.3s ease, background 0.3s ease;">
+
+                    <!-- Railway Row -->
+                    <div style="border-top:1px solid #dce6dc; padding-top:8px; margin-top:4px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
+                            <span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
+                            <span id="railway-progress-status" style="color:#f39c12; font-weight:600;">Not Needed</span>
                         </div>
                     </div>
                 </div>
@@ -865,10 +877,15 @@
                 progressContainer.style.display = 'flex';
                 progressBar.style.width = '0%';
                 progressBar.style.background = 'var(--primary)';
-                progressText.innerText = 'Checking files for changes...';
+                progressText.innerText = 'Checking files...';
                 progressText.style.color = 'var(--secondary)';
                 progressPercent.innerText = '0%';
                 progressPercent.style.color = 'var(--secondary)';
+                
+                // Railway Status Reset
+                const railwayStatus = document.getElementById('railway-progress-status');
+                railwayStatus.innerText = 'Checking...';
+                railwayStatus.style.color = 'var(--secondary)';
 
                 // Step 1: Kick off the background deploy — this returns immediately
                 try {
@@ -904,6 +921,12 @@
                             progressBar.style.width = `${p.percentage}%`;
                             // Show the detailed message from the script (includes uploaded vs skipped counts)
                             progressText.innerText = p.message || `${p.current} / ${p.total} files checked`;
+                            
+                            // Determine Railway Status. If any python/db files change, it will trigger a restart.
+                            if (p.percentage > 0 && p.percentage < 100) {
+                                railwayStatus.innerText = 'In Progress';
+                                railwayStatus.style.color = '#3498db';
+                            }
                         }
 
                         if (p.status === 'completed') {
@@ -915,10 +938,20 @@
                             progressPercent.innerText = '100%';
                             progressPercent.style.color = '#2ecc71';
                             btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                            
+                            // If files were actually modified/uploaded, Railway will rebuild
+                            if (p.current > 0) {
+                                railwayStatus.innerText = 'Completed';
+                                railwayStatus.style.color = '#2ecc71';
+                            } else {
+                                railwayStatus.innerText = 'Not Needed';
+                                railwayStatus.style.color = '#f39c12';
+                            }
+
                             setTimeout(() => {
                                 progressContainer.style.display = 'none';
-                                alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates within 60 seconds.');
-                            }, 1200);
+                                alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates shortly.');
+                            }, 90000); // Changed from 1200ms to 90 seconds
                         }
                     } catch (e) { console.error('Polling error:', e); }
                 }, 600);
