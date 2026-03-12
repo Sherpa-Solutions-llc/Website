@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Earth | Sherpa Solutions</title>
+
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/live_earth.css?v=8">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+
+<body class="dark-theme">
+
+    <!-- Heavy External Libraries Deferred -->
+    <!-- Top HUD Bar -->
+    <header class="hud-header">
+        <div class="hud-logo">
+            <a href="/projects.html" style="color: inherit; text-decoration: none;" title="Back to Projects">
+                <i class="fa-solid fa-globe fa-spin-pulse"></i> LIVE EARTH
+                <span style="font-size: 0.8rem; opacity: 0.7; margin-left: 10px; font-family: 'Inter', sans-serif;">by
+                    Sherpa Solutions</span>
+            </a>
+        </div>
+
+        <div class="hud-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="target-search" placeholder="Search callsign, CCTV, or location...">
+            <button id="target-search-btn" class="search-btn">GO</button>
+        </div>
+
+        <div class="hud-status">
+            <div class="status-indicator">
+                <div class="pulse-dot"></div>
+                <span>SYSTEM ONLINE</span>
+            </div>
+            <div id="clock-display"
+                style="font-family: 'Share Tech Mono', monospace; min-width: 150px; text-align: right;"></div>
+        </div>
+    </header>
+
+    <!-- 3D WebGL Globe Container -->
+    <div id="globe-container"></div>
+
+    <!-- UI Overlay Panels -->
+    <!-- Left Panel: Layer Controls -->
+    <aside class="hud-panel panel-left" id="layers-panel">
+        <h2 class="panel-title" onclick="toggleLayersPanel()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <span style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-layer-group"></i> DATA LAYERS</span>
+            <i id="layers-toggle-icon" class="fa-solid fa-chevron-down"></i>
+        </h2>
+        <div class="panel-content" id="layers-content">
+            <!-- Civilian Flights -->
+            <div class="layer-item active" id="layer-flights" onclick="toggleLayer('flights')">
+                <div class="layer-icon"><i class="fa-solid fa-plane"></i></div>
+                <div class="layer-info">
+                    <h3>Live Flights</h3>
+                    <p>OpenSky Network <span class="badge live">LIVE</span></p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="flight-speed" class="hud-select">
+                            <option value="all">Speed: All</option>
+                            <option value="0-500">Speed: 0-500 km/h</option>
+                            <option value="500-1000">Speed: 500-1000 km/h</option>
+                            <option value="1000+" selected>Speed: Over 1000 km/h</option>
+                        </select>
+                        <select id="flight-type" class="hud-select">
+                            <option value="all">Type: All</option>
+                            <option value="commercial">Type: Commercial</option>
+                            <option value="private">Type: Private</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count" id="count-flights">0</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-on"></i></div>
+            </div>
+
+            <!-- Military Flights -->
+            <div class="layer-item" id="layer-military" onclick="toggleLayer('military')">
+                <div class="layer-icon" style="color: #ff4757;"><i class="fa-solid fa-fighter-jet"></i></div>
+                <div class="layer-info">
+                    <h3>Military Flights</h3>
+                    <p>adsb.lol</p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="military-speed" class="hud-select">
+                            <option value="all">Speed: All</option>
+                            <option value="0-500">Speed: 0-500 km/h</option>
+                            <option value="500-1000">Speed: 500-1000 km/h</option>
+                            <option value="1000+">Speed: Over 1000 km/h</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count">24</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+            </div>
+
+            <!-- Earthquakes -->
+            <div class="layer-item" id="layer-earthquakes" onclick="toggleLayer('earthquakes')">
+                <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
+                <div class="layer-info">
+                    <h3>Earthquakes</h3>
+                    <p>USGS</p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="quake-duration" class="hud-select">
+                            <option value="days">Duration: Days</option>
+                            <option value="weeks">Duration: Weeks</option>
+                            <option value="months">Duration: Months</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count">0</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+            </div>
+
+            <!-- Satellites -->
+            <div class="layer-item" id="layer-satellites" onclick="toggleLayer('satellites')">
+                <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
+                <div class="layer-info">
+                    <h3>Satellites</h3>
+                    <p>Celestrak</p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="satellite-type" class="hud-select">
+                            <option value="all">Type: All</option>
+                            <option value="private">Type: Private</option>
+                            <option value="commercial">Type: Commercial</option>
+                            <option value="military">Type: Military</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count">850</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+            </div>
+
+            <!-- Shipping Traffic -->
+            <div class="layer-item" id="layer-traffic" onclick="toggleLayer('traffic')">
+                <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
+                <div class="layer-info">
+                    <h3>Shipping Traffic</h3>
+                    <p>AISStream.io <span class="badge live" style="background: rgba(255,107,129,0.2); color: #ff6b81;">LIVE</span></p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="traffic-type" class="hud-select">
+                            <option value="all">Vessels: All</option>
+                            <option value="cargo">Vessels: Cargo & Tankers</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count">0</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+            </div>
+
+            <!-- Weather Radar -->
+            <div class="layer-item" id="layer-weather" onclick="toggleLayer('weather')">
+                <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
+                <div class="layer-info">
+                    <h3>Weather Radar</h3>
+                    <p>RainViewer</p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="weather-layer" class="hud-select">
+                            <option value="clouds">Clouds</option>
+                            <option value="rain">Rain</option>
+                            <option value="snow">Snow</option>
+                            <option value="temperature">Temperature</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count">0</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+            </div>
+
+            <!-- CCTV -->
+            <div class="layer-item" id="layer-cctv" onclick="toggleLayer('cctv')">
+                <div class="layer-icon" style="color: #7bed9f;"><i class="fa-solid fa-video"></i></div>
+                <div class="layer-info">
+                    <h3>CCTV</h3>
+                    <p>CCTV + Street View fallback</p>
+                    <div class="layer-options" onclick="event.stopPropagation()">
+                        <select id="cctv-mode" class="hud-select">
+                            <option value="all">All Cameras</option>
+                            <option value="usa">United States</option>
+                            <option value="uk">United Kingdom</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-count">0</div>
+                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Right Panel: Target Details (Hidden by default) -->
+    <aside class="hud-panel panel-right" id="target-panel"
+        style="display: none; transform: translateX(120%); transition: transform 0.3s ease-out;">
+        <h2 class="panel-title"><i class="fa-solid fa-crosshairs"></i> TARGET LOCK</h2>
+        <div class="panel-content" id="target-details">
+            <!-- Populated dynamically via JS -->
+            <div style="text-align: center; opacity: 0.5; padding: 2rem;">Acquiring signal...</div>
+        </div>
+        <button id="close-target"
+            style="width: 100%; padding: 10px; background: transparent; border: 1px solid var(--hud-border); color: #fff; margin-top: 15px; cursor: pointer; border-radius: 4px;">CLOSE
+            TRACKING</button>
+    </aside>
+
+    <!-- Overlay Loader -->
+    <div id="loading-overlay">
+        <i class="fa-solid fa-satellite-dish fa-spin"
+            style="font-size: 3rem; margin-bottom: 1rem; color: var(--hud-cyan);"></i>
+        <h2 style="font-family: 'Share Tech Mono'; letter-spacing: 2px;">ACQUIRING SATELLITE UPLINK</h2>
+        <p style="opacity: 0.7;">Acquiring OpenSky Network telemetry...</p>
+    </div>
+    <!-- Heavy External Libraries Deferred -->
+    <script defer src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/5.0.0/satellite.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+
+    <!-- Application Script -->
+    <!-- Safety Fallback: dismiss all overlays if script fails to load/parse -->
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('#loading-overlay').forEach(o => {
+                if (o.style.display !== 'none') {
+                    console.warn('[Safety] Forcing overlay dismissal via HTML fallback.');
+                    o.style.display = 'none';
+                }
+            });
+        }, 8000);
+    </script>
+    <script src="/static/live_earth.js?v=26"></script>
+</body>
+</html>
