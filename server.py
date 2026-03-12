@@ -1278,4 +1278,35 @@ async def get_cameras():
     return JSONResponse(cameras)
 
 
+# --- Open-Meteo Weather Proxy ---
 
+_weather_cache = {
+    "data": None,
+    "fetched_at": 0
+}
+
+@app.get("/api/weather-proxy")
+async def get_weather_proxy(latitude: str, longitude: str):
+    """Proxy the Open-Meteo API to comfortably survive the 10,000 req/day limit by global caching."""
+    import time
+    current_time = time.time()
+    
+    # 5-minute cache TTL
+    if _weather_cache["data"] and (current_time - _weather_cache["fetched_at"]) < 300:
+        return JSONResponse(_weather_cache["data"])
+        
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m&timezone=auto"
+    try:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            res = await client.get(url, timeout=10.0)
+            res.raise_for_status()
+            data = res.json()
+            
+            _weather_cache["data"] = data
+            _weather_cache["fetched_at"] = current_time
+            return JSONResponse(data)
+    except Exception as e:
+        print(f"[Weather Proxy] Failed to fetch Open-Meteo: {e}")
+        if _weather_cache["data"]:
+            return JSONResponse(_weather_cache["data"])
+        return JSONResponse({"error": str(e)}, status_code=500)
