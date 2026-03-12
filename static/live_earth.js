@@ -847,7 +847,7 @@ async function fetchWeather() {
         // and returns an array when multiple coordinates are supplied
         const lats = majorCities.map(c => c.lat).join(',');
         const lngs = majorCities.map(c => c.lng).join(',');
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m&timezone=auto`;
+        const url = `${API_BASE}/api/weather-proxy?latitude=${lats}&longitude=${lngs}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
