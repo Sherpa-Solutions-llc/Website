@@ -272,9 +272,9 @@ async function initCesium() {
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
                 cluster.label.font = `bold ${fontSize}px monospace`;
-                cluster.label.fillColor = Cesium.Color.WHITE;
+                cluster.label.fillColor = Cesium.Color.ORANGE;
                 cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 3;
+                cluster.label.outlineWidth = 4;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
@@ -349,13 +349,13 @@ async function initCesium() {
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
                 cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
                 
-                cluster.billboard.show = true;
-                cluster.billboard.image = circleSvg;
-                cluster.billboard.color = Cesium.Color.GOLD;
-                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
-                cluster.billboard.disableDepthTestDistance = 0;
-                cluster.billboard.scale = baseScale + extraScale;
+                const pixelBase = isMobile ? 30 : 40;
+                cluster.point.show = true;
+                cluster.point.color = Cesium.Color.fromHsl(0.16, 1.0, 0.5, 0.9);
+                cluster.point.pixelSize = pixelBase + (Math.log10(count) * 20);
+                cluster.point.outlineColor = Cesium.Color.YELLOW;
+                cluster.point.outlineWidth = 2;
+                cluster.point.disableDepthTestDistance = 0;
             });
         };
         setupEarthquakeClustering(earthquakesDataSource);
