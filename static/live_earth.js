@@ -231,20 +231,18 @@ async function initCesium() {
         shippingDataSource.clustering.minimumClusterSize = 2;
         shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
             const count = clusteredEntities.length;
-            const extraScale = Math.log10(count) * 0.3;
-            const baseScale = isMobile ? 0.30 : 0.40;
+            const extraScale = Math.log10(count) * 0.075;
+            const baseScale = isMobile ? 0.075 : 0.10;
             const fontSize = Math.floor(11 + (Math.log10(count) * 2));
 
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
             cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-            cluster.label.fillColor = Cesium.Color.WHITE;
-            cluster.label.outlineColor = Cesium.Color.BLACK;
-            cluster.label.outlineWidth = 3;
-            cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+            cluster.label.fillColor = Cesium.Color.BLACK;
+            cluster.label.style = Cesium.LabelStyle.FILL;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5); // Shift label down 5px to center precisely on the red circle
             
             cluster.billboard.show = true;
             cluster.billboard.image = shipSvg;
@@ -468,7 +466,8 @@ viewerInitPromise = initCesium();
 const airplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik00NDggMzM2di00MEwyODggMTkyVjc5LjJjMC0xNy43LTE0LjgtMzEuMi0zMi0zMS4ycy0zMiAxMy41LTMyIDMxLjJWMTkyTDY0IDI5NnY0MGwxNjAtNDh2MTEzLjZsLTQ4IDMxLjJWNDY0bDgwLTE2IDgwIDE2di0zMS4ybC00OC0zMS4yVjI4OGwxNjAgNDh6Ii8+PC9zdmc+`;
 const militaryAirplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9Im9yYW5nZSIgZD0iTTQ0OCAzMzZ2LTQwTDI4OCAxOTJWNzkuMmMwLTE3LjctMTQuOC0zMS4yLTMyLTMxLjJzLTMyIDEzLjUtMzIgMzEuMlYxOTJMNjQgMjk2djQwbDE2MC00OHYxMTMuNmwtNDggMzEuMlY0NjRsODAtMTYgODAgMTZ2LTMxLjJsLTQ4LTMxLjJWMjg4bDE2MCA0OHoiLz48L3N2Zz4=`;
 const satelliteSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMyZWQ1NzMiIGQ9Ik05OCA2MmwtODggODhDLTIuNSAxNjIuNS0zLjMgMTgyLjggNS44IDE5NC4ybDU2LjUgNzAuNkwxOCAzMTAuNmMtNy45IDcuOS03LjkgMjAuNiAwIDI4LjVsNzAuOSA3MC45YzcuOSA3LjkgMjAuNiA3LjkgMjguNSAwbDQ1LjgtNDUuOCA3MC42IDU2LjVjMTEuNCA5LjEgMzEuOCA4LjMgNDQuMy00LjJsODgtODhjMTIuNS0xMi41IDEyLjUtMzIuOCAwLTQ1LjNMMTQzLjMgNjJjLTEyLjUtMTIuNS0zMi44LTEyLjUtNDUuMyAwek0xMjggMTYwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyIDMyIDE0LjMgMzIgMzItMTQuMyAzMi0zMiAzMnptMzQ0LTk2Yy0xMy4zIDAtMjQgMTAuNy0yNCAyNHMxMC43IDI0IDI0IDI0IDI0LTEwLjcgMjQtMjQtMTAuNy0yNC0yNC0yNHptMCA5NmMtMTMuMyAwLTI0IDEwLjctMjQgMjRzMTAuNyAyNCAyNCAyNCAyNC0xMC43IDI0LTI0LTEwLjctMjQtMjQtMjR6bTAgOTZjLTEzLjMgMC0yNCAxMC43LTI0IDI0czEwLjcgMjQgMjQgMjQgMjQtMTAuNyAyNC0yNC0xMC43LTI0LTI0LTI0eiIvPjwvc3ZnPg==`;
-const shipSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjcuMiBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyNCBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZmlsbD0iI2ZmNmI4MSIgZD0iTTE5MiAzMmMwLTE3LjcgMTQuMy0zMiAzMi0zMkwzNTIgMGMxNy43IDAgMzIgMTQuMyAzMiAzMmwwIDMyIDQ4IDBjMjYuNSAwIDQ4IDIxLjUgNDggNDhsMCAxMjggNDQuNCAxNC44YzIzLjEgNy43IDI5LjUgMzcuNSAxMS41IDUzLjlsLTEwMSA5Mi42Yy0xNi4yIDkuNC0zNC43IDE1LjEtNTAuOSAxNS4xYy0xOS42IDAtNDAuOC03LjctNTkuMi0yMC4zYy0yMi4xLTE1LjUtNTEuNi0xNS41LTczLjcgMGMtMTcuMSAxMS44LTM4IDIwLjMtNTkuMiAyMC4zYy0xNi4yIDAtMzQuNy01LjctNTAuOS0xNS4xbC0xMDEtOTIuNmMtMTgtMTYuNS0xMS42LTQ2LjIgMTEuNS01My45TDk2IDI0MGwwLTEyOGMwLTI2LjUgMjEuNS00OCA0OC00OGw0OCAwIDAtMzJ6TTE2MCAyMTguN2wxMDcuOC0zNS45YzEzLjEtNC40IDI3LjMtNC40IDQwLjUgMEw0MTYgMjE4LjdsMC05MC43LTI1NiAwIDAgOTAuN3pNMzA2LjUgNDIxLjlDMzI5IDQzNy40IDM1Ni41IDQ0OCAzODQgNDQ4YzI2LjkgMCA1NS40LTEwLjggNzcuNC0yNi4xYzAgMCAwIDAgMCAwYzExLjktOC41IDI4LjEtNy44IDM5LjIgMS43YzE0LjQgMTEuOSAzMi41IDIxIDUwLjYgMjUuMmMxNy4yIDQgMjcuOSAyMS4yIDIzLjkgMzguNHMtMjEuMiAyNy45LTM4LjQgMjMuOWMtMjQuNS01LjctNDQuOS0xNi41LTU4LjItMjVDNDQ5LjUgNTAxLjcgNDE3IDUxMiAzODQgNTEyYy0zMS45IDAtNjAuNi05LjktODAuNC0xOC45Yy01LjgtMi43LTExLjEtNS4zLTE1LjYtNy43Yy00LjUgMi40LTkuNyA1LjEtMTUuNiA3LjdjLTE5LjggOS00OC41IDE4LjktODAuNCAxOC45Yy0zMyAwLTY1LjUtMTAuMy05NC41LTI1LjhjLTEzLjQgOC40LTMzLjcgMTkuMy01OC4yIDI1Yy0xNy4yIDQtMzQuNC02LjctMzguNC0yMy45czYuNy0zNC40IDIzLjktMzguNGMxOC4xLTQuMiAzNi4yLTEzLjMgNTAuNi0yNS4yYzExLjEtOS40IDI3LjMtMTAuMSAzOS4yLTEuN2MwIDAgMCAwIDAgMEMxMzYuNyA0MzcuMiAxNjUuMSA0NDggMTkyIDQ0OGMyNy41IDAgNTUtMTAuNiA3Ny41LTI2LjFjMTEuMS03LjkgMjUuOS03LjkgMzcgMHoiLz48L3N2Zz4=`;
+const rawShipSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="#ff6b81" d="M192 32c0-17.7 14.3-32 32-32L352 0c17.7 0 32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 128 44.4 14.8c23.1 7.7 29.5 37.5 11.5 53.9l-101 92.6c-16.2 9.4-34.7 15.1-50.9 15.1c-19.6 0-40.8-7.7-59.2-20.3c-22.1-15.5-51.6-15.5-73.7 0c-17.1 11.8-38 20.3-59.2 20.3c-16.2 0-34.7-5.7-50.9-15.1l-101-92.6c-18-16.5-11.6-46.2 11.5-53.9L96 240l0-128c0-26.5 21.5-48 48-48l48 0 0-32zM160 218.7l107.8-35.9c13.1-4.4 27.3-4.4 40.5 0L416 218.7l0-90.7-256 0 0 90.7zM306.5 421.9C329 437.4 356.5 448 384 448c26.9 0 55.4-10.8 77.4-26.1c0 0 0 0 0 0c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 501.7 417 512 384 512c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7c-19.8 9-48.5 18.9-80.4 18.9c-33 0-65.5-10.3-94.5-25.8c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.4 27.3-10.1 39.2-1.7c0 0 0 0 0 0C136.7 437.2 165.1 448 192 448c27.5 0 55-10.6 77.5-26.1c11.1-7.9 25.9-7.9 37 0z"/><circle cx="288" cy="270" r="160" fill="red" stroke="white" stroke-width="15"/></svg>`;
+const shipSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(rawShipSvg);
 const cctvSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NEgzMjBjMzUuMyAwIDY0IDI4LjcgNjQgNjRWMzg0YzAgMzUuMy0yOC43IDY0LTY0IDY0SDY0Yy0zNS4zIDAtNjQtMjguNy02NC02NFYxMjh6TTU1OS4xIDk5LjhjMTAuNCA1LjYgMTYuOSAxNi40IDE2LjkgMjguMlYzODRjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xVjMyMCAxOTIgMTc0LjlsMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi41LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=`;
 
 
