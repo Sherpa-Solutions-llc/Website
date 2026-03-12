@@ -129,6 +129,21 @@ html {
     box-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
 }
 
+.settings-btn {
+    background: transparent;
+    color: var(--hud-cyan);
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.8;
+}
+
+.settings-btn:hover {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+}
+
 .hud-status {
     display: flex;
     align-items: center;
@@ -136,6 +151,7 @@ html {
 }
 
 .status-indicator {
+    --status-color: #2ed573;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -145,29 +161,33 @@ html {
     color: var(--hud-cyan);
 }
 
+.status-indicator.offline {
+    --status-color: #ff4757;
+}
+
 .pulse-dot {
     width: 8px;
     height: 8px;
-    background-color: var(--hud-cyan);
+    background-color: var(--status-color);
     border-radius: 50%;
-    box-shadow: 0 0 5px var(--hud-cyan);
+    box-shadow: 0 0 5px var(--status-color);
     animation: flash 2s infinite;
 }
 
 @keyframes flash {
     0% {
         opacity: 1;
-        box-shadow: 0 0 8px var(--hud-cyan);
+        box-shadow: 0 0 8px var(--status-color);
     }
 
     50% {
         opacity: 0.2;
-        box-shadow: 0 0 2px var(--hud-cyan);
+        box-shadow: 0 0 2px var(--status-color);
     }
 
     100% {
         opacity: 1;
-        box-shadow: 0 0 8px var(--hud-cyan);
+        box-shadow: 0 0 8px var(--status-color);
     }
 }
 
@@ -236,6 +256,36 @@ html {
 .layer-item.active {
     border-color: rgba(0, 210, 255, 0.6);
     background: rgba(10, 35, 45, 0.9);
+}
+
+/* Modals */
+#settings-modal {
+    width: 380px !important;
+}
+
+#settings-modal .layer-item {
+    margin-bottom: 5px;
+}
+
+#settings-modal .hud-select {
+    background: rgba(0, 30, 60, 0.6);
+    color: white;
+    border: 1px solid var(--hud-border);
+    border-radius: 4px;
+    padding: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    outline: none;
+    cursor: pointer;
+}
+
+#settings-modal .hud-select:hover {
+    border-color: var(--hud-cyan);
+}
+
+#settings-modal .hud-select option {
+    background: #001220;
+    color: white;
 }
 
 .layer-icon {
