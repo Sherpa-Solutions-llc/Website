@@ -258,8 +258,7 @@ async function initCesium() {
             // Provide occlusion instead of letting clusters bleed through earth
             cluster.billboard.disableDepthTestDistance = 0;
             cluster.billboard.scale = baseScale + extraScale;
-            cluster.billboard.rotation = -Math.PI / 2;
-            cluster.billboard.alignedAxis = Cesium.Cartesian3.UNIT_Z;
+            
             
             cluster.billboard.id = clusteredEntities;
             cluster.label.id = clusteredEntities;
