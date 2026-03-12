@@ -363,8 +363,8 @@ async function initCesium() {
                             let candidates = [];
                             // Gather all potential points from visible active layers
                             if (state.layers.traffic) candidates = candidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
-                            if (state.layers.flights) candidates = candidates.concat((state.flights || []).map(f => f.customData || f));
-                            if (state.layers.military) candidates = candidates.concat((state.military || []).map(f => f.customData || f));
+                            if (state.layers.flights) candidates = candidates.concat((state.flights || []).map(f => ({...f, type: 'flight'})));
+                            if (state.layers.military) candidates = candidates.concat((state.military || []).map(f => ({...f, type: 'flight', isMilitary: true})));
                             if (state.layers.cctv) candidates = candidates.concat((state.cctv_cameras || []).map(c => ({...c, type: 'cctv'})));
                             if (state.layers.earthquakes) candidates = candidates.concat(
                                 (state.earthquakes || []).map(q => ({
