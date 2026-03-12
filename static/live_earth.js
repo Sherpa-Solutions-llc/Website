@@ -260,6 +260,9 @@ async function initCesium() {
             cluster.billboard.scale = baseScale + extraScale;
             cluster.billboard.rotation = -Math.PI / 2;
             cluster.billboard.alignedAxis = Cesium.Cartesian3.UNIT_Z;
+            
+            cluster.billboard.id = clusteredEntities;
+            cluster.label.id = clusteredEntities;
         });
 
         // Setup Flights Cluster Features
@@ -302,6 +305,9 @@ async function initCesium() {
                 cluster.billboard.scale = baseScale + extraScale;
                 // Keep clusters flat/unrotated since they represent many different headings
                 cluster.billboard.alignedAxis = new Cesium.Cartesian3(0, 0, -1);
+                
+                cluster.billboard.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
             });
         };
 
@@ -336,6 +342,9 @@ async function initCesium() {
                 cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
                 cluster.billboard.disableDepthTestDistance = 0;
                 cluster.billboard.scale = baseScale + extraScale;
+                
+                cluster.billboard.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
             });
         };
         setupCCTVClustering(cctvDataSource);
@@ -369,6 +378,9 @@ async function initCesium() {
                 cluster.point.outlineColor = Cesium.Color.YELLOW;
                 cluster.point.outlineWidth = 2;
                 cluster.point.disableDepthTestDistance = 0;
+                
+                cluster.point.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
             });
         };
         setupEarthquakeClustering(earthquakesDataSource);
