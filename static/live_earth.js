@@ -1,6 +1,10 @@
 // ----- UI & STATE MANAGEMENT -----
 const isMobile = window.innerWidth <= 768;
 
+// Define your Railway backend URL here for production!
+// Example: "https://your-custom-app.up.railway.app"
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '' : 'https://sherpa-solutions-api-production.up.railway.app'; // <--- REPLACE THIS WITH YOUR REAL RAILWAY URL IF THIS IS INCORRECT
+
 // Performance caps — satellite entities have per-frame CallbackProperty callbacks too;
 // keep this reasonable. Flights use viewport culling instead (no hard cap).
 const SAT_DISPLAY_CAP = isMobile ? 200 : 1500;
@@ -349,7 +353,7 @@ async function fetchFlights() {
         let timestamp = Math.floor(Date.now() / 1000);
 
         if (state.dataSources.flights === 'opensky') {
-            const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/flights');
+            const res = await fetch(`${API_BASE}/api/flights`);
             if (!res.ok) throw new Error('OpenSky API Error');
             const data = await res.json();
             timestamp = data.time || timestamp;
@@ -548,7 +552,7 @@ async function fetchEarthquakes() {
     try {
         const duration = document.getElementById('quake-duration')?.value || 'day';
         // Use our local proxy to avoid CORS issues and ensure reliable fetching
-        let url = `/api/earthquakes?duration=${duration == 'days' ? 'day' : (duration == 'weeks' ? 'week' : 'month')}`;
+        let url = `${API_BASE}/api/earthquakes?duration=${duration == 'days' ? 'day' : (duration == 'weeks' ? 'week' : 'month')}`;
 
         if (state.dataSources.earthquakes === 'emsc') {
             const limit = duration === 'weeks' ? 2000 : (duration === 'months' ? 5000 : 500);
@@ -580,7 +584,7 @@ async function fetchSatellites() {
     _fetchingSatellites = true;
     console.log('[Satellites] Fetching cached satellite definitions from local database...');
     try {
-        const res = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/satellites');
+        const res = await fetch(`${API_BASE}/api/satellites`);
         if (!res.ok) throw new Error('Proxy API Error');
         const data = await res.json();
 
@@ -728,7 +732,7 @@ async function fetchWeather() {
 
 function fetchTraffic() {
     try {
-        fetch('https://sherpa-solutions-api-production.up.railway.app/api/vessels?_t=' + Date.now())
+        fetch(`${API_BASE}/api/vessels?_t=` + Date.now())
             .then(res => res.json())
             .then(data => {
                 // Ensure data is an array
@@ -1589,7 +1593,7 @@ function renderTargetDetails() {
                         if (t.snapshot) {
                             // Seamless graceful degradation to image snapshot loop
                             const parent = videoElem.parentElement;
-                            const proxyUrl = '/api/cam-proxy?url=' + encodeURIComponent(t.snapshot) + '&_t=' + Date.now();
+                            const proxyUrl = `${API_BASE}/api/cam-proxy?url=` + encodeURIComponent(t.snapshot) + '&_t=' + Date.now();
                             
                             const imgElem = document.createElement('img');
                             imgElem.id = videoElem.id;
@@ -1611,7 +1615,7 @@ function renderTargetDetails() {
                                     _camRefreshInterval = null;
                                     return;
                                 }
-                                currentImg.src = '/api/cam-proxy?url=' + encodeURIComponent(t.snapshot) + '&_t=' + Date.now();
+                                currentImg.src = API_BASE + '/api/cam-proxy?url=' + encodeURIComponent(t.snapshot) + '&_t=' + Date.now();
                             }, 5000);
                             
                         } else {
