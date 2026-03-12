@@ -13,16 +13,7 @@
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="/static/live_earth.css?v=8">
-
-    <!-- CesiumJS -->
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-
-    <!-- Satellite.js for TLE parsing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/5.0.0/satellite.min.js"></script>
-
-    <!-- hls.js — needed to play HLS video streams (m3u8) in non-Safari browsers -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 </head>
 
 <body class="dark-theme">
@@ -43,18 +34,103 @@
             <button id="target-search-btn" class="search-btn">GO</button>
         </div>
 
+        <button id="settings-toggle-btn" class="settings-btn" title="Data Source Settings">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+
         <div class="hud-status">
-            <div class="status-indicator">
+            <div class="status-indicator" id="system-status-indicator">
                 <div class="pulse-dot"></div>
-                <span>SYSTEM ONLINE</span>
+                <span id="system-status-text">SYSTEM ONLINE</span>
             </div>
             <div id="clock-display"
-                style="font-family: 'Share Tech Mono', monospace; min-width: 150px; text-align: right;"></div>
+                style="font-family: 'Share Tech Mono', monospace; min-width: 150px; text-align: right; color: #00d2ff;"></div>
         </div>
     </header>
 
     <!-- 3D WebGL Globe Container -->
     <div id="globe-container"></div>
+
+    <!-- Right Panel: Data Provider Settings -->
+    <aside class="hud-panel" id="settings-modal" style="display: none; right: 20px; top: 80px; width: 350px;">
+        <h2 class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-gears"></i> DATA SOURCES</span>
+            <i class="fa-solid fa-times" id="close-settings-btn" style="cursor: pointer;"></i>
+        </h2>
+        <div class="panel-content">
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Live Flights <span id="last-update-flights" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-flights" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="opensky" selected>OpenSky Network (Default)</option>
+                        <option value="adsblol">ADSB.lol Open Registry</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Military Flights <span id="last-update-military" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-military" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="adsblol" selected>ADSB.lol (Default)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Earthquakes <span id="last-update-earthquakes" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-earthquakes" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="usgs" selected>USGS (Default)</option>
+                        <option value="emsc">European-Mediterranean SC</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Satellites <span id="last-update-satellites" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-satellites" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="celestrak" selected>Celestrak CelesTrak (Default)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Shipping Traffic <span id="last-update-traffic" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-traffic" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="aisstream" selected>AISStream.io (Default)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Weather Radar <span id="last-update-weather" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-weather" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="rainviewer" selected>RainViewer + Open-Meteo (Default)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-video"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">CCTV <span id="last-update-cctv" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-cctv" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="public" selected>Public Camera Registry (Default)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </aside>
 
     <!-- UI Overlay Panels -->
     <!-- Left Panel: Layer Controls -->
@@ -66,12 +142,11 @@
         <div class="panel-content" id="layers-content">
             <!-- Civilian Flights -->
             <div class="layer-item active" id="layer-flights" onclick="toggleLayer('flights')">
-                <div class="layer-icon"><i class="fa-solid fa-plane"></i></div>
+                <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
                 <div class="layer-info">
                     <h3>Live Flights</h3>
-                    <p>OpenSky Network <span class="badge live">LIVE</span></p>
                     <div class="layer-options" onclick="event.stopPropagation()">
-                        <select id="flight-speed" class="hud-select" onchange="updateGlobeData()">
+                        <select id="flight-speed" class="hud-select">
                             <option value="all">Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
                             <option value="500-1000">Speed: 500-1000 km/h</option>
@@ -90,12 +165,11 @@
 
             <!-- Military Flights -->
             <div class="layer-item" id="layer-military" onclick="toggleLayer('military')">
-                <div class="layer-icon" style="color: #ff4757;"><i class="fa-solid fa-fighter-jet"></i></div>
+                <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
                 <div class="layer-info">
                     <h3>Military Flights</h3>
-                    <p>adsb.lol</p>
                     <div class="layer-options" onclick="event.stopPropagation()">
-                        <select id="military-speed" class="hud-select" onchange="updateGlobeData()">
+                        <select id="military-speed" class="hud-select">
                             <option value="all">Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
                             <option value="500-1000">Speed: 500-1000 km/h</option>
@@ -112,7 +186,6 @@
                 <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
                 <div class="layer-info">
                     <h3>Earthquakes</h3>
-                    <p>USGS</p>
                     <div class="layer-options" onclick="event.stopPropagation()">
                         <select id="quake-duration" class="hud-select">
                             <option value="days">Duration: Days</option>
@@ -130,13 +203,25 @@
                 <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
                 <div class="layer-info">
                     <h3>Satellites</h3>
-                    <p>Celestrak</p>
                     <div class="layer-options" onclick="event.stopPropagation()">
                         <select id="satellite-type" class="hud-select">
-                            <option value="all">Type: All</option>
-                            <option value="private">Type: Private</option>
+                            <option value="military" selected>Type: Military</option>
                             <option value="commercial">Type: Commercial</option>
-                            <option value="military">Type: Military</option>
+                            <option value="private">Type: Private</option>
+                            <option value="all">Type: All</option>
+                        </select>
+                        <select id="satellite-country" class="hud-select" style="margin-top: 5px;">
+                            <option value="all" selected>Country: All</option>
+                            <option value="US">Country: US</option>
+                            <option value="PRC">Country: China</option>
+                            <option value="CIS">Country: Russia</option>
+                            <option value="FR">Country: France</option>
+                            <option value="ISRA">Country: Israel</option>
+                        </select>
+                        <select id="satellite-status" class="hud-select" style="margin-top: 5px;">
+                            <option value="all" selected>Status: All</option>
+                            <option value="active">Status: Active</option>
+                            <option value="inactive">Status: Inactive</option>
                         </select>
                     </div>
                 </div>
@@ -144,16 +229,15 @@
                 <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
             </div>
 
-            <!-- Street Traffic -->
+            <!-- Shipping Traffic -->
             <div class="layer-item" id="layer-traffic" onclick="toggleLayer('traffic')">
-                <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-car"></i></div>
+                <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
                 <div class="layer-info">
-                    <h3>Street Traffic</h3>
-                    <p>OpenStreetMap</p>
+                    <h3>Shipping Traffic</h3>
                     <div class="layer-options" onclick="event.stopPropagation()">
                         <select id="traffic-type" class="hud-select">
-                            <option value="current">Current Traffic</option>
-                            <option value="accidents">Accident Size (Vehicles)</option>
+                            <option value="all">Vessels: All</option>
+                            <option value="cargo">Vessels: Cargo & Tankers</option>
                         </select>
                     </div>
                 </div>
@@ -166,7 +250,6 @@
                 <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
                 <div class="layer-info">
                     <h3>Weather Radar</h3>
-                    <p>RainViewer</p>
                     <div class="layer-options" onclick="event.stopPropagation()">
                         <select id="weather-layer" class="hud-select">
                             <option value="clouds">Clouds</option>
@@ -182,10 +265,9 @@
 
             <!-- CCTV -->
             <div class="layer-item" id="layer-cctv" onclick="toggleLayer('cctv')">
-                <div class="layer-icon" style="color: #7bed9f;"><i class="fa-solid fa-video"></i></div>
+                <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-video"></i></div>
                 <div class="layer-info">
                     <h3>CCTV</h3>
-                    <p>CCTV + Street View fallback</p>
                     <div class="layer-options" onclick="event.stopPropagation()">
                         <select id="cctv-mode" class="hud-select">
                             <option value="all">All Cameras</option>
@@ -221,7 +303,12 @@
         <h2 style="font-family: 'Share Tech Mono'; letter-spacing: 2px;">ACQUIRING SATELLITE UPLINK</h2>
         <p style="opacity: 0.7;">Acquiring OpenSky Network telemetry...</p>
     </div>
+    <!-- Heavy External Libraries Deferred -->
+    <script defer src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/satellite.js/5.0.0/satellite.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+
     <!-- Application Script -->
-    <script src="/static/live_earth.js?v=11"></script>
+    <script defer src="/static/live_earth.js?v=25"></script>
 </body>
 </html>
