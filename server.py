@@ -3,10 +3,12 @@ import secrets
 import asyncio
 import aiosqlite
 from datetime import datetime, timedelta
+import traceback
 from fastapi import FastAPI, Request, Form, Response, Depends, HTTPException, status
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 
 import database
@@ -17,6 +19,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI()
+
+# Enable GZIP compression for all responses > 1000 bytes (CSS, JS, JSON, HTML)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Allow both local dev and the live GitHub Pages site
 ALLOWED_ORIGINS = [
@@ -41,7 +46,7 @@ app.add_middleware(
 )
 
 # Mount static files (css, images)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # In-memory session store for simplicity (token -> user_id)
 # In production, use Redis or signed JWT cookies
@@ -79,16 +84,25 @@ async def health_check():
 async def startup_event():
     await database.init_db()
     await init_flights_db()
+    await init_satellites_db()
     asyncio.create_task(fetch_flights_loop())
+    asyncio.create_task(aisstream_proxy_loop())
+    asyncio.create_task(update_satellites_loop())
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
-    with open("index.html", "r", encoding="utf-8") as f:
+    index_path = os.path.join(BASE_DIR, "index.html")
+    with open(index_path, "r", encoding="utf-8") as f:
         html = f.read()
-    content_map = await database.get_all_content()
-    # Basic server-side template hydration for CMS elements
-    # We will also load these via JS for the editor later
     return html
+
+@app.get("/live_earth", response_class=HTMLResponse)
+async def serve_live_earth(request: Request):
+    return FileResponse(os.path.join(BASE_DIR, 'live_earth.html'))
+
+@app.get("/live_earth2", response_class=HTMLResponse)
+async def serve_live_earth2(request: Request):
+    return FileResponse(os.path.join(BASE_DIR, 'live_earth2.html'))
 
 @app.get("/{page_name}.html", response_class=HTMLResponse)
 async def serve_pages(page_name: str, request: Request):
@@ -97,11 +111,10 @@ async def serve_pages(page_name: str, request: Request):
         if not user:
             return RedirectResponse(url="/login.html", status_code=status.HTTP_302_FOUND)
     
-    html_path = f"{page_name}.html"
+    html_path = os.path.join(BASE_DIR, f"{page_name}.html")
     if os.path.exists(html_path):
-        with open(html_path, "r", encoding="utf-8") as f:
-            return f.read()
-    raise HTTPException(status_code=404)
+        return FileResponse(html_path)
+    return HTMLResponse(content="Page not found", status_code=404)
 
 
 @app.post("/api/login")
@@ -627,8 +640,81 @@ async def lead_capture(lead: LeadCapture):
     except Exception as e:
         print(f"[LEAD CAPTURE] SMTP error for {visitor_email}: {e}")
         # Still return success to the user — don't expose SMTP errors publicly
-        return JSONResponse({"status": "success", "note": "logged"})
+        return JSONResponse({"status": "error", "message": "Failed to login: " + str(e)})
 
+# --- AIS Stream Proxy ---
+import httpx
+import time
+
+# Thread-safe in-memory cache of active vessels
+active_vessels = {}
+
+async def aisstream_proxy_loop():
+    """Background task pulling open AIS data from DigiTraffic Finland to get real vessels."""
+    global active_vessels
+    
+    while True:
+        try:
+            async with httpx.AsyncClient() as client:
+                print("[AIS Proxy] Fetching live vessels from DigiTraffic...")
+                res = await client.get('https://meri.digitraffic.fi/api/ais/v1/locations', timeout=15.0)
+                res.raise_for_status()
+                data = res.json()
+                
+                # data is a list of features: {"mmsi": 230983580, "geometry": {"coordinates": [24.1, 59.9]}, "properties": {"sog": 10.5, "cog": 120}}
+                count = 0
+                for item in data.get("features", []):
+                    mmsi = item.get("mmsi")
+                    coords = item.get("geometry", {}).get("coordinates", [])
+                    props = item.get("properties", {})
+                    
+                    if mmsi and len(coords) == 2:
+                        lng, lat = coords[0], coords[1]
+                        speed = props.get("sog", 0) * 1.852 # knots to km/h
+                        heading = props.get("cog", 0)
+                        
+                        vesselObj = active_vessels.get(mmsi)
+                        if vesselObj:
+                            vesselObj["lat"] = lat
+                            vesselObj["lng"] = lng
+                            vesselObj["heading"] = heading
+                            vesselObj["velocityKmH"] = speed
+                            vesselObj["lastUpdate"] = time.time()
+                        else:
+                            active_vessels[mmsi] = {
+                                "id": mmsi,
+                                "title": f"Vessel {mmsi}",
+                                "lat": lat,
+                                "lng": lng,
+                                "heading": heading,
+                                "velocityKmH": speed,
+                                "country": "FIN/BALTIC",
+                                "type": "vessel",
+                                "lastUpdate": time.time()
+                            }
+                        count += 1
+                        
+                        # Memory management
+                        if len(active_vessels) > 1500:
+                            sorted_vessels = sorted(active_vessels.items(), key=lambda item: item[1]["lastUpdate"])
+                            for k, _ in sorted_vessels[:500]:
+                                del active_vessels[k]
+                
+                print(f"[AIS Proxy] Successfully processed {count} vessels.")
+        except Exception as e:
+            print("[AIS Proxy] Failure:", str(e))
+        
+        # Poll every 60 seconds
+        await asyncio.sleep(60)
+
+@app.get("/api/vessels")
+async def get_vessels():
+    """Proxy endpoint that returns the in-memory array of active vessels to the frontend."""
+    # Convert dict to list and filter out stale vessels (older than 10 minutes)
+    import time
+    now = time.time()
+    vessels_list = [v for v in active_vessels.values() if now - v["lastUpdate"] < 600]
+    return JSONResponse(vessels_list)
 
 # --- OpenSky Flights API Proxy with Global Cache ---
 
@@ -640,125 +726,13 @@ opensky_cache = {
     "last_fetched": 0
 }
 
+_sat_cache = {
+    "data": None,
+    "last_fetched": 0
+}
+
 import random
 import math
-
-# Major world airports with realistic lat/lng and country codes/airline callsigns
-WORLD_AIRPORTS = [
-    # North America
-    ("JFK", 40.6413, -73.7781, "US", ["UAL", "AAL", "DAL", "JBU", "B6"]),
-    ("LAX", 33.9425, -118.4081, "US", ["UAL", "AAL", "DAL", "WN", "SWA"]),
-    ("ORD", 41.9742, -87.9073, "US", ["UAL", "AAL", "SWA", "DAL"]),
-    ("ATL", 33.6407, -84.4277, "US", ["DAL", "SWA", "UAL", "AAL"]),
-    ("YYZ", 43.6777, -79.6248, "CA", ["ACA", "WJA", "DAL"]),
-    ("MEX", 19.4361, -99.0719, "MX", ["AMX", "VOI", "VIV"]),
-    # Europe
-    ("LHR", 51.4775, -0.4614, "GB", ["BAW", "VIR", "EZY"]),
-    ("CDG", 48.9794, 2.5508, "FR", ["AFR", "EZY", "TVF"]),
-    ("FRA", 50.0333, 8.5706, "DE", ["DLH", "CFG", "EWG"]),
-    ("AMS", 52.3086, 4.7639, "NL", ["KLM", "TRA", "EZY"]),
-    ("MAD", 40.4719, -3.5626, "ES", ["IBE", "VLG", "RYR"]),
-    ("IST", 41.2608, 28.7418, "TR", ["THY", "PGT"]),
-    ("SVO", 55.9736, 37.4125, "RU", ["AFL", "SU"]),
-    ("FCO", 41.7999, 12.2462, "IT", ["AZA", "RYR", "FCM"]),
-    ("MUC", 48.3537, 11.7860, "DE", ["DLH", "EWG", "CFG"]),
-    # Asia-Pacific
-    ("HND", 35.5494, 139.7798, "JP", ["ANA", "JAL", "SNA"]),
-    ("PEK", 40.0799, 116.6031, "CN", ["CCA", "CSN", "CXA"]),
-    ("PVG", 31.1443, 121.8083, "CN", ["CES", "CCA", "CSN"]),
-    ("HKG", 22.3080, 113.9185, "HK", ["CPA", "HDA", "GCR"]),
-    ("SIN", 1.3644, 103.9915, "SG", ["SIA", "TGW", "JIN"]),
-    ("BKK", 13.6900, 100.7501, "TH", ["THA", "BPG", "NOK"]),
-    ("SYD", -33.9461, 151.1772, "AU", ["QFA", "VOZ", "TGW"]),
-    ("MEL", -37.6690, 144.8410, "AU", ["QFA", "VOZ", "REX"]),
-    ("DXB", 25.2532, 55.3657, "AE", ["UAE", "FDB", "EK"]),
-    ("DOH", 25.2609, 51.6138, "QA", ["QTR", "QR"]),
-    # Africa / South America
-    ("JNB", -26.1367, 28.2411, "ZA", ["SAA", "MNO", "FA"]),
-    ("CAI", 30.1219, 31.4056, "EG", ["MSR", "NIA", "EG"]),
-    ("NBO", -1.3192, 36.9275, "KE", ["KQA", "JAM"]),
-    ("GRU", -23.4356, -46.4731, "BR", ["GLO", "TAM", "LAM"]),
-    ("GIG", -22.8099, -43.2505, "BR", ["GLO", "TAM"]),
-    ("EZE", -34.8222, -58.5358, "AR", ["ARG", "AEP"]),
-    ("SCL", -33.3928, -70.7856, "CL", ["LAN", "SKU"]),
-    ("BOG", 4.7016, -74.1469, "CO", ["AVA", "LNE"]),
-    ("LIM", -12.0219, -77.1143, "PE", ["LPE", "AVA"]),
-]
-
-def _great_circle_point(lat1, lon1, lat2, lon2, frac):
-    """Interpolate a point along the great circle between two airports at fraction frac (0..1)."""
-    lat1r, lon1r = math.radians(lat1), math.radians(lon1)
-    lat2r, lon2r = math.radians(lat2), math.radians(lon2)
-    d = 2 * math.asin(math.sqrt(
-        math.sin((lat2r - lat1r) / 2) ** 2 +
-        math.cos(lat1r) * math.cos(lat2r) * math.sin((lon2r - lon1r) / 2) ** 2
-    ))
-    if d < 1e-9:
-        return lat1, lon1, 0.0
-    A = math.sin((1 - frac) * d) / math.sin(d)
-    B = math.sin(frac * d) / math.sin(d)
-    x = A * math.cos(lat1r) * math.cos(lon1r) + B * math.cos(lat2r) * math.cos(lon2r)
-    y = A * math.cos(lat1r) * math.sin(lon1r) + B * math.cos(lat2r) * math.sin(lon2r)
-    z = A * math.sin(lat1r) + B * math.sin(lat2r)
-    lat = math.degrees(math.atan2(z, math.sqrt(x * x + y * y)))
-    lon = math.degrees(math.atan2(y, x))
-    # Compute initial bearing from this point toward destination
-    dlon = lon2r - math.radians(lon)
-    bearing = math.degrees(math.atan2(
-        math.sin(dlon) * math.cos(lat2r),
-        math.cos(math.radians(lat)) * math.sin(lat2r) - math.sin(math.radians(lat)) * math.cos(lat2r) * math.cos(dlon)
-    )) % 360
-    return lat, lon, bearing
-
-def generate_mock_flights():
-    states = []
-    n = len(WORLD_AIRPORTS)
-    for i in range(4500):
-        is_military = i > 4000
-
-        if is_military:
-            # Military flights: random positions, military callsigns
-            lat = random.uniform(-75, 75)
-            lon = random.uniform(-180, 180)
-            heading = random.uniform(0, 360)
-            velocity = random.uniform(200, 350)  # m/s — often faster
-            alt = random.uniform(6000, 15000)
-            mil_callsigns = ['RCH', 'AF', 'RRR', 'CNV', 'EXEC', 'MAC', 'SAM']
-            callsign = random.choice(mil_callsigns) + str(random.randint(1, 999))
-            country = random.choice(['US', 'GB', 'FR', 'DE', 'RU', 'CN'])
-        else:
-            # Pick two distinct airports for origin/destination
-            orig_idx = random.randrange(n)
-            dest_idx = random.randrange(n - 1)
-            if dest_idx >= orig_idx:
-                dest_idx += 1
-            orig = WORLD_AIRPORTS[orig_idx]
-            dest = WORLD_AIRPORTS[dest_idx]
-
-            # Random progress along the route (0..1)
-            frac = random.random()
-            lat, lon, heading = _great_circle_point(orig[1], orig[2], dest[1], dest[2], frac)
-
-            velocity = random.uniform(220, 260)  # m/s — typical cruise ~880 km/h
-            alt = random.uniform(9000, 12500)
-            callsign = random.choice(orig[4]) + str(random.randint(100, 9999))
-            country = orig[3]
-
-        state = [
-            f"m{i:05x}",  # 0: id
-            callsign,     # 1: callsign
-            country,      # 2: country
-            None,         # 3: time
-            None,         # 4: last contact
-            lon,          # 5: lng
-            lat,          # 6: lat
-            alt,          # 7: alt meters
-            False,        # 8: on_ground
-            velocity,     # 9: velocity (m/s)
-            heading       # 10: heading
-        ]
-        states.append(state)
-    return {"time": int(time.time()), "states": states}
 
 FLIGHTS_DB = "sherpa_flights.db"
 
@@ -835,34 +809,199 @@ async def get_flights():
             async with db.execute("SELECT value FROM flight_metadata WHERE key = 'source_time'") as cursor:
                 row = await cursor.fetchone()
                 if not row:
-                    return JSONResponse(generate_mock_flights())
+                    print("[Flights] No metadata found in DB yet.")
+                    return JSONResponse({"time": int(time.time()), "states": []})
                 source_time = int(row[0])
             
-            # Massive payload optimization: Do not transmit grounded planes to the client
             async with db.execute("SELECT icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading FROM flights WHERE on_ground = 0") as cursor:
                 rows = await cursor.fetchall()
-                
                 states = []
                 for r in rows:
                     states.append([r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], bool(r[8]), r[9], r[10]])
-                    
+                
+                print(f"[Flights] Returning {len(states)} active flights from DB.")
                 return JSONResponse({"time": source_time, "states": states})
     except Exception as e:
-        print(f"Database query failed: {e}")
-        return JSONResponse(generate_mock_flights())
+        print(f"[Flights] DB Error: {e}")
+        return JSONResponse({"time": int(time.time()), "states": []})
+
+SATELLITES_DB = os.path.join(BASE_DIR, "satellites_data.db")
+
+async def init_satellites_db():
+    async with aiosqlite.connect(SATELLITES_DB) as db:
+        await db.execute('DROP TABLE IF EXISTS satellites')
+        await db.execute('''
+            CREATE TABLE satellites (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                line1 TEXT,
+                line2 TEXT,
+                type TEXT,
+                country TEXT,
+                status TEXT
+            )
+        ''')
+        await db.commit()
+
+async def update_satellites_loop():
+    import httpx
+    import csv
+    from io import StringIO
+    while True:
+        try:
+            print("[Satellites] Starting daily sync from Celestrak...")
+            
+            satellites_cache = []
+            
+            async with httpx.AsyncClient(timeout=45.0, verify=False, follow_redirects=True) as client:
+                satcat_dict = {}
+                print("  -> Fetching SATCAT metadata dictionary...")
+                try:
+                    resp_cat = await client.get("https://celestrak.org/pub/satcat.csv")
+                    if resp_cat.status_code == 200:
+                        reader = csv.reader(StringIO(resp_cat.text))
+                        headers = next(reader)
+                        for row in reader:
+                            if len(row) > 5:
+                                norad_id = row[2].strip()
+                                status_code = row[4].strip()
+                                owner = row[5].strip()
+                                is_active = "active" if status_code in ['+', 'P', 'B'] else "inactive"
+                                satcat_dict[norad_id] = {"country": owner, "status": is_active}
+                    else:
+                        print(f"  -> SATCAT Fetch failed: HTTP {resp_cat.status_code}")
+                except Exception as e:
+                    print(f"  -> SATCAT Exception: {e}")
+
+                print("  -> Fetching universal active TLE group...")
+                url = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
+                try:
+                    resp = await client.get(url)
+                    if resp.status_code == 200:
+                        text = resp.text
+                        lines = [l.strip() for l in text.split('\n') if l.strip()]
+                        
+                        for i in range(0, len(lines), 3):
+                            if i + 2 < len(lines):
+                                name = lines[i]
+                                line1 = lines[i+1]
+                                line2 = lines[i+2]
+                                
+                                if line1.startswith('1 ') and line2.startswith('2 '):
+                                    catalog_num = line1[2:7].strip()
+                                    sat_id = f"{name}_{catalog_num}"
+                                    
+                                    meta = satcat_dict.get(catalog_num, {"country": "UNKNOWN", "status": "unknown"})
+                                    
+                                    # Heuristic Categorization since Celestrak's military group only contains 22 nodes
+                                    upper_name = name.upper()
+                                    if any(k in upper_name for k in ['USA ', 'COSMOS ', 'KOSMOS ', 'YAOGAN', 'NROL', 'MILSTAR', 'WGS', 'AEHF', 'SBIRS', 'GPS', 'GLONASS', 'NAVSTAR', 'BEIDOU', 'GALILEO', 'SKYN', 'SYRACUSE', 'SICRAL', 'GSAT', 'OFEQ', 'MUOS', 'DMSP', 'DSP ', 'ORS', 'TJSW', 'FLTSATCOM', 'UFO']):
+                                        sat_type = "military"
+                                    elif any(k in upper_name for k in ['STARLINK', 'ONEWEB', 'IRIDIUM', 'GLOBALSTAR']):
+                                        sat_type = "commercial"
+                                    else:
+                                        sat_type = "private"
+                                        
+                                    satellites_cache.append((sat_id, name, line1, line2, sat_type, meta["country"], meta["status"]))
+                    else:
+                        print(f"    - Failed to fetch active group: HTTP {resp.status_code}")
+                except Exception as e:
+                    print(f"    - Error fetching active group: {e}")
+            
+            # Update Database
+            if satellites_cache:
+                async with aiosqlite.connect(SATELLITES_DB) as db:
+                    await db.execute('DELETE FROM satellites')
+                    await db.executemany('''
+                        INSERT OR REPLACE INTO satellites (id, name, line1, line2, type, country, status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ''', satellites_cache)
+                    await db.commit()
+                print(f"[Satellites] Daily sync complete. {len(satellites_cache)} satellites stored.")
+            else:
+                print("[Satellites] Daily sync failed. No data retrieved.")
+                
+        except Exception as e:
+            print(f"[Satellites] BG Loop Error: {e}")
+        
+        # Sleep for 24 hours (86400 seconds)
+        await asyncio.sleep(86400)
+
 
 @app.get("/api/satellites")
 async def get_satellites():
-    """Proxy the Celestrak TLE data server-side to bypass frontend CORS blocks"""
+    """Returns the cached list of satellites from the local SQLite database."""
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get("https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle")
-            resp.raise_for_status()
-            # Return plain text exactly as Celestrak formats it so the frontend parser works unchanged
-            return Response(content=resp.text, media_type="text/plain")
+        async with aiosqlite.connect(SATELLITES_DB) as db:
+            async with db.execute("SELECT name, line1, line2, type, country, status FROM satellites") as cursor:
+                rows = await cursor.fetchall()
+                satellites_json = []
+                for r in rows:
+                    satellites_json.append({
+                        "name": r[0],
+                        "line1": r[1],
+                        "line2": r[2],
+                        "type": r[3],
+                        "country": r[4],
+                        "status": r[5]
+                    })
+                return JSONResponse(satellites_json)
     except Exception as e:
-        print(f"Satellite proxy fetch failed: {e}")
-        return Response(content="", status_code=502)
+        print(f"[Satellites] DB Fetch error: {e}")
+        return JSONResponse([])
+
+_earthquakes_cache = {"data": None, "fetched_at": 0.0, "duration": ""}
+EARTHQUAKE_CACHE_TTL = 300
+
+@app.get("/api/earthquakes")
+async def get_earthquakes(duration: str = "day"):
+    global _earthquakes_cache
+    
+    # Return from memory cache if fresh and matching duration
+    current_time = time.time()
+    if _earthquakes_cache["data"] and _earthquakes_cache["duration"] == duration and (current_time - _earthquakes_cache["fetched_at"]) < EARTHQUAKE_CACHE_TTL:
+        print("[Earthquakes] Serving from memory cache")
+        return Response(content=_earthquakes_cache["data"], media_type="application/json")
+        
+    url = f"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_{duration}.geojson"
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            
+            # Save strictly to memory cache
+            _earthquakes_cache["data"] = resp.text
+            _earthquakes_cache["fetched_at"] = time.time()
+            _earthquakes_cache["duration"] = duration
+            
+            return Response(content=resp.text, media_type="application/json")
+        except Exception as e:
+            print(f"[Earthquakes] USGS Fetch Failed: {e}. Checking for stale cache.")
+            
+            # If the API fails but we have an old cache, serve stale data instead of failing entirely
+            if _earthquakes_cache["data"]:
+                print("[Earthquakes] Serving STALE memory cache due to API failure.")
+                return Response(content=_earthquakes_cache["data"], media_type="application/json")
+                
+            # Emergency fallback only if no cache ever existed
+            print("[Earthquakes] No cache exists. Returning emergency fallback data.")
+            fallback = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "id": "fallback_1",
+                        "properties": {"mag": 4.5, "place": "Fallback: Southern California", "time": int(time.time() * 1000)},
+                        "geometry": {"type": "Point", "coordinates": [-116.3, 33.9, 12.0]}
+                    },
+                    {
+                        "id": "fallback_2",
+                        "properties": {"mag": 5.2, "place": "Fallback: Japan Region", "time": int(time.time() * 1000)},
+                        "geometry": {"type": "Point", "coordinates": [139.7, 35.7, 45.0]}
+                    }
+                ]
+            }
+            import json
+            return Response(content=json.dumps(fallback), media_type="application/json")
 
 # --- Camera Image Proxy ---
 # Fetches public camera snapshot images server-side so the browser gets them
@@ -975,7 +1114,7 @@ async def get_flight_route(callsign: str):
 import asyncio
 
 _cameras_cache: dict = {"data": None, "fetched_at": 0.0}
-CAMERAS_CACHE_TTL = 0 # Temporarily bypass cache to load new UK cameras. Normally 600 (URLs stay fresh this long)
+CAMERAS_CACHE_TTL = 600 # Temporarily bypass cache to load new UK cameras. Normally 600 (URLs stay fresh this long)
 
 # Caltrans districts 1-12 span all of California
 CALTRANS_DISTRICTS = ["d3", "d4", "d5", "d6", "d7", "d8", "d10", "d11", "d12"]
