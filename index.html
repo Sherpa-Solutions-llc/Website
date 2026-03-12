@@ -676,7 +676,8 @@
                         btn.textContent = 'Sending…';
 
                         try {
-                            const res = await fetch('/api/lead-capture', {
+                            const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
+                            const res = await fetch(`${API_BASE}/api/lead-capture`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ email })
