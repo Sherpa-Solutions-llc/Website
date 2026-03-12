@@ -233,7 +233,8 @@ async function initCesium() {
             const count = clusteredEntities.length;
             const extraScale = Math.log10(count) * 0.075;
             const baseScale = isMobile ? 0.075 : 0.10;
-            const fontSize = Math.floor(11 + (Math.log10(count) * 2));
+            // Shrink fonts gracefully as digit counts increase so they fit within the narrow Ship hull SVG
+            const fontSize = count > 99 ? 9 : (count > 9 ? 10 : 11);
 
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
@@ -244,7 +245,11 @@ async function initCesium() {
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); 
+            // Drop slightly below center to land cleanly inside the widest part of the ship's hull
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 2); 
+            // Pull the text heavily towards the camera to defeat Z-fighting against the SVG projection
+            cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
+            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
             
             cluster.billboard.show = true;
             cluster.billboard.image = shipSvg;
