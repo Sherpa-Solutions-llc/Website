@@ -232,9 +232,9 @@ async function initCesium() {
         shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
             const count = clusteredEntities.length;
             const extraScale = Math.log10(count) * 0.075;
-            const baseScale = isMobile ? 0.30 : 0.40; // Render clustered ships 2x larger than individual ships (which are 0.15/0.20)
-            // Proportionally increase font bounds to smoothly fill the newly widened hull
-            const fontSize = count > 99 ? 24 : (count > 9 ? 28 : 32);
+            const baseScale = isMobile ? 0.20 : 0.26; // Dialed back: ~1/3rd smaller than the 0.40 size
+            // Proportionally shrink font bounds to smoothly fill the dialed-back hull
+            const fontSize = count > 99 ? 16 : (count > 9 ? 18 : 21);
 
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
@@ -245,8 +245,8 @@ async function initCesium() {
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            // Drop gracefully downwards to land cleanly inside the widest part of the ship's massive hull
-            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 8); 
+            // Drop gracefully downwards to land cleanly inside the widest part of the ship's dialed back hull
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5); 
             // Pull the text heavily towards the camera to defeat Z-fighting against the SVG projection
             cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
             cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
