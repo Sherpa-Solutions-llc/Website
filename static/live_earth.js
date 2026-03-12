@@ -380,8 +380,9 @@ async function initCesium() {
                     if (state.layers.earthquakes) allCandidates = allCandidates.concat(
                         (state.earthquakes || []).map(q => ({
                             type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
-                            lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], 
-                            mag: q.properties?.mag || 1, time: q.properties?.time
+                            lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2],
+                            mag: q.properties?.mag || 1, time: q.properties?.time, 
+                            felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region
                         }))
                     );
                     
@@ -1128,7 +1129,7 @@ function updateEarthquakesLayer() {
                         outlineColor: Cesium.Color.fromHsl(0.16, 1.0, lightness * 0.8, 1.0), // slightly darker yellow outline
                         outlineWidth: 1.5
                     },
-                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], mag: mag, time: q.properties?.time }
+                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2], mag: mag, time: q.properties?.time, felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region }
                 });
             });
         } catch(e) { console.error('[Globe] Earthquakes fail:', e); }
@@ -1527,12 +1528,12 @@ function renderTargetDetails() {
 
     const html = `
         <div style="margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : 'var(--hud-cyan)'))};">
-                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (isFlight ? 'fa-plane' : 'fa-satellite')))}"></i>
+            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : (t.type === 'earthquake' ? '#ffd32a' : 'var(--hud-cyan)')))};">
+                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (t.type === 'earthquake' ? 'fa-house-crack' : (isFlight ? 'fa-plane' : 'fa-satellite'))))}"></i>
             </div>
-            <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN')}</h3>
+            <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.type === 'earthquake' ? 'SEISMIC EVENT' : (t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN'))}</h3>
             <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px; text-transform: uppercase;">
-                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : 'UNKNOWN ORIGIN')}
+                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : 'UNKNOWN ORIGIN'))}
             </div>
         </div>
         
@@ -1622,7 +1623,34 @@ function renderTargetDetails() {
             }
             return '';
         })() : ''}
-            ${t.type !== 'cctv' && t.type !== 'vessel' && !isTraffic ? `
+            ${t.type === 'earthquake' ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">MAGNITUDE</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: ${t.mag >= 6 ? '#ff4757' : (t.mag >= 4 ? '#ffa502' : '#7bed9f')}; font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; font-weight: bold;">${Number(t.mag).toFixed(1)}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">DEPTH</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${(t.depth || 0).toFixed(1)} <span style="font-size: 0.7rem;">km</span></td>
+            </tr>
+            ${t.time ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">TIME (UTC)</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${new Date(t.time).toLocaleString('en-US', {timeZone:'UTC', dateStyle:'short', timeStyle:'short'})}</td>
+            </tr>
+            ` : ''}
+            ${t.felt !== undefined && t.felt !== null ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">REPORTS FELT</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; color: #ffa502;">${Number(t.felt).toLocaleString()}</td>
+            </tr>
+            ` : ''}
+            ${t.tsunami ? `
+            <tr>
+                <td colspan="2" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; color: #ff4757; font-family: 'Share Tech Mono', monospace; font-weight: bold; background: rgba(255,71,87,0.1);">TSUNAMI WARNING ISSUED</td>
+            </tr>
+            ` : ''}
+            ` : ''}
+            ${t.type !== 'cctv' && t.type !== 'vessel' && t.type !== 'earthquake' && !isTraffic ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">IDENTIFIER</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${isFlight ? (t.id || 'N/A') : (t.id ? t.id.toString().split('_')[1] : 'N/A')}</td>
