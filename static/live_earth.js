@@ -4,11 +4,7 @@ const isMobile = window.innerWidth <= 768;
 // Define your Railway backend URL here for production!
 // Example: "https://your-custom-app.up.railway.app"
 let API_BASE = 'https://sherpa-solutions-api-production.up.railway.app';
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    // 🌍 When testing UI changes locally without running the Python server, we route to Railway automatically!
-    // -> If you *DO* want to test the local python server backend logic, simply change this to:
-    // API_BASE = 'http://127.0.0.1:8000';
-}
+// ALL local requests are funneled through the live Railway backend to bypass local IP rate limits.
 
 // Performance caps — satellite entities have per-frame CallbackProperty callbacks too;
 // keep this reasonable. Flights use viewport culling instead (no hard cap).
@@ -848,24 +844,18 @@ async function fetchCCTVs() {
 
 async function fetchWeather() {
     try {
-        // Fetch all cities in one batched request (open-meteo supports comma-separated lat/lng)
-        // and returns an array when multiple coordinates are supplied
-        const lats = majorCities.map(c => c.lat).join(',');
-        const lngs = majorCities.map(c => c.lng).join(',');
-        const url = `${API_BASE}/api/weather-proxy?latitude=${lats}&longitude=${lngs}`;
+        // Fetch temperatures directly from our persistent SQLite backend cache
+        const url = `${API_BASE}/api/weather-proxy?_t=` + Date.now();
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const dataArr = await res.json();
 
-        // open-meteo returns an array when multiple lat/lng are provided
-        const dataArr = Array.isArray(data) ? data : [data];
-
-        state.weatherData = dataArr.map((d, i) => ({
-            city: majorCities[i] ? majorCities[i].name : `City ${i}`,
-            lat: majorCities[i] ? majorCities[i].lat : 0,
-            lng: majorCities[i] ? majorCities[i].lng : 0,
-            temp: d.current ? d.current.temperature_2m : null,
-            unit: d.current_units ? d.current_units.temperature_2m : '°C'
+        state.weatherData = dataArr.map(d => ({
+            city: d.city,
+            lat: d.lat,
+            lng: d.lng,
+            temp: d.temp,
+            unit: d.unit
         })).filter(w => w.temp !== null && w.temp !== undefined);
 
         console.log(`[Weather] Temperature data loaded for ${state.weatherData.length} cities`);
@@ -1297,6 +1287,10 @@ function updateWeatherLayer() {
 
             if (weatherType === 'temperature' && state.weatherData) {
                 state.weatherData.forEach(w => {
+                    let farDist = Number.MAX_VALUE;
+                    if (w.tier === 2) farDist = 8000000.0;
+                    if (w.tier === 3) farDist = 3500000.0;
+                    
                     weatherDataSource.entities.add({
                         id: 'weather_' + w.city,
                         position: Cesium.Cartesian3.fromDegrees(w.lng || 0, w.lat || 0, 10000),
@@ -1310,9 +1304,16 @@ function updateWeatherLayer() {
                             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                             pixelOffset: new Cesium.Cartesian2(0, -10),
                             showBackground: false,
-                            backgroundColor: new Cesium.Color(0.1, 0.1, 0.1, 0.7)
+                            backgroundColor: new Cesium.Color(0.1, 0.1, 0.1, 0.7),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, farDist)
                         },
-                        point: { pixelSize: 8, color: Cesium.Color.fromCssColorString('#a4b0be'), outlineColor: Cesium.Color.BLACK, outlineWidth: 2 }
+                        point: { 
+                            pixelSize: 8, 
+                            color: Cesium.Color.fromCssColorString('#a4b0be'), 
+                            outlineColor: Cesium.Color.BLACK, 
+                            outlineWidth: 2,
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, farDist)
+                        }
                     });
                 });
                 if (_weatherImageryLayer) { viewer.imageryLayers.remove(_weatherImageryLayer, true); _weatherImageryLayer = null; _weatherLastType = null; }
