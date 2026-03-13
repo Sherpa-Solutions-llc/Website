@@ -8,6 +8,7 @@ venv/
 # Database
 *.db
 *.sqlite
+!satellites.db
 
 # Logs
 *.log
