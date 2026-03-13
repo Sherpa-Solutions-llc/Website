@@ -20,6 +20,9 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI()
 
+WEATHER_DB = "weather.db"
+from weather_cities import WEATHER_CITIES
+
 # Enable GZIP compression for all responses > 1000 bytes (CSS, JS, JSON, HTML)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
@@ -87,6 +90,7 @@ async def startup_event():
     await database.init_db()
     await init_flights_db()
     await init_satellites_db()
+    await init_weather_db()
     
     # We must NEVER block the startup_event with network fetches, or Railway will kill Uvicorn for failing the 30s healthcheck.
     # Instead, we spin off a background task that safely primes empty databases while the server accepts incoming connections.
@@ -113,6 +117,7 @@ async def startup_event():
     asyncio.create_task(prime_databases_background())
     asyncio.create_task(prime_vessels_background())
     asyncio.create_task(fetch_flights_loop())
+    asyncio.create_task(update_weather_loop())
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
@@ -1280,35 +1285,97 @@ async def get_cameras():
     return JSONResponse(cameras)
 
 
-# --- Open-Meteo Weather Proxy ---
+# --- Open-Meteo Weather Proxy (SQLite Backed) ---
 
-_weather_cache = {
-    "data": None,
-    "fetched_at": 0
-}
+import httpx
+import time
+
+async def init_weather_db():
+    async with aiosqlite.connect(WEATHER_DB) as db:
+        try:
+            # Upgrade existing DB schema if needed
+            await db.execute("ALTER TABLE weather ADD COLUMN tier INTEGER DEFAULT 1")
+        except Exception:
+            pass # Column already exists or table doesn't exist yet
+            
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS weather (
+                city TEXT PRIMARY KEY,
+                lat REAL,
+                lng REAL,
+                temp REAL,
+                unit TEXT,
+                last_updated INTEGER,
+                tier INTEGER DEFAULT 1
+            )
+        """)
+        await db.commit()
+
+async def update_weather_loop():
+    while True:
+        try:
+            print(f"[Weather] Polling Open-Meteo in batches for {len(WEATHER_CITIES)} total cities...")
+            current_time = int(time.time())
+            
+            chunk_size = 50
+            for i in range(0, len(WEATHER_CITIES), chunk_size):
+                chunk = WEATHER_CITIES[i:i + chunk_size]
+                
+                lats = ",".join([str(c["lat"]) for c in chunk])
+                lngs = ",".join([str(c["lng"]) for c in chunk])
+                url = f"https://api.open-meteo.com/v1/forecast?latitude={lats}&longitude={lngs}&current=temperature_2m&timezone=auto"
+                
+                async with httpx.AsyncClient(follow_redirects=True) as client:
+                    res = await client.get(url, timeout=15.0)
+                    res.raise_for_status()
+                    data = res.json()
+                    
+                dataArr = data if isinstance(data, list) else [data]
+                
+                async with aiosqlite.connect(WEATHER_DB) as db:
+                    for j, d in enumerate(dataArr):
+                        city_obj = chunk[j]
+                        city = city_obj["name"]
+                        lat = city_obj["lat"]
+                        lng = city_obj["lng"]
+                        tier = city_obj.get("tier", 1)
+                        
+                        temp = d.get("current", {}).get("temperature_2m")
+                        unit = d.get("current_units", {}).get("temperature_2m", "°C")
+                        
+                        if temp is not None:
+                            await db.execute("""
+                                INSERT OR REPLACE INTO weather (city, lat, lng, temp, unit, last_updated, tier)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)
+                            """, (city, lat, lng, temp, unit, current_time, tier))
+                    await db.commit()
+                # Yield context slightly to prevent Open-Meteo blocking
+                await asyncio.sleep(1)
+                
+            print("[Weather] Successfully updated SQLite weather database for all tiers.")
+        except Exception as e:
+            print(f"[Weather] Failed to update SQLite weather database: {e}")
+            
+        await asyncio.sleep(3600)  # Update once per hour
 
 @app.get("/api/weather-proxy")
-async def get_weather_proxy(latitude: str, longitude: str):
-    """Proxy the Open-Meteo API to comfortably survive the 10,000 req/day limit by global caching."""
-    import time
-    current_time = time.time()
-    
-    # 5-minute cache TTL
-    if _weather_cache["data"] and (current_time - _weather_cache["fetched_at"]) < 300:
-        return JSONResponse(_weather_cache["data"])
-        
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m&timezone=auto"
+async def get_weather_proxy():
+    """Returns weather from the local SQLite database to completely prevent third-party HTTP 429 errors."""
     try:
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            res = await client.get(url, timeout=10.0)
-            res.raise_for_status()
-            data = res.json()
-            
-            _weather_cache["data"] = data
-            _weather_cache["fetched_at"] = current_time
-            return JSONResponse(data)
+        results = []
+        async with aiosqlite.connect(WEATHER_DB) as db:
+            async with db.execute("SELECT city, lat, lng, temp, unit, last_updated, tier FROM weather") as cursor:
+                async for row in cursor:
+                    results.append({
+                        "city": row[0],
+                        "lat": row[1],
+                        "lng": row[2],
+                        "temp": row[3],
+                        "unit": row[4],
+                        "last_updated": row[5],
+                        "tier": row[6]
+                    })
+        return JSONResponse(results)
     except Exception as e:
-        print(f"[Weather Proxy] Failed to fetch Open-Meteo: {e}")
-        if _weather_cache["data"]:
-            return JSONResponse(_weather_cache["data"])
+        print(f"[Weather API] Failed to read SQLite database: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
