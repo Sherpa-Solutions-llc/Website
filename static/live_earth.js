@@ -4,7 +4,11 @@ const isMobile = window.innerWidth <= 768;
 // Define your Railway backend URL here for production!
 // Example: "https://your-custom-app.up.railway.app"
 let API_BASE = 'https://sherpa-solutions-api-production.up.railway.app';
-// ALL local requests are funneled through the live Railway backend to bypass local IP rate limits.
+if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+    API_BASE = 'http://127.0.0.1:8001';
+}
+// The Python Uvicorn backend caches telemetry natively (weather.db, satellites_data.db),
+// preventing Localhost IP rate-limit blocks securely without requiring Edge tunneling.
 
 // Performance caps — satellite entities have per-frame CallbackProperty callbacks too;
 // keep this reasonable. Flights use viewport culling instead (no hard cap).
@@ -1112,7 +1116,10 @@ function updateSatellitesLayer() {
                 return true;
             });
 
-            visibleSatellites.forEach(s => {
+            // Prevent WebGL catastrophic exhaustion
+            const renderingSlice = visibleSatellites.slice(0, SAT_DISPLAY_CAP);
+
+            renderingSlice.forEach(s => {
                 currentSatIds.add(s.id);
                 if (!satellitesDataSource.entities.getById(s.id)) {
                     satellitesDataSource.entities.add({
@@ -1130,7 +1137,7 @@ function updateSatellitesLayer() {
                         billboard: {
                             image: satelliteSvg,
                             scale: isMobile ? 0.35 : 0.45,
-                            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
+                            disableDepthTestDistance: 0
                         },
                         customData: s
                     });
