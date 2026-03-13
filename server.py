@@ -119,6 +119,10 @@ async def startup_event():
     asyncio.create_task(fetch_flights_loop())
     asyncio.create_task(update_weather_loop())
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def serve_favicon():
+    return FileResponse(os.path.join(BASE_DIR, "favicon.ico"))
+
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
     index_path = os.path.join(BASE_DIR, "index.html")
