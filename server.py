@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import secrets
 import asyncio
 import aiosqlite
@@ -16,6 +19,9 @@ from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 
 import database
+import agent_database
+from agents.master_agent import MasterAgent
+from fastapi import WebSocket, WebSocketDisconnect
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -31,6 +37,28 @@ VESSELS_DB = "sherpa_vessels.db"
 EARTHQUAKES_DB = "sherpa_earthquakes.db"
 CAMERAS_DB = "sherpa_cameras.db"
 from weather_cities import WEATHER_CITIES
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        if message.get("type") in ["chat", "question"] and hasattr(self, "session_id"):
+            content = message.get("message") or message.get("question")
+            if content:
+                await agent_database.save_message(self.session_id, "agent", content, message.get("agent"))
+        for connection in self.active_connections:
+            await connection.send_text(json.dumps(message))
+
+manager = ConnectionManager()
+master_agent = MasterAgent(callback_manager=manager)
 
 # Enable GZIP compression for all responses > 1000 bytes (CSS, JS, JSON, HTML)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -94,9 +122,75 @@ async def health_check():
     """Railway healthcheck endpoint"""
     return {"status": "ok", "service": "sherpa-solutions-api"}
 
+@app.get("/history")
+async def get_history():
+    if hasattr(manager, "session_id"):
+        messages = await agent_database.get_messages(manager.session_id)
+        return {"messages": messages}
+    return {"messages": []}
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            payload = json.loads(data)
+            action = payload.get("action")
+            
+            if action == "start_task":
+                task_description = payload.get("task")
+                if task_description:
+                    await agent_database.save_message(manager.session_id, "user", task_description, "User")
+                if task_description or payload.get("file_data"):
+                    asyncio.create_task(master_agent.run_task(payload))
+            elif action == "reply_to_agent":
+                reply_text = payload.get("text", "")
+                if reply_text:
+                    await agent_database.save_message(manager.session_id, "user", reply_text, "User")
+                target_agent_name = payload.get("target_agent", "Master Agent")
+                
+                target_agent = None
+                if target_agent_name == "Master Agent":
+                    target_agent = master_agent
+                elif target_agent_name == "Research Agent":
+                    target_agent = master_agent.research_agent
+                elif target_agent_name == "Stock Monitor":
+                    target_agent = master_agent.stock_agent
+                elif target_agent_name == "Web Developer":
+                    target_agent = master_agent.web_agent
+                    
+                if target_agent and getattr(target_agent, "pending_question_future", None):
+                    if not target_agent.pending_question_future.done():
+                        target_agent.pending_question_future.set_result(reply_text)
+            elif action == "new_chat":
+                new_session = await agent_database.create_session("Productivity Agent Chat")
+                manager.session_id = new_session
+                master_agent.reset_memory()
+                await manager.broadcast({"type": "chat_cleared"})
+            elif action == "halt_task":
+                master_agent.cancel_event.set()
+                if master_agent.pending_question_future and not master_agent.pending_question_future.done():
+                    master_agent.pending_question_future.cancel()
+                await manager.broadcast({"type": "status", "agent": "Master Agent", "status": "Halted"})
+                await manager.broadcast({"type": "log", "agent": "SYSTEM", "message": "Manual override. Protocol halted.", "level": "error"})
+            elif action == "ping":
+                await websocket.send_text(json.dumps({"type": "pong"}))
+                
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
 @app.on_event("startup")
 async def startup_event():
     await database.init_db()
+    
+    # Init Productivity Agent Database
+    await agent_database.init_db()
+    session_id = await agent_database.get_most_recent_session()
+    if not session_id:
+        session_id = await agent_database.create_session("Productivity Agent Chat")
+    manager.session_id = session_id
+    
     await init_flights_db()
     await init_satellites_db()
     await init_weather_db()
