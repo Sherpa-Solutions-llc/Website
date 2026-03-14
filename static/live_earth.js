@@ -79,6 +79,28 @@ setInterval(() => {
     document.getElementById('clock-display').innerHTML = now.toISOString().replace('T', '<br>').replace('Z', ' UTC');
 }, 1000);
 
+// Mobile: Move toggle buttons inside layer headers so they're visible in the bottom panel
+if (isMobile) {
+    document.querySelectorAll('.layer-row').forEach(row => {
+        const toggleBtn = row.querySelector('.layer-toggle-btn');
+        const header = row.querySelector('.layer-header');
+        if (toggleBtn && header) {
+            // Move the toggle button into the header (before the chevron)
+            toggleBtn.style.cssText = 'flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:rgba(0,20,30,0.8); border:1px solid rgba(0,210,255,0.3); border-radius:6px; cursor:pointer; margin-left:auto;';
+            const chevron = header.querySelector('.layer-chevron');
+            if (chevron) {
+                header.insertBefore(toggleBtn, chevron);
+            } else {
+                header.appendChild(toggleBtn);
+            }
+            // Prevent toggle click from also expanding the layer options
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+    });
+}
+
 // Layer Toggles
 window.toggleLayerOptions = function(layerName) {
     const el = document.getElementById(`layer-${layerName}`);
