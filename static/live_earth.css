@@ -683,15 +683,22 @@ html {
         right: 0;
         left: 0;
         top: 55px;
-        max-height: 70vh;
+        max-height: calc(100vh - 55px);
         border-radius: 0 0 8px 8px;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
+        z-index: 20;
+    }
+
+    #settings-modal .panel-title {
+        flex-shrink: 0;
     }
 
     #settings-modal .panel-content {
         overflow-y: auto;
-        flex-grow: 1;
+        flex: 1;
+        min-height: 0;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 20px;
     }
