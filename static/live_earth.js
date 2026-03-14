@@ -1323,8 +1323,8 @@ function fetchTraffic() {
                         const earthRadiusMeter = 6371000;
                         const distMeters = earthRadiusMeter * c;
 
-                        // Target polling interval for vessels is ~10s
-                        let computedVelocity = distMeters / 10; 
+                        // Target polling interval for vessels is ~30s
+                        let computedVelocity = distMeters / 30; 
                         
                         const y = Math.sin(dLon) * Math.cos(lat2);
                         const x = Math.cos(lat1) * Math.sin(lat2) -
@@ -2129,6 +2129,24 @@ function renderTargetDetails() {
             ` : ''}
             ` : ''}
             ${t.type === 'scanner' ? `
+            ${state.dataSources.scanners === 'broadcastify' ? `
+            <tr>
+                <td colspan="2" style="padding: 6px 0; text-align: center;">
+                    <a href="https://www.broadcastify.com" target="_blank" rel="noopener"
+                       style="color: #ff4757; font-size: 0.82rem; font-weight: bold; font-family: 'Share Tech Mono', monospace;
+                              text-decoration: none; letter-spacing: 0.5px;
+                              animation: bcastFlash 1.2s ease-in-out infinite;">
+                        🔴 Create a FREE Broadcastify account to listen
+                    </a>
+                    <style>
+                        @keyframes bcastFlash {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.3; }
+                        }
+                    </style>
+                </td>
+            </tr>
+            ` : ''}
             <tr>
                 <td colspan="2" style="padding: 10px 0 5px; text-align: center;">
                     <iframe src="https://www.broadcastify.com/listen/feed/${t.feed_id || ''}" 
@@ -2401,7 +2419,7 @@ document.getElementById('target-search-btn').addEventListener('click', function 
 // Set up intervals independent of layers so data is fresh when toggled
 setInterval(fetchFlights, 900000); // Poll flights every 15 minutes to allow native extrapolation
 setInterval(fetchSatellites, 30000);
-setInterval(fetchTraffic, 10000); // Poll AIS vessels every 10 seconds
+setInterval(fetchTraffic, 30000); // Poll AIS vessels every 30 seconds
 setInterval(fetchEarthquakes, 60000);
 setInterval(fetchWeather, 300000);
 setInterval(fetchCCTVs, 120000); // Refresh cameras every 2 minutes
