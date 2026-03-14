@@ -170,7 +170,7 @@ window.toggleSettingsPanel = function() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
     if (modal.style.display === 'none') {
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     } else {
         modal.style.display = 'none';
     }
