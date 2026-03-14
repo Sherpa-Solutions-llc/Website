@@ -235,18 +235,24 @@ html {
 }
 
 /* Layer Toggle Items */
+.layer-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
 .layer-item {
     position: relative;
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
+    flex-direction: column;
+    padding: 0;
     background: rgba(10, 25, 30, 0.6);
     border-radius: 8px;
-    margin-bottom: 8px;
     cursor: pointer;
     border: 1px solid rgba(0, 210, 255, 0.15);
     transition: all 0.2s;
+    flex-grow: 1;
 }
 
 .layer-item:hover {
@@ -258,6 +264,73 @@ html {
     background: rgba(10, 35, 45, 0.9);
 }
 
+.layer-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    gap: 10px;
+}
+
+.layer-options-container {
+    padding: 0 10px 10px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    display: none;
+}
+
+.layer-item.expanded .layer-options-container {
+    display: flex;
+}
+
+.layer-chevron {
+    color: var(--hud-cyan);
+    font-size: 1rem;
+    transition: transform 0.3s;
+    opacity: 0.7;
+    margin-left: auto;
+    padding-left: 5px;
+}
+
+.layer-item.expanded .layer-chevron {
+    transform: rotate(180deg);
+}
+
+.layer-toggle-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    background: rgba(10, 25, 30, 0.6);
+    border: 1px solid rgba(0, 210, 255, 0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.layer-toggle-btn:hover {
+    background: rgba(0, 210, 255, 0.1);
+}
+
+.layer-toggle-btn.active {
+    background: rgba(10, 35, 45, 0.9);
+    border-color: rgba(0, 210, 255, 0.6);
+}
+
+.layer-toggle-btn i {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.2);
+    transition: color 0.2s, filter 0.2s;
+}
+
+.layer-toggle-btn.active i {
+    color: var(--hud-cyan);
+    filter: drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));
+}
+
 /* Modals */
 #settings-modal {
     width: 380px !important;
@@ -265,6 +338,9 @@ html {
 
 #settings-modal .layer-item {
     margin-bottom: 5px;
+    padding: 10px;
+    flex-direction: row;
+    align-items: center;
 }
 
 #settings-modal .hud-select {
@@ -303,7 +379,10 @@ html {
 
 .layer-info {
     flex-grow: 1;
-    padding-right: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 0;
 }
 
 .layer-info h3 {
@@ -331,9 +410,6 @@ html {
 }
 
 .layer-count {
-    position: absolute;
-    right: 10px;
-    top: 10px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 1rem;
     color: #fff;
@@ -341,6 +417,7 @@ html {
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
+/* Legacy toggle fallback for any untouched items */
 .layer-toggle {
     position: absolute;
     right: 10px;
@@ -565,6 +642,25 @@ html {
     /* Video iframes in CCTV panel: shorter on mobile */
     .panel-right iframe {
         height: 140px !important;
+    }
+
+    /* Settings Modal: full width, constrained height, scrollable */
+    #settings-modal {
+        width: 100% !important;
+        right: 0;
+        left: 0;
+        top: 55px;
+        max-height: 70vh;
+        border-radius: 0 0 8px 8px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #settings-modal .panel-content {
+        overflow-y: auto;
+        flex-grow: 1;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 20px;
     }
 }
 
