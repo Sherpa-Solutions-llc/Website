@@ -1544,7 +1544,9 @@ async def fetch_flights_loop():
                     await db.commit()
                 print(f"Background Scraper: Successfully stored {len(states)} flights in SQLite database.")
         except Exception as e:
-            print(f"Background Scraper Failed: {e}")
+            import traceback
+            print(f"Background Scraper Failed: [{type(e).__name__}] {repr(e)}")
+            traceback.print_exc()
         
         # Free public API limit: 100 per day. 4 pulls per hour = 96 pulls/day. Perfect 15m cadence!
         await asyncio.sleep(900)
