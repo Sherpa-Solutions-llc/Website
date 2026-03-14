@@ -144,6 +144,60 @@ html {
     text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
 }
 
+/* Demo Toggle Button */
+.demo-btn {
+    margin-left: 10px;
+    padding: 6px 14px;
+    background: rgba(255, 71, 87, 0.15);
+    border: 1px solid var(--hud-pink);
+    color: var(--hud-pink);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.2);
+}
+
+.demo-btn:hover:not(.active) {
+    background: rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+}
+
+.demo-btn.active {
+    background: rgba(46, 213, 115, 0.15);
+    border-color: #2ed573;
+    color: #2ed573;
+    text-shadow: 0 0 5px rgba(46, 213, 115, 0.5);
+    box-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+    animation: demoPulse 2s infinite;
+}
+
+@keyframes demoPulse {
+    0% {
+        box-shadow: 0 0 5px rgba(46, 213, 115, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(46, 213, 115, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(46, 213, 115, 0.2);
+    }
+}
+
+.demo-volume-slider {
+    width: 80px;
+    margin-left: 10px;
+    accent-color: var(--hud-cyan);
+    cursor: pointer;
+    display: none; /* Hidden until Demo is ON */
+}
+
 .hud-status {
     display: flex;
     align-items: center;
@@ -210,6 +264,19 @@ html {
 .panel-left {
     left: 20px;
     max-height: calc(100vh - 100px);
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-left.collapsed {
+    max-height: 48px; /* Height of the title bar to hide content */
+}
+
+/* Ensure the title bar doesn't shrink during collapse */
+.panel-left .panel-title {
+    flex-shrink: 0;
 }
 
 .panel-right {
@@ -230,8 +297,14 @@ html {
 }
 
 .panel-content {
-    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Layer Toggle Items */
