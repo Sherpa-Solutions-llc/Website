@@ -25,7 +25,9 @@ const state = {
         earthquakes: false,
         traffic: false,
         weather: false,
-        cctv: false
+        cctv: false,
+        police: false,
+        scanners: false
     },
     dataSources: {
         flights: 'opensky',
@@ -34,7 +36,9 @@ const state = {
         satellites: 'celestrak',
         traffic: 'aisstream',
         weather: 'rainviewer',
-        cctv: 'public'
+        cctv: 'public',
+        police: 'arcgis',
+        scanners: 'broadcastify'
     },
     flights: [],
     satellites: [],
@@ -42,12 +46,16 @@ const state = {
     weatherData: [],
     traffic: [],
     cctv_cameras: [],
+    police_data: [],
+    scanners: [],
     target: null,
     lastFetchTime: 0
 };
 
 let _fetchingSatellites = false;
 let _fetchingEarthquakes = false;
+let _fetchingPolice = false;
+let _fetchingScanners = false;
 
 // Global DataSources for efficient entity tracking
 const flightsDataSource = new Cesium.CustomDataSource('flights');
@@ -57,6 +65,8 @@ const earthquakesDataSource = new Cesium.CustomDataSource('earthquakes');
 const cctvDataSource = new Cesium.CustomDataSource('cctvs');
 const shippingDataSource = new Cesium.CustomDataSource('shipping');
 const weatherDataSource = new Cesium.CustomDataSource('weather');
+const policeDataSource = new Cesium.CustomDataSource('police');
+const scannersDataSource = new Cesium.CustomDataSource('scanners');
 
 // Active weather imagery layer (RainViewer) — stored outside entities so
 // it persists across entity refresh calls
@@ -70,14 +80,29 @@ setInterval(() => {
 }, 1000);
 
 // Layer Toggles
+window.toggleLayerOptions = function(layerName) {
+    const el = document.getElementById(`layer-${layerName}`);
+    if (el) {
+        el.classList.toggle('expanded');
+    }
+};
+
 window.toggleLayer = function (layerName) {
     state.layers[layerName] = !state.layers[layerName];
+    
     const el = document.getElementById(`layer-${layerName}`);
-    if (!el) return;
-    const toggleIcon = el.querySelector('.layer-toggle i');
+    const toggleBtn = document.getElementById(`toggle-${layerName}`);
+    
+    let toggleIcon = null;
+    if (toggleBtn) {
+        toggleIcon = toggleBtn.querySelector('i');
+    } else if (el) {
+        toggleIcon = el.querySelector('.layer-toggle i');
+    }
 
     if (state.layers[layerName]) {
-        el.classList.add('active');
+        if (el) el.classList.add('active');
+        if (toggleBtn) toggleBtn.classList.add('active');
         if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-on';
         
         // Trigger fetch if we have no data yet
@@ -86,8 +111,11 @@ window.toggleLayer = function (layerName) {
         if (layerName === 'weather' && state.weatherData.length === 0) fetchWeather();
         if (layerName === 'traffic' && state.traffic.length === 0) fetchTraffic();
         if (layerName === 'cctv' && state.cctv_cameras.length === 0) fetchCCTVs();
+        if (layerName === 'police' && state.police_data.length === 0) fetchPolice();
+        if (layerName === 'scanners' && state.scanners.length === 0) fetchScanners();
     } else {
-        el.classList.remove('active');
+        if (el) el.classList.remove('active');
+        if (toggleBtn) toggleBtn.classList.remove('active');
         if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-off';
     }
 
@@ -97,6 +125,8 @@ window.toggleLayer = function (layerName) {
     else if (layerName === 'weather') updateWeatherLayer();
     else if (layerName === 'traffic') updateShippingLayer();
     else if (layerName === 'cctv') updateCCTVLayer();
+    else if (layerName === 'police') updatePoliceLayer();
+    else if (layerName === 'scanners') updateScannersLayer();
     updateHUDCounts();
 };
 
@@ -229,6 +259,42 @@ async function initCesium() {
         await viewer.dataSources.add(cctvDataSource);
         await viewer.dataSources.add(shippingDataSource);
         await viewer.dataSources.add(weatherDataSource);
+        await viewer.dataSources.add(policeDataSource);
+        await viewer.dataSources.add(scannersDataSource);
+
+        // Setup Police Cluster Features
+        policeDataSource.clustering.enabled = true;
+        policeDataSource.clustering.pixelRange = 40;
+        policeDataSource.clustering.minimumClusterSize = 2;
+        policeDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+            const count = clusteredEntities.length;
+            const extraScale = Math.log10(count) * 0.075;
+            const baseScale = isMobile ? 0.20 : 0.26;
+            const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
+
+            cluster.label.show = true;
+            cluster.label.text = count.toLocaleString();
+            cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+            cluster.label.fillColor = Cesium.Color.WHITE;
+            cluster.label.outlineColor = Cesium.Color.fromCssColorString('#0d47a1');
+            cluster.label.outlineWidth = 3;
+            cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+            cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+            cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5);
+            cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
+            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+
+            cluster.billboard.show = true;
+            cluster.billboard.image = policeSvg;
+            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+            cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+            cluster.billboard.disableDepthTestDistance = 0;
+            cluster.billboard.scale = baseScale + extraScale;
+
+            cluster.billboard.id = clusteredEntities;
+            cluster.label.id = clusteredEntities;
+        });
 
         // Setup Shipping Cluster Features
         shippingDataSource.clustering.enabled = true;
@@ -239,20 +305,18 @@ async function initCesium() {
             const extraScale = Math.log10(count) * 0.075;
             const baseScale = isMobile ? 0.20 : 0.26; // Dialed back: ~1/3rd smaller than the 0.40 size
             // Proportionally shrink font bounds to smoothly fill the dialed-back hull
-            const fontSize = count > 99 ? 16 : (count > 9 ? 18 : 21);
+            const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
 
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
             cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
             cluster.label.fillColor = Cesium.Color.BLACK;
             cluster.label.outlineColor = Cesium.Color.WHITE;
-            cluster.label.outlineWidth = 2;
+            cluster.label.outlineWidth = 3;
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            // Drop gracefully downwards to land cleanly inside the widest part of the ship's dialed back hull
             cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5); 
-            // Pull the text heavily towards the camera to defeat Z-fighting against the SVG projection
             cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
             cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
             
@@ -279,26 +343,22 @@ async function initCesium() {
                 const count = clusteredEntities.length;
                 const extraScale = Math.log10(count) * 0.4;
                 const baseScale = isMobile ? 0.70 : 0.90;
-                const fontSize = Math.floor(12 + (Math.log10(count) * 2));
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
 
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
-                cluster.label.font = `bold ${fontSize}px monospace`;
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
                 
-                if (color === Cesium.Color.ORANGE) {
-                    cluster.label.fillColor = Cesium.Color.BLACK;
-                    cluster.label.outlineColor = Cesium.Color.WHITE;
-                    cluster.label.outlineWidth = 3;
-                } else {
-                    cluster.label.fillColor = Cesium.Color.ORANGE;
-                    cluster.label.outlineColor = Cesium.Color.BLACK;
-                    cluster.label.outlineWidth = 4;
-                }
+                cluster.label.fillColor = Cesium.Color.BLACK;
+                cluster.label.outlineColor = Cesium.Color.WHITE;
+                cluster.label.outlineWidth = 4;
                 
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
                 cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                 
                 cluster.billboard.show = true;
                 cluster.billboard.image = airplaneSvg;
@@ -327,18 +387,20 @@ async function initCesium() {
                 const count = clusteredEntities.length;
                 const extraScale = Math.log10(count) * 0.4;
                 const baseScale = isMobile ? 0.7 : 0.9;
-                const fontSize = Math.floor(12 + (Math.log10(count) * 2));
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
 
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
                 cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
                 cluster.label.fillColor = Cesium.Color.WHITE;
                 cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 3;
+                cluster.label.outlineWidth = 5;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
                 cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                 
                 cluster.billboard.show = true;
                 cluster.billboard.image = cctvSvg;
@@ -353,6 +415,44 @@ async function initCesium() {
         };
         setupCCTVClustering(cctvDataSource);
 
+        // Setup Scanners Clustering
+        const setupScannersClustering = (dataSource) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.4;
+                const baseScale = isMobile ? 0.35 : 0.45;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
+                cluster.label.show = true;
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+                cluster.label.fillColor = Cesium.Color.WHITE;
+                cluster.label.outlineColor = Cesium.Color.BLACK;
+                cluster.label.outlineWidth = 5;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                
+                cluster.billboard.show = true;
+                cluster.billboard.image = scannerSvg;
+                cluster.billboard.color = Cesium.Color.RED;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
+                cluster.billboard.scale = baseScale + extraScale;
+                
+                cluster.billboard.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
+            });
+        };
+        setupScannersClustering(scannersDataSource);
+
         // Setup Earthquake Clustering
         const setupEarthquakeClustering = (dataSource) => {
             dataSource.clustering.enabled = true;
@@ -362,18 +462,20 @@ async function initCesium() {
                 const count = clusteredEntities.length;
                 const extraScale = Math.log10(count) * 0.2;
                 const baseScale = isMobile ? 0.35 : 0.45;
-                const fontSize = Math.floor(12 + (Math.log10(count) * 2));
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
 
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
                 cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.WHITE;
-                cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 3;
+                cluster.label.fillColor = Cesium.Color.BLACK;
+                cluster.label.outlineColor = Cesium.Color.WHITE;
+                cluster.label.outlineWidth = 4;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
                 cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                 
                 const pixelBase = isMobile ? 30 : 40;
                 cluster.point.show = true;
@@ -413,6 +515,10 @@ async function initCesium() {
                     if (clusteredEntities.length > 0) {
                         // Pick a random entity directly from the native Cesium cluster payload
                         const randEntity = clusteredEntities[Math.floor(Math.random() * clusteredEntities.length)];
+                        if (randEntity.customData) {
+                            lockTarget(randEntity.customData);
+                            return;
+                        }
                         targetIdToLoad = randEntity.id || randEntity;
                     }
                 } else {
@@ -492,8 +598,284 @@ const satelliteSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53
 const rawShipSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="#ff6b81" d="M192 32c0-17.7 14.3-32 32-32L352 0c17.7 0 32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 128 44.4 14.8c23.1 7.7 29.5 37.5 11.5 53.9l-101 92.6c-16.2 9.4-34.7 15.1-50.9 15.1c-19.6 0-40.8-7.7-59.2-20.3c-22.1-15.5-51.6-15.5-73.7 0c-17.1 11.8-38 20.3-59.2 20.3c-16.2 0-34.7-5.7-50.9-15.1l-101-92.6c-18-16.5-11.6-46.2 11.5-53.9L96 240l0-128c0-26.5 21.5-48 48-48l48 0 0-32zM160 218.7l107.8-35.9c13.1-4.4 27.3-4.4 40.5 0L416 218.7l0-90.7-256 0 0 90.7zM306.5 421.9C329 437.4 356.5 448 384 448c26.9 0 55.4-10.8 77.4-26.1c0 0 0 0 0 0c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 501.7 417 512 384 512c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7c-19.8 9-48.5 18.9-80.4 18.9c-33 0-65.5-10.3-94.5-25.8c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.4 27.3-10.1 39.2-1.7c0 0 0 0 0 0C136.7 437.2 165.1 448 192 448c27.5 0 55-10.6 77.5-26.1c11.1-7.9 25.9-7.9 37 0z"/></svg>`;
 const shipSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(rawShipSvg);
 const cctvSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NEgzMjBjMzUuMyAwIDY0IDI4LjcgNjQgNjRWMzg0YzAgMzUuMy0yOC43IDY0LTY0IDY0SDY0Yy0zNS4zIDAtNjQtMjguNy02NC02NFYxMjh6TTU1OS4xIDk5LjhjMTAuNCA1LjYgMTYuOSAxNi40IDE2LjkgMjguMlYzODRjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xVjMyMCAxOTIgMTc0LjlsMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi41LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=`;
+const policeSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMwZDQ3YTEiIGQ9Ik0yNTYgMGM0LjYgMCA5LjIgMSAxMy40IDIuOUw0NTcuNyA4Mi44YzIyIDkuMyAzOC40IDMxIDM4LjMgNTcuMmMtLjUgOTkuMi00MS4zIDI4MC43LTIxMy42IDM2My4yYy0xNi43IDgtMzYuMSA4LTUyLjggMEM1Ny4zNDIwLjcgMTYuNSAyMzkyIDE2IDE0MGMtLjEtMjYuMiAxNi4zLTQ3LjkgMzguMy01Ny4yTDI0Mi43IDIuOUMyNDYuOCAxIDI1MS40IDAgMjU2IDB6bTAgNjYuOFY0NDQuOEMzOTQzNzggNDMxLjEgMjMwLjEgNDMyIDE0MS40TDI1NiA2Ni44bDAgMHoiLz48L3N2Zz4=`;
+const scannerSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNkMzJmMmYiIGQ9Ik0xMTIgMjRjMC0xMy4zLTEwLjctMjQtMjQtMjRTNjQgMTAuNyA2NCAyNGwwIDcyTDQ4IDk2QzIxLjUgOTYgMCAxMTcuNSAwIDE0NEwwIDMwMC4xYzAgMTIuNyA1LjEgMjQuOSAxNC4xIDMzLjlsMy45IDMuOWM5IDkgMTQuMSAyMS4yIDE0LjEgMzMuOUwzMiA0NjRjMCAyNi41IDIxLjUgNDggNDggNDhsMjI0IDBjMjYuNSAwIDQ4LTIxLjUgNDgtNDhsMC05Mi4xYzAtMTIuNyA1LjEtMjQuOSAxNC4xLTMzLjlsMy45LTMuOWM5LTkgMTQuMS0yMS4yIDE0LjEtMzMuOUwzODQgMTQ0YzAtMjYuNS0yMS41LTQ4LTQ4LTQ4bC0xNiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC0zMiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC00OCAwIDAtNzJ6bTAgMTM2bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnptMCA2NGwxNjAgMGM4LjggMCAxNiA3LjIgMTYgMTZzLTcuMiAxNi0xNiAxNmwtMTYwIDBjLTguOCAwLTE2LTcuMi0xNi0xNnM3LjItMTYgMTYtMTZ6bTAgNjRsMTYwIDBjOC44IDAgMTYgNy4yIDE2IDE2cy03LjIgMTYtMTYgMTZsLTE2MCAwYy04LjggMC0xNi03LjItMTYtMTZzNy4yLTE2IDE2LTE2em0wIDY0bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnoiLz48L3N2Zz4=`;
 
+// ----- NEW DATA FETCHING (Police & Scanners) -----
+async function fetchPolice() {
+    if (_fetchingPolice) return;
+    _fetchingPolice = true;
+    try {
+        const res = await fetch(`${API_BASE}/api/police-data`);
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        state.police_data = data || [];
+        window.updateLastFetchTime('police');
+        updateHUDCounts();
+        populatePoliceDropdowns();
+        if (state.layers.police) updatePoliceLayer();
+    } catch (e) { console.error('Police fetch failed', e); }
+    finally { _fetchingPolice = false; }
+}
 
+// --- Cascading Police Dropdown Filters ---
+function populatePoliceDropdowns() {
+    const data = state.police_data || [];
+    const sourceEl = document.getElementById('setting-source-police');
+    const countryEl = document.getElementById('police-country-filter');
+    const stateEl = document.getElementById('police-state-filter');
+    const cityEl = document.getElementById('police-city-filter');
+    const stationEl = document.getElementById('police-station-filter');
+    if (!countryEl) return;
+
+    const countries = [...new Set(data.map(s => s.country).filter(Boolean))].sort();
+    countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+    stateEl.innerHTML = '<option value="all">All States</option>';
+    cityEl.innerHTML = '<option value="all">All Cities</option>';
+    stationEl.innerHTML = '<option value="all">All Stations</option>';
+}
+
+window.filterPoliceDropdowns = function(level) {
+    const data = state.police_data || [];
+    const sourceEl = document.getElementById('setting-source-police');
+    const countryEl = document.getElementById('police-country-filter');
+    const stateEl = document.getElementById('police-state-filter');
+    const cityEl = document.getElementById('police-city-filter');
+    const stationEl = document.getElementById('police-station-filter');
+    if (!countryEl) return;
+
+    const selSource = sourceEl ? sourceEl.value : 'all';
+    const selCountry = countryEl.value;
+    const selState = stateEl.value;
+    const selCity = cityEl.value;
+
+    let filtered = data;
+    if (selSource !== 'all') filtered = filtered.filter(s => (s.source || 'arcgis') === selSource);
+
+    if (level === 'source') {
+        const countries = [...new Set(filtered.map(s => s.country).filter(Boolean))].sort();
+        countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+        stateEl.innerHTML = '<option value="all">All States</option>';
+        cityEl.innerHTML = '<option value="all">All Cities</option>';
+        stationEl.innerHTML = '<option value="all">All Stations</option>';
+    }
+
+    if (selCountry !== 'all') filtered = filtered.filter(s => s.country === selCountry);
+
+    if (level === 'country') {
+        const states = [...new Set(filtered.map(s => s.state).filter(Boolean))].sort();
+        stateEl.innerHTML = '<option value="all">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+        cityEl.innerHTML = '<option value="all">All Cities</option>';
+        stationEl.innerHTML = '<option value="all">All Stations</option>';
+    }
+
+    if (level === 'country' || level === 'state') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (level === 'state') {
+            const cities = [...new Set(filtered.map(s => s.city).filter(Boolean))].sort();
+            cityEl.innerHTML = '<option value="all">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+            stationEl.innerHTML = '<option value="all">All Stations</option>';
+        }
+    }
+
+    if (level === 'city' || level === 'station') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (selCity !== 'all') filtered = filtered.filter(s => s.city === selCity);
+        if (level === 'city') {
+            stationEl.innerHTML = '<option value="all">All Stations</option>' + filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+    }
+
+    // Re-render map markers with the current filter selection
+    if (state.layers.police) updatePoliceLayer();
+};
+
+function getFilteredPolice() {
+    let filtered = state.police_data || [];
+    const sourceEl = document.getElementById('setting-source-police');
+    const countryEl = document.getElementById('police-country-filter');
+    const stateEl = document.getElementById('police-state-filter');
+    const cityEl = document.getElementById('police-city-filter');
+    const stationEl = document.getElementById('police-station-filter');
+
+    if (sourceEl && sourceEl.value !== 'all') filtered = filtered.filter(s => (s.source || 'arcgis') === sourceEl.value);
+    if (countryEl && countryEl.value !== 'all') filtered = filtered.filter(s => s.country === countryEl.value);
+    if (stateEl && stateEl.value !== 'all') filtered = filtered.filter(s => s.state === stateEl.value);
+    if (cityEl && cityEl.value !== 'all') filtered = filtered.filter(s => s.city === cityEl.value);
+    if (stationEl && stationEl.value !== 'all') filtered = filtered.filter(s => s.id === stationEl.value);
+    return filtered;
+}
+
+function updatePoliceLayer() {
+    if (!viewer) return;
+    if (state.layers.police) {
+        const filtered = getFilteredPolice();
+        policeDataSource.entities.suspendEvents();
+        policeDataSource.entities.removeAll();
+        filtered.forEach(p => {
+            policeDataSource.entities.add({
+                id: 'police_' + p.id,
+                position: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, 0),
+                billboard: {
+                    image: policeSvg,
+                    scale: isMobile ? 0.35 : 0.45,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                },
+                customData: {
+                    type: 'police', id: p.id, title: p.name || 'Police Station',
+                    lat: p.lat, lng: p.lng,
+                    address: p.address || '', phone: p.phone || '',
+                    country: p.country, state: p.state, city: p.city
+                }
+            });
+        });
+        policeDataSource.entities.resumeEvents();
+    } else {
+        policeDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
+
+async function fetchScanners() {
+    if (_fetchingScanners) return;
+    _fetchingScanners = true;
+    try {
+        const res = await fetch(`${API_BASE}/api/scanners`);
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        state.scanners = data || [];
+        window.updateLastFetchTime('scanners');
+        updateHUDCounts();
+        populateScannerDropdowns();
+        if (state.layers.scanners) updateScannersLayer();
+    } catch (e) { console.error('Scanners fetch failed', e); }
+    finally { _fetchingScanners = false; }
+}
+
+// --- Cascading Scanner Dropdown Filters ---
+function populateScannerDropdowns() {
+    const data = state.scanners || [];
+    const sourceEl = document.getElementById('setting-source-scanners');
+    const countryEl = document.getElementById('scanner-country-filter');
+    const stateEl = document.getElementById('scanner-state-filter');
+    const cityEl = document.getElementById('scanner-city-filter');
+    const feedEl = document.getElementById('scanner-feed-filter');
+    if (!countryEl) return;
+
+    const countries = [...new Set(data.map(s => s.country).filter(Boolean))].sort();
+    countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+    stateEl.innerHTML = '<option value="all">All States</option>';
+    cityEl.innerHTML = '<option value="all">All Locations</option>';
+    feedEl.innerHTML = '<option value="all">All Feeds</option>';
+}
+
+window.filterScannerDropdowns = function(level) {
+    const data = state.scanners || [];
+    const sourceEl = document.getElementById('setting-source-scanners');
+    const countryEl = document.getElementById('scanner-country-filter');
+    const stateEl = document.getElementById('scanner-state-filter');
+    const cityEl = document.getElementById('scanner-city-filter');
+    const feedEl = document.getElementById('scanner-feed-filter');
+    if (!countryEl) return;
+
+    const selSource = sourceEl ? sourceEl.value : 'all';
+    const selCountry = countryEl.value;
+    const selState = stateEl.value;
+    const selCity = cityEl.value;
+
+    let filtered = data;
+    if (selSource !== 'all') filtered = filtered.filter(s => (s.source || 'broadcastify') === selSource);
+
+    if (level === 'source') {
+        // Reset all downstream
+        const countries = [...new Set(filtered.map(s => s.country).filter(Boolean))].sort();
+        countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+        stateEl.innerHTML = '<option value="all">All States</option>';
+        cityEl.innerHTML = '<option value="all">All Locations</option>';
+        feedEl.innerHTML = '<option value="all">All Feeds</option>';
+    }
+
+    if (selCountry !== 'all') filtered = filtered.filter(s => s.country === selCountry);
+
+    if (level === 'country') {
+        const states = [...new Set(filtered.map(s => s.state).filter(Boolean))].sort();
+        stateEl.innerHTML = '<option value="all">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+        cityEl.innerHTML = '<option value="all">All Locations</option>';
+        feedEl.innerHTML = '<option value="all">All Feeds</option>';
+    }
+
+    if (level === 'country' || level === 'state') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (level === 'state') {
+            const cities = [...new Set(filtered.map(s => s.city).filter(Boolean))].sort();
+            cityEl.innerHTML = '<option value="all">All Locations</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+            feedEl.innerHTML = '<option value="all">All Feeds</option>';
+        }
+    }
+
+    if (level === 'city' || level === 'feed') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (selCity !== 'all') filtered = filtered.filter(s => s.city === selCity);
+        if (level === 'city') {
+            feedEl.innerHTML = '<option value="all">All Feeds</option>' + filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+    }
+
+    // Re-render map markers with the current filter selection
+    if (state.layers.scanners) updateScannersLayer();
+};
+
+function getFilteredScanners() {
+    let filtered = state.scanners || [];
+    const sourceEl = document.getElementById('setting-source-scanners');
+    const countryEl = document.getElementById('scanner-country-filter');
+    const stateEl = document.getElementById('scanner-state-filter');
+    const cityEl = document.getElementById('scanner-city-filter');
+    const feedEl = document.getElementById('scanner-feed-filter');
+
+    if (sourceEl && sourceEl.value !== 'all') filtered = filtered.filter(s => (s.source || 'broadcastify') === sourceEl.value);
+    if (countryEl && countryEl.value !== 'all') filtered = filtered.filter(s => s.country === countryEl.value);
+    if (stateEl && stateEl.value !== 'all') filtered = filtered.filter(s => s.state === stateEl.value);
+    if (cityEl && cityEl.value !== 'all') filtered = filtered.filter(s => s.city === cityEl.value);
+    if (feedEl && feedEl.value !== 'all') filtered = filtered.filter(s => s.id === feedEl.value);
+    return filtered;
+}
+
+function updateScannersLayer() {
+    if (!viewer) return;
+    if (state.layers.scanners) {
+        const filtered = getFilteredScanners();
+        scannersDataSource.entities.suspendEvents();
+        scannersDataSource.entities.removeAll();
+        filtered.forEach(s => {
+            scannersDataSource.entities.add({
+                id: 'scanner_' + s.id,
+                position: Cesium.Cartesian3.fromDegrees(s.lng, s.lat, 0),
+                billboard: {
+                    image: scannerSvg,
+                    color: Cesium.Color.RED,
+                    scale: isMobile ? 0.42 : 0.54,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                },
+                customData: {
+                    type: 'scanner', id: s.id, title: s.name || 'Scanner',
+                    lat: s.lat, lng: s.lng,
+                    audio_url: s.audio_url, feed_id: s.feed_id || '',
+                    listeners: s.listeners || 0, status: s.status || 'online',
+                    country: s.country, state: s.state, city: s.city
+                }
+            });
+        });
+        scannersDataSource.entities.resumeEvents();
+    } else {
+        scannersDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
 
 // ----- DATA FETCHING -----
 
@@ -996,14 +1378,22 @@ function updateHUDCounts() {
         return true;
     });
 
+    const trafficType = document.getElementById('traffic-type')?.value || 'all';
+    const visibleTraffic = (state.traffic || []).filter(t => {
+        if (trafficType === 'all') return true;
+        return (t.vesselType || 'other') === trafficType;
+    });
+
     const counts = {
         flights: visibleFlights.length,
         military: visibleMilitary.length,
         satellites: visibleSatellites.length,
         earthquakes: (state.earthquakes || []).length,
         cctvs: (state.cctv_cameras || []).length,
-        traffic: (state.traffic || []).length,
-        weather: (state.weatherData || []).length
+        traffic: visibleTraffic.length,
+        weather: (state.weatherData || []).length,
+        police: (state.police_data || []).length,
+        scanners: (state.scanners || []).length
     };
 
     try {
@@ -1014,7 +1404,9 @@ function updateHUDCounts() {
             'layer-earthquakes': counts.earthquakes,
             'layer-cctv': counts.cctvs,
             'layer-traffic': counts.traffic,
-            'layer-weather': counts.weather
+            'layer-weather': counts.weather,
+            'layer-police': counts.police,
+            'layer-scanners': counts.scanners
         };
         for (const [id, count] of Object.entries(hudMap)) {
             const el = document.getElementById(id);
@@ -1228,52 +1620,52 @@ function updateShippingLayer() {
 
     if (state.layers.traffic) {
         try {
-            shippingDataSource.entities.suspendEvents();
-            const currentVesselIds = new Set((state.traffic || []).map(t => 'vessel_' + t.id));
-            const toRemove = [];
-            shippingDataSource.entities.values.forEach(e => { if (!currentVesselIds.has(e.id)) toRemove.push(e.id); });
-            toRemove.forEach(id => shippingDataSource.entities.removeById(id));
+            // Apply vessel type filter from dropdown
+            const typeFilter = document.getElementById('traffic-type');
+            const selectedType = typeFilter ? typeFilter.value : 'all';
+            const filteredTraffic = (state.traffic || []).filter(t => {
+                if (selectedType === 'all') return true;
+                return (t.vesselType || 'other') === selectedType;
+            });
+
+            // Clean slate: remove all and re-add filtered entities
+            // This forces CesiumJS to recalculate cluster counts
+            shippingDataSource.entities.removeAll();
 
             const earthRadius = 6371000;
-            (state.traffic || []).forEach(t => {
-                const existing = shippingDataSource.entities.getById('vessel_' + t.id);
-
-                if (!existing) {
-                    shippingDataSource.entities.add({
-                        id: 'vessel_' + t.id,
-                        position: new Cesium.CallbackProperty((time, result) => {
-                            try {
-                                const now = performance.now();
-                                const dt = t.fetchTime ? (now - t.fetchTime) / 1000 : 0;
-                                const dist = (t.computedVelocity || 0) * dt;
-                                const angularDist = dist / earthRadius;
-                                const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
-                                const sLng = Cesium.Math.toRadians(t.startLng || t.lng);
-                                const head = t.computedHeading || 0;
-                                const nLat = Math.asin(Math.sin(sLat) * Math.cos(angularDist) + Math.cos(sLat) * Math.sin(angularDist) * Math.cos(head));
-                                const nLng = sLng + Math.atan2(Math.sin(head) * Math.sin(angularDist) * Math.cos(sLat), Math.cos(angularDist) - Math.sin(sLat) * Math.sin(nLat));
-                                t.lat = Cesium.Math.toDegrees(nLat);
-                                t.lng = Cesium.Math.toDegrees(nLng);
-                                return Cesium.Cartesian3.fromRadians(nLng, nLat, 0, viewer.scene.globe.ellipsoid, result);
-                            } catch (cpErr) {
-                                return undefined;
-                            }
-                        }, false),
-                        billboard: {
-                            image: shipSvg,
-                            scale: isMobile ? 0.15 : 0.20,
-                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                            disableDepthTestDistance: 0
-                        },
-                        customData: t
-                    });
-                }
+            filteredTraffic.forEach(t => {
+                shippingDataSource.entities.add({
+                    id: 'vessel_' + t.id,
+                    position: new Cesium.CallbackProperty((time, result) => {
+                        try {
+                            const now = performance.now();
+                            const dt = t.fetchTime ? (now - t.fetchTime) / 1000 : 0;
+                            const dist = (t.computedVelocity || 0) * dt;
+                            const angularDist = dist / earthRadius;
+                            const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
+                            const sLng = Cesium.Math.toRadians(t.startLng || t.lng);
+                            const head = t.computedHeading || 0;
+                            const nLat = Math.asin(Math.sin(sLat) * Math.cos(angularDist) + Math.cos(sLat) * Math.sin(angularDist) * Math.cos(head));
+                            const nLng = sLng + Math.atan2(Math.sin(head) * Math.sin(angularDist) * Math.cos(sLat), Math.cos(angularDist) - Math.sin(sLat) * Math.sin(nLat));
+                            t.lat = Cesium.Math.toDegrees(nLat);
+                            t.lng = Cesium.Math.toDegrees(nLng);
+                            return Cesium.Cartesian3.fromRadians(nLng, nLat, 0, viewer.scene.globe.ellipsoid, result);
+                        } catch (cpErr) {
+                            return undefined;
+                        }
+                    }, false),
+                    billboard: {
+                        image: shipSvg,
+                        scale: isMobile ? 0.15 : 0.20,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                        disableDepthTestDistance: 0
+                    },
+                    customData: t
+                });
             });
         } catch (e) {
             console.error('[Globe] Traffic fail:', e.name || 'Error', e.message || e, e.stack);
-        } finally {
-            shippingDataSource.entities.resumeEvents();
         }
     } else {
         shippingDataSource.entities.removeAll();
@@ -1483,6 +1875,8 @@ function lockTarget(obj) {
     if (obj.type === 'cctv') zoomRange = 5000;
     else if (obj.type === 'vessel') zoomRange = 5000;
     else if (obj.type === 'traffic') zoomRange = 10000;
+    else if (obj.type === 'scanner') zoomRange = 8000;
+    else if (obj.type === 'police') zoomRange = 2500;
     else if (obj.alt > 0) zoomRange = obj.alt * 2 + 50000;
 
     let targetLat = obj.lat || 0;
@@ -1590,12 +1984,12 @@ function renderTargetDetails() {
 
     const html = `
         <div style="margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : (t.type === 'earthquake' ? '#ffd32a' : 'var(--hud-cyan)')))};">
-                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (t.type === 'earthquake' ? 'fa-house-crack' : (isFlight ? 'fa-plane' : 'fa-satellite'))))}"></i>
+            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : (t.type === 'earthquake' ? '#ffd32a' : (t.type === 'scanner' ? '#d32f2f' : 'var(--hud-cyan)'))))};">
+                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (t.type === 'earthquake' ? 'fa-house-crack' : (t.type === 'scanner' ? 'fa-walkie-talkie' : (isFlight ? 'fa-plane' : 'fa-satellite')))))}"></i>
             </div>
             <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.type === 'earthquake' ? 'SEISMIC EVENT' : (t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN'))}</h3>
             <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px; text-transform: uppercase;">
-                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : 'UNKNOWN ORIGIN'))}
+                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : (t.type === 'scanner' ? 'LIVE AUDIO FEED' : 'UNKNOWN ORIGIN')))}
             </div>
         </div>
         
@@ -1712,7 +2106,42 @@ function renderTargetDetails() {
             </tr>
             ` : ''}
             ` : ''}
-            ${t.type !== 'cctv' && t.type !== 'vessel' && t.type !== 'earthquake' && !isTraffic ? `
+            ${t.type === 'scanner' ? `
+            <tr>
+                <td colspan="2" style="padding: 10px 0 5px; text-align: center;">
+                    <iframe src="https://www.broadcastify.com/listen/feed/${t.feed_id || ''}" 
+                        style="width:100%; height:230px; border:1px solid rgba(211,47,47,0.4); border-radius:6px; background:#0a1018;"
+                        allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding:4px 0; text-align:center;">
+                    <a href="https://www.broadcastify.com/listen/feed/${t.feed_id || ''}" target="_blank" 
+                       style="color:#d32f2f; font-size:0.72rem; text-decoration:none;">
+                        ▶ Open in Broadcastify ↗
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">STATUS</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">
+                    <span style="padding:2px 8px; border-radius:4px; font-size:0.75rem; font-family:'Share Tech Mono',monospace; font-weight:bold;
+                        ${(t.status || 'online') === 'online' ? 'background:rgba(123,237,159,0.15); color:#7bed9f; border:1px solid rgba(123,237,159,0.5);' 
+                        : 'background:rgba(255,71,87,0.15); color:#ff4757; border:1px solid rgba(255,71,87,0.5);'}">
+                        ${(t.status || 'online') === 'online' ? '● ONLINE' : '● OFFLINE'}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">ACTIVE LISTENERS</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: #7bed9f; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: bold;">${t.listeners || 0}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">LOCATION</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;">${t.city || ''}, ${t.state || ''}<br/><span style="opacity:0.6; font-size:0.75rem;">${t.country || ''}</span></td>
+            </tr>
+            ` : ''}
+            ${t.type !== 'cctv' && t.type !== 'vessel' && t.type !== 'earthquake' && t.type !== 'scanner' && !isTraffic ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">IDENTIFIER</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${isFlight ? (t.id || 'N/A') : (t.id ? t.id.toString().split('_')[1] : 'N/A')}</td>
