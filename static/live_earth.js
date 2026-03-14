@@ -79,27 +79,25 @@ setInterval(() => {
     document.getElementById('clock-display').innerHTML = now.toISOString().replace('T', '<br>').replace('Z', ' UTC');
 }, 1000);
 
-// Mobile: Move toggle buttons inside layer headers so they're visible in the bottom panel
-if (isMobile) {
-    document.querySelectorAll('.layer-row').forEach(row => {
-        const toggleBtn = row.querySelector('.layer-toggle-btn');
-        const header = row.querySelector('.layer-header');
-        if (toggleBtn && header) {
-            // Move the toggle button into the header (before the chevron)
-            toggleBtn.style.cssText = 'flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:rgba(0,20,30,0.8); border:1px solid rgba(0,210,255,0.3); border-radius:6px; cursor:pointer; margin-left:auto;';
-            const chevron = header.querySelector('.layer-chevron');
-            if (chevron) {
-                header.insertBefore(toggleBtn, chevron);
-            } else {
-                header.appendChild(toggleBtn);
-            }
-            // Prevent toggle click from also expanding the layer options
-            toggleBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
+// Unify Layout: Move toggle buttons inside layer headers so they are embedded directly in the card panel for all devices
+document.querySelectorAll('.layer-row').forEach(row => {
+    const toggleBtn = row.querySelector('.layer-toggle-btn');
+    const header = row.querySelector('.layer-header');
+    if (toggleBtn && header) {
+        // Move the toggle button into the header (before the chevron)
+        toggleBtn.style.cssText = 'flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:rgba(0,20,30,0.8); border:1px solid rgba(0,210,255,0.3); border-radius:6px; cursor:pointer; margin-left:auto;';
+        const chevron = header.querySelector('.layer-chevron');
+        if (chevron) {
+            header.insertBefore(toggleBtn, chevron);
+        } else {
+            header.appendChild(toggleBtn);
         }
-    });
-}
+        // Prevent toggle click from also expanding the layer options
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+});
 
 // Layer Toggles
 window.toggleLayerOptions = function(layerName) {
@@ -286,24 +284,27 @@ async function initCesium() {
 
         // Setup Police Cluster Features
         policeDataSource.clustering.enabled = true;
-        policeDataSource.clustering.pixelRange = 40;
+        policeDataSource.clustering.pixelRange = 130; // Increased massively so 4x scaled shields absorb each other rather than drawing on top of each other!
         policeDataSource.clustering.minimumClusterSize = 2;
         policeDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
             const count = clusteredEntities.length;
             const extraScale = Math.log10(count) * 0.075;
-            const baseScale = isMobile ? 0.20 : 0.26;
+            const baseScale = isMobile ? 0.80 : 1.04; // 2x larger again per user request (clusters only)
             const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
 
             cluster.label.show = true;
             cluster.label.text = count.toLocaleString();
             cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-            cluster.label.fillColor = Cesium.Color.WHITE;
-            cluster.label.outlineColor = Cesium.Color.fromCssColorString('#0d47a1');
-            cluster.label.outlineWidth = 3;
+            cluster.label.fillColor = Cesium.Color.BLACK; // Black text for contrast against blue shield
+            cluster.label.outlineColor = Cesium.Color.WHITE;
+            cluster.label.outlineWidth = 2; // Thinner outline for better legibility when small
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5);
+            
+            // Adjust offset to sit right in the center of the shield body
+            // Shield is a 0.25 scaled SVG, usually about ~40-50px tall. The origin is CENTER.
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); 
             cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
             cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
@@ -451,13 +452,13 @@ async function initCesium() {
                 cluster.label.show = true;
                 cluster.label.text = count.toLocaleString();
                 cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.WHITE;
-                cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 5;
+                cluster.label.fillColor = Cesium.Color.BLACK;
+                cluster.label.outlineColor = Cesium.Color.WHITE;
+                cluster.label.outlineWidth = 3;
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
                 cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // Center in the scanner icon
                 cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
                 cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                 
@@ -576,6 +577,11 @@ async function initCesium() {
                         console.warn("Could not resolve backing data for target:", targetIdToLoad);
                     }
                 }
+                
+                // CRITICAL FIX: Even with `selectionIndicator: false`, Cesium natively tries to render 
+                // a "selected state" duplicate of the billboard over the original entity when clicked.
+                // We must forcibly clear the native selection state immediately to prevent visual ghosting/doubling.
+                setTimeout(() => { viewer.selectedEntity = undefined; }, 10);
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         
@@ -620,7 +626,7 @@ const satelliteSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53
 const rawShipSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="#ff6b81" d="M192 32c0-17.7 14.3-32 32-32L352 0c17.7 0 32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 128 44.4 14.8c23.1 7.7 29.5 37.5 11.5 53.9l-101 92.6c-16.2 9.4-34.7 15.1-50.9 15.1c-19.6 0-40.8-7.7-59.2-20.3c-22.1-15.5-51.6-15.5-73.7 0c-17.1 11.8-38 20.3-59.2 20.3c-16.2 0-34.7-5.7-50.9-15.1l-101-92.6c-18-16.5-11.6-46.2 11.5-53.9L96 240l0-128c0-26.5 21.5-48 48-48l48 0 0-32zM160 218.7l107.8-35.9c13.1-4.4 27.3-4.4 40.5 0L416 218.7l0-90.7-256 0 0 90.7zM306.5 421.9C329 437.4 356.5 448 384 448c26.9 0 55.4-10.8 77.4-26.1c0 0 0 0 0 0c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 501.7 417 512 384 512c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7c-19.8 9-48.5 18.9-80.4 18.9c-33 0-65.5-10.3-94.5-25.8c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.4 27.3-10.1 39.2-1.7c0 0 0 0 0 0C136.7 437.2 165.1 448 192 448c27.5 0 55-10.6 77.5-26.1c11.1-7.9 25.9-7.9 37 0z"/></svg>`;
 const shipSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(rawShipSvg);
 const cctvSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NEgzMjBjMzUuMyAwIDY0IDI4LjcgNjQgNjRWMzg0YzAgMzUuMy0yOC43IDY0LTY0IDY0SDY0Yy0zNS4zIDAtNjQtMjguNy02NC02NFYxMjh6TTU1OS4xIDk5LjhjMTAuNCA1LjYgMTYuOSAxNi40IDE2LjkgMjguMlYzODRjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xVjMyMCAxOTIgMTc0LjlsMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi41LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=`;
-const policeSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMwZDQ3YTEiIGQ9Ik0yNTYgMGM0LjYgMCA5LjIgMSAxMy40IDIuOUw0NTcuNyA4Mi44YzIyIDkuMyAzOC40IDMxIDM4LjMgNTcuMmMtLjUgOTkuMi00MS4zIDI4MC43LTIxMy42IDM2My4yYy0xNi43IDgtMzYuMSA4LTUyLjggMEM1Ny4zNDIwLjcgMTYuNSAyMzkyIDE2IDE0MGMtLjEtMjYuMiAxNi4zLTQ3LjkgMzguMy01Ny4yTDI0Mi43IDIuOUMyNDYuOCAxIDI1MS40IDAgMjU2IDB6bTAgNjYuOFY0NDQuOEMzOTQzNzggNDMxLjEgMjMwLjEgNDMyIDE0MS40TDI1NiA2Ni44bDAgMHoiLz48L3N2Zz4=`;
+const policeSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMwZDQ3YTEiIGQ9Ik0yNTYgMGM0LjYgMCA5LjIgMSAxMy40IDIuOUw0NTcuNyA4Mi44YzIyIDkuMyAzOC40IDMxIDM4LjMgNTcuMmMtLjUgOTkuMi00MS4zIDI4MC43LTIxMy42IDM2My4yYy0xNi43IDgtMzYuMSA4LTUyLjggMEM1Ny4zIDQyMC43IDE2LjUgMjM5LjIgMTYgMTQwYy0uMS0yNi4yIDE2LjMtNDcuOSAzOC4zLTU3LjJMMjQyLjcgMi45QzI0Ni44IDEgMjUxLjQgMCAyNTYgMHoiLz48L3N2Zz4=`;
 const scannerSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNkMzJmMmYiIGQ9Ik0xMTIgMjRjMC0xMy4zLTEwLjctMjQtMjQtMjRTNjQgMTAuNyA2NCAyNGwwIDcyTDQ4IDk2QzIxLjUgOTYgMCAxMTcuNSAwIDE0NEwwIDMwMC4xYzAgMTIuNyA1LjEgMjQuOSAxNC4xIDMzLjlsMy45IDMuOWM5IDkgMTQuMSAyMS4yIDE0LjEgMzMuOUwzMiA0NjRjMCAyNi41IDIxLjUgNDggNDggNDhsMjI0IDBjMjYuNSAwIDQ4LTIxLjUgNDgtNDhsMC05Mi4xYzAtMTIuNyA1LjEtMjQuOSAxNC4xLTMzLjlsMy45LTMuOWM5LTkgMTQuMS0yMS4yIDE0LjEtMzMuOUwzODQgMTQ0YzAtMjYuNS0yMS41LTQ4LTQ4LTQ4bC0xNiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC0zMiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC00OCAwIDAtNzJ6bTAgMTM2bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnptMCA2NGwxNjAgMGM4LjggMCAxNiA3LjIgMTYgMTZzLTcuMiAxNi0xNiAxNmwtMTYwIDBjLTguOCAwLTE2LTcuMi0xNi0xNnM3LjItMTYgMTYtMTZ6bTAgNjRsMTYwIDBjOC44IDAgMTYgNy4yIDE2IDE2cy03LjIgMTYtMTYgMTZsLTE2MCAwYy04LjggMC0xNi03LjItMTYtMTZzNy4yLTE2IDE2LTE2em0wIDY0bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnoiLz48L3N2Zz4=`;
 
 // ----- NEW DATA FETCHING (Police & Scanners) -----
@@ -631,6 +637,7 @@ async function fetchPolice() {
         const res = await fetch(`${API_BASE}/api/police-data`);
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
+        state.police_data = []; // Explicit clear
         state.police_data = data || [];
         window.updateLastFetchTime('police');
         updateHUDCounts();
@@ -732,15 +739,15 @@ function updatePoliceLayer() {
     if (!viewer) return;
     if (state.layers.police) {
         const filtered = getFilteredPolice();
+        policeDataSource.entities.removeAll(); // Ensure Cluster manager sees this event clearly before suspending!
         policeDataSource.entities.suspendEvents();
-        policeDataSource.entities.removeAll();
         filtered.forEach(p => {
             policeDataSource.entities.add({
                 id: 'police_' + p.id,
                 position: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, 0),
                 billboard: {
                     image: policeSvg,
-                    scale: isMobile ? 0.35 : 0.45,
+                    scale: isMobile ? 0.70 : 0.90, // Doubled from 0.35 : 0.45 per user request
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     disableDepthTestDistance: Number.POSITIVE_INFINITY
@@ -869,8 +876,8 @@ function updateScannersLayer() {
     if (!viewer) return;
     if (state.layers.scanners) {
         const filtered = getFilteredScanners();
+        scannersDataSource.entities.removeAll(); // Ensure cluster manager cleans up visuals first
         scannersDataSource.entities.suspendEvents();
-        scannersDataSource.entities.removeAll();
         filtered.forEach(s => {
             scannersDataSource.entities.add({
                 id: 'scanner_' + s.id,
@@ -1923,27 +1930,76 @@ function lockTarget(obj) {
 
     // Offset the camera's actual destination slightly East (+Longitude) 
     // This physically shifts the target leftward on the viewport, perfectly centering it between the HUD menus.
-    const lngOffset = (zoomRange / 100000) * 0.2; 
+    const offsetMultiplier = (window.innerWidth <= 768) ? 0 : 0.2;
+    const lngOffset = (zoomRange / 100000) * offsetMultiplier; 
     const viewLng = targetLng + lngOffset;
 
     viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(viewLng, targetLat, zoomRange),
-        duration: 1.5,
+        duration: 2.0, // Smooth sweep
         orientation: {
             heading: 0.0,
             pitch: -Cesium.Math.PI_OVER_TWO, // Look straight down
             roll: 0.0
-        }
-    });
+        },
+        complete: () => {
+            // Once the smooth flight finishes, attach a live tracking tether for dynamic objects
+            viewer.scene.preRender.addEventListener(function trackTarget() {
+                // If user closed the target or clicked something else, break the tether
+                if (!state.target || state.target.id !== obj.id) {
+                    viewer.scene.preRender.removeEventListener(trackTarget);
+                    return;
+                }
 
-    // Provide a neat little offset to track the object
-    viewer.scene.preRender.addEventListener(function trackTarget() {
-        if (!state.target || state.target.id !== obj.id) {
-            viewer.scene.preRender.removeEventListener(trackTarget);
-            return;
+                // Identify the entity in the Cesium DataSources
+                let entityId = null;
+                if (obj.type === 'flight' || obj.type === 'military') entityId = 'flight_' + (obj.flight_id || obj.id);
+                else if (obj.type === 'satellite') entityId = 'sat_' + obj.id;
+                else if (obj.type === 'earthquake') entityId = 'quake_' + obj.id;
+                else if (obj.type === 'traffic' || obj.type === 'vessel') entityId = 'vessel_' + (obj.mmsi || obj.id);
+                else if (obj.type === 'police') entityId = 'police_' + obj.id;
+                else if (obj.type === 'scanner') entityId = 'scanner_' + obj.id;
+                else if (obj.type === 'cctv') entityId = 'cctv_' + obj.id;
+
+                if (!entityId) return;
+
+                let liveEntity = null;
+                for (let i = 0; i < viewer.dataSources.length; i++) {
+                    liveEntity = viewer.dataSources.get(i).entities.getById(entityId);
+                    if (liveEntity) break;
+                }
+
+                // If it's a moving entity with sampled positions, update camera every frame
+                if (liveEntity && liveEntity.position) {
+                    // Only enforce continuous tracking locks for high-speed dynamic items
+                    if (obj.type === 'flight' || obj.type === 'military' || obj.type === 'satellite') {
+                        const time = viewer.clock.currentTime;
+                        const position = liveEntity.position.getValue(time);
+                        if (position) {
+                            const cartographic = Cesium.Cartographic.fromCartesian(position);
+                            const currentLng = Cesium.Math.toDegrees(cartographic.longitude);
+                            const currentLat = Cesium.Math.toDegrees(cartographic.latitude);
+
+                            // Derive current user zoom level so they can still scroll in and out!
+                            const currentCameraCartographic = Cesium.Cartographic.fromCartesian(viewer.camera.position);
+                            const currentZoomRange = currentCameraCartographic.height;
+
+                            // Maintain the HUD offset
+                            const liveViewLng = currentLng + ((currentZoomRange / 100000) * offsetMultiplier);
+
+                            viewer.camera.setView({
+                                destination: Cesium.Cartesian3.fromDegrees(liveViewLng, currentLat, currentZoomRange),
+                                orientation: {
+                                    heading: 0.0,
+                                    pitch: -Cesium.Math.PI_OVER_TWO,
+                                    roll: 0.0
+                                }
+                            });
+                        }
+                    }
+                }
+            });
         }
-        // If it's a moving object or we are close, you could optionally keep nudging the camera here,
-        // but for now, just initially flying to it is safer than viewer.flyTo() which bugs out.
     });
 }
 
@@ -2462,8 +2518,6 @@ document.querySelectorAll('.hud-select').forEach(select => {
 
 // Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
 // This ensures the viewport filter stays accurate without running every animation frame.
-// Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
-// This ensures the viewport filter stays accurate without running every animation frame.
 if (viewer && viewer.camera) {
     viewer.camera.moveEnd.addEventListener(() => {
         if (state.layers.flights || state.layers.military) {
@@ -2471,4 +2525,324 @@ if (viewer && viewer.camera) {
             updateHUDCounts();
         }
     });
+}
+
+// ==========================================
+// DEMO MODE AUTOPILOT LOGIC
+// ==========================================
+
+let isDemoModeActive = false;
+
+const demoBtn = document.getElementById('demo-mode-btn');
+if (demoBtn) {
+    demoBtn.addEventListener('click', () => {
+        isDemoModeActive = !isDemoModeActive;
+        if (isDemoModeActive) {
+            demoBtn.classList.add('active');
+            demoBtn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO ON';
+            const volSlider = document.getElementById('demo-volume-slider');
+            if (volSlider) volSlider.style.display = 'block';
+            runDemoCycle();
+        } else {
+            demoBtn.classList.remove('active');
+            demoBtn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+            const volSlider = document.getElementById('demo-volume-slider');
+            if (volSlider) volSlider.style.display = 'none';
+            
+            // Stop audio immediately when demo is turned off
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            
+            // Re-open layers panel if it was closed
+            const panel = document.getElementById('layers-panel');
+            if (panel && panel.classList.contains('collapsed')) {
+                toggleLayersPanel();
+            }
+            
+            // Only completely wipe the map clean if they explicitly pressed "DEMO OFF", 
+            // rather than clicking a specific datapoint to interrupt the demo and take over.
+            if (!window.isDemoInterruption) {
+                // Turn off all layers
+                for (const l of Object.keys(state.layers)) {
+                    if (state.layers[l]) toggleLayer(l);
+                }
+                
+                // Close target lock
+                const closeBtn = document.getElementById('close-target');
+                if (closeBtn) closeBtn.click();
+                
+                // Reset all dropdowns 
+                ['flight-speed', 'military-speed', 'quake-duration', 'satellite-country', 'traffic-type', 'weather-layer', 'cctv-mode', 'police-country-filter', 'scanner-country-filter'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                         el.selectedIndex = 0;
+                         el.dispatchEvent(new Event('change'));
+                    }
+                });
+                
+                // Fly camera back to default earth view
+                if (viewer && viewer.camera) {
+                    viewer.camera.flyTo({
+                        destination: Cesium.Cartesian3.fromDegrees(-95, 38, 15000000),
+                        duration: 1.5
+                    });
+                }
+            }
+            window.isDemoInterruption = false; // reset flag
+        }
+    });
+}
+
+// Utilities for async sleep & Text-to-Speech
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+const demoVoice = window.speechSynthesis;
+let currentDemoUtterance = null;
+
+// Attach a live listener to the volume slider
+const volSliderEl = document.getElementById('demo-volume-slider');
+if (volSliderEl) {
+    volSliderEl.addEventListener('input', (e) => {
+        const newVol = parseFloat(e.target.value);
+        if (currentDemoUtterance) {
+            currentDemoUtterance.volume = newVol;
+        }
+        
+        // If pulled to zero, cancel the current audio
+        if (newVol === 0 && demoVoice && demoVoice.speaking) {
+            demoVoice.cancel();
+        }
+    });
+}
+
+function speakDemoText(text) {
+    if (!isDemoModeActive || !demoVoice) return Promise.resolve();
+    demoVoice.cancel(); // Stop talking if already talking
+    
+    return new Promise(resolve => {
+        currentDemoUtterance = new SpeechSynthesisUtterance(text);
+        
+        // Attempt to find a clean, professional English voice
+        const voices = demoVoice.getVoices();
+        let preferredVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female')));
+        if (preferredVoice) currentDemoUtterance.voice = preferredVoice;
+        
+        currentDemoUtterance.rate = 0.9; // Slowed down from 1.05 to sound more deliberate and clear
+        currentDemoUtterance.pitch = 1.0;
+        
+        if (volSliderEl) {
+            currentDemoUtterance.volume = parseFloat(volSliderEl.value);
+        }
+        
+        // Safety timeout in case speech synthesis engine gets stuck (calc duration approx)
+        const fallbackTimer = setTimeout(() => resolve(), text.length * 100 + 2000);
+        
+        currentDemoUtterance.onend = () => {
+            clearTimeout(fallbackTimer);
+            resolve();
+        };
+        currentDemoUtterance.onerror = () => {
+            clearTimeout(fallbackTimer);
+            resolve();
+        };
+        
+        demoVoice.speak(currentDemoUtterance);
+    });
+}
+
+// Interruption Handler: Fight user friction by turning off demo mode if they click anywhere else manually
+window.isDemoInterruption = false;
+document.addEventListener('mousedown', (e) => {
+    const isSlider = e.target.id === 'demo-volume-slider';
+    if (isDemoModeActive && e.target.id !== 'demo-mode-btn' && !e.target.closest('#demo-mode-btn') && !isSlider) {
+        console.log("[Demo Mode] Manual interaction detected. Halting autopilot without wiping map.");
+        if (demoVoice) demoVoice.cancel();
+        window.isDemoInterruption = true;
+        if (demoBtn) demoBtn.click();
+    }
+}, true);
+
+function getFilterIdForLayer(layer) {
+    const filters = {
+        'flights': 'flight-speed',
+        'military': 'military-speed',
+        'earthquakes': 'quake-duration',
+        'satellites': 'satellite-country', // Shows off military constraints
+        'traffic': 'traffic-type',
+        'weather': 'weather-layer',
+        'cctv': 'cctv-mode',
+        'police': 'police-country-filter',
+        'scanners': 'scanner-country-filter'
+    };
+    return filters[layer];
+}
+
+function getRandomDemoEntity(layer) {
+    let list = [];
+    if (layer === 'flights') list = (state.flights || []).map(f => ({...f, type: 'flight'}));
+    if (layer === 'military') list = (state.military || []).map(f => ({...f, type: 'flight', isMilitary: true}));
+    if (layer === 'earthquakes') list = (state.earthquakes || []).map(q => ({
+        type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
+        lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2],
+        mag: q.properties?.mag || 1, time: q.properties?.time, 
+        felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region
+    }));
+    if (layer === 'satellites') list = state.satellites || [];
+    if (layer === 'traffic') list = (state.traffic || []).map(t => ({...t, type: 'vessel'}));
+    if (layer === 'weather') return null; // Weather isn't targetable
+    if (layer === 'cctv') list = (state.cctv_cameras || []).map(c => ({...c, type: 'cctv'}));
+    if (layer === 'police') list = (typeof getFilteredPolice === 'function') ? getFilteredPolice() : state.police_data;
+    if (layer === 'scanners') list = (typeof getFilteredScanners === 'function') ? getFilteredScanners() : state.scanners;
+
+    if (!list || list.length === 0) return null;
+    
+    // Pick a random target
+    const target = list[Math.floor(Math.random() * list.length)];
+    
+    // Format appropriately for TargetLock
+    if (layer === 'police' && !target.customData) {
+        return {
+            type: 'police', id: target.id, title: target.name || 'Police Station',
+            lat: target.lat, lng: target.lng, address: target.address || '', phone: target.phone || '',
+            country: target.country, state: target.state, city: target.city
+        };
+    }
+    if (layer === 'scanners' && !target.customData) {
+        return {
+            type: 'scanner', id: target.id, title: target.title || 'Scanner Feed',
+            lat: target.lat, lng: target.lng, listeners: target.listeners || 0,
+            genre: target.genre || '', bitrate: target.bitrate || 0,
+            url: target.url || ''
+        };
+    }
+    if (layer === 'satellites') {
+        return {
+            type: 'satellite', id: target.id, name: target.name,
+            satrec: target.satrec, 
+            lat: 0, lng: 0, alt: 0 
+        }; // Math interpolator will compute lat/lng in renderTargetDetails natively.
+    }
+    return target;
+}
+
+function getNarrationForLayer(layer) {
+    const scripts = {
+        'flights': "We analyze global commercial aviation utilizing crowdsourced ADS-B receivers. We track thousands of transponders simultaneously.",
+        'military': "Military flight data is filtered to identify tactical aviation assets worldwide.",
+        'earthquakes': "Geological sensors stream real-time earthquake data from the USGS API, mapped immediately onto the globe.",
+        'satellites': "We track orbiting infrastructure. Our database plots thousands of active satellites using NORAD tracking telemetry.",
+        'traffic': "Global maritime shipping traffic is ingested via AIS transceivers to identify cargo routes and vessel metadata.",
+        'weather': "Near real-time precipation mapping gives situational awareness for global weather events.",
+        'cctv': "We tap into an aggregated network of thousands of localized IP cameras to provide street-level operational visuals.",
+        'police': "Public safety and emergency services infrastructure is mapped for rapid intelligence gathering.",
+        'scanners': "Lyve police and emergency radio scanner feeds give you ears on the ground during critical incidents."
+    };
+    return scripts[layer] || `Displaying the ${layer} data layer.`;
+}
+
+async function runDemoCycle() {
+    const demoLayers = ['satellites', 'flights', 'earthquakes', 'police', 'scanners', 'traffic', 'weather', 'cctv'];
+    let layerIndex = 0;
+
+    // Ensure camera is pointing at Earth from a good starting height
+    if (viewer && viewer.camera) {
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-95, 38, 15000000), // US centric view
+            duration: 2.0
+        });
+    }
+
+    // UI Management: Mobile devices get a collapsed panel to save space. Desktop users keep it expanded.
+    const panel = document.getElementById('layers-panel');
+    if (panel) {
+        if (isMobile && !panel.classList.contains('collapsed')) {
+            toggleLayersPanel();
+        } else if (!isMobile && panel.classList.contains('collapsed')) {
+            toggleLayersPanel();
+        }
+    }
+
+    // Give the engine a moment to breathe before talking
+    await delay(1000);
+    if (!isDemoModeActive) return;
+
+    // Introductory Speech
+    await speakDemoText("Welcome to Lyve Earth by Sherpa Solutions. This platform aggregates real-time, global O S INT data feeds into a unified 3D geospatial dashboard. Let's take a look at the capabilities.");
+    await delay(1000); // Small pause before first layer
+
+    while (isDemoModeActive) {
+        // 1. Wipe all layers clean to focus on one subject type.
+        for (const l of Object.keys(state.layers)) {
+            if (state.layers[l]) toggleLayer(l);
+        }
+        await delay(1000); 
+        if (!isDemoModeActive) break;
+
+        // 2. Turn on current layer & Speak
+        const currentLayer = demoLayers[layerIndex];
+        console.log(`[Demo] Activating layer: ${currentLayer}`);
+        
+        toggleLayer(currentLayer); // Let it turn on first so user has visual feedback while narrator talks
+        await speakDemoText(getNarrationForLayer(currentLayer));
+        
+        // Wait for data to populate (network + cesium rendering) natively during and slightly after speech
+        await delay(1000); 
+        if (!isDemoModeActive) break;
+
+        // 3. (Optional) Run a filter to show off dropdown functionality
+        let didFilter = false;
+        const selectId = getFilterIdForLayer(currentLayer);
+        if (selectId) {
+            const selectEl = document.getElementById(selectId);
+            if (selectEl && selectEl.options.length > 1) {
+                // Ignore 'all' option which is usually index 0
+                const randomOpt = Math.floor(Math.random() * (selectEl.options.length - 1)) + 1;
+                selectEl.selectedIndex = randomOpt;
+                console.log(`[Demo] Filtering ${currentLayer} to option index ${randomOpt}`);
+                selectEl.dispatchEvent(new Event('change'));
+                didFilter = true;
+            }
+        }
+
+        if (didFilter) {
+            await speakDemoText("Filters allow rapid culling of data to identify specific tactical signatures.");
+            await delay(1000); // Wait for filter to apply visually
+        } else {
+            await delay(1000); 
+        }
+
+        if (!isDemoModeActive) break;
+
+        // 4. Aquire Target & Zoom
+        const entity = getRandomDemoEntity(currentLayer);
+        if (entity) {
+            console.log(`[Demo] Locking target:`, entity.id || entity.name);
+            await speakDemoText("Selecting an entity will fly the camera to its precise coordinates and pull its metadata card.");
+            lockTarget(entity);
+            // Stand by so user can appreciate the UI card and camera sweep
+            await delay(5000); 
+        } else {
+            console.log(`[Demo] No entities found for ${currentLayer}. Sweeping...`);
+            await delay(4000); // Less time if empty
+        }
+
+        if (!isDemoModeActive) break;
+
+        // 5. Release Target
+        const closeBtn = document.getElementById('close-target');
+        if (closeBtn) closeBtn.click();
+        
+        // Reset the dropdown filter to All (index 0) for next cycle
+        if (selectId) {
+            const selectEl = document.getElementById(selectId);
+            if (selectEl) {
+                selectEl.selectedIndex = 0;
+                selectEl.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        await delay(1500);
+        
+        // Advanced Sequence
+        layerIndex = (layerIndex + 1) % demoLayers.length;
+    }
 }
