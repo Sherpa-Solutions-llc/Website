@@ -616,7 +616,32 @@ html {
         flex: none;
         margin-bottom: 0;
         padding: 12px;
+        padding-right: 50px; /* Make room for the toggle button */
     }
+
+    /* Layer row: relative so toggle button can position inside */
+    .layer-row {
+        position: relative !important;
+        overflow: visible !important;
+    }
+
+    /* Toggle button: absolute position inside the layer card */
+    .panel-left .layer-toggle-btn {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 36px !important;
+        height: 36px !important;
+        z-index: 5;
+        background: rgba(0, 20, 30, 0.8) !important;
+        border-radius: 6px;
+    }
+
+    .panel-left .layer-toggle-btn i {
+        font-size: 1.2rem;
+    }
+
 
     /* Layer options (dropdowns): show on mobile so user can toggle specific sub-items */
     .layer-options {
