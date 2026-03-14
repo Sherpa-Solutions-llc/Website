@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sherpa OSINT API Developer Documentation.">
+    <title>Documentation | Sherpa OSINT API</title>
+    
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="static/styles.css?v=1.5">
+    <link rel="stylesheet" href="static/osint_api.css?v=1.0">
+    <script src="static/theme.js"></script>
+
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --code-bg: rgba(0, 0, 0, 0.4);
+            --code-border: rgba(255, 255, 255, 0.1);
+        }
+
+        .docs-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 80px; /* Account for fixed header */
+            min-height: 100vh;
+        }
+
+        /* Sidebar Sub-Navigation */
+        .docs-sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-color);
+        }
+
+        .docs-sidebar h4 {
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .docs-sidebar h4:first-child {
+            margin-top: 0;
+        }
+
+        .docs-nav-link {
+            display: block;
+            padding: 0.5rem 0;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .docs-nav-link:hover, .docs-nav-link.active {
+            color: var(--accent);
+        }
+
+        /* Main Content Area */
+        .docs-main {
+            flex-grow: 1;
+            padding: 2rem 4rem 4rem 4rem;
+            max-width: 900px;
+        }
+
+        .docs-section {
+            padding-top: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .docs-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .docs-section h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .docs-section p {
+            line-height: 1.7;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tables */
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .docs-table th, .docs-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .docs-table th {
+            font-weight: 600;
+            color: var(--text-light);
+            background: rgba(30, 41, 59, 1);
+        }
+
+        .docs-table td {
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #e2e8f0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            margin-right: 0.5rem;
+        }
+
+        .method-get { background: rgba(39, 201, 63, 0.2); color: #27c93f; }
+        .method-post { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+
+        @media (max-width: 900px) {
+            .docs-layout { flex-direction: column; }
+            .docs-sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .docs-main { padding: 2rem 5%; }
+        }
+    </style>
+</head>
+
+<body class="osint-body">
+
+    <!-- Primary Header -->
+    <header style="position: fixed; top: 0; width: 100%; z-index: 1000;">
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC">
+            </a>
+        </div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="osint_api.html">Overview</a></li>
+            <li><a href="osint_api.html#pricing">Pricing</a></li>
+        </ul>
+        <div class="header-actions">
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+            <a href="osint_api.html#pricing" class="btn btn-primary nav-cta">Get API Key</a>
+        </div>
+    </header>
+
+    <div class="docs-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="docs-sidebar">
+            <h4>Getting Started</h4>
+            <a href="#introduction" class="docs-nav-link">Introduction</a>
+            <a href="#quickstart" class="docs-nav-link">Quickstart Guide</a>
+            <a href="#environments" class="docs-nav-link">Environments (Base URLs)</a>
+
+            <h4>Core Concepts</h4>
+            <a href="#authentication" class="docs-nav-link">Authentication</a>
+            <a href="#rate-limiting" class="docs-nav-link">Rate Limiting</a>
+            <a href="#error-codes" class="docs-nav-link">Error Codes</a>
+
+            <h4>API Reference</h4>
+            <a href="#endpoint-auth" class="docs-nav-link">POST /authenticate</a>
+            <a href="#endpoint-query" class="docs-nav-link">GET /query</a>
+
+            <h4>Data Schemas</h4>
+            <a href="#schema-aviation" class="docs-nav-link">Commercial Aviation</a>
+            <a href="#schema-military" class="docs-nav-link">Military Transponders</a>
+            <a href="#schema-space" class="docs-nav-link">Satellites (LEO)</a>
+            <a href="#schema-seismic" class="docs-nav-link">Seismic Events</a>
+            <a href="#schema-maritime" class="docs-nav-link">Vessels (AIS)</a>
+            <a href="#schema-cctv" class="docs-nav-link">Public CCTV</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-main">
+            
+            <section id="introduction" class="docs-section">
+                <h2>Introduction</h2>
+                <p>Welcome to the Sherpa OSINT API. Our infrastructure continuously ingests data from dozens of disconnected global arrays (ADS-B exchanges, USGS seismic rigs, NORAD Celestrak datasets, public unsecured webcams, and AIS vessel trackers), homogenizes the telemetry, and serves it via a single, ultra-low-latency RESTful API.</p>
+                <p>This API is designed for enterprise integration, enabling developers to build global situational awareness dashboards, supply chain trackers, and early-warning systems without managing complex ETL pipelines.</p>
+            </section>
+
+            <section id="quickstart" class="docs-section">
+                <h2>Quickstart Guide</h2>
+                <p>Get your first telemetry response in under 3 minutes.</p>
+                <ol style="color: var(--text-dark); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 2rem;">
+                    <li><strong>Sign up for a Sandbox Key.</strong> Visit the <a href="osint_api.html#pricing" style="color: var(--accent);">Pricing page</a> and select the Hobbyist tier. A mock Stripe interface will issue an `sk_hob_` prefixed key instantly.</li>
+                    <li><strong>Set your headers.</strong> All requests to the `/query` endpoint require the `x-api-key` header.</li>
+                    <li><strong>Run your first query.</strong> Execute the following cURL command to fetch live aircraft data:</li>
+                </ol>
+                <div class="code-block">
+<pre>curl -X GET "https://api.sherpa-solutions.com/v1/osint/query?type=flights&limit=5" \
+  -H "x-api-key: sk_hob_YOUR_GENERATED_KEY_HERE"</pre>
+                </div>
+            </section>
+
+            <section id="environments" class="docs-section">
+                <h2>Environments</h2>
+                <p>The Sherpa OSINT API provides multiple environments for safe development.</p>
+                <table class="docs-table">
+                    <tr>
+                        <th style="width: 25%;">Environment</th>
+                        <th>Base URL</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td style="color: white; font-weight: 500;">Production</td>
+                        <td style="color: #27c93f;">https://api.sherpa-solutions.com</td>
+                        <td>Live, real-time data. Requires an `sk_pro_` or `sk_ent_` key. Rate limits strictly enforced.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: white; font-weight: 500;">Sandbox</td>
+                        <td style="color: #fbbf24;">http://localhost:8001</td>
+                        <td>Mock development environment using cached local SQLite databases.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="authentication" class="docs-section">
+                <h2>Authentication</h2>
+                <p>The OSINT API uses API keys to authenticate requests. You can view and manage your API keys in the developer dashboard.</p>
+                <p>Your API keys carry many privileges, so be sure to keep them secure. Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.</p>
+                <p>Authentication to the API is performed via the HTTP Header <code style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">x-api-key</code>.</p>
+                
+                <div class="code-block">
+<pre># Example Python Request
+import requests
+
+url = "https://api.sherpa-solutions.com/v1/osint/query"
+headers = {
+    "x-api-key": "sk_pro_...your_secret_key"
+}
+params = {"type": "earthquakes", "limit": 10}
+
+response = requests.get(url, headers=headers, params=params)
+print(response.json())</pre>
+                </div>
+            </section>
+
+            <section id="rate-limiting" class="docs-section">
+                <h2>Rate Limiting</h2>
+                <p>To ensure system stability, limits are applied to the number of API requests your application can make.</p>
+                <table class="docs-table">
+                    <tr>
+                        <th>Tier</th>
+                        <th>Requests Per Minute (RPM)</th>
+                        <th>Max Records per Payload</th>
+                    </tr>
+                    <tr>
+                        <td>Hobbyist</td>
+                        <td>60 RPM</td>
+                        <td>100 Records</td>
+                    </tr>
+                    <tr>
+                        <td>Professional</td>
+                        <td>1,000 RPM</td>
+                        <td>1,000 Records</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise</td>
+                        <td>Unlimited</td>
+                        <td>10,000+ Records</td>
+                    </tr>
+                </table>
+                <p>If you exceed your limit, the API will respond with a `429 Too Many Requests` status code. Enterprise customers have access to WebSockets for unthrottled streaming data.</p>
+            </section>
+
+            <section id="error-codes" class="docs-section">
+                <h2>Error Codes</h2>
+                <p>We use standard HTTP response codes to indicate the success or failure of an API request.</p>
+                <table class="docs-table">
+                    <tr>
+                        <th style="width: 20%;">Code</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td style="color: #27c93f; font-weight:bold;">200 - OK</td>
+                        <td>Everything worked as expected.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #fbbf24; font-weight:bold;">400 - Bad Request</td>
+                        <td>The request was unacceptable, often due to missing a required parameter (`type`).</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #ff5f56; font-weight:bold;">401 - Unauthorized</td>
+                        <td>No valid API key provided in the `x-api-key` header.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #ff5f56; font-weight:bold;">429 - Too Many Requests</td>
+                        <td>You hit the rate limit constraint for your subscription tier.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #ff5f56; font-weight:bold;">50x - Server Error</td>
+                        <td>An underlying database routing error on our end.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="endpoint-auth" class="docs-section">
+                <h2>API Reference</h2>
+                
+                <h3><span class="method-badge method-post">POST</span> /api/v1/osint/authenticate</h3>
+                <p>Exchanges a registered email for a stateless API key. This simulates a payment gateway or OAuth flow.</p>
+                
+                <h4>Request Body</h4>
+                <div class="code-block">
+<pre>{
+  "email": "string (required)",
+  "tier": "string (hobbyist, professional, enterprise) (required)"
+}</pre>
+                </div>
+
+                <h4>Response</h4>
+                <div class="code-block">
+<pre>{
+  "status": "success",
+  "api_key": "sk_hob_7a8b9c...cd4e"
+}</pre>
+                </div>
+            </section>
+
+            <section id="endpoint-query" class="docs-section">
+                <h3><span class="method-badge method-get">GET</span> /api/v1/osint/query</h3>
+                <p>The core telemetry endpoint. Dynamically routes your authenticated request to the requested planetary database shard.</p>
+                
+                <h4>Parameters</h4>
+                <table class="docs-table">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td style="color: #38bdf8;">type <span style="color: #ff5f56;">*</span></td>
+                        <td>string</td>
+                        <td>The exact data stream to query. Must be one of: `flights`, `military_flights`, `satellites`, `earthquakes`, `cctv`, or `vessels`.</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #38bdf8;">limit</td>
+                        <td>integer</td>
+                        <td>Optional. Maximum number of rows to return. Default is 10. Maximum depends on subscription tier.</td>
+                    </tr>
+                </table>
+
+                <h4>Code Snippet: Node.js (Axios)</h4>
+                <div class="code-block">
+<pre>const axios = require('axios');
+
+const options = {
+  method: 'GET',
+  url: 'https://api.sherpa-solutions.com/v1/osint/query',
+  params: { type: 'military_flights', limit: '50' },
+  headers: { 'x-api-key': 'sk_pro_YOUR_KEY' }
+};
+
+axios.request(options).then(function (response) {
+  console.log(response.data);
+}).catch(function (error) {
+  console.error(error);
+});</pre>
+                </div>
+            </section>
+
+            <section id="schema-aviation" class="docs-section">
+                <h2>Data Schemas</h2>
+                <p>Detailed breakdown of the JSON arrays returned by each `type` query parameter.</p>
+
+                <h3>flights & military_flights</h3>
+                <table class="docs-table">
+                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    <tr><td>flight_id</td><td>string</td><td>ICAO24 Transponder HEX code.</td></tr>
+                    <tr><td>callsign</td><td>string</td><td>Standard alphanumeric routing callsign (e.g. "UAL123").</td></tr>
+                    <tr><td>origin_country</td><td>string</td><td>Country of aircraft registration.</td></tr>
+                    <tr><td>longitude</td><td>float</td><td>WGS84 format.</td></tr>
+                    <tr><td>latitude</td><td>float</td><td>WGS84 format.</td></tr>
+                    <tr><td>altitude</td><td>float</td><td>Height in meters above sea level.</td></tr>
+                    <tr><td>velocity</td><td>float</td><td>Ground speed in meters per second (m/s).</td></tr>
+                    <tr><td>true_track</td><td>float</td><td>Heading relative to true north in degrees (0-360).</td></tr>
+                </table>
+
+                <h3 id="schema-space">satellites</h3>
+                <table class="docs-table">
+                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    <tr><td>norad_cat_id</td><td>int</td><td>Unique satellite identifier assigned by USSPACECOM.</td></tr>
+                    <tr><td>name</td><td>string</td><td>Registered orbital name (e.g. "STARLINK-1234").</td></tr>
+                    <tr><td>tle_line1</td><td>string</td><td>Standard Two-Line Element Set (Row 1).</td></tr>
+                    <tr><td>tle_line2</td><td>string</td><td>Standard Two-Line Element Set (Row 2).</td></tr>
+                    <tr><td>longitude</td><td>float</td><td>Sub-satellite point (WGS84).</td></tr>
+                    <tr><td>latitude</td><td>float</td><td>Sub-satellite point (WGS84).</td></tr>
+                    <tr><td>altitude</td><td>float</td><td>Orbital height in kilometers.</td></tr>
+                </table>
+
+                <h3 id="schema-cctv">cctv</h3>
+                <table class="docs-table">
+                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    <tr><td>url</td><td>string</td><td>Direct unauthenticated M-JPEG stream URL.</td></tr>
+                    <tr><td>country</td><td>string</td><td>Geo-located hosting country code (e.g. "US", "RU").</td></tr>
+                    <tr><td>city</td><td>string</td><td>Geo-located hosting city.</td></tr>
+                    <tr><td>latitude</td><td>float</td><td>Camera location approximation.</td></tr>
+                    <tr><td>longitude</td><td>float</td><td>Camera location approximation.</td></tr>
+                </table>
+
+                <h3 id="schema-seismic">earthquakes</h3>
+                <table class="docs-table">
+                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    <tr><td>eq_id</td><td>string</td><td>USGS Event ID.</td></tr>
+                    <tr><td>magnitude</td><td>float</td><td>Richter scale seismic magnitude.</td></tr>
+                    <tr><td>place</td><td>string</td><td>Text description of the epicenter.</td></tr>
+                    <tr><td>time</td><td>int</td><td>Unix epoch timestamp (milliseconds).</td></tr>
+                    <tr><td>longitude</td><td>float</td><td>Epicenter.</td></tr>
+                    <tr><td>latitude</td><td>float</td><td>Epicenter.</td></tr>
+                    <tr><td>depth</td><td>float</td><td>Depth in kilometers.</td></tr>
+                </table>
+
+                <h3 id="schema-maritime">vessels</h3>
+                <table class="docs-table">
+                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    <tr><td>mmsi</td><td>int</td><td>Maritime Mobile Service Identity.</td></tr>
+                    <tr><td>timestamp</td><td>string</td><td>ISO8601 Timestamp of last AIS broadcast.</td></tr>
+                    <tr><td>latitude</td><td>float</td><td>Vessel position.</td></tr>
+                    <tr><td>longitude</td><td>float</td><td>Vessel position.</td></tr>
+                    <tr><td>course</td><td>float</td><td>Course over ground (degrees).</td></tr>
+                    <tr><td>speed</td><td>float</td><td>Speed over ground (knots).</td></tr>
+                    <tr><td>length</td><td>int</td><td>Overall length of ship in meters.</td></tr>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer style="margin-top: 4rem; background: var(--bg-color); text-align: center; border-top: 1px solid var(--border-color); padding: 2rem 5%; color: var(--text-muted); font-size: 0.9rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <img src="/static/sherpa_logo.png" alt="Sherpa Logo" style="height: 30px; filter: grayscale(1) opacity(0.5); vertical-align: middle; margin-right: 10px;">
+                &copy; 2026 Sherpa Solutions LLC. Enterprise Data Services.
+            </div>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="#" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;">Terms of Service</a>
+                <a href="#" style="color: var(--text-muted); text-decoration: none; transition: color 0.3s;">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple Active State Script for Sidebar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.docs-section');
+            const navLinks = document.querySelectorAll('.docs-nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= sectionTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
