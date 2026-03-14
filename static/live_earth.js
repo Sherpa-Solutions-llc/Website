@@ -598,13 +598,18 @@ async function initCesium() {
             }
         });
 
-        // Initial data sync
-        updateFlightsLayer();
-        if (state.layers.satellites) updateSatellitesLayer();
-        if (state.layers.earthquakes) updateEarthquakesLayer();
-        if (state.layers.cctv) updateCCTVLayer();
-        if (state.layers.traffic) updateShippingLayer();
+        // Initial data sync - Force background fetches unconditionally so HUD metrics parse correctly
+        fetchFlights();
+        fetchSatellites();
+        fetchEarthquakes();
+        fetchCCTVs();
+        fetchTraffic();
+        fetchPolice();
+        fetchScanners();
         if (state.layers.weather) updateWeatherLayer();
+        if (state.layers.flights || state.layers.military) updateFlightsLayer();
+        
+        // Ensure UI displays current empty counts immediately while waiting for fetches
         updateHUDCounts();
         
     } catch (initErr) {
