@@ -63,8 +63,13 @@ window.startLiveMode = function() {
     }
 
     function connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        // Dynamic WebSocket Routing
+        const isProduction = window.location.hostname.includes('sherpa-solutions') || window.location.hostname.includes('github.io');
+        
+        // Target Railway App if in production, else local server
+        const wsUrl = isProduction 
+            ? 'wss://sherpa-solutions-api-production.up.railway.app/ws' 
+            : `ws://localhost:8001/ws`;
 
         ws = new WebSocket(wsUrl);
 
