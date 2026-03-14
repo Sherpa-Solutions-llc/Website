@@ -198,6 +198,7 @@ async def startup_event():
     await init_scanners_db()
     await init_vessels_db()
     await init_earthquakes_db()
+    await init_osint_db()
     await init_cameras_db()
 
     # We must NEVER block the startup_event with network fetches, or Railway will kill Uvicorn for failing the 30s healthcheck.
@@ -1637,6 +1638,11 @@ async def fetch_flights_loop():
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
                     await db.commit()
                 print(f"Background Scraper: Successfully stored {len(states)} flights in SQLite database.")
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                print(f"[Flights] OpenSky API Rate Limited (429). Daily limit reached or pulling too fast.")
+            else:
+                print(f"Background Scraper Failed (HTTP {e.response.status_code}): {e}")
         except Exception as e:
             import traceback
             print(f"Background Scraper Failed: [{type(e).__name__}] {repr(e)}")
@@ -2271,3 +2277,101 @@ async def get_weather_proxy():
     except Exception as e:
         print(f"[Weather API] Failed to read SQLite database: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
+
+# --- Sherpa OSINT API (SaaS Product) ---
+
+OSINT_DB = "sherpa_osint.db"
+
+async def init_osint_db():
+    async with aiosqlite.connect(OSINT_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS api_keys (
+                key TEXT PRIMARY KEY,
+                user_email TEXT,
+                tier TEXT,
+                created_at INTEGER
+            )
+        ''')
+        await db.commit()
+
+class OsintAuthRequest(BaseModel):
+    email: str
+    tier: str
+
+@app.post("/api/v1/osint/authenticate")
+async def osint_authenticate(req: OsintAuthRequest):
+    """Mock checkout/registration endpoint generating a valid API Key."""
+    import secrets
+    import time
+    if req.tier not in ["hobbyist", "professional", "enterprise"]:
+        raise HTTPException(status_code=400, detail="Invalid tier")
+        
+    new_key = "sk_" + req.tier[:3] + "_" + secrets.token_hex(16)
+    
+    async with aiosqlite.connect(OSINT_DB) as db:
+        await db.execute(
+            "INSERT INTO api_keys (key, user_email, tier, created_at) VALUES (?, ?, ?, ?)",
+            (new_key, req.email, req.tier, int(time.time()))
+        )
+        await db.commit()
+        
+    return JSONResponse({"status": "success", "api_key": new_key, "tier": req.tier})
+
+@app.get("/api/v1/osint/query")
+async def osint_query(request: Request, type: str = "flights"):
+    """Secured OSINT data query endpoint."""
+    api_key = request.headers.get("x-api-key")
+    if not api_key:
+        raise HTTPException(status_code=401, detail="Missing x-api-key header")
+        
+    # Validate API Key
+    async with aiosqlite.connect(OSINT_DB) as db:
+        async with db.execute("SELECT tier FROM api_keys WHERE key = ?", (api_key,)) as cursor:
+            row = await cursor.fetchone()
+            if not row:
+                raise HTTPException(status_code=401, detail="Invalid API Key")
+            tier = row[0]
+            
+    # Based on type, pull from the respective SQLite cache
+    try:
+        if type == "flights":
+            async with aiosqlite.connect(FLIGHTS_DB) as db:
+                async with db.execute("SELECT callsign, lat, lng, alt, velocity, country, heading FROM flights WHERE callsign IS NOT NULL") as cursor:
+                    rows = await cursor.fetchall()
+            data = [{"callsign": r[0], "lat": r[1], "lng": r[2], "altitude": r[3], "velocity": r[4], "origin_country": r[5], "heading": r[6]} for r in rows]
+            
+        elif type == "satellites":
+            async with aiosqlite.connect(SATELLITES_DB) as db:
+                async with db.execute("SELECT id, name, type, country, status FROM satellites") as cursor:
+                    rows = await cursor.fetchall()
+            data = [{"id": r[0], "name": r[1], "category": r[2], "country": r[3], "status": r[4]} for r in rows]
+            
+        elif type == "earthquakes":
+            async with aiosqlite.connect(EARTHQUAKES_DB) as db:
+                async with db.execute("SELECT eq_id, title, lat, lng, magnitude, depth_km, time FROM earthquakes") as cursor:
+                    rows = await cursor.fetchall()
+            data = [{"id": r[0], "title": r[1], "lat": r[2], "lng": r[3], "magnitude": r[4], "depth_km": r[5], "time": r[6]} for r in rows]
+            
+        elif type == "cctv":
+            async with aiosqlite.connect(CAMERAS_DB) as db:
+                async with db.execute("SELECT id, title, lat, lng, country, stream_type, snapshot, hls_url FROM cameras") as cursor:
+                    rows = await cursor.fetchall()
+            data = [{"id": r[0], "title": r[1], "lat": r[2], "lng": r[3], "country": r[4], "stream_type": r[5], "snapshot": r[6], "hls_url": r[7]} for r in rows]
+            
+        elif type == "vessels":
+            async with aiosqlite.connect(VESSELS_DB) as db:
+                async with db.execute("SELECT mmsi, title, lat, lng, heading, velocity_kmh, country, vessel_type FROM vessels") as cursor:
+                    rows = await cursor.fetchall()
+            data = [{"mmsi": r[0], "title": r[1], "lat": r[2], "lng": r[3], "heading": r[4], "velocity_kmh": r[5], "country": r[6], "vessel_type": r[7]} for r in rows]
+        else:
+            raise HTTPException(status_code=400, detail="Invalid data type requested. Valid types: flights, satellites, earthquakes, cctv, vessels.")
+            
+        return JSONResponse({
+            "status": "success",
+            "tier": tier,
+            "count": len(data),
+            "data": data
+        })
+    except Exception as e:
+        print(f"[OSINT API] Error querying {type}: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal database error fetching {type}")
