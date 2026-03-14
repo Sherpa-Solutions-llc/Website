@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/static/live_earth.css?v=8">
+    <link rel="stylesheet" href="/static/live_earth.css?v=10000">
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 </head>
 
@@ -23,9 +23,7 @@
     <header class="hud-header">
         <div class="hud-logo">
             <a href="/projects.html" style="color: inherit; text-decoration: none;" title="Back to Projects">
-                <i class="fa-solid fa-globe fa-spin-pulse"></i> LIVE EARTH v2.1
-                <span style="font-size: 0.8rem; opacity: 0.7; margin-left: 10px; font-family: 'Inter', sans-serif;">by
-                    Sherpa Solutions</span>
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 36px; vertical-align: middle; margin-right: 8px;"> <span style="color: #00e5ff; letter-spacing: 3px;">LIVE EARTH</span>
             </a>
         </div>
 
@@ -130,6 +128,29 @@
                     </select>
                 </div>
             </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #0d47a1;"><i class="fa-solid fa-building-shield"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Police Location <span id="last-update-police" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-police" class="hud-select" style="margin-top: 5px; width: 100%;" onchange="if(window.filterPoliceDropdowns) window.filterPoliceDropdowns('source')">
+                        <option value="all" selected>All Sources</option>
+                        <option value="arcgis">ArcGIS Open Data</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #d32f2f;"><i class="fa-solid fa-walkie-talkie"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Radio Scanners <span id="last-update-scanners" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-scanners" class="hud-select" style="margin-top: 5px; width: 100%;" onchange="if(window.filterScannerDropdowns) window.filterScannerDropdowns('source')">
+                        <option value="all">All Sources</option>
+                        <option value="broadcastify" selected>Broadcastify Live Feeds</option>
+                        <option value="openmhz" disabled>OpenMHz (Coming Soon)</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </aside>
 
@@ -142,11 +163,17 @@
         </h2>
         <div class="panel-content" id="layers-content">
             <!-- Civilian Flights -->
-            <div class="layer-item active" id="layer-flights" onclick="toggleLayer('flights')">
-                <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
-                <div class="layer-info">
-                    <h3>Live Flights</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
+            <div class="layer-row">
+                <div class="layer-item active expanded" id="layer-flights">
+                    <div class="layer-header" onclick="toggleLayerOptions('flights')">
+                        <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
+                        <div class="layer-info">
+                            <h3>Live Flights</h3>
+                            <div class="layer-count" id="count-flights">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-flights">
                         <select id="flight-speed" class="hud-select">
                             <option value="all">Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
@@ -160,16 +187,23 @@
                         </select>
                     </div>
                 </div>
-                <div class="layer-count" id="count-flights">0</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-on"></i></div>
+                <div class="layer-toggle-btn active" id="toggle-flights" onclick="toggleLayer('flights')">
+                    <i class="fa-solid fa-toggle-on"></i>
+                </div>
             </div>
 
             <!-- Military Flights -->
-            <div class="layer-item" id="layer-military" onclick="toggleLayer('military')">
-                <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
-                <div class="layer-info">
-                    <h3>Military Flights</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
+            <div class="layer-row">
+                <div class="layer-item" id="layer-military">
+                    <div class="layer-header" onclick="toggleLayerOptions('military')">
+                        <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
+                        <div class="layer-info">
+                            <h3>Military Flights</h3>
+                            <div class="layer-count">24</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-military">
                         <select id="military-speed" class="hud-select">
                             <option value="all">Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
@@ -178,16 +212,23 @@
                         </select>
                     </div>
                 </div>
-                <div class="layer-count">24</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+                <div class="layer-toggle-btn" id="toggle-military" onclick="toggleLayer('military')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
             </div>
 
             <!-- Earthquakes -->
-            <div class="layer-item" id="layer-earthquakes" onclick="toggleLayer('earthquakes')">
-                <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
-                <div class="layer-info">
-                    <h3>Earthquakes</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
+            <div class="layer-row">
+                <div class="layer-item" id="layer-earthquakes">
+                    <div class="layer-header" onclick="toggleLayerOptions('earthquakes')">
+                        <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
+                        <div class="layer-info">
+                            <h3>Earthquakes</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-earthquakes">
                         <select id="quake-duration" class="hud-select">
                             <option value="days">Duration: Days</option>
                             <option value="weeks">Duration: Weeks</option>
@@ -195,16 +236,23 @@
                         </select>
                     </div>
                 </div>
-                <div class="layer-count">0</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+                <div class="layer-toggle-btn" id="toggle-earthquakes" onclick="toggleLayer('earthquakes')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
             </div>
 
             <!-- Satellites -->
-            <div class="layer-item" id="layer-satellites" onclick="toggleLayer('satellites')">
-                <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
-                <div class="layer-info">
-                    <h3>Satellites</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
+            <div class="layer-row">
+                <div class="layer-item" id="layer-satellites">
+                    <div class="layer-header" onclick="toggleLayerOptions('satellites')">
+                        <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
+                        <div class="layer-info">
+                            <h3>Satellites</h3>
+                            <div class="layer-count">850</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-satellites">
                         <select id="satellite-type" class="hud-select">
                             <option value="military" selected>Type: Military</option>
                             <option value="commercial">Type: Commercial</option>
@@ -226,32 +274,50 @@
                         </select>
                     </div>
                 </div>
-                <div class="layer-count">850</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+                <div class="layer-toggle-btn" id="toggle-satellites" onclick="toggleLayer('satellites')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
             </div>
 
             <!-- Shipping Traffic -->
-            <div class="layer-item" id="layer-traffic" onclick="toggleLayer('traffic')">
-                <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
-                <div class="layer-info">
-                    <h3>Shipping Traffic</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
-                        <select id="traffic-type" class="hud-select">
-                            <option value="all">Vessels: All</option>
-                            <option value="cargo">Vessels: Cargo & Tankers</option>
+            <div class="layer-row">
+                <div class="layer-item" id="layer-traffic">
+                    <div class="layer-header" onclick="toggleLayerOptions('traffic')">
+                        <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
+                        <div class="layer-info">
+                            <h3>Shipping Traffic</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-traffic">
+                        <select id="traffic-type" class="hud-select" onchange="if(typeof updateShippingLayer==='function') updateShippingLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
+                            <option value="all">Type: All</option>
+                            <option value="cargo">Type: Cargo</option>
+                            <option value="tanker">Type: Tanker</option>
+                            <option value="fishing">Type: Fishing</option>
+                            <option value="passenger" selected>Type: Passenger</option>
+                            <option value="other">Type: Other</option>
                         </select>
                     </div>
                 </div>
-                <div class="layer-count">0</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+                <div class="layer-toggle-btn" id="toggle-traffic" onclick="toggleLayer('traffic')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
             </div>
 
             <!-- Weather Radar -->
-            <div class="layer-item" id="layer-weather" onclick="toggleLayer('weather')">
-                <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
-                <div class="layer-info">
-                    <h3>Weather Radar</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
+            <div class="layer-row">
+                <div class="layer-item" id="layer-weather">
+                    <div class="layer-header" onclick="toggleLayerOptions('weather')">
+                        <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
+                        <div class="layer-info">
+                            <h3>Weather Radar</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-weather">
                         <select id="weather-layer" class="hud-select">
                             <option value="clouds">Clouds</option>
                             <option value="rain">Rain</option>
@@ -260,16 +326,23 @@
                         </select>
                     </div>
                 </div>
-                <div class="layer-count">0</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+                <div class="layer-toggle-btn" id="toggle-weather" onclick="toggleLayer('weather')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
             </div>
 
             <!-- CCTV -->
-            <div class="layer-item" id="layer-cctv" onclick="toggleLayer('cctv')">
-                <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-video"></i></div>
-                <div class="layer-info">
-                    <h3>CCTV</h3>
-                    <div class="layer-options" onclick="event.stopPropagation()">
+            <div class="layer-row">
+                <div class="layer-item" id="layer-cctv">
+                    <div class="layer-header" onclick="toggleLayerOptions('cctv')">
+                        <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-video"></i></div>
+                        <div class="layer-info">
+                            <h3>CCTV</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-cctv">
                         <select id="cctv-mode" class="hud-select">
                             <option value="all">All Cameras</option>
                             <option value="usa">United States</option>
@@ -277,8 +350,73 @@
                         </select>
                     </div>
                 </div>
-                <div class="layer-count">0</div>
-                <div class="layer-toggle"><i class="fa-solid fa-toggle-off"></i></div>
+                <div class="layer-toggle-btn" id="toggle-cctv" onclick="toggleLayer('cctv')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
+            </div>
+
+            <!-- Police -->
+            <div class="layer-row">
+                <div class="layer-item" id="layer-police">
+                    <div class="layer-header" onclick="toggleLayerOptions('police')">
+                        <div class="layer-icon" style="color: #0d47a1;"><i class="fa-solid fa-building-shield"></i></div>
+                        <div class="layer-info">
+                            <h3>Police Location</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-police">
+
+                        <select id="police-country-filter" class="hud-select" onchange="window.filterPoliceDropdowns('country')">
+                            <option value="all">All Countries</option>
+                        </select>
+                        <select id="police-state-filter" class="hud-select" onchange="window.filterPoliceDropdowns('state')">
+                            <option value="all">All States</option>
+                        </select>
+                        <select id="police-city-filter" class="hud-select" onchange="window.filterPoliceDropdowns('city')">
+                            <option value="all">All Cities</option>
+                        </select>
+                        <select id="police-station-filter" class="hud-select" onchange="window.filterPoliceDropdowns('station')">
+                            <option value="all">All Stations</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-toggle-btn" id="toggle-police" onclick="toggleLayer('police')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
+            </div>
+
+            <!-- Radio Scanners -->
+            <div class="layer-row">
+                <div class="layer-item" id="layer-scanners">
+                    <div class="layer-header" onclick="toggleLayerOptions('scanners')">
+                        <div class="layer-icon" style="color: #d32f2f;"><i class="fa-solid fa-walkie-talkie"></i></div>
+                        <div class="layer-info">
+                            <h3>Radio Scanners</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-scanners">
+
+                        <select id="scanner-country-filter" class="hud-select" onchange="window.filterScannerDropdowns('country')">
+                            <option value="all">All Countries</option>
+                        </select>
+                        <select id="scanner-state-filter" class="hud-select" onchange="window.filterScannerDropdowns('state')">
+                            <option value="all">All States</option>
+                        </select>
+                        <select id="scanner-city-filter" class="hud-select" onchange="window.filterScannerDropdowns('city')">
+                            <option value="all">All Locations</option>
+                        </select>
+                        <select id="scanner-feed-filter" class="hud-select" onchange="window.filterScannerDropdowns('feed')">
+                            <option value="all">All Feeds</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-toggle-btn" id="toggle-scanners" onclick="toggleLayer('scanners')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
             </div>
 
         </div>
@@ -310,6 +448,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 
     <!-- Application Script -->
-    <script defer src="/static/live_earth.js?v=26"></script>
+    <script defer src="/static/live_earth.js?v=9999"></script>
+    <!-- Version Footer -->
+    <div style="position:fixed; bottom:4px; right:10px; font-size:8px; font-family:'Share Tech Mono',monospace; color:var(--hud-cyan); opacity:0.6; z-index:5; pointer-events:none; letter-spacing:1px;">v2.5</div>
+
 </body>
 </html>
