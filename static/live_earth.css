@@ -586,11 +586,17 @@ html {
         border-radius: 12px 12px 0 0;
         border-bottom: none;
         transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        overflow: hidden;           /* override the default hidden for collapsed state */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .panel-left .panel-title {
+        flex-shrink: 0;             /* title bar never shrinks */
     }
 
     .panel-left.collapsed {
-        max-height: 48px; /* Height of just the title bar */
-        overflow: hidden;
+        max-height: 48px;           /* Height of just the title bar */
     }
 
     /* Scroll layer items vertically */
@@ -602,6 +608,8 @@ html {
         overflow-x: hidden;
         padding: 10px;
         -webkit-overflow-scrolling: touch;
+        flex: 1;                    /* fill available space */
+        min-height: 0;              /* flexbox scroll fix */
     }
 
     /* Show scrollbar to indicate more items below */
