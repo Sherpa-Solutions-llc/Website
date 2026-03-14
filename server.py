@@ -2,6 +2,10 @@ import os
 import secrets
 import asyncio
 import aiosqlite
+import urllib.request
+import urllib.parse
+import urllib.error
+import json
 from datetime import datetime, timedelta
 import traceback
 from fastapi import FastAPI, Request, Form, Response, Depends, HTTPException, status
@@ -21,6 +25,11 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 app = FastAPI()
 
 WEATHER_DB = "weather.db"
+POLICE_DB = "sherpa_police.db"
+SCANNERS_DB = "sherpa_scanners.db"
+VESSELS_DB = "sherpa_vessels.db"
+EARTHQUAKES_DB = "sherpa_earthquakes.db"
+CAMERAS_DB = "sherpa_cameras.db"
 from weather_cities import WEATHER_CITIES
 
 # Enable GZIP compression for all responses > 1000 bytes (CSS, JS, JSON, HTML)
@@ -91,11 +100,17 @@ async def startup_event():
     await init_flights_db()
     await init_satellites_db()
     await init_weather_db()
-    
+    await init_police_db()
+    await init_scanners_db()
+    await init_vessels_db()
+    await init_earthquakes_db()
+    await init_cameras_db()
+
     # We must NEVER block the startup_event with network fetches, or Railway will kill Uvicorn for failing the 30s healthcheck.
     # Instead, we spin off a background task that safely primes empty databases while the server accepts incoming connections.
     async def prime_databases_background():
         try:
+            # --- Satellites ---
             async with aiosqlite.connect(SATELLITES_DB) as db:
                 async with db.execute("SELECT COUNT(*) FROM satellites") as cursor:
                     row = await cursor.fetchone()
@@ -104,18 +119,77 @@ async def startup_event():
                         await fetch_satellites_logic()
                     else:
                         print("[Satellites] DB already populated, skipping initial fetch.")
-            
-            # Immediately begin background polling loops after priming
+
+            # --- Police ---
+            async with aiosqlite.connect(POLICE_DB) as db:
+                async with db.execute("SELECT COUNT(*) FROM police_stations") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] == 0:
+                        print("[Police] DB empty on startup, fetching in background...")
+                        await fetch_police_logic()
+                    else:
+                        print(f"[Police] DB has {row[0]} stations.")
+                        # Check if US data is missing
+                        async with db.execute("SELECT COUNT(*) FROM police_stations WHERE country='United States'") as us_cursor:
+                            us_row = await us_cursor.fetchone()
+                            if not us_row or us_row[0] == 0:
+                                print("[Police] US data missing — fetching via Overpass...")
+                                await fetch_missing_countries()
+                            else:
+                                print(f"[Police] US data present ({us_row[0]} stations).")
+
+            # --- Scanners ---
+            async with aiosqlite.connect(SCANNERS_DB) as db:
+                async with db.execute("SELECT COUNT(*) FROM scanners") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] == 0:
+                        print("[Scanners] DB empty on startup, fetching in background...")
+                        await fetch_scanners_logic()
+                    else:
+                        print("[Scanners] DB already populated, skipping initial fetch.")
+
+            # --- Vessels ---
+            async with aiosqlite.connect(VESSELS_DB) as db:
+                async with db.execute("SELECT COUNT(*) FROM vessels") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] == 0:
+                        print("[Vessels] DB empty on startup, fetching in background...")
+                        await fetch_vessels_logic()
+                    else:
+                        print("[Vessels] DB already populated, skipping initial fetch.")
+
+            # --- Earthquakes ---
+            async with aiosqlite.connect(EARTHQUAKES_DB) as db:
+                async with db.execute("SELECT COUNT(*) FROM earthquakes") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] == 0:
+                        print("[Earthquakes] DB empty on startup, fetching in background...")
+                        await fetch_earthquakes_logic()
+                    else:
+                        print("[Earthquakes] DB already populated, skipping initial fetch.")
+
+            # --- Cameras ---
+            async with aiosqlite.connect(CAMERAS_DB) as db:
+                async with db.execute("SELECT COUNT(*) FROM cameras") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] == 0:
+                        print("[Cameras] DB empty on startup, fetching in background...")
+                        await fetch_cameras_logic()
+                    else:
+                        print("[Cameras] DB already populated, skipping initial fetch.")
+
+            # Start all hourly/daily background refresh loops
             asyncio.create_task(update_satellites_loop())
+            asyncio.create_task(update_police_loop())
+            asyncio.create_task(update_scanners_loop())
+            asyncio.create_task(update_vessels_loop())
+            asyncio.create_task(update_earthquakes_loop())
+            asyncio.create_task(update_cameras_loop())
+
         except Exception as e:
             print(f"[Startup] Background prime failed: {e}")
-            
-    async def prime_vessels_background():
-        await fetch_vessels_logic()
-        asyncio.create_task(aisstream_proxy_loop())
-            
+
     asyncio.create_task(prime_databases_background())
-    asyncio.create_task(prime_vessels_background())
     asyncio.create_task(fetch_flights_loop())
     asyncio.create_task(update_weather_loop())
 
@@ -137,6 +211,579 @@ async def serve_live_earth(request: Request):
 @app.get("/live_earth2", response_class=HTMLResponse)
 async def serve_live_earth2(request: Request):
     return FileResponse(os.path.join(BASE_DIR, 'live_earth2.html'))
+
+async def init_scanners_db():
+    async with aiosqlite.connect(SCANNERS_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS scanners (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                audio_url TEXT,
+                feed_id TEXT,
+                source TEXT DEFAULT 'broadcastify',
+                listeners INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'online',
+                country TEXT,
+                state TEXT,
+                city TEXT,
+                lat REAL,
+                lng REAL
+            )
+        ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS scanners_meta (
+                key TEXT PRIMARY KEY,
+                last_updated INTEGER
+            )
+        ''')
+        await db.commit()
+
+async def fetch_scanners_logic():
+    try:
+        scanners_file = os.path.join(STATIC_DIR, "scanners_data.json")
+        if not os.path.exists(scanners_file):
+            print("[Scanners] Base data file not found.")
+            return
+
+        with open(scanners_file, "r") as f:
+            data = json.load(f)
+
+        async with aiosqlite.connect(SCANNERS_DB) as db:
+            await db.execute("DELETE FROM scanners")
+            for s in data:
+                # Extract feed_id from audio_url if not provided
+                feed_id = s.get("feed_id", "")
+                if not feed_id and s.get("audio_url"):
+                    feed_id = s["audio_url"].rstrip("/").split("/")[-1]
+                await db.execute(
+                    "INSERT OR REPLACE INTO scanners (id, name, audio_url, feed_id, source, listeners, status, country, state, city, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (s.get("id"), s.get("name"), s.get("audio_url"), feed_id, s.get("source", "broadcastify"), s.get("listeners", 0), s.get("status", "online"), s.get("country"), s.get("state"), s.get("city"), s.get("lat"), s.get("lng"))
+                )
+            await db.execute("INSERT OR REPLACE INTO scanners_meta (key, last_updated) VALUES ('last_fetch', ?)", (int(datetime.now().timestamp()),))
+            await db.commit()
+            print(f"[Scanners Cache] Saved {len(data)} nodes.")
+    except Exception as e:
+        print(f"[Scanners Cache Error] {e}")
+
+async def update_scanners_loop():
+    while True:
+        await asyncio.sleep(86400) # Loop checks every 24 hours
+        try:
+            await fetch_scanners_logic()
+        except Exception as e:
+            print(f"[Scanners update loop error] {e}")
+
+@app.get("/api/scanners")
+async def get_scanners():
+    try:
+        async with aiosqlite.connect(SCANNERS_DB) as db:
+            async with db.execute("SELECT id, name, audio_url, feed_id, source, listeners, status, country, state, city, lat, lng FROM scanners") as cursor:
+                rows = await cursor.fetchall()
+                
+        result = []
+        for r in rows:
+            result.append({
+                "id": r[0],
+                "name": r[1],
+                "audio_url": r[2],
+                "feed_id": r[3] or "",
+                "source": r[4] or "broadcastify",
+                "listeners": r[5] or 0,
+                "status": r[6] or "online",
+                "country": r[7],
+                "state": r[8],
+                "city": r[9],
+                "lat": r[10],
+                "lng": r[11]
+            })
+            
+        return JSONResponse(result)
+
+    except Exception as e:
+        print(f"Error fetching scanners: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.get("/api/scanner-stream")
+async def proxy_scanner_stream(url: str = ""):
+    """Proxy Broadcastify Icecast MP3 streams to bypass CORS."""
+    if not url or not url.startswith("https://broadcastify.cdnstream1.com/"):
+        return JSONResponse(status_code=400, content={"error": "Invalid or disallowed stream URL"})
+
+    import httpx
+
+    async def stream_generator():
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(connect=10.0, read=300.0, write=10.0, pool=10.0)) as client:
+                async with client.stream("GET", url, headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "*/*",
+                    "Icy-MetaData": "0"
+                }) as response:
+                    async for chunk in response.aiter_bytes(chunk_size=4096):
+                        yield chunk
+        except Exception as e:
+            print(f"[Scanner Stream Proxy] Error: {e}")
+
+    from starlette.responses import StreamingResponse
+    return StreamingResponse(
+        stream_generator(),
+        media_type="audio/mpeg",
+        headers={
+            "Cache-Control": "no-cache, no-store",
+            "Access-Control-Allow-Origin": "*",
+            "Connection": "keep-alive"
+        }
+    )
+
+@app.get("/api/police-data")
+async def get_police_data():
+    try:
+        async with aiosqlite.connect(POLICE_DB) as db:
+            async with db.execute("SELECT id, name, source, country, state, city, address, phone, lat, lng FROM police_stations") as cursor:
+                rows = await cursor.fetchall()
+                
+        result = []
+        for r in rows:
+            result.append({
+                "id": r[0],
+                "name": r[1],
+                "source": r[2] or "arcgis",
+                "country": r[3],
+                "state": r[4],
+                "city": r[5],
+                "address": r[6] or "",
+                "phone": r[7] or "",
+                "lat": r[8],
+                "lng": r[9]
+            })
+            
+        return JSONResponse(result)
+
+    except Exception as e:
+        print(f"Error fetching police data: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+async def init_police_db():
+    async with aiosqlite.connect(POLICE_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS police_stations (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                source TEXT DEFAULT 'arcgis',
+                country TEXT,
+                state TEXT,
+                city TEXT,
+                address TEXT,
+                phone TEXT,
+                lat REAL,
+                lng REAL
+            )
+        ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS police_meta (
+                key TEXT PRIMARY KEY,
+                last_updated INTEGER
+            )
+        ''')
+        await db.commit()
+
+async def fetch_us_police_arcgis() -> list:
+    """Fetch official US local law enforcement locations from HIFLD ArcGIS."""
+    url = "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Local_Law_Enforcement_Locations/FeatureServer/0/query"
+    stations = []
+    offset = 0
+    batch_size = 2000
+    
+    print("[Police] Starting official USA fetch from HIFLD ArcGIS...")
+    while True:
+        try:
+            params = {
+                "where": "1=1",
+                "outFields": "OBJECTID,NAME,CITY,STATE,ADDRESS,TELEPHONE",
+                "outSR": "4326",
+                "f": "json",
+                "resultOffset": offset,
+                "resultRecordCount": batch_size
+            }
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                res = await client.get(url, params=params)
+                res.raise_for_status()
+                data = res.json()
+            
+            features = data.get("features", [])
+            if not features:
+                break
+                
+            for ft in features:
+                attr = ft.get("attributes", {})
+                geom = ft.get("geometry", {})
+                if not geom.get("y") or not geom.get("x"):
+                    continue
+                
+                stations.append({
+                    "id": f"hifld_{attr.get('OBJECTID', len(stations))}",
+                    "name": attr.get("NAME", "Police Station").title(),
+                    "source": "hifld_arcgis",
+                    "country": "United States",
+                    "state": attr.get("STATE"),
+                    "city": (attr.get("CITY") or "").title(),
+                    "address": (attr.get("ADDRESS") or "").title(),
+                    "phone": attr.get("TELEPHONE", ""),
+                    "lat": geom.get("y"),
+                    "lng": geom.get("x")
+                })
+                
+            offset += len(features)
+            # Cap HIFLD at 18000 just in case
+            if len(features) < batch_size or offset >= 18000:
+                break
+            await asyncio.sleep(1)
+        except Exception as e:
+            print(f"[Police] HIFLD ArcGIS fetch failed at offset {offset}: {e}")
+            break
+            
+    print(f"[Police] USA HIFLD: fetched {len(stations)} official stations.")
+    return stations
+
+async def fetch_missing_countries():
+    """Fetch police data only for countries not yet present in the DB."""
+    OVERPASS_MIRRORS = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass.openstreetmap.fr/api/interpreter",
+        "https://overpass.nchc.org.tw/api/interpreter",
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+    ]
+
+    # Same list as fetch_police_logic
+    COUNTRY_LIST = [
+        ("United States",    (24.5, -125.0, 49.4, -100.0)),
+        ("United States",    (24.5, -100.0, 49.4,  -80.0)),
+        ("United States",    (24.5,  -80.0, 49.4,  -66.9)),
+        ("United States",    (51.2, -180.0, 71.4, -129.9)),
+        ("Canada",           (49.0, -141.0, 83.1, -52.6)),
+        ("United Kingdom",   (49.7, -14.0,  61.1,  2.1)),
+        ("Australia",        (-43.6, 113.2, -10.7, 153.6)),
+        ("Germany",          (47.3,   5.9,  55.1,  15.0)),
+        ("France",           (41.3,  -5.2,  51.1,   9.7)),
+        ("Japan",            (24.0, 122.9,  45.6, 153.9)),
+        ("Brazil",           (-33.8, -73.9,   5.3, -28.8)),
+        ("India",            ( 6.7,  68.1,  35.7,  97.4)),
+        ("Mexico",           (14.5, -117.1,  32.7, -86.7)),
+        ("Spain",            (35.2,  -9.4,  43.8,   4.4)),
+        ("Italy",            (36.6,   6.6,  47.1,  18.5)),
+        ("Netherlands",      (50.7,   3.3,  53.6,   7.2)),
+        ("Poland",           (49.0,  14.1,  54.8,  24.2)),
+        ("South Africa",     (-34.8,  16.5, -22.1,  32.9)),
+        ("Nigeria",          ( 4.3,   2.7,  13.8,  14.7)),
+        ("Kenya",            (-4.7,  33.9,   4.6,  41.9)),
+        ("Argentina",        (-55.1, -73.6, -21.8, -53.6)),
+        ("Colombia",         (-4.2, -79.0,  12.5, -66.9)),
+        ("Chile",            (-55.9, -75.6, -17.5, -66.4)),
+        ("New Zealand",      (-46.6, 166.4, -34.4, 178.6)),
+        ("Sweden",           (55.3,  10.9,  69.1,  24.2)),
+        ("Norway",           (57.8,   4.6,  71.2,  31.1)),
+        ("Denmark",          (54.6,   8.1,  57.8,  15.2)),
+        ("Portugal",         (36.8, -10.0,  42.2,  -6.2)),
+        ("Belgium",          (49.5,   2.5,  51.5,   6.4)),
+        ("Austria",          (46.4,   9.5,  49.0,  17.2)),
+        ("Switzerland",      (45.8,   5.9,  47.8,  10.5)),
+        ("South Korea",      (33.1, 124.6,  38.6, 129.6)),
+        ("Philippines",      ( 4.6, 116.9,  20.8, 126.6)),
+    ]
+
+    PER_COUNTRY_CAP = 500
+
+    # Find which countries already exist in the DB
+    existing_countries = set()
+    async with aiosqlite.connect(POLICE_DB) as db:
+        async with db.execute("SELECT DISTINCT country FROM police_stations") as cursor:
+            async for row in cursor:
+                existing_countries.add(row[0])
+
+    # Filter to only missing entries
+    missing = [(name, bbox) for name, bbox in COUNTRY_LIST if name not in existing_countries]
+    if not missing:
+        print("[Police] All countries already present in DB.")
+        return
+
+    print(f"[Police] Missing {len(missing)} country entries, fetching via Overpass...")
+
+    for i, (country_name, bbox) in enumerate(missing):
+        mirror_url = OVERPASS_MIRRORS[i % len(OVERPASS_MIRRORS)]
+        south, west, north, east = bbox
+        query = f"""
+[out:json][timeout:30];
+node["amenity"="police"]({south},{west},{north},{east});
+out {PER_COUNTRY_CAP} body;
+"""
+        encoded = urllib.parse.urlencode({"data": query}).encode("utf-8")
+        req = urllib.request.Request(mirror_url, data=encoded, headers={
+            "User-Agent": "SherpaLiveEarth/1.0 (police data fetch; contact@sherpa-solutions-llc.com)"
+        })
+        loop = asyncio.get_event_loop()
+        try:
+            for attempt in range(2):
+                try:
+                    raw = await loop.run_in_executor(None, lambda: urllib.request.urlopen(req, timeout=35).read())
+                    elements = json.loads(raw).get("elements", [])
+                    break
+                except urllib.error.HTTPError as e:
+                    if e.code in (429, 403):
+                        wait = 30 * (attempt + 1)
+                        print(f"[Police] {country_name}: {e.code} rate-limited, waiting {wait}s...")
+                        await asyncio.sleep(wait)
+                    else:
+                        raise
+            else:
+                elements = []
+
+            stations = []
+            for el in elements:
+                tags = el.get("tags", {})
+                name = (tags.get("name") or tags.get("name:en") or "Police Station").strip()
+                house_num = tags.get("addr:housenumber", "")
+                street = tags.get("addr:street", "")
+                address = f"{house_num} {street}".strip() if (house_num or street) else ""
+                state = (tags.get("addr:state") or tags.get("is_in:state") or
+                         tags.get("addr:province") or tags.get("addr:region") or
+                         tags.get("addr:county") or tags.get("operator") or None)
+                city = (tags.get("addr:city") or tags.get("addr:town") or
+                        tags.get("addr:suburb") or tags.get("addr:municipality") or None)
+                phone = tags.get("contact:phone") or tags.get("phone") or ""
+                if el.get("lat") is None or el.get("lon") is None:
+                    continue
+                stations.append({
+                    "id": f"osm_{el['id']}", "name": name, "source": "overpass",
+                    "country": country_name, "state": state, "city": city,
+                    "address": address, "phone": phone,
+                    "lat": el.get("lat"), "lng": el.get("lon"),
+                })
+
+            if stations:
+                async with aiosqlite.connect(POLICE_DB) as db:
+                    for p in stations:
+                        await db.execute(
+                            "INSERT OR REPLACE INTO police_stations (id, name, source, country, state, city, address, phone, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (p["id"], p["name"], p["source"], p["country"], p["state"], p["city"],
+                             p["address"], p["phone"], p["lat"], p["lng"])
+                        )
+                    await db.commit()
+
+            print(f"[Police] {country_name} ({south},{west}-{north},{east}): {len(stations)} stations")
+            await asyncio.sleep(3)
+        except Exception as e:
+            print(f"[Police] Failed to fetch {country_name}: {e}")
+            await asyncio.sleep(5)
+
+async def fetch_police_logic():
+    """
+    Fetch global police station data from the OpenStreetMap Overpass API (via rotating mirrors).
+    Falls back to the static police_data.json if external APIs are unreachable.
+    """
+    OVERPASS_MIRRORS = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://overpass.openstreetmap.fr/api/interpreter",
+        "https://overpass.nchc.org.tw/api/interpreter",
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+    ]
+
+    # Bounding boxes per country: (south, west, north, east)
+    # US split into 4 regional boxes for better Overpass coverage within 500/region cap
+    COUNTRY_LIST = [
+        ("United States",    (24.5, -125.0, 49.4, -100.0)),  # West
+        ("United States",    (24.5, -100.0, 49.4,  -80.0)),  # Central
+        ("United States",    (24.5,  -80.0, 49.4,  -66.9)),  # East
+        ("United States",    (51.2, -180.0, 71.4, -129.9)),  # Alaska
+        ("Canada",           (49.0, -141.0, 83.1, -52.6)),
+        ("United Kingdom",   (49.7, -14.0,  61.1,  2.1)),
+        ("Australia",        (-43.6, 113.2, -10.7, 153.6)),
+        ("Germany",          (47.3,   5.9,  55.1,  15.0)),
+        ("France",           (41.3,  -5.2,  51.1,   9.7)),
+        ("Japan",            (24.0, 122.9,  45.6, 153.9)),
+        ("Brazil",           (-33.8, -73.9,   5.3, -28.8)),
+        ("India",            ( 6.7,  68.1,  35.7,  97.4)),
+        ("Mexico",           (14.5, -117.1,  32.7, -86.7)),
+        ("Spain",            (35.2,  -9.4,  43.8,   4.4)),
+        ("Italy",            (36.6,   6.6,  47.1,  18.5)),
+        ("Netherlands",      (50.7,   3.3,  53.6,   7.2)),
+        ("Poland",           (49.0,  14.1,  54.8,  24.2)),
+        ("South Africa",     (-34.8,  16.5, -22.1,  32.9)),
+        ("Nigeria",          ( 4.3,   2.7,  13.8,  14.7)),
+        ("Kenya",            (-4.7,  33.9,   4.6,  41.9)),
+        ("Argentina",        (-55.1, -73.6, -21.8, -53.6)),
+        ("Colombia",         (-4.2, -79.0,  12.5, -66.9)),
+        ("Chile",            (-55.9, -75.6, -17.5, -66.4)),
+        ("New Zealand",      (-46.6, 166.4, -34.4, 178.6)),
+        ("Sweden",           (55.3,  10.9,  69.1,  24.2)),
+        ("Norway",           (57.8,   4.6,  71.2,  31.1)),
+        ("Denmark",          (54.6,   8.1,  57.8,  15.2)),
+        ("Portugal",         (36.8, -10.0,  42.2,  -6.2)),
+        ("Belgium",          (49.5,   2.5,  51.5,   6.4)),
+        ("Austria",          (46.4,   9.5,  49.0,  17.2)),
+        ("Switzerland",      (45.8,   5.9,  47.8,  10.5)),
+        ("South Korea",      (33.1, 124.6,  38.6, 129.6)),
+        ("Philippines",      ( 4.6, 116.9,  20.8, 126.6)),
+    ]
+
+    all_stations = []
+    PER_COUNTRY_CAP = 500  # Max stations per country for OSM
+    TOTAL_CAP = 15000      # Safety ceiling
+
+    async def _overpass_fetch_country(country_name, bbox, mirror_url):
+        """Fetch one country with 429-aware retry (up to 2 attempts)."""
+        south, west, north, east = bbox
+        remaining = min(PER_COUNTRY_CAP, TOTAL_CAP - len(all_stations))
+        query = f"""
+[out:json][timeout:30];
+node["amenity"="police"]({south},{west},{north},{east});
+out {remaining} body;
+"""
+        encoded = urllib.parse.urlencode({"data": query}).encode("utf-8")
+        req = urllib.request.Request(mirror_url, data=encoded, headers={
+            "User-Agent": "SherpaLiveEarth/1.0 (police data fetch; contact@sherpa-solutions-llc.com)"
+        })
+        loop = asyncio.get_event_loop()
+        for attempt in range(2):
+            try:
+                raw = await loop.run_in_executor(None, lambda: urllib.request.urlopen(req, timeout=35).read())
+                return json.loads(raw).get("elements", [])
+            except urllib.error.HTTPError as e:
+                # 429 Too Many Requests OR 403 Forbidden (some mirrors return 403 when overloaded)
+                if e.code in (429, 403):
+                    wait = 30 * (attempt + 1)
+                    print(f"[Police] {country_name} via {mirror_url}: {e.code} rate-limited, waiting {wait}s before retry {attempt+1}... ")
+                    await asyncio.sleep(wait)
+                else:
+                    raise
+        return []  # Both attempts exhausted
+
+    for i, (country_name, bbox) in enumerate(COUNTRY_LIST):
+        if len(all_stations) >= TOTAL_CAP:
+            break
+        
+        # Rotate through the 5 mirrors to spread the load
+        mirror_url = OVERPASS_MIRRORS[i % len(OVERPASS_MIRRORS)]
+        
+        try:
+            elements = await _overpass_fetch_country(country_name, bbox, mirror_url)
+
+            country_stations = []
+            for el in elements:
+                tags = el.get("tags", {})
+                name = (tags.get("name") or tags.get("name:en") or "Police Station").strip()
+
+                # Build address string
+                house_num = tags.get("addr:housenumber", "")
+                street = tags.get("addr:street", "")
+                address = f"{house_num} {street}".strip() if (house_num or street) else ""
+
+                # State/province: try several OSM tag conventions, adding county & operator for UK/Ireland
+                state = (
+                    tags.get("addr:state") or
+                    tags.get("is_in:state") or
+                    tags.get("addr:province") or
+                    tags.get("addr:region") or
+                    tags.get("addr:county") or
+                    tags.get("operator") or  # e.g., "Metropolitan Police"
+                    None
+                )
+
+                # City: try several OSM tag conventions
+                city = (
+                    tags.get("addr:city") or
+                    tags.get("addr:town") or
+                    tags.get("addr:suburb") or
+                    tags.get("addr:municipality") or
+                    None
+                )
+
+                phone = tags.get("contact:phone") or tags.get("phone") or ""
+
+                if el.get("lat") is None or el.get("lon") is None:
+                    continue
+
+                country_stations.append({
+                    "id": f"osm_{el['id']}",
+                    "name": name,
+                    "source": "overpass",
+                    "country": country_name,
+                    "state": state,
+                    "city": city,
+                    "address": address,
+                    "phone": phone,
+                    "lat": el.get("lat"),
+                    "lng": el.get("lon"),
+                })
+
+            # Commit this country immediately so partial runs survive restarts
+            if country_stations:
+                async with aiosqlite.connect(POLICE_DB) as db:
+                    for p in country_stations:
+                        await db.execute(
+                            "INSERT OR REPLACE INTO police_stations (id, name, source, country, state, city, address, phone, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (p["id"], p["name"], p["source"], p["country"], p["state"], p["city"],
+                             p["address"], p["phone"], p["lat"], p["lng"])
+                        )
+                    await db.commit()
+
+            all_stations.extend(country_stations)
+            print(f"[Police] {country_name}: {len(country_stations)} stations fetched (total so far: {len(all_stations)})")
+            await asyncio.sleep(3)  # Polite delay — Overpass allows ~1 req/2s for anonymous use
+
+        except Exception as country_err:
+            print(f"[Police] Failed to fetch {country_name}: {country_err}")
+            await asyncio.sleep(5)  # Back off on unexpected errors
+
+    # If Overpass returned nothing at all, fall back to static JSON
+    if not all_stations:
+        print("[Police] Overpass returned no data — falling back to police_data.json")
+        police_file = os.path.join(STATIC_DIR, "police_data.json")
+        if os.path.exists(police_file):
+            with open(police_file, "r", encoding="utf-8") as f:
+                all_stations = json.load(f)
+            async with aiosqlite.connect(POLICE_DB) as db:
+                for p in all_stations:
+                    if p.get("lat") is None or p.get("lng") is None:
+                        continue
+                    await db.execute(
+                        "INSERT OR REPLACE INTO police_stations (id, name, source, country, state, city, address, phone, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (p.get("id"), p.get("name"), p.get("source", "arcgis"),
+                         p.get("country"), p.get("state"), p.get("city"),
+                         p.get("address", ""), p.get("phone", ""), p.get("lat"), p.get("lng"))
+                    )
+                await db.commit()
+        else:
+            print("[Police] Fallback file also missing — aborting.")
+            return
+
+    # Fetch USA official data from HIFLD ArcGIS
+    us_stations = await fetch_us_police_arcgis()
+    if us_stations:
+        async with aiosqlite.connect(POLICE_DB) as db:
+            for p in us_stations:
+                await db.execute(
+                    "INSERT OR REPLACE INTO police_stations (id, name, source, country, state, city, address, phone, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (p["id"], p["name"], p["source"], p["country"], p["state"], p["city"],
+                     p["address"], p["phone"], p["lat"], p["lng"])
+                )
+            await db.commit()
+        all_stations.extend(us_stations)
+
+    # Final metadata stamp
+    async with aiosqlite.connect(POLICE_DB) as db:
+        await db.execute("INSERT OR REPLACE INTO police_meta (key, last_updated) VALUES ('last_fetch', ?)", (int(datetime.now().timestamp()),))
+        await db.commit()
+    print(f"[Police Cache] Saved {len(all_stations)} stations total.")
+
+async def update_police_loop():
+    while True:
+        await asyncio.sleep(86400)  # Refresh every 24 hours
+        try:
+            await fetch_police_logic()
+        except Exception as e:
+            print(f"[Police update loop error] {e}")
 
 @app.get("/{page_name}.html", response_class=HTMLResponse)
 async def serve_pages(page_name: str, request: Request):
@@ -676,81 +1323,146 @@ async def lead_capture(lead: LeadCapture):
         # Still return success to the user — don't expose SMTP errors publicly
         return JSONResponse({"status": "error", "message": "Failed to login: " + str(e)})
 
-# --- AIS Stream Proxy ---
+# --- AIS / Vessel Data (SQLite-backed, hourly refresh) ---
 import httpx
 import time
 
-# Thread-safe in-memory cache of active vessels
-active_vessels = {}
+def classify_vessel_type(ship_type_code):
+    """Classify a vessel using AIS/IMO ship type codes."""
+    if ship_type_code is None:
+        return "other"
+    st = int(ship_type_code)
+    if 70 <= st <= 79:
+        return "cargo"
+    elif 80 <= st <= 89:
+        return "tanker"
+    elif 30 <= st <= 39:
+        return "fishing"
+    elif 60 <= st <= 69:
+        return "passenger"
+    else:
+        return "other"
+
+async def init_vessels_db():
+    async with aiosqlite.connect(VESSELS_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS vessels (
+                mmsi      TEXT PRIMARY KEY,
+                title     TEXT,
+                lat       REAL,
+                lng       REAL,
+                heading   REAL,
+                velocity_kmh REAL,
+                country   TEXT,
+                vessel_type TEXT DEFAULT 'other',
+                last_updated INTEGER
+            )
+        ''')
+        # Add vessel_type column if missing (migration)
+        try:
+            await db.execute("ALTER TABLE vessels ADD COLUMN vessel_type TEXT DEFAULT 'other'")
+        except Exception:
+            pass  # Column already exists
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS vessels_meta (
+                key TEXT PRIMARY KEY,
+                last_updated INTEGER
+            )
+        ''')
+        await db.commit()
 
 async def fetch_vessels_logic():
-    global active_vessels
     try:
-        async with httpx.AsyncClient() as client:
-            print("[AIS Proxy] Fetching live vessels from DigiTraffic...")
-            res = await client.get('https://meri.digitraffic.fi/api/ais/v1/locations', timeout=15.0)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Step 1: Fetch live vessel locations
+            print("[AIS] Fetching live vessels from DigiTraffic...")
+            res = await client.get('https://meri.digitraffic.fi/api/ais/v1/locations')
             res.raise_for_status()
             data = res.json()
-            
-            # data is a list of features: {"mmsi": 230983580, "geometry": {"coordinates": [24.1, 59.9]}, "properties": {"sog": 10.5, "cog": 120}}
-            count = 0
-            for item in data.get("features", []):
-                mmsi = item.get("mmsi")
-                coords = item.get("geometry", {}).get("coordinates", [])
-                props = item.get("properties", {})
-                
-                if mmsi and len(coords) == 2:
-                    lng, lat = coords[0], coords[1]
-                    speed = props.get("sog", 0) * 1.852 # knots to km/h
-                    heading = props.get("cog", 0)
-                    
-                    vesselObj = active_vessels.get(mmsi)
-                    if vesselObj:
-                        vesselObj["lat"] = lat
-                        vesselObj["lng"] = lng
-                        vesselObj["heading"] = heading
-                        vesselObj["velocityKmH"] = speed
-                        vesselObj["lastUpdate"] = time.time()
-                    else:
-                        active_vessels[mmsi] = {
-                            "id": mmsi,
-                            "title": f"Vessel {mmsi}",
-                            "lat": lat,
-                            "lng": lng,
-                            "heading": heading,
-                            "velocityKmH": speed,
-                            "country": "FIN/BALTIC",
-                            "type": "vessel",
-                            "lastUpdate": time.time()
-                        }
-                    count += 1
-                    
-                    # Memory management
-                    if len(active_vessels) > 1500:
-                        sorted_vessels = sorted(active_vessels.items(), key=lambda item: item[1]["lastUpdate"])
-                        for k, _ in sorted_vessels[:500]:
-                            del active_vessels[k]
-            
-            print(f"[AIS Proxy] Successfully processed {count} vessels.")
-    except Exception as e:
-        print("[AIS Proxy] Failure:", str(e))
 
-async def aisstream_proxy_loop():
-    """Background task pulling open AIS data from DigiTraffic Finland to get real vessels."""
-    import time
+            # Step 2: Fetch vessel metadata (ship type, name, country)
+            print("[AIS] Fetching vessel metadata from DigiTraffic...")
+            try:
+                meta_res = await client.get('https://meri.digitraffic.fi/api/ais/v1/vessels')
+                meta_res.raise_for_status()
+                meta_list = meta_res.json()
+                # Build MMSI → metadata lookup
+                meta_dict = {}
+                for v in meta_list:
+                    m = v.get("mmsi")
+                    if m:
+                        meta_dict[m] = v
+                print(f"[AIS] Loaded metadata for {len(meta_dict)} vessels.")
+            except Exception as meta_err:
+                print(f"[AIS] Metadata fetch failed (non-fatal): {meta_err}")
+                meta_dict = {}
+
+        vessels = []
+        for item in data.get("features", []):
+            mmsi = item.get("mmsi")
+            coords = item.get("geometry", {}).get("coordinates", [])
+            props = item.get("properties", {})
+            if mmsi and len(coords) == 2:
+                lng, lat = coords[0], coords[1]
+                speed = props.get("sog", 0) * 1.852  # knots → km/h
+                heading = props.get("cog", 0)
+
+                # Lookup metadata for name, country, and ship type
+                meta = meta_dict.get(mmsi, {})
+                vessel_name = meta.get("name", f"Vessel {mmsi}").strip() or f"Vessel {mmsi}"
+                country = meta.get("destination", "FIN/BALTIC") or "FIN/BALTIC"  # Use destination if available
+                ship_type_code = meta.get("shipType", None)
+                vessel_type = classify_vessel_type(ship_type_code)
+
+                vessels.append((
+                    str(mmsi), vessel_name, lat, lng,
+                    heading, speed, country, vessel_type, int(time.time())
+                ))
+
+        async with aiosqlite.connect(VESSELS_DB) as db:
+            await db.execute("DELETE FROM vessels")
+            await db.executemany(
+                "INSERT OR REPLACE INTO vessels (mmsi, title, lat, lng, heading, velocity_kmh, country, vessel_type, last_updated) VALUES (?,?,?,?,?,?,?,?,?)",
+                vessels
+            )
+            await db.execute("INSERT OR REPLACE INTO vessels_meta (key, last_updated) VALUES ('last_fetch', ?)", (int(time.time()),))
+            await db.commit()
+
+        # Summary by type
+        type_counts = {}
+        for v in vessels:
+            vt = v[7]
+            type_counts[vt] = type_counts.get(vt, 0) + 1
+        print(f"[AIS] Stored {len(vessels)} vessels. Types: {type_counts}")
+    except Exception as e:
+        print("[AIS] Fetch failed:", str(e))
+
+async def update_vessels_loop():
+    """Refresh vessel data from DigiTraffic once per hour."""
     while True:
-        await fetch_vessels_logic()
-        # Poll every 60 seconds
-        await asyncio.sleep(60)
+        await asyncio.sleep(3600)
+        try:
+            await fetch_vessels_logic()
+        except Exception as e:
+            print(f"[AIS update loop error] {e}")
 
 @app.get("/api/vessels")
 async def get_vessels():
-    """Proxy endpoint that returns the in-memory array of active vessels to the frontend."""
-    # Convert dict to list and filter out stale vessels (older than 10 minutes)
-    import time
-    now = time.time()
-    vessels_list = [v for v in active_vessels.values() if now - v["lastUpdate"] < 600]
-    return JSONResponse(vessels_list)
+    """Return AIS vessel snapshot from the SQLite DB."""
+    try:
+        async with aiosqlite.connect(VESSELS_DB) as db:
+            async with db.execute(
+                "SELECT mmsi, title, lat, lng, heading, velocity_kmh, country, vessel_type, last_updated FROM vessels"
+            ) as cursor:
+                rows = await cursor.fetchall()
+        return JSONResponse([{
+            "id": r[0], "title": r[1], "lat": r[2], "lng": r[3],
+            "heading": r[4], "velocityKmH": r[5], "country": r[6],
+            "vesselType": r[7] or "other", "type": "vessel", "lastUpdate": r[8]
+        } for r in rows])
+    except Exception as e:
+        print(f"[Vessels] DB Error: {e}")
+        return JSONResponse([])
 
 # --- OpenSky Flights API Proxy with Global Cache ---
 
@@ -865,9 +1577,8 @@ SATELLITES_DB = os.path.join(BASE_DIR, "satellites_data.db")
 
 async def init_satellites_db():
     async with aiosqlite.connect(SATELLITES_DB) as db:
-        await db.execute('DROP TABLE IF EXISTS satellites')
         await db.execute('''
-            CREATE TABLE satellites (
+            CREATE TABLE IF NOT EXISTS satellites (
                 id TEXT PRIMARY KEY,
                 name TEXT,
                 line1 TEXT,
@@ -988,58 +1699,87 @@ async def get_satellites():
         print(f"[Satellites] DB Fetch error: {e}")
         return JSONResponse([])
 
-_earthquakes_cache = {"data": None, "fetched_at": 0.0, "duration": ""}
-EARTHQUAKE_CACHE_TTL = 300
+# --- Earthquake Data (SQLite-backed, hourly refresh) ---
+
+async def init_earthquakes_db():
+    async with aiosqlite.connect(EARTHQUAKES_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS earthquakes (
+                id         TEXT NOT NULL,
+                duration   TEXT NOT NULL,
+                mag        REAL,
+                place      TEXT,
+                time_ms    INTEGER,
+                lng        REAL,
+                lat        REAL,
+                depth      REAL,
+                raw_json   TEXT,
+                fetched_at INTEGER,
+                PRIMARY KEY (id, duration)
+            )
+        ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS earthquakes_meta (
+                key TEXT PRIMARY KEY,
+                last_updated INTEGER
+            )
+        ''')
+        await db.commit()
+
+async def fetch_earthquakes_logic():
+    import json as _json
+    for duration in ("day", "week"):
+        try:
+            url = f"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_{duration}.geojson"
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+            features = data.get("features", [])
+            async with aiosqlite.connect(EARTHQUAKES_DB) as db:
+                await db.execute("DELETE FROM earthquakes WHERE duration = ?", (duration,))
+                for f in features:
+                    props = f.get("properties", {})
+                    coords = f.get("geometry", {}).get("coordinates", [])
+                    await db.execute(
+                        "INSERT OR REPLACE INTO earthquakes (id, duration, mag, place, time_ms, lng, lat, depth, raw_json, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        (
+                            f.get("id"), duration,
+                            props.get("mag"), props.get("place"), props.get("time"),
+                            coords[0] if len(coords) > 0 else None,
+                            coords[1] if len(coords) > 1 else None,
+                            coords[2] if len(coords) > 2 else None,
+                            _json.dumps(f), int(time.time())
+                        )
+                    )
+                await db.execute("INSERT OR REPLACE INTO earthquakes_meta (key, last_updated) VALUES (?,?)", (f"last_fetch_{duration}", int(time.time())))
+                await db.commit()
+            print(f"[Earthquakes] Stored {len(features)} events for duration={duration}")
+        except Exception as e:
+            print(f"[Earthquakes] Failed to fetch duration={duration}: {e}")
+
+async def update_earthquakes_loop():
+    """Refresh earthquake data from USGS once per hour."""
+    while True:
+        await asyncio.sleep(3600)
+        try:
+            await fetch_earthquakes_logic()
+        except Exception as e:
+            print(f"[Earthquakes update loop error] {e}")
 
 @app.get("/api/earthquakes")
 async def get_earthquakes(duration: str = "day"):
-    global _earthquakes_cache
-    
-    # Return from memory cache if fresh and matching duration
-    current_time = time.time()
-    if _earthquakes_cache["data"] and _earthquakes_cache["duration"] == duration and (current_time - _earthquakes_cache["fetched_at"]) < EARTHQUAKE_CACHE_TTL:
-        print("[Earthquakes] Serving from memory cache")
-        return Response(content=_earthquakes_cache["data"], media_type="application/json")
-        
-    url = f"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_{duration}.geojson"
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        try:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            
-            # Save strictly to memory cache
-            _earthquakes_cache["data"] = resp.text
-            _earthquakes_cache["fetched_at"] = time.time()
-            _earthquakes_cache["duration"] = duration
-            
-            return Response(content=resp.text, media_type="application/json")
-        except Exception as e:
-            print(f"[Earthquakes] USGS Fetch Failed: {e}. Checking for stale cache.")
-            
-            # If the API fails but we have an old cache, serve stale data instead of failing entirely
-            if _earthquakes_cache["data"]:
-                print("[Earthquakes] Serving STALE memory cache due to API failure.")
-                return Response(content=_earthquakes_cache["data"], media_type="application/json")
-                
-            # Emergency fallback only if no cache ever existed
-            print("[Earthquakes] No cache exists. Returning emergency fallback data.")
-            fallback = {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "id": "fallback_1",
-                        "properties": {"mag": 4.5, "place": "Fallback: Southern California", "time": int(time.time() * 1000)},
-                        "geometry": {"type": "Point", "coordinates": [-116.3, 33.9, 12.0]}
-                    },
-                    {
-                        "id": "fallback_2",
-                        "properties": {"mag": 5.2, "place": "Fallback: Japan Region", "time": int(time.time() * 1000)},
-                        "geometry": {"type": "Point", "coordinates": [139.7, 35.7, 45.0]}
-                    }
-                ]
-            }
-            import json
-            return Response(content=json.dumps(fallback), media_type="application/json")
+    import json as _json
+    try:
+        async with aiosqlite.connect(EARTHQUAKES_DB) as db:
+            async with db.execute("SELECT raw_json FROM earthquakes WHERE duration = ?", (duration,)) as cursor:
+                rows = await cursor.fetchall()
+        features = [_json.loads(r[0]) for r in rows if r[0]]
+        result = {"type": "FeatureCollection", "features": features}
+        return Response(content=_json.dumps(result), media_type="application/json")
+    except Exception as e:
+        print(f"[Earthquakes] DB Error: {e}")
+        return Response(content='{"type":"FeatureCollection","features":[]}', media_type="application/json")
 
 # --- Camera Image Proxy ---
 # Fetches public camera snapshot images server-side so the browser gets them
@@ -1146,16 +1886,98 @@ async def get_flight_route(callsign: str):
 
 # ---------------------------------------------------------------------------
 # Global CCTV Camera Aggregator  /api/cameras
-# Uses Caltrans CWWP2 open API — the only verified public source with both
-# live JPEG snapshots and HLS video streams (no API key required).
+# SQLite-backed; background loop refreshes every hour.
 # ---------------------------------------------------------------------------
 import asyncio
 
-_cameras_cache: dict = {"data": None, "fetched_at": 0.0}
-CAMERAS_CACHE_TTL = 600 # Temporarily bypass cache to load new UK cameras. Normally 600 (URLs stay fresh this long)
-
 # Caltrans districts 1-12 span all of California
 CALTRANS_DISTRICTS = ["d3", "d4", "d5", "d6", "d7", "d8", "d10", "d11", "d12"]
+
+async def init_cameras_db():
+    async with aiosqlite.connect(CAMERAS_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS cameras (
+                id          TEXT PRIMARY KEY,
+                title       TEXT,
+                lat         REAL,
+                lng         REAL,
+                type        TEXT DEFAULT 'cctv',
+                country     TEXT,
+                stream_type TEXT,
+                snapshot    TEXT,
+                hls_url     TEXT,
+                video       TEXT,
+                link        TEXT,
+                fetched_at  INTEGER
+            )
+        ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS cameras_meta (
+                key TEXT PRIMARY KEY,
+                last_updated INTEGER
+            )
+        ''')
+        await db.commit()
+
+async def fetch_cameras_logic():
+    cameras = []
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        tasks = [_fetch_caltrans_district(client, d) for d in CALTRANS_DISTRICTS]
+        tasks.append(_fetch_uk_cameras(client))
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+    for r in results:
+        if isinstance(r, list):
+            cameras.extend(r)
+
+    # Load static insecam_data.json supplement
+    try:
+        fallback_path = os.path.join(os.path.dirname(__file__), "static", "insecam_data.json")
+        with open(fallback_path, "r", encoding="utf-8") as f:
+            fallback_data = json.load(f)
+            for cam in fallback_data:
+                cam["country"] = "USA"
+            cameras.extend(fallback_data)
+            print(f"[Cameras] Loaded {len(fallback_data)} insecam supplement cameras.")
+    except Exception as e:
+        print(f"[Cameras] Failed to load insecam_data.json: {e}")
+
+    if not cameras:
+        cameras = [{
+            "id": "ca_d4_fallback", "title": "I-580 Oakland — West of SR-24",
+            "lat": 37.82539, "lng": -122.27291, "type": "cctv",
+            "stream_type": "hls", "country": "USA",
+            "snapshot": "https://cwwp2.dot.ca.gov/data/d4/cctv/image/tv102i580westofsr24/tv102i580westofsr24.jpg",
+            "hls_url": "https://wzmedia.dot.ca.gov/D4/W580_JWO_24_IC.stream/playlist.m3u8",
+            "link": "https://cwwp2.dot.ca.gov/"
+        }]
+
+    fetched_at = int(time.time())
+    async with aiosqlite.connect(CAMERAS_DB) as db:
+        await db.execute("DELETE FROM cameras")
+        for cam in cameras:
+            await db.execute(
+                "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    cam.get("id"), cam.get("title"),
+                    cam.get("lat"), cam.get("lng"),
+                    cam.get("type", "cctv"), cam.get("country", ""),
+                    cam.get("stream_type", "snapshot"), cam.get("snapshot", ""),
+                    cam.get("hls_url", ""), cam.get("video", ""),
+                    cam.get("link", ""), fetched_at
+                )
+            )
+        await db.execute("INSERT OR REPLACE INTO cameras_meta (key, last_updated) VALUES ('last_fetch', ?)", (fetched_at,))
+        await db.commit()
+    print(f"[Cameras] Stored {len(cameras)} cameras in SQLite DB.")
+
+async def update_cameras_loop():
+    """Refresh CCTV camera list once per hour."""
+    while True:
+        await asyncio.sleep(3600)
+        try:
+            await fetch_cameras_logic()
+        except Exception as e:
+            print(f"[Cameras update loop error] {e}")
 
 async def _fetch_caltrans_district(client: httpx.AsyncClient, district: str) -> list:
     """Fetch cameras from one Caltrans district's open JSON endpoint."""
@@ -1241,52 +2063,22 @@ async def _fetch_uk_cameras(client: httpx.AsyncClient) -> list:
 
 @app.get("/api/cameras")
 async def get_cameras():
-    """Return live Caltrans traffic cameras from the open CWWP2 API."""
-    current_time = time.time()
-    if _cameras_cache["data"] and (current_time - _cameras_cache["fetched_at"]) < CAMERAS_CACHE_TTL:
-        return JSONResponse(_cameras_cache["data"])
-
-    async with httpx.AsyncClient(follow_redirects=True) as client:
-        tasks = [_fetch_caltrans_district(client, d) for d in CALTRANS_DISTRICTS]
-        tasks.append(_fetch_uk_cameras(client))
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    cameras = []
-    for r in results:
-        if isinstance(r, list):
-            cameras.extend(r)
-
-    # ── FALLBACK / SUPPLEMENT: Load WSDOT cameras from static JSON file
+    """Return CCTV cameras from the SQLite DB (populated by the hourly background loop)."""
     try:
-        import json
-        import os
-        fallback_path = os.path.join(os.path.dirname(__file__), "static", "insecam_data.json")
-        with open(fallback_path, "r", encoding="utf-8") as f:
-            fallback_data = json.load(f)
-            # Add country tag since the frontend filter expects 'USA'
-            for cam in fallback_data:
-                cam["country"] = "USA"
-            cameras.extend(fallback_data)
-            print(f"[Cameras] Loaded {len(fallback_data)} WSDOT fallback cameras for USA.")
+        async with aiosqlite.connect(CAMERAS_DB) as db:
+            async with db.execute(
+                "SELECT id, title, lat, lng, type, country, stream_type, snapshot, hls_url, video, link FROM cameras"
+            ) as cursor:
+                rows = await cursor.fetchall()
+        return JSONResponse([{
+            "id": r[0], "title": r[1], "lat": r[2], "lng": r[3],
+            "type": r[4], "country": r[5], "stream_type": r[6],
+            "snapshot": r[7], "hls_url": r[8] or "",
+            "video": r[9] or "", "link": r[10] or ""
+        } for r in rows])
     except Exception as e:
-        print(f"[Cameras] Failed to load insecam_data.json fallback: {e}")
-
-    if not cameras:
-        # Emergency fallback: a hardcoded known-good Caltrans camera
-        cameras = [{
-            "id": "ca_d4_fallback",
-            "title": "I-580 Oakland — West of SR-24",
-            "lat": 37.82539, "lng": -122.27291,
-            "type": "cctv", "stream_type": "hls",
-            "snapshot": "https://cwwp2.dot.ca.gov/data/d4/cctv/image/tv102i580westofsr24/tv102i580westofsr24.jpg",
-            "hls_url":  "https://wzmedia.dot.ca.gov/D4/W580_JWO_24_IC.stream/playlist.m3u8",
-            "link": "https://cwwp2.dot.ca.gov/"
-        }]
-
-    _cameras_cache["data"] = cameras
-    _cameras_cache["fetched_at"] = current_time
-    print(f"[Cameras] Total cameras cached: {len(cameras)}")
-    return JSONResponse(cameras)
+        print(f"[Cameras] DB Error: {e}")
+        return JSONResponse([])
 
 
 # --- Open-Meteo Weather Proxy (SQLite Backed) ---
