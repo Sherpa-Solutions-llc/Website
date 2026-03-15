@@ -2845,32 +2845,59 @@
             alertBox.style.padding = '1rem';
             alertBox.style.borderRadius = '8px';
             alertBox.style.zIndex = '9999';
-            alertBox.innerHTML = '<i class="fa-solid fa-microphone-lines" style="color: #ff4757; margin-right: 10px;"></i> Audio Demo Running. Ensure volume is turned up.';
+            alertBox.innerHTML = '<i class="fa-solid fa-microphone-lines" style="color: #ff4757; margin-right: 10px;"></i> Guided Tour Active. Use the volume slider to adjust.';
             document.body.appendChild(alertBox);
 
-            // Start Tour 
-            await speak("Welcome to Traku. This is Sherpa Solutions' enterprise OSINT routing architecture.");
+            // Start Guided Tour
+            await speak("Welcome to Track You, by Sherpa Solutions. This guided tour will walk you through the key features of this page and show you how everything works.");
             if (!isDemoRunning) return;
             
-            // 1. Compliance
-            await speak("Before executing any trace, GLBA/DPPA compliance must be validated.");
+            // 1. Overview
+            await speak("Track You is a people search and intelligence tool. You can look up individuals using a name, phone number, email, address, and many other identifiers. Let me show you how.");
             if (!isDemoRunning) return;
-            document.getElementById('permissible-purpose').value = "debt_collection";
-            validatePurpose();
-            await demoDelay(1000);
+            await demoDelay(800);
             if (!isDemoRunning) return;
             
-            // 2. Single Search execution
-            await speak("The core feature is the Target Profile. By providing known pivot points like Name or State, Traku maps intelligence against multiple distributed databases.");
+            // 2. Target Profile - toggle buttons
+            await speak("You are currently on the Target Profile tab. At the top, you will see toggle buttons like Name, Phone, Email, and Address. These control which search fields are visible. Click any button to activate it, and an input field will appear below.");
             if (!isDemoRunning) return;
-            document.getElementById('name-input').value = "Jane Doe";
-            document.getElementById('state-input').value = "Texas";
             await demoDelay(500);
             if (!isDemoRunning) return;
             
-            // Switch to Results Tab and Exeute
+            // Demonstrate toggling Phone on
+            const phonePill = document.querySelector('[onclick*="toggleDataField(\'phone\'"]');
+            if (phonePill && !phonePill.classList.contains('active')) {
+                toggleDataField('phone', phonePill);
+            }
+            await demoDelay(600);
+            if (!isDemoRunning) return;
+
+            await speak("I just activated the Phone field for you. Notice how a phone number input appeared below. You can activate as many fields as you need for your search.");
+            if (!isDemoRunning) return;
+            await demoDelay(500);
+            if (!isDemoRunning) return;
+            
+            // 3. Fill in sample data
+            await speak("Now let me enter some sample information. I will type in a name and phone number to demonstrate how a search works.");
+            if (!isDemoRunning) return;
+            const fnameInput = document.getElementById('input-fname');
+            const lnameInput = document.getElementById('input-lname');
+            const phoneInput = document.getElementById('input-phone');
+            if (fnameInput) fnameInput.value = 'Jane';
+            if (lnameInput) lnameInput.value = 'Doe';
+            if (phoneInput) phoneInput.value = '(555) 867-5309';
+            await demoDelay(800);
+            if (!isDemoRunning) return;
+            
+            // 4. Explain the Search button
+            await speak("Once your fields are filled in, you would click the Search button at the bottom of this page to run your lookup. Let me take you to the Search Results tab to show you what happens next.");
+            if (!isDemoRunning) return;
+            await demoDelay(500);
+            if (!isDemoRunning) return;
+            
+            // 5. Switch to Search Results and run scan
             switchView('results');
-            await speak("Execution is triggered from the Search Results console, aggregating data across dark nodes and public APIs concurrently.");
+            await speak("This is the Search Results tab. When you click the Search button here, Track You will scan multiple databases at the same time. Let me run one now so you can see it in action.");
             if (!isDemoRunning) return;
             executeDetailedTrace();
             
@@ -2878,18 +2905,26 @@
             await demoDelay(4000); 
             if (!isDemoRunning) return;
             
-            // Explain Results
-            await speak("Notice the deterministic identity resolutions. Phone numbers and digital footprints are aggregated, scored by confidence probability, and cleansed for inactive lines.");
+            // Explain the results
+            await speak("As you can see, Track You searches across social media platforms, public records, and other data sources simultaneously. Results include associated phone numbers, addresses, emails, and social media profiles, all organized by confidence level.");
             if (!isDemoRunning) return;
             await demoDelay(2000);
             if (!isDemoRunning) return;
 
-            // 3. Batch Upload
+            // 6. Data Sources tab
+            switchView('data');
+            await speak("Next is the Data Sources tab. This is where you can connect your own API keys for premium data providers like Numverify, Spokeo, and others. The built-in mock engine is enabled by default so you can explore the interface right away.");
+            if (!isDemoRunning) return;
+            await demoDelay(2000);
+            if (!isDemoRunning) return;
+
+            // 7. Batch Upload
             switchView('batch');
-            await speak("For industrial scaling, the Batch Processing module allows you to drop massive unscrubbed CSV files. The engine correlates each row in parallel.");
+            await speak("Now let me show you Batch Processing. If you have a large list of people to look up, you can upload a CSV file here. Track You will process every person in your file automatically and give you an enriched file to download when it is done.");
             if (!isDemoRunning) return;
             await demoDelay(1500);
             if (!isDemoRunning) return;
+
             // Fake file drop
             const fDrop = document.getElementById('drop-zone');
             fDrop.innerHTML = `<i class="fa-solid fa-file-circle-check" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem;"></i>
@@ -2901,13 +2936,13 @@
             await demoDelay(1000);
             if (!isDemoRunning) return;
 
-            // 4. Social Media View
+            // 8. Social Media View
             switchView('omni');
             const smPill = document.getElementById('pill-socialMedia');
             if(smPill && !smPill.classList.contains('active')) {
                 toggleDataField('socialMedia', smPill);
             }
-            await speak("We recently introduced the Social Media Face Match heuristic. Drag and drop an image to execute targeted geometry mapping across major network nodes.");
+            await speak("Finally, let me show you the Social Media search feature. You can enter a username or drag and drop a photo of someone. Track You will scan platforms like Facebook, Instagram, LinkedIn, and others to find matching profiles.");
             if (!isDemoRunning) return;
             await demoDelay(1500);
             if (!isDemoRunning) return;
@@ -2921,7 +2956,7 @@
 
             // Auto Search Social
             initiateSocialSearch();
-            await speak("Traku parses millions of available profiles to calculate biometric matches and isolated digital blueprints in seconds.");
+            await speak("Track You will search across the selected platforms and return any matching profiles it finds. Results include profile links, usernames, and facial match confidence scores when an image is provided.");
             if (!isDemoRunning) return;
 
             // Give it 10 seconds to watch the simulated bars jump
@@ -2929,7 +2964,7 @@
             if (!isDemoRunning) return;
 
             // End Demo
-            await speak("This concludes the automated Traku OSINT overview. Return to Basecamp at any time by accessing the top navigation.");
+            await speak("That wraps up the Track You guided tour. You now know how to search for individuals, upload batch files, connect data sources, and use social media lookups. Feel free to explore on your own, or click Demo again to replay this walkthrough.");
             
             // Reset button if we naturally finished
             if (isDemoRunning) {
@@ -2937,6 +2972,8 @@
                 btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
                 if(document.getElementById('demo-alert')) document.getElementById('demo-alert').remove();
                 isDemoRunning = false;
+                showDemoVolumeControl(false);
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             }
         }
 
