@@ -66,7 +66,7 @@
             <div class="layer-item" style="cursor: default;">
                 <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
                 <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Live Flights <span id="last-update-flights" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Aircraft <span id="last-update-flights" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                     <select id="setting-source-flights" class="hud-select" style="margin-top: 5px; width: 100%;">
                         <option value="opensky" selected>OpenSky Network (Default)</option>
                         <option value="adsblol">ADSB.lol Open Registry</option>
@@ -77,7 +77,7 @@
             <div class="layer-item" style="cursor: default;">
                 <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
                 <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Military Flights <span id="last-update-military" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Military <span id="last-update-military" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                     <select id="setting-source-military" class="hud-select" style="margin-top: 5px; width: 100%;">
                         <option value="adsblol" selected>ADSB.lol (Default)</option>
                     </select>
@@ -108,7 +108,7 @@
             <div class="layer-item" style="cursor: default;">
                 <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
                 <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Shipping Traffic <span id="last-update-traffic" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Vessels <span id="last-update-traffic" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                     <select id="setting-source-traffic" class="hud-select" style="margin-top: 5px; width: 100%;">
                         <option value="aisstream" selected>AISStream.io (Default)</option>
                     </select>
@@ -138,7 +138,7 @@
             <div class="layer-item" style="cursor: default;">
                 <div class="layer-icon" style="color: #0d47a1;"><i class="fa-solid fa-building-shield"></i></div>
                 <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Police Location <span id="last-update-police" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Police <span id="last-update-police" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                     <select id="setting-source-police" class="hud-select" style="margin-top: 5px; width: 100%;" onchange="if(window.filterPoliceDropdowns) window.filterPoliceDropdowns('source')">
                         <option value="all" selected>All Sources</option>
                         <option value="arcgis">ArcGIS Open Data</option>
@@ -149,7 +149,7 @@
             <div class="layer-item" style="cursor: default;">
                 <div class="layer-icon" style="color: #d32f2f;"><i class="fa-solid fa-walkie-talkie"></i></div>
                 <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Radio Scanners <span id="last-update-scanners" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Radio <span id="last-update-scanners" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                     <select id="setting-source-scanners" class="hud-select" style="margin-top: 5px; width: 100%;" onchange="if(window.filterScannerDropdowns) window.filterScannerDropdowns('source')">
                         <option value="all">All Sources</option>
                         <option value="broadcastify" selected>Broadcastify Live Feeds</option>
@@ -174,7 +174,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('flights')">
                         <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
                         <div class="layer-info">
-                            <h3>Live Flights</h3>
+                            <h3>Aircraft</h3>
                             <div class="layer-count" id="count-flights">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -204,7 +204,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('military')">
                         <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
                         <div class="layer-info">
-                            <h3>Military Flights</h3>
+                            <h3>Military</h3>
                             <div class="layer-count">24</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -291,7 +291,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('traffic')">
                         <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
                         <div class="layer-info">
-                            <h3>Shipping Traffic</h3>
+                            <h3>Vessels</h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -367,7 +367,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('police')">
                         <div class="layer-icon" style="color: #0d47a1;"><i class="fa-solid fa-building-shield"></i></div>
                         <div class="layer-info">
-                            <h3>Police Location</h3>
+                            <h3>Police</h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -399,7 +399,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('scanners')">
                         <div class="layer-icon" style="color: #d32f2f;"><i class="fa-solid fa-walkie-talkie"></i></div>
                         <div class="layer-info">
-                            <h3>Radio Scanners</h3>
+                            <h3>Radio</h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
