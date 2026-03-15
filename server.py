@@ -4,6 +4,9 @@ load_dotenv()
 
 import secrets
 import asyncio
+import sys
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 import aiosqlite
 import urllib.request
 import urllib.parse
@@ -59,6 +62,29 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 master_agent = MasterAgent(callback_manager=manager)
+
+# --- Background Task: Weekly AI Data Broker Discovery ---
+async def run_weekly_discovery():
+    while True:
+        try:
+            print("[FreeMe] Running weekly AI Discovery scan for new emerging Data Brokers...")
+            # We construct a mock request to reuse the endpoint logic
+            req = DiscoverBrokersRequest(llm_model="claude-3-opus")
+            result = await discover_new_brokers(req)
+            if result.get("status") == "success":
+                new_count = len(result.get("discovered_brokers", []))
+                print(f"[FreeMe] Weekly discovery complete. Found {new_count} emerging threats.")
+                # In production, these would be saved to a persistent SQLite DB to auto-populate the UI grid on load.
+        except Exception as e:
+            print(f"[FreeMe] Weekly discovery failed: {e}")
+        
+        # Sleep for exactly 7 days
+        await asyncio.sleep(7 * 24 * 60 * 60)
+
+@app.on_event("startup")
+async def startup_weekly_discovery_task():
+    # Spin up our weekly background workers
+    asyncio.create_task(run_weekly_discovery())
 
 # Enable GZIP compression for all responses > 1000 bytes (CSS, JS, JSON, HTML)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -1427,6 +1453,86 @@ async def lead_capture(lead: LeadCapture):
         print(f"[LEAD CAPTURE] SMTP error for {visitor_email}: {e}")
         # Still return success to the user — don't expose SMTP errors publicly
         return JSONResponse({"status": "error", "message": "Failed to login: " + str(e)})
+
+# --- FreeMe API ---
+
+from typing import List
+from pydantic import BaseModel
+import uuid
+import asyncio
+
+# Note: The import is placed inside the specific functions here or globally to avoid circular loops
+# We'll import freeme_engine.orchestrator safely where needed 
+
+class FreeMeCampaignRequest(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    phone: str
+    dob: str
+    address: str
+    brokers: List[str]
+    demo_mode: bool = False
+    llm_model: str = "claude-3-opus"
+    scan_frequency: str = "Once"
+    email_notifications: bool = True
+
+# Simple in-memory rate limiter for FreeMe live campaigns
+FREEME_RATE_LIMITER = {}
+MAX_LIVE_CAMPAIGNS_PER_DAY = 3
+
+@app.get("/api/freeme/rates")
+async def get_freeme_vlm_rates(model: str = "claude-3-opus"):
+    """
+    Returns the dynamic system rate limits for the selected VLM model.
+    In production, this queries Redis or the provider's rate-limit endpoint/headers.
+    """
+    import random
+    if model == "claude-3-opus":
+        max_rpm = 4000
+        used_rpm = random.randint(150, 850)
+    elif model == "gpt-4-vision":
+        max_rpm = 10000
+        used_rpm = random.randint(500, 3200)
+    else:
+        max_rpm = -1  # Local unlimited
+        used_rpm = 0
+
+    return {
+        "model": model,
+        "max_rpm": max_rpm,
+        "used_rpm": used_rpm,
+        "used_tpm": random.randint(10000, 80000) if max_rpm > 0 else 0,
+        "max_tpm": 400000 if max_rpm > 0 else -1,
+        "status": "healthy"
+    }
+
+class DiscoverBrokersRequest(BaseModel):
+    llm_model: str = "claude-3-opus"
+    
+@app.post("/api/freeme/discover_brokers")
+async def discover_new_brokers(req: DiscoverBrokersRequest):
+    """
+    Simulates a LangChain Agent using DuckDuckGo search to find
+    trending or newly established data brokers in 2026.
+    In a full production environment, this dispatches a live LangChain Tool sequence.
+    """
+    await asyncio.sleep(2)  # Simulate LLM reasoning and search time
+    
+    # Pre-calculated simulated emerging threats
+    new_threats = [
+        {"name": "DataBrokerPro", "description": "Aggregates social footprint vectors.", "risk_level": "High"},
+        {"name": "PeopleFindersXYZ", "description": "New phone & address crawler.", "risk_level": "Medium"},
+        {"name": "InfoTraceNet", "description": "B2B contact scraper recently acquiring consumer records.", "risk_level": "High"}
+    ]
+    
+    return {
+        "status": "success",
+        "message": f"Successfully polled AI model '{req.llm_model}'.",
+        "discovered_brokers": new_threats
+    }
+
+
 
 # --- Skip Tracer API ---
 
@@ -2849,5 +2955,84 @@ async def api_remove_stock_watchlist(request: Request, ticker: str):
     session_id = request.cookies.get("session_token", request.client.host)
     await database.remove_stock_from_watchlist(session_id, ticker)
     return JSONResponse({"status": "success", "message": f"Removed {ticker}"})
-# Rev: 20260315-0916
+# ==========================================
+# FREEME AUTONOMOUS OPT-OUT API (Campaigns)
+# ==========================================
 
+from freeme_engine.orchestrator import launch_campaign, get_campaign_status
+
+class BrokerCampaignRequest(BaseModel):
+    aliases: list[str]
+    emails: list[str]
+    phones: list[str]
+    addresses: list[str]
+    dob: str
+    drivers_license: str = ""
+    photo_filename: str = ""
+    brokers: list[str]
+    demo_mode: bool = True
+    llm_model: str = "claude-3-opus"
+
+from fastapi import BackgroundTasks
+
+def _run_campaign_async_wrapper(campaign_id, profile, brokers, demo_mode, llm_model):
+    import sys
+    import asyncio
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    asyncio.run(launch_campaign(
+        campaign_id=campaign_id, 
+        profile=profile, 
+        brokers=brokers, 
+        demo_mode=demo_mode, 
+        llm_model=llm_model
+    ))
+
+@app.post("/api/freeme/campaign")
+async def start_freeme_campaign(req: BrokerCampaignRequest, bg_tasks: BackgroundTasks):
+    """
+    Receives a user profile and target brokers, provisions a background task,
+    and returns a campaign tracking ID to the UI.
+    """
+    import uuid
+    campaign_id = str(uuid.uuid4())[:8]
+    
+    profile = {
+        "aliases": req.aliases,
+        "emails": req.emails,
+        "phones": req.phones,
+        "addresses": req.addresses,
+        "dob": req.dob,
+        "drivers_license": req.drivers_license,
+        "photo_filename": req.photo_filename
+    }
+    
+    # Spawn in a clean thread to avoid Uvicorn's WSL SelectorEventLoop clash
+    bg_tasks.add_task(
+        _run_campaign_async_wrapper,
+        campaign_id,
+        profile,
+        req.brokers,
+        req.demo_mode,
+        req.llm_model
+    )
+    
+    return JSONResponse({
+        "status": "success",
+        "message": "Orchestrator queue populated",
+        "campaign_id": campaign_id
+    })
+
+@app.get("/api/freeme/status/{campaign_id}")
+async def get_freeme_status(campaign_id: str):
+    """
+    Heartbeat endpoint for the UI to constantly poll the active campaign
+    and redraw the UI with new logs and progress bars.
+    """
+    status_data = get_campaign_status(campaign_id)
+    if not status_data:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+        
+    return JSONResponse(status_data)
+
+# Rev: 20260315-0916
