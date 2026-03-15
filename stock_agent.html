@@ -907,6 +907,11 @@
 
     <!-- Scripts for UI interactions -> Scaffolding for backend integration -->
     <script>
+        // Dynamic API base: Railway on live site, relative on localhost
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '')
+            ? ''
+            : 'https://sherpa-solutions-api-production.up.railway.app';
+
         // --- Documentation Modal Logic ---
         function openDocModal() {
             document.getElementById('doc-modal').classList.add('active');
@@ -1133,7 +1138,7 @@
         // Settings Logic (Database Connected)
         async function loadSettings() {
             try {
-                const res = await fetch('/api/stock-settings');
+                const res = await fetch(API_BASE + '/api/stock-settings');
                 const data = await res.json();
                 
                 if (data.status === 'success' && data.settings) {
@@ -1180,7 +1185,7 @@
             };
             
             try {
-                await fetch('/api/stock-settings', {
+                await fetch(API_BASE + '/api/stock-settings', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ settings: settings })
@@ -1377,7 +1382,7 @@
 
             try {
                 // Fetch real data from our backend proxy
-                const response = await fetch(`/api/stock-scan?vol=${vol}&price=${price}`);
+                const response = await fetch(`${API_BASE}/api/stock-scan?vol=${vol}&price=${price}`);
                 const data = await response.json();
                 
                 if(!response.ok) throw new Error(data.error || 'Server responded with an error');
@@ -1479,7 +1484,7 @@
         
         async function loadWatchlist() {
             try {
-                const res = await fetch('/api/stock-watchlist');
+                const res = await fetch(API_BASE + '/api/stock-watchlist');
                 const data = await res.json();
                 if (data.status === 'success' && data.tickers && data.tickers.length > 0) {
                     const tbody = document.getElementById('trending-table-body');
@@ -1508,7 +1513,7 @@
             if (!ticker) return;
 
             try {
-                const res = await fetch('/api/stock-watchlist', {
+                const res = await fetch(API_BASE + '/api/stock-watchlist', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ ticker: ticker })
@@ -1572,7 +1577,7 @@
 
         async function removeStock(ticker) {
             try {
-                await fetch(`/api/stock-watchlist/${ticker}`, { method: 'DELETE' });
+                await fetch(`${API_BASE}/api/stock-watchlist/${ticker}`, { method: 'DELETE' });
                 const row = document.getElementById(`row-${ticker}`);
                 if (row) row.remove();
                 
