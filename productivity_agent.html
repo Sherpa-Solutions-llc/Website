@@ -61,12 +61,7 @@
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                             <h2 style="margin-bottom: 0;"><i class="fa-solid fa-comments"></i> Command & Chat</h2>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <div class="icon-btn" title="Simulated Mode Only"
-                                    style="background: rgba(13, 17, 23, 0.5); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; pointer-events: none;">
-                                    <i class="fa-solid fa-play"></i> Simulation
-                                </div>
-                            </div>
+
                         </div>
 
                         <div id="chat-thread" class="chat-thread">
@@ -276,7 +271,7 @@
         } else {
             connContainer.innerHTML = `
                 <span class="status-dot connected"></span>
-                <span id="ws-status-text">Connected to Simulation</span>
+                <span id="ws-status-text">Connected</span>
             `;
         }
 
