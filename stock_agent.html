@@ -965,8 +965,31 @@
             });
         }
 
+        // Pre-cache female voice so the first speak() call uses female from the start
+        let cachedFemaleVoice = null;
+        let voicesReady = false;
+        function cacheVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                cachedFemaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                if (!cachedFemaleVoice) cachedFemaleVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+                voicesReady = true;
+            }
+        }
+        cacheVoice();
+        if ('speechSynthesis' in window) { window.speechSynthesis.onvoiceschanged = cacheVoice; }
+
+        function waitForVoices() {
+            return new Promise(resolve => {
+                if (voicesReady) { resolve(); return; }
+                let waited = 0;
+                const check = setInterval(() => { cacheVoice(); waited += 50; if (voicesReady || waited >= 2000) { clearInterval(check); resolve(); } }, 50);
+            });
+        }
+
         // Helper to narrate using SpeechSynthesis and wait for completion
-        function speak(text) {
+        async function speak(text) {
+            await waitForVoices();
             return new Promise(resolve => {
                 if (!isDemoRunning) {
                     resolve();
@@ -983,24 +1006,11 @@
                 logToTerminal(`[Demo Voice]: ${text}`, "info");
                 const utterance = new SpeechSynthesisUtterance(text);
                 
-                // Try to find a good Female English voice
-                const voices = window.speechSynthesis.getVoices();
-                
-                // Priority 1: Explicitly female English voices (Windows/Mac/Google standard names)
-                let femaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
-                
-                // Priority 2: Any English voice fallback
-                let engVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
-                
-                // Apply highest priority match
-                if (femaleVoice) {
-                    utterance.voice = femaleVoice;
-                } else if (engVoice) {
-                    utterance.voice = engVoice;
+                // Use pre-cached female voice
+                if (cachedFemaleVoice) {
+                    utterance.voice = cachedFemaleVoice;
                 }
-                
-                // Slightly higher pitch can also induce a female tone on generic synteshizers
-                utterance.pitch = femaleVoice ? 1.0 : 1.2; 
+                utterance.pitch = 1.0; 
                 utterance.rate = 1.0; 
                 utterance.volume = demoVolume; 
                 
@@ -1065,80 +1075,108 @@
             btn.classList.add('active');
             btn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO RUNNING';
 
-            // Start Tour Wait for intro
-            await speak("Welcome to Stock Monitor Pro. Let me show you around the dashboard.");
+            // Start Guided Tour
+            await speak("Welcome to Stock Monitor Pro, by Sherpa Solutions. This guided tour will walk you through every feature on this page so you know exactly how to use it.");
             if (!isDemoRunning) return;
             
-            // 1. Criteria Search
-            switchTab('criteria');
-            await speak("First, we set our boundaries in the Criteria Search tab. Here you can tweak the algorithm's volume, relative volume, and maximum share price filters.");
+            // 1. Stocks to Watch tab (default)
+            switchTab('trending');
+            await speak("You are currently on the Stocks to Watch tab. This is your personal watchlist. You can type any stock ticker into the input field at the top and click Add to Watchlist to start tracking it.");
             if (!isDemoRunning) return;
-            await demoDelay(1000);
+            await demoDelay(800);
             if (!isDemoRunning) return;
-            
-            // 2. Real-time Scan execution
-            await speak("Next, we execute a Real-Time market sweep against these criteria.");
-            if (!isDemoRunning) return;
-            if (!isScanning) toggleScan();
-            
-            // Wait for scan to finish visually
-            await speak("The engine connects to our data sources, filtering thousands of equities in real-time to find explosive setups.");
-            if (!isDemoRunning) return;
-            await demoDelay(3000); 
-            if (!isDemoRunning) return;
-            
-            // 3. Watchlist
-            await speak("When a hit is identified, you can easily load it into your persistent Stocks to Watch list by clicking the Watchlist button in the scan results.");
-            if (!isDemoRunning) return;
+
+            // Demo: add a stock
             if (document.getElementById('manual-ticker-input').value === '') {
                 document.getElementById('manual-ticker-input').value = 'NVDA';
             }
             addManualStock();
-            
-            await speak("Your custom watchlist is saved to the cloud database, giving you cross-device access to your targets.");
+            await speak("I just added NVDA to your watchlist. You can see it now in the table below with its current price, percent change, relative volume, and signal status. You can remove any stock by clicking the trash icon on the right.");
             if (!isDemoRunning) return;
             await demoDelay(1000);
+            if (!isDemoRunning) return;
+            
+            // 2. Criteria Search
+            switchTab('criteria');
+            await speak("Next is the Criteria Search tab. This is where you define the filters for the real-time stock scanner. You can set minimum daily volume, minimum relative volume, and a maximum share price to narrow down which stocks the scanner looks for.");
+            if (!isDemoRunning) return;
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+            
+            // 3. Real-time scan
+            await speak("Let me start a scan so you can see it in action. The scanner will sweep the market and find stocks that match your criteria in real time.");
+            if (!isDemoRunning) return;
+            if (!isScanning) toggleScan();
+            await demoDelay(3000);
+            if (!isDemoRunning) return;
+            
+            await speak("Watch the dashboard at the top. It shows you the total number of stocks found, how many are trending right now, the scan progress, and the timestamp of the last update.");
+            if (!isDemoRunning) return;
+            await demoDelay(2000);
             if (!isDemoRunning) return;
             
             // 4. Strategies
             switchTab('strategies');
-            await speak("Now let's configure our trading algorithms. The Strategies tab features several concurrent algorithmic mapping models.");
+            await speak("Now let me show you the Strategies tab. Here you can enable one or more trading strategies. Each strategy uses a different algorithm to analyze your watchlist and generate buy or sell signals.");
             if (!isDemoRunning) return;
-            await demoDelay(1000);
+            await demoDelay(800);
             if (!isDemoRunning) return;
             
-            // Turn on a couple strategies if none are heavily active
+            // Turn on a strategy
             if (activeStrategies.length === 0) {
                 document.getElementById('toggle-s1').checked = true;
                 handleStrategyToggle('s1');
                 setTimeout(() => confirmStrategy(), 500);
             }
             
-            await speak("You can turn on multiple strategies simultaneously to let the engine cross-reference parameters autonomously.");
+            await speak("I just activated the first strategy. You can run multiple strategies at the same time, and the engine will cross-reference their signals to give you higher confidence trade alerts.");
             if (!isDemoRunning) return;
             await demoDelay(1000);
             if (!isDemoRunning) return;
 
             // 5. Analytics
             switchTab('analytics');
-            await speak("Finally, the Analytics Engine. This system periodically tests your entire watchlist against every active strategy in your arsenal.");
+            await speak("The Analytics tab is the brain of the system. It continuously evaluates every stock in your watchlist against your active strategies. When a stock meets the criteria, it triggers an alert so you can act quickly.");
+            if (!isDemoRunning) return;
+            await demoDelay(800);
             if (!isDemoRunning) return;
             
-            // Change dropdown and trigger evaluation
-            document.getElementById('eval-frequency').value = "60000"; // 1 min
+            // Set eval frequency
+            document.getElementById('eval-frequency').value = "60000";
             handleEvalFrequencyChange(false);
             
-            await speak("Once a parameter is met, you are immediately alerted, equipping you with split-second execution capability.");
+            await speak("You can control how often the analytics engine runs. Right now I set it to every one minute. You can adjust this to match your trading style, whether you are a day trader or a long-term investor.");
             if (!isDemoRunning) return;
-            
-            // End Demo
-            await speak("This concludes the automated feature overview. Thank you for choosing Sherpa Solutions.");
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+
+            // 6. App Log
+            switchTab('logs');
+            await speak("The App Log tab shows you a detailed record of everything the system is doing behind the scenes. Every scan, every signal, and every alert is logged here for your review.");
+            if (!isDemoRunning) return;
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+
+            // 7. Settings
+            switchTab('settings');
+            await speak("Finally, the Settings tab. This is where you can connect your own data source by entering an Alpha Vantage API key. You can also set up brokerage integrations with platforms like Alpaca, Interactive Brokers, TD Ameritrade, or Tradier to enable live or paper trading directly from Stock Monitor Pro.");
+            if (!isDemoRunning) return;
+            await demoDelay(1500);
+            if (!isDemoRunning) return;
+
+            // Back to Stocks to Watch
+            switchTab('trending');
+
+            // End
+            await speak("That wraps up the Stock Monitor Pro guided tour. You have seen how to build a watchlist, scan the market, configure strategies, run analytics, and connect your brokerage. Feel free to explore on your own, or click Demo again to replay this walkthrough.");
             
             // Reset button if we naturally finished
             if (isDemoRunning) {
                 btn.classList.remove('active');
                 btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
                 isDemoRunning = false;
+                showDemoVolumeControl(false);
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             }
         }
 
