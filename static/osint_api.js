@@ -221,7 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const text = await res.text();
                 pushTermLine(`HTTP ${res.status} ERROR (${ms}ms)`, 'term-error');
-                pushTermLine(text, 'term-error');
+                
+                if (res.status === 401 && isProduction) {
+                    pushTermLine(`[Security Lock] The live production endpoint is strictly secured.`, 'term-error');
+                    pushTermLine(`Mock keys are rejected. Please subscribe via the API Marketplace for a valid key.`, 'term-error');
+                    pushTermLine(`Server Response: ${text}`, 'term-error');
+                } else {
+                    pushTermLine(text, 'term-error');
+                }
             }
 
         } catch (err) {
