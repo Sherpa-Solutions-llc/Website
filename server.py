@@ -1,4 +1,4 @@
-import os
+﻿import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -2849,3 +2849,5 @@ async def api_remove_stock_watchlist(request: Request, ticker: str):
     session_id = request.cookies.get("session_token", request.client.host)
     await database.remove_stock_from_watchlist(session_id, ticker)
     return JSONResponse({"status": "success", "message": f"Removed {ticker}"})
+# Rev: 20260315-0916
+
