@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Monitor Pro | Sherpa Solutions</title>
+    
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-darker: #050b14;
+            --bg-dark: #0d1117;
+            --border-color: rgba(0, 229, 255, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #8b949e;
+            --accent-cyan: #00e5ff;
+            --accent-green: #2ea043;
+            --accent-red: #ff3b30;
+            --accent-orange: #d17540;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .stock-app-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Top Header Area */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-cyan);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-red); /* Offline default */
+        }
+        
+        .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .status-dot.scanning { background-color: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .btn-refresh {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-refresh:hover { border-color: var(--text-main); color: var(--text-main); }
+
+        /* Metrics Ribbon */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Scan Control Section */
+        .scan-control-panel {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .scan-info h3 { margin: 0 0 0.5rem 0; font-size: 1.2rem; }
+        .scan-info p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+
+        .scan-actions {
+            display: flex;
+            gap: 1rem;
+            z-index: 2;
+        }
+
+        .btn-scan {
+            background: var(--accent-cyan);
+            color: #000;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn-scan:hover { background: #00b3cc; }
+        
+        .btn-stop {
+            background: rgba(255, 59, 48, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+        .btn-stop:hover { background: rgba(255, 59, 48, 0.3); }
+
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-green);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Tabbed Interface */
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
+        .tab-btn.active { 
+            color: var(--text-main); 
+            background: var(--bg-darker);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: none;
+            position: relative;
+        }
+        /* Active tab colored top border */
+        .tab-btn.active::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px;
+            height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 6px 6px 0 0;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Settings Layout */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .settings-panel {
+            background: var(--bg-darker);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .settings-panel-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.5rem; }
+        
+        .form-control {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.7rem 1rem;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent-cyan); }
+
+        /* Stock Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-darker);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .data-table th {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.95rem;
+        }
+        .data-table tr:hover { background: rgba(255,255,255,0.02); }
+        .data-table tr:last-child td { border-bottom: none; }
+        
+        .ticker-symbol { font-weight: 700; color: var(--accent-cyan); }
+        .price-up { color: var(--accent-green); }
+        .price-down { color: var(--accent-red); }
+
+        /* Terminal Log Stream Area */
+        .terminal-window {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 1rem;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .log-line { margin-bottom: 0.3rem; }
+        .log-time { color: #555; margin-right: 0.5rem; }
+        .log-info { color: #bbb; }
+        .log-highlight { color: var(--accent-cyan); }
+        .log-success { color: var(--accent-green); }
+        .log-warn { color: var(--accent-orange); }
+        
+        /* Alert Box */
+        .info-box {
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Strategies Tab specific styles */
+        .strategies-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .strategy-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-darker);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1.2rem;
+            transition: all 0.2s;
+        }
+        
+        .strategy-item:hover {
+            border-color: rgba(0, 229, 255, 0.3);
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .strategy-info {
+            flex-grow: 1;
+        }
+        
+        .strategy-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .strategy-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Toggle Button Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .3s;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: rgba(0, 229, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            background-color: var(--accent-cyan);
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-title { font-size: 1.3rem; font-weight: 700; color: var(--accent-cyan); }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+        .modal-close:hover { color: var(--text-main); }
+        
+        .modal-body .form-group { margin-bottom: 1.2rem; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @keyframes pulseBlue {
+            0% { background-color: rgba(255, 255, 255, 0.05); }
+            50% { background-color: rgba(0, 229, 255, 0.4); color: #fff; text-shadow: 0 0 5px #fff; border-color: var(--accent-cyan); }
+            100% { background-color: rgba(255, 255, 255, 0.05); }
+        }
+        .tab-btn.flash-alert {
+            animation: pulseBlue 1.5s infinite;
+        }
+
+        /* Demo Toggle Button */
+        .demo-btn {
+            margin-right: 15px;
+            padding: 6px 14px;
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.2);
+        }
+
+        .demo-btn:hover:not(.active) {
+            background: rgba(255, 71, 87, 0.3);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+        }
+
+        .demo-btn.active {
+            background: rgba(46, 213, 115, 0.15);
+            border-color: #2ed573;
+            color: #2ed573;
+            text-shadow: 0 0 5px rgba(46, 213, 115, 0.5);
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+            animation: demoPulse 2s infinite;
+        }
+
+        @keyframes demoPulse {
+            0% {
+                box-shadow: 0 0 5px rgba(46, 213, 115, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(46, 213, 115, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(46, 213, 115, 0.2);
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="stock-app-container">
+        
+        <div class="app-header">
+            <div class="app-title" style="display: flex; align-items: center; gap: 10px;">
+                <a href="/projects.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;" title="Back to Projects">
+                    <img src="/static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 28px;">
+                </a>
+                Stock Monitor Pro
+            </div>
+            <div class="header-controls">
+                <div class="status-indicator">
+                    <div class="status-dot" id="system-status-dot"></div>
+                    <span id="system-status-text">Offline</span>
+                </div>
+                <button id="btn-demo-toggle" class="demo-btn" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+                <button class="btn-refresh" id="btn-audio-toggle" onclick="toggleAudio()"><i class="fa-solid fa-bell" style="color: var(--accent-cyan);"></i> Audio On</button>
+                <button class="btn-refresh" onclick="openDocModal()"><i class="fa-solid fa-book"></i> Documentation</button>
+                <a href="/projects.html" class="btn-refresh" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Exit</a>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="val-total-stocks">0</div>
+                <div class="metric-label">Total Stocks</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="val-trending">0</div>
+                <div class="metric-label">Trending Now</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="val-progress">0%</div>
+                <div class="metric-label">Scan Progress</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="val-last-update">--:--:--</div>
+                <div class="metric-label">Last Update</div>
+            </div>
+        </div>
+
+        <div class="scan-control-panel">
+            <div class="scan-info">
+                <h3>Real-Time Scan Control</h3>
+                <p>Monitor equities for high relative volume and volatile price action.</p>
+            </div>
+            <div class="scan-actions">
+                <button class="btn-scan" id="btn-toggle-scan" onclick="toggleScan()">
+                    <i class="fa-solid fa-play"></i> Start Scan
+                </button>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="scan-progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Scan Results Table (Populated on Scan Completion) -->
+        <div class="scan-results-container" id="scan-results-section" style="display: none; margin: 1.5rem 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="color: var(--accent-cyan);"><i class="fa-solid fa-radar"></i> Scan Results</h3>
+                <span id="scan-results-count" style="color: var(--text-muted); font-size: 0.9rem;"></span>
+            </div>
+            <div style="background: var(--bg-darker); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Company</th>
+                            <th>Current Price</th>
+                            <th>% Change</th>
+                            <th>Rel Volume</th>
+                            <th>Signal</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scan-results-body">
+                        <!-- Rows injected via JS after scan -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('trending')" data-target="trending"><i class="fa-solid fa-fire"></i> Stocks to Watch</button>
+            <button class="tab-btn" onclick="switchTab('criteria')" data-target="criteria"><i class="fa-solid fa-filter"></i> Criteria Search</button>
+            <button class="tab-btn" onclick="switchTab('analytics')" data-target="analytics"><i class="fa-solid fa-chart-bar"></i> Analytics</button>
+            <button class="tab-btn" onclick="switchTab('strategies')" data-target="strategies"><i class="fa-solid fa-chess-knight"></i> Strategies</button>
+            <button class="tab-btn" onclick="switchTab('logs')" data-target="logs"><i class="fa-solid fa-terminal"></i> App Log</button>
+            <button class="tab-btn" onclick="switchTab('settings')" data-target="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+        </div>
+
+        <div class="main-content-area">
+            
+            <!-- Trending Stocks Tab -->
+            <div id="tab-trending" class="tab-content active">
+                
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <input type="text" id="manual-ticker-input" class="form-control" placeholder="Enter Ticker Symbol (e.g., AAPL)..." style="max-width: 300px; text-transform: uppercase;">
+                    <button class="btn-scan" onclick="addManualStock()"><i class="fa-solid fa-plus"></i> Add to Watchlist</button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Company</th>
+                            <th>Current Price</th>
+                            <th>% Change</th>
+                            <th>Rel Volume</th>
+                            <th>Signal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trending-table-body">
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding: 3rem; color: var(--text-muted);">
+                                <i class="fa-solid fa-satellite-dish" style="font-size:2rem; margin-bottom:1rem; opacity:0.5;"></i><br>
+                                Awaiting scan initialization...
+                            </td>
+                        </tr>
+                        <!-- Rows injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="tab-analytics" class="tab-content">
+                <div class="scan-control-panel" style="margin-bottom: 2rem;">
+                    <div class="scan-info">
+                        <h3>Analytics Engine</h3>
+                        <p>Automatically analyze your Stocks to Watch against the active algorithmic trading strategy.</p>
+                    </div>
+                    <div class="scan-actions" style="display: flex; gap: 1rem; align-items: center;">
+                        <label style="color: var(--text-muted); font-size: 0.9rem;">Auto-Evaluate Every:</label>
+                        <select class="form-control" id="eval-frequency" onchange="handleEvalFrequencyChange()" style="min-width: 150px;">
+                            <option value="0">Manual / Paused</option>
+                            <option value="60000" selected>1 Minute</option>
+                            <option value="300000">5 Minutes</option>
+                            <option value="900000">15 Minutes</option>
+                            <option value="3600000">1 Hour</option>
+                        </select>
+                    </div>
+                </div>
+
+                <table class="data-table" id="analytics-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Active Strategy</th>
+                            <th>Evaluation Status</th>
+                            <th>Confidence</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analytics-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                
+                <div id="analytics-empty-state" style="text-align: center; padding: 4rem;">
+                    <i class="fa-solid fa-chart-pie" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                    <h3 style="color: var(--text-muted);">Awaiting Execution</h3>
+                    <p style="color: var(--text-muted);">Ensure a Strategy is toggled ON and you have Stocks to Watch, then Run Evaluation.</p>
+                </div>
+            </div>
+
+            <!-- Strategies Tab -->
+            <div id="tab-strategies" class="tab-content">
+                <div class="info-box">
+                    <i class="fa-solid fa-circle-info"></i> Select a single algorithmic trading strategy below. Turning on a strategy will configure internal order execution parameters.
+                </div>
+                
+                <div class="strategies-list" id="strategies-container">
+                    <!-- Javascript will inject strategies here -->
+                </div>
+            </div>
+
+            <!-- App Logs Tab -->
+            <div id="tab-logs" class="tab-content">
+                <div class="terminal-window" id="terminal-output">
+                    <div class="log-line"><span class="log-time">[System]</span> <span class="log-info">Sherpa Stock Monitor Pro Initialized.</span></div>
+                    <div class="log-line"><span class="log-time">[System]</span> <span class="log-info">Ready to commence scan...</span></div>
+                </div>
+            </div>
+
+            <!-- Criteria Search Tab -->
+            <div id="tab-criteria" class="tab-content">
+                <div class="settings-grid">
+                    <div class="settings-panel">
+                        <div class="settings-panel-header"><i class="fa-solid fa-filter"></i> Scan Criteria Settings</div>
+                        
+                        <div class="form-group">
+                            <label>Minimum Today's Volume</label>
+                            <select class="form-control" id="opt-vol">
+                                <option value="100000">Over 100K</option>
+                                <option value="500000">Over 500K</option>
+                                <option value="1000000">Over 1M</option>
+                                <option value="2000000" selected>Over 2M</option>
+                                <option value="5000000">Over 5M</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Minimum Relative Volume (RVOL)</label>
+                            <select class="form-control" id="opt-rvol">
+                                <option value="1">More than 1x</option>
+                                <option value="2">More than 2x</option>
+                                <option value="3" selected>More than 3x</option>
+                                <option value="5">More than 5x</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Maximum Share Price</label>
+                            <select class="form-control" id="opt-price">
+                                <option value="10">Under $10</option>
+                                <option value="20" selected>Under $20</option>
+                                <option value="50">Under $50</option>
+                                <option value="100">Under $100</option>
+                                <option value="99999">No Limit</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-scan" onclick="saveSettings()" style="margin-top:2rem;"><i class="fa-solid fa-save"></i> Save Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content">
+                <div class="settings-grid">
+
+                    <div class="settings-panel">
+                        <div class="settings-panel-header"><i class="fa-solid fa-key"></i> Data Source Integrations</div>
+                        
+                        <div class="info-box">
+                            <i class="fa-solid fa-circle-info"></i> <strong>Sherpa Local Engine</strong> is active by default. It provides deterministic simulation sweeps. Add API keys to bypass the mock engine and query real real-time finance datasets.
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display:flex; justify-content:space-between;"><span>Yahoo Finance (yfinance via API)</span> <span style="color:var(--accent-green); font-size:0.8rem;">PRIMARY (FREE)</span></label>
+                            <input type="password" class="form-control" placeholder="No API key required for Yahoo proxy..." id="api-yahoo" disabled>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">Local python scraper backend handles this inherently without developer keys.</p>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label style="display:flex; justify-content:space-between;"><span>Alpha Vantage API</span> <span style="color:var(--accent-orange); font-size:0.8rem;">BACKUP</span></label>
+                            <input type="password" class="form-control" placeholder="Alphavantage Dev Key..." id="api-alpha">
+                        </div>
+                    </div>
+
+                    <div class="settings-panel">
+                        <div class="settings-panel-header"><i class="fa-solid fa-building-columns"></i> Brokerage Integration</div>
+                        
+                        <div class="info-box">
+                            <i class="fa-solid fa-circle-info"></i> Link your live or paper trading account to authorize the Analytics Engine to execute trades directly from the dashboard.
+                        </div>
+
+                        <div class="form-group">
+                            <label>Select Execution Broker</label>
+                            <select class="form-control" id="broker-select">
+                                <option value="alpaca" selected>Alpaca Markets</option>
+                                <option value="ibkr">Interactive Brokers</option>
+                                <option value="td">TD Ameritrade</option>
+                                <option value="tradier">Tradier</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1.5rem;">
+                            <label>API Key / Client ID</label>
+                            <input type="password" class="form-control" placeholder="Broker API Key..." id="broker-key">
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1.5rem;">
+                            <label>API Secret / Access Token</label>
+                            <input type="password" class="form-control" placeholder="Broker Secret Token..." id="broker-secret">
+                        </div>
+                        
+                        <button class="btn-scan" onclick="linkBrokerAccount()" id="btn-link-broker" style="margin-top:2rem;"><i class="fa-solid fa-link"></i> Connect Account</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Strategy Configuration Modal Overlay -->
+    <div class="modal-overlay" id="strategy-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-strat-title">Configure Strategy</div>
+                <button class="modal-close" onclick="closeStrategyModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;" id="modal-strat-desc">
+                    Setup execution parameters for this strategy.
+                </p>
+                
+                <div class="form-group">
+                    <label>Capital Allocation (Max Position %)</label>
+                    <select class="form-control">
+                        <option>5% of Portfolio</option>
+                        <option selected>10% of Portfolio</option>
+                        <option>20% of Portfolio</option>
+                        <option>50% of Portfolio</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Stop Loss Tolerance</label>
+                    <select class="form-control">
+                        <option>Tight (-2%)</option>
+                        <option selected>Standard (-5%)</option>
+                        <option>Wide (-10%)</option>
+                        <option>None (Algorithm managed)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Take Profit Target</label>
+                    <select class="form-control">
+                        <option>Quick Scalp (+1.5%)</option>
+                        <option selected>Moderate (+5%)</option>
+                        <option>Runner (+15%)</option>
+                        <option>Trailing Stop Only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-refresh" onclick="closeStrategyModal()">Cancel</button>
+                <button class="btn-scan" onclick="confirmStrategy()"><i class="fa-solid fa-check"></i> Execute Strategy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentation Modal Overlay -->
+    <div class="modal-overlay" id="doc-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fa-solid fa-book" style="color: var(--accent-cyan);"></i> Stock Monitor Pro Documentation</div>
+                <button class="modal-close" onclick="closeDocModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="max-height: 60vh; overflow-y: auto; padding-right: 15px;">
+                <h4 style="color: var(--text-light); margin-bottom: 10px;">Overview</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
+                    Stock Monitor Pro is a real-time algorithmic market scanning and trend analysis engine. It allows you to monitor thousands of equities simultaneously against customizable volume and price-action criteria.
+                </p>
+
+                <h4 style="color: var(--text-light); margin-bottom: 10px;">Dashboard Features</h4>
+                <ul style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; padding-left: 20px; line-height: 1.6;">
+                    <li><strong>Real-Time Scanning (Scan Control Panel):</strong> The primary engine. Clicking 'Start Scan' initiates a simulated backend market sweep lasting approximately 45 seconds. The engine filters thousands of US Equities against the parameters defined in your Criteria Search tab, returning visually prioritized matches (bullish vs bearish signals).</li>
+                    <li><strong>Criteria Search (Settings):</strong> Defines the constraints for the Real-Time Scan. You can customize Minimum Daily Volume (e.g., Over 2M), Minimum Relative Volume (e.g., >3x average), and establish an absolute Maximum Share Price ceiling to target specific market caps.</li>
+                    <li><strong>Stocks to Watch (Watchlist):</strong> Your persistent, cloud-synchronized database of target assets. You can populate this list either by clicking the 'Watchlist' button next to a successful scan result, or by manually typing a ticker symbol into the input field at the top of the tab. Stocks can be removed via the trash icon.</li>
+                    <li><strong>Strategies:</strong> The core logic algorithms that power the Analytics Engine. You can toggle one or multiple trading algorithms ON simultaneously (e.g., Momentum Breakout, Gap and Go). Clicking a toggle opens a configuration modal allowing you to fine-tune capital allocation, stop-loss triggers, and take-profit targets specific to that strategy.</li>
+                    <li><strong>Analytics Engine:</strong> The automated cross-referencing system. You can set the engine to "Auto-Evaluate" at customizable frequencies (1 Minute up to 1 Hour) via the dropdown. When active, it iteratively tests every stock in your Watchlist against every Strategy you have toggled ON. If a stock meets the criteria of a strategy, it generates a theoretical 'Confidence Score', flashes the Analytics tab blue, triggers a sonic alert, and populates the table with an actionable 'Execute Trade' button.</li>
+                    <li><strong>App Logs:</strong> A real-time terminal window outputting diagnostic information, system status changes, scan progress nodes, and database sync verifications.</li>
+                    <li><strong>Settings & Broker Integrations:</strong> A secure panel to input custom API keys. 'Data Source Integrations' allow you to bypass the deterministic mock engine by supplying an Alpha Vantage developer key. 'Brokerage Integration' allows you to theoretically link a live execution or paper trading account (Alpaca, Interactive Brokers, TD Ameritrade, Tradier) using an API Key and Secret, which authorizes the Analytics Engine 'Execute Trade' buttons.</li>
+                    <li><strong>Global Header Controls:</strong> 
+                        <ul style="padding-left: 15px; margin-top: 5px;">
+                            <li><strong>Audio Toggle:</strong> Enables or disables the sonic 'ping' notification fired when the Analytics Engine finds a match. Default is ON.</li>
+                            <li><strong>Documentation:</strong> Opens this informational modal.</li>
+                            <li><strong>Exit:</strong> Returns the user to the main Sherpa Solutions Project Portfolio page.</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4 style="color: var(--text-light); margin-bottom: 10px;">Interactive Demo</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0px; line-height: 1.5;">
+                    Click the pulsing 'DEMO OFF' button in the top header to launch a guided, voice-narrated walkthrough of the application's core capabilities.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-refresh" onclick="closeDocModal()">Close Documentation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts for UI interactions -> Scaffolding for backend integration -->
+    <script>
+        // --- Documentation Modal Logic ---
+        function openDocModal() {
+            document.getElementById('doc-modal').classList.add('active');
+        }
+        function closeDocModal() {
+            document.getElementById('doc-modal').classList.remove('active');
+        }
+
+        // --- Audio Alert System ---
+        let audioEnabled = true;
+        // A short generic "ping" generated for notification
+        const alertSound = new Audio("data:audio/wav;base64,UklGRloAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVEAAAAAAABfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f");
+        
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('btn-audio-toggle');
+            if(audioEnabled) {
+                btn.innerHTML = '<i class="fa-solid fa-bell" style="color: var(--accent-cyan);"></i> Audio On';
+                // Play once to verify to user
+                alertSound.play().catch(e => console.log("Audio play prevented by browser policy", e));
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-bell-slash"></i> Audio Off';
+            }
+        }
+
+        // --- Demo System ---
+        let isDemoRunning = false;
+        
+        // Cancellable delay helper
+        function demoDelay(ms) {
+            return new Promise(resolve => {
+                let waited = 0;
+                const interval = setInterval(() => {
+                    if (!isDemoRunning) {
+                        clearInterval(interval);
+                        resolve(); // Resolve early if cancelled
+                    }
+                    waited += 100;
+                    if (waited >= ms) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+
+        // Helper to narrate using SpeechSynthesis and wait for completion
+        function speak(text) {
+            return new Promise(resolve => {
+                if (!isDemoRunning) {
+                    resolve();
+                    return;
+                }
+                
+                if (!audioEnabled || !('speechSynthesis' in window)) {
+                    // Just print to log and resolve fast if audio off
+                    logToTerminal(`[Demo]: ${text}`, "info");
+                    demoDelay(text.length * 40).then(resolve); // Estimate reading time visually
+                    return;
+                }
+                
+                logToTerminal(`[Demo Voice]: ${text}`, "info");
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Try to find a good Female English voice
+                const voices = window.speechSynthesis.getVoices();
+                
+                // Priority 1: Explicitly female English voices (Windows/Mac/Google standard names)
+                let femaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                
+                // Priority 2: Any English voice fallback
+                let engVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+                
+                // Apply highest priority match
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                } else if (engVoice) {
+                    utterance.voice = engVoice;
+                }
+                
+                // Slightly higher pitch can also induce a female tone on generic synteshizers
+                utterance.pitch = femaleVoice ? 1.0 : 1.2; 
+                utterance.rate = 1.0; 
+                
+                // Handle cancellation mid-speech
+                utterance.onend = resolve;
+                utterance.onerror = resolve; // Continue even if speech fails or falls out of memory
+                
+                // Start speaking
+                window.speechSynthesis.speak(utterance);
+                
+                // Poll for cancellation during this block in case onend doesn't fire nicely
+                const checkCancel = setInterval(() => {
+                    if (!isDemoRunning) {
+                        clearInterval(checkCancel);
+                        window.speechSynthesis.cancel();
+                        resolve();
+                    }
+                }, 100);
+                
+                utterance.onend = () => {
+                    clearInterval(checkCancel);
+                    resolve();
+                };
+                utterance.onerror = () => {
+                    clearInterval(checkCancel);
+                    resolve();
+                };
+            });
+        }
+        
+        async function toggleDemo() {
+            const btn = document.getElementById('btn-demo-toggle');
+            
+            if (isDemoRunning) {
+                // User is CANCELING the Demo
+                isDemoRunning = false;
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                }
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+                logToTerminal("Interactive Demo aborted by user.", "warn");
+                return;
+            }
+            
+            // Start
+            isDemoRunning = true;
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO RUNNING';
+
+            // Start Tour Wait for intro
+            await speak("Welcome to Stock Monitor Pro. Let me show you around the dashboard.");
+            if (!isDemoRunning) return;
+            
+            // 1. Criteria Search
+            switchTab('criteria');
+            await speak("First, we set our boundaries in the Criteria Search tab. Here you can tweak the algorithm's volume, relative volume, and maximum share price filters.");
+            if (!isDemoRunning) return;
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+            
+            // 2. Real-time Scan execution
+            await speak("Next, we execute a Real-Time market sweep against these criteria.");
+            if (!isDemoRunning) return;
+            if (!isScanning) toggleScan();
+            
+            // Wait for scan to finish visually
+            await speak("The engine connects to our data sources, filtering thousands of equities in real-time to find explosive setups.");
+            if (!isDemoRunning) return;
+            await demoDelay(3000); 
+            if (!isDemoRunning) return;
+            
+            // 3. Watchlist
+            await speak("When a hit is identified, you can easily load it into your persistent Stocks to Watch list by clicking the Watchlist button in the scan results.");
+            if (!isDemoRunning) return;
+            if (document.getElementById('manual-ticker-input').value === '') {
+                document.getElementById('manual-ticker-input').value = 'NVDA';
+            }
+            addManualStock();
+            
+            await speak("Your custom watchlist is saved to the cloud database, giving you cross-device access to your targets.");
+            if (!isDemoRunning) return;
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+            
+            // 4. Strategies
+            switchTab('strategies');
+            await speak("Now let's configure our trading algorithms. The Strategies tab features several concurrent algorithmic mapping models.");
+            if (!isDemoRunning) return;
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+            
+            // Turn on a couple strategies if none are heavily active
+            if (activeStrategies.length === 0) {
+                document.getElementById('toggle-s1').checked = true;
+                handleStrategyToggle('s1');
+                setTimeout(() => confirmStrategy(), 500);
+            }
+            
+            await speak("You can turn on multiple strategies simultaneously to let the engine cross-reference parameters autonomously.");
+            if (!isDemoRunning) return;
+            await demoDelay(1000);
+            if (!isDemoRunning) return;
+
+            // 5. Analytics
+            switchTab('analytics');
+            await speak("Finally, the Analytics Engine. This system periodically tests your entire watchlist against every active strategy in your arsenal.");
+            if (!isDemoRunning) return;
+            
+            // Change dropdown and trigger evaluation
+            document.getElementById('eval-frequency').value = "60000"; // 1 min
+            handleEvalFrequencyChange(false);
+            
+            await speak("Once a parameter is met, you are immediately alerted, equipping you with split-second execution capability.");
+            if (!isDemoRunning) return;
+            
+            // End Demo
+            await speak("This concludes the automated feature overview. Thank you for choosing Sherpa Solutions.");
+            
+            // Reset button if we naturally finished
+            if (isDemoRunning) {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+                isDemoRunning = false;
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const targetBtn = document.querySelector(`.tab-btn[data-target="${tabId}"]`);
+            targetBtn.classList.add('active');
+            
+            // Clear alert if navigating to analytics
+            if (tabId === 'analytics') {
+                targetBtn.classList.remove('flash-alert');
+            }
+        }
+
+        // Settings Logic (Database Connected)
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/stock-settings');
+                const data = await res.json();
+                
+                if (data.status === 'success' && data.settings) {
+                    document.getElementById('opt-vol').value = data.settings.vol || '2000000';
+                    document.getElementById('opt-rvol').value = data.settings.rvol || '3';
+                    document.getElementById('opt-price').value = data.settings.price || '20';
+                    document.getElementById('api-alpha').value = data.settings.alpha_key || '';
+                    if (data.settings.eval_freq) {
+                        document.getElementById('eval-frequency').value = data.settings.eval_freq;
+                    }
+                    
+                    // Restore active strategy toggle if one was saved
+                    let savedStrategies = data.settings.active_strategies || (data.settings.active_strategy ? [data.settings.active_strategy] : []);
+                    activeStrategies = savedStrategies;
+                    activeStrategies.forEach(stratId => {
+                        const toggle = document.getElementById(`toggle-${stratId}`);
+                        if (toggle) {
+                            toggle.checked = true;
+                            // Silently set active without triggering the modal again
+                            const strat = strategiesData.find(s => s.id === stratId);
+                            if(strat) {
+                                logToTerminal(`Restored Session Strategy: [${strat.name}]`, "info");
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load settings from DB", e);
+                logToTerminal("Warning: Running on volatile temporary settings.", "warn");
+            } finally {
+                // Initialize the evaluation loop based on either the loaded setting or the HTML defaults
+                handleEvalFrequencyChange(false);
+            }
+        }
+
+        async function saveSettings() {
+            const settings = {
+                vol: document.getElementById('opt-vol').value,
+                rvol: document.getElementById('opt-rvol').value,
+                price: document.getElementById('opt-price').value,
+                alpha_key: document.getElementById('api-alpha').value,
+                active_strategies: activeStrategies,
+                eval_freq: document.getElementById('eval-frequency').value
+            };
+            
+            try {
+                await fetch('/api/stock-settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ settings: settings })
+                });
+                logToTerminal("Settings synced with secure cloud schema.", "success");
+            } catch (e) {
+                logToTerminal("Failed to sync settings with DB.", "warn");
+            }
+        }
+
+        // Broker Integration Logic
+        function linkBrokerAccount() {
+            const btn = document.getElementById('btn-link-broker');
+            const key = document.getElementById('broker-key').value;
+            const secret = document.getElementById('broker-secret').value;
+            const broker = document.getElementById('broker-select');
+            const brokerName = broker.options[broker.selectedIndex].text;
+            
+            if (!key || !secret) {
+                alert("Please enter both an API Key and Secret to connect your broker.");
+                return;
+            }
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+            
+            // Simulate API OAuth verification delay
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Account Linked';
+                btn.style.backgroundColor = 'rgba(46, 213, 115, 0.2)';
+                btn.style.borderColor = '#2ed573';
+                btn.style.color = '#2ed573';
+                btn.style.opacity = '1';
+                logToTerminal(`${brokerName} account successfully linked and authorized for execution.`, "success");
+            }, 1800);
+        }
+
+        // Initialize UI
+        document.getElementById('val-last-update').textContent = new Date().toLocaleTimeString();
+
+        // --- Strategies Feature Logic ---
+        const strategiesData = [
+            { id: "s1", name: "Momentum Breakout", icon: "fa-rocket", desc: "Buys assets making new highs with significantly above-average daily volume." },
+            { id: "s2", name: "Mean Reversion", icon: "fa-arrow-right-arrow-left", desc: "Identifies overextended price action and bets on a return to the moving average." },
+            { id: "s3", name: "VWAP Bounce", icon: "fa-water", desc: "Waits for price to pull back and touch the Volume Weighted Average Price before entering." },
+            { id: "s4", name: "Gap and Go", icon: "fa-level-up-alt", desc: "Trades morning gappers that break pre-market resistance levels on market open." },
+            { id: "s5", name: "Fallen Angel", icon: "fa-angle-down", desc: "Bottom-fishing strategy looking for capitulation volume and RSI divergence." },
+            { id: "s6", name: "Golden Cross", icon: "fa-plus", desc: "Long-term bullish entry triggered when the 50-day MA crosses above the 200-day MA." },
+            { id: "s7", name: "Death Cross", icon: "fa-skull", desc: "Bearish short-selling trigger when the 50-day MA crosses below the 200-day MA." },
+            { id: "s8", name: "Bollinger Squeeze", icon: "fa-compress", desc: "Trades the explosive expansion of volatility after bands have tightly contracted." },
+            { id: "s9", name: "MACD Divergence", icon: "fa-chart-line", desc: "Identifies trend exhaustion when price makes a new high but MACD makes a lower high." },
+            { id: "s10", name: "Insider Shadow", icon: "fa-user-secret", desc: "Follows clusters of recent SEC Form 4 insider buying reports." }
+        ];
+
+        let activeStrategies = [];
+        let pendingModalStrategyId = null;
+
+        function injectStrategies() {
+            const container = document.getElementById('strategies-container');
+            container.innerHTML = strategiesData.map(strat => `
+                <div class="strategy-item">
+                    <div class="strategy-info">
+                        <div class="strategy-title"><i class="fa-solid ${strat.icon} fa-fw" style="color: var(--accent-cyan);"></i> ${strat.name}</div>
+                        <div class="strategy-desc">${strat.desc}</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-${strat.id}" onchange="handleStrategyToggle('${strat.id}')">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        function handleStrategyToggle(stratId) {
+            const toggle = document.getElementById(`toggle-${stratId}`);
+            
+            if (toggle.checked) {
+                // Show configs
+                openStrategyModal(stratId);
+            } else {
+                // User turned it OFF
+                activeStrategies = activeStrategies.filter(id => id !== stratId);
+                logToTerminal(`Deactivated Strategy: [${stratId}]`, "warn");
+                saveSettings(); // Auto-save when turned off
+            }
+        }
+
+        function openStrategyModal(stratId) {
+            const strat = strategiesData.find(s => s.id === stratId);
+            document.getElementById('modal-strat-title').innerText = `${strat.name} Config`;
+            document.getElementById('modal-strat-desc').innerText = strat.desc;
+            document.getElementById('strategy-modal').classList.add('active');
+            pendingModalStrategyId = stratId;
+        }
+
+        function closeStrategyModal() {
+            document.getElementById('strategy-modal').classList.remove('active');
+            // If they cancel, uncheck the toggle since they didn't commit
+            if (pendingModalStrategyId && !activeStrategies.includes(pendingModalStrategyId)) {
+                document.getElementById(`toggle-${pendingModalStrategyId}`).checked = false;
+            }
+            pendingModalStrategyId = null;
+        }
+
+        function confirmStrategy() {
+            document.getElementById('strategy-modal').classList.remove('active');
+            if (pendingModalStrategyId && !activeStrategies.includes(pendingModalStrategyId)) {
+                activeStrategies.push(pendingModalStrategyId);
+                const strat = strategiesData.find(s => s.id === pendingModalStrategyId);
+                logToTerminal(`Strategy Armed: ${strat.name} algorithm is locked and ready.`, "highlight");
+                // Auto-save the newly engaged strategy to DB
+                saveSettings();
+                // Jump to logs to show it engaged
+                switchTab('logs');
+            }
+            pendingModalStrategyId = null;
+        }
+
+        injectStrategies();
+        // Load Settings *after* strategies are injected so we can flip the correct toggle
+        loadSettings();
+        // --- End Strategies Feature Logic ---
+
+        // Scanner State
+        let isScanning = false;
+        let scanInterval = null;
+
+        function toggleScan() {
+            const btn = document.getElementById('btn-toggle-scan');
+            if (isScanning) {
+                stopScan();
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> Start Scan';
+                btn.className = 'btn-scan';
+            } else {
+                startScan();
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop Scan';
+                btn.className = 'btn-scan btn-stop';
+            }
+        }
+
+        // Terminal Log Helper
+        function logToTerminal(msg, type="info") {
+            const term = document.getElementById('terminal-output');
+            const time = new Date().toLocaleTimeString();
+            let colorCls = 'log-info';
+            if(type === 'success') colorCls = 'log-success';
+            if(type === 'warn') colorCls = 'log-warn';
+            if(type === 'highlight') colorCls = 'log-highlight';
+
+            term.innerHTML += `<div class="log-line"><span class="log-time">[${time}]</span> <span class="${colorCls}">${msg}</span></div>`;
+            term.scrollTop = term.scrollHeight;
+        }
+
+        // Scan Simulation / API Request
+        async function startScan() {
+            isScanning = true;
+            document.getElementById('system-status-text').textContent = "Scanning...";
+            document.getElementById('system-status-dot').className = "status-dot scanning";
+            
+            logToTerminal("Initiating Market Sweep Protocol...", "highlight");
+            
+            // Build query params from settings
+            const vol = localStorage.getItem('sm_vol') || '2000000';
+            const price = localStorage.getItem('sm_price') || '20';
+            
+            logToTerminal(`Filters applied: Vol > ${vol}, Price < $${price}`);
+
+            // Simulate progress bar filling (target ~40-45 seconds for 10k stocks)
+            let progress = 0;
+            const bar = document.getElementById('scan-progress-bar');
+            const totalSimTimeMs = 42000; // ~42 seconds
+            const intervalMs = 800;
+            const progressIncrement = 100 / (totalSimTimeMs / intervalMs);
+            
+            const scanStartTime = Date.now();
+
+            scanInterval = setInterval(() => {
+                progress += progressIncrement + (Math.random() * 0.5 - 0.2); // Add slight jitter
+                if(progress > 99) progress = 99; // hold at 99 until fetch and timer both complete
+                
+                bar.style.width = progress + '%';
+                // Calculate estimated simulated volume based on progress
+                const simulatedCount = Math.floor((progress / 100) * 10000);
+                document.getElementById('val-progress').textContent = `${Math.floor(progress)}% (${simulatedCount}/10K)`;
+                
+                // Simulate log output
+                if(Math.random() > 0.4) {
+                    const fakeTickers = ['AAPL', 'MSFT', 'TSLA', 'GME', 'AMC', 'NVDA', 'AMD', 'PLTR', 'META', 'AMZN', 'GOOGL', 'CRWD', 'SNOW'];
+                    const t = fakeTickers[Math.floor(Math.random() * fakeTickers.length)];
+                    logToTerminal(`Analyzing volume profile: ${t}...`);
+                }
+            }, intervalMs);
+
+            try {
+                // Fetch real data from our backend proxy
+                const response = await fetch(`/api/stock-scan?vol=${vol}&price=${price}`);
+                const data = await response.json();
+                
+                if(!response.ok) throw new Error(data.error || 'Server responded with an error');
+
+                // Ensure the visual simulation lasts the full 42 seconds even if API is fast
+                const elapsedTime = Date.now() - scanStartTime;
+                const remainingTime = Math.max(0, totalSimTimeMs - elapsedTime);
+                
+                if (remainingTime > 0) {
+                    setTimeout(() => {
+                        if (isScanning) finishScanSuccess(data);
+                    }, remainingTime);
+                } else {
+                    if (isScanning) finishScanSuccess(data);
+                }
+
+            } catch (err) {
+                console.error(err);
+                logToTerminal("Connection to Data Source failed.", "warn");
+                stopScan();
+            }
+        }
+
+        function finishScanSuccess(data) {
+            clearInterval(scanInterval);
+            document.getElementById('scan-progress-bar').style.width = '100%';
+            document.getElementById('val-progress').textContent = '100% of 10K';
+            
+            // Update Metrics
+            document.getElementById('val-last-update').textContent = new Date().toLocaleTimeString();
+            
+            // Log 
+            logToTerminal(`Sweep complete. Identified ${data.trending_count} actionable patterns.`, "success");
+
+            // Build Table
+            const resultsSection = document.getElementById('scan-results-section');
+            const tbody = document.getElementById('scan-results-body');
+            const countLabel = document.getElementById('scan-results-count');
+            
+            tbody.innerHTML = '';
+            resultsSection.style.display = 'block';
+            countLabel.textContent = `${data.trending_count} Matches Found`;
+            
+            if(!data.results || data.results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">No stocks met criteria.</td></tr>';
+            } else {
+                data.results.forEach(stock => {
+                    const isUp = stock.change.startsWith('+');
+                    const priceCls = isUp ? 'price-up' : 'price-down';
+                    const icon = isUp ? '<i class="fa-solid fa-arrow-trend-up"></i>' : '<i class="fa-solid fa-arrow-trend-down"></i>';
+                    
+                    let signalBadge = `<span style="background:var(--accent-green); color:#fff; padding:3px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">${stock.signal}</span>`;
+                    if(stock.signal === 'SELL' || stock.signal === 'BEARISH') {
+                        signalBadge = `<span style="background:var(--accent-red); color:#fff; padding:3px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">${stock.signal}</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ticker-symbol">${stock.ticker}</td>
+                            <td>${stock.name}</td>
+                            <td>$${stock.price}</td>
+                            <td class="${priceCls}">${icon} ${stock.change}</td>
+                            <td>${stock.rvol}</td>
+                            <td>${signalBadge}</td>
+                            <td>
+                                <button class="btn-scan" style="padding: 4px 10px; font-size: 0.8rem;" onclick="addStockFromScan('${stock.ticker}')"><i class="fa-solid fa-plus"></i> Watchlist</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Reset scan button shortly after finish
+            setTimeout(() => {
+                if(isScanning) toggleScan(); 
+            }, 1000);
+        }
+
+        async function addStockFromScan(ticker) {
+            // Programmatically set input and click add to reuse manual add logic and hit database route
+            document.getElementById('manual-ticker-input').value = ticker;
+            await addManualStock();
+            // Automatically switch view to trending tab to show it was added
+            switchTab('trending');
+        }
+
+        function stopScan() {
+            isScanning = false;
+            clearInterval(scanInterval);
+            document.getElementById('system-status-text').textContent = "Online";
+            document.getElementById('system-status-dot').className = "status-dot online";
+            document.getElementById('scan-progress-bar').style.width = '0%';
+            document.getElementById('val-progress').textContent = 'Inactive';
+            
+            logToTerminal("Scan manually aborted by operator.", "warn");
+        }
+        
+        // --- Watchlist / DB Sync Logic ---
+        
+        async function loadWatchlist() {
+            try {
+                const res = await fetch('/api/stock-watchlist');
+                const data = await res.json();
+                if (data.status === 'success' && data.tickers && data.tickers.length > 0) {
+                    const tbody = document.getElementById('trending-table-body');
+                    // Clear placeholder
+                    if (tbody.innerHTML.includes('Awaiting scan initialization')) {
+                        tbody.innerHTML = '';
+                    }
+                    
+                    data.tickers.reverse().forEach(ticker => {
+                        injectWatchlistRow(ticker, true);
+                    });
+                    document.getElementById('val-total-stocks').textContent = data.tickers.length;
+                    logToTerminal(`Loaded ${data.tickers.length} stocks from synchronized watchlist.`, "info");
+                } else {
+                    document.getElementById('val-total-stocks').textContent = '0';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function addManualStock() {
+            const input = document.getElementById('manual-ticker-input');
+            let ticker = input.value.trim().toUpperCase();
+            
+            if (!ticker) return;
+
+            try {
+                const res = await fetch('/api/stock-watchlist', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ ticker: ticker })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    injectWatchlistRow(ticker, false);
+                    input.value = ''; // clear input
+                    
+                    // Increment Total Stocks Counter
+                    const counter = document.getElementById('val-total-stocks');
+                    counter.textContent = parseInt(counter.textContent || 0) + 1;
+                    
+                    logToTerminal(`Manually initialized tracking protocol for [${ticker}].`, "highlight");
+                } else if (data.status === 'exists') {
+                    alert(`${ticker} is already in your watchlist.`);
+                    input.value = '';
+                }
+            } catch (e) {
+                logToTerminal(`Error saving ${ticker} to database.`, "warn");
+            }
+        }
+
+        function injectWatchlistRow(ticker, isHistoricalLoad) {
+            const tbody = document.getElementById('trending-table-body');
+            
+            // Clear placeholder if it's there
+            if (tbody.innerHTML.includes('Awaiting scan initialization') || tbody.innerHTML.includes('No stocks met criteria')) {
+                tbody.innerHTML = '';
+            }
+
+            // Simulate fetching basic data for the manual entry
+            const mockPrice = (Math.random() * 150 + 10).toFixed(2);
+            const isUp = Math.random() > 0.5;
+            const changePct = (Math.random() * 5).toFixed(2);
+            const changeStr = isUp ? `+${changePct}%` : `-${changePct}%`;
+            const priceCls = isUp ? 'price-up' : 'price-down';
+            const icon = isUp ? '<i class="fa-solid fa-arrow-trend-up"></i>' : '<i class="fa-solid fa-arrow-trend-down"></i>';
+            const mockRvol = (Math.random() * 2 + 0.5).toFixed(1) + 'x';
+            
+            const badgeType = isHistoricalLoad ? 'SYNCED' : 'TRACKING';
+            const badgeColor = isHistoricalLoad ? '#3b82f6' : 'var(--accent-orange)';
+
+            const manualRow = `
+                <tr id="row-${ticker}">
+                    <td class="ticker-symbol">${ticker}</td>
+                    <td>Added to Watchlist</td>
+                    <td>$${mockPrice}</td>
+                    <td class="${priceCls}">${icon} ${changeStr}</td>
+                    <td>${mockRvol}</td>
+                    <td style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="background:${badgeColor}; color:#fff; padding:3px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">${badgeType}</span>
+                        <button onclick="removeStock('${ticker}')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:5px;"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+
+            tbody.insertAdjacentHTML('afterbegin', manualRow);
+        }
+
+        async function removeStock(ticker) {
+            try {
+                await fetch(`/api/stock-watchlist/${ticker}`, { method: 'DELETE' });
+                const row = document.getElementById(`row-${ticker}`);
+                if (row) row.remove();
+                
+                // Decrement Total Stocks Counter
+                const counter = document.getElementById('val-total-stocks');
+                const currentCount = parseInt(counter.textContent || 0);
+                if(currentCount > 0) counter.textContent = currentCount - 1;
+
+                logToTerminal(`Removed ${ticker} from watchlist.`, "info");
+                
+                // If empty, add placeholder back
+                const tbody = document.getElementById('trending-table-body');
+                if (tbody.querySelectorAll('tr').length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 3rem; color: var(--text-muted);"><i class="fa-solid fa-satellite-dish" style="font-size:2rem; margin-bottom:1rem; opacity:0.5;"></i><br>Watchlist empty...</td></tr>';
+                }
+            } catch (e) {
+                logToTerminal(`Failed to remove ${ticker} from database.`, "warn");
+            }
+        }
+
+        // Run Watchlist fetch on load
+        loadWatchlist();
+
+        // Allow pressing Enter in the input field
+        document.getElementById('manual-ticker-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addManualStock();
+            }
+        });
+
+        // Analytics Evaluation Engine
+        let autoEvalInterval = null;
+
+        function handleEvalFrequencyChange(triggerSave = true) {
+            const freqMs = parseInt(document.getElementById('eval-frequency').value, 10);
+            
+            // Clear existing loop
+            if (autoEvalInterval) {
+                clearInterval(autoEvalInterval);
+                autoEvalInterval = null;
+            }
+
+            if (freqMs > 0) {
+                // Determine human readable label for log
+                const selectElement = document.getElementById('eval-frequency');
+                const label = selectElement.options[selectElement.selectedIndex].text;
+                logToTerminal(`Evaluation Engine set to auto-run every ${label}. Initializing first pass...`, "info");
+                
+                // Run immediately once
+                runAnalyticsEvaluation(true);
+                
+                // Then loop at interval
+                autoEvalInterval = setInterval(() => {
+                    logToTerminal(`Auto-Evaluation triggered (${label} interval).`, "highlight");
+                    runAnalyticsEvaluation(true); // pass true to indicate auto-run
+                }, freqMs);
+            } else {
+                logToTerminal(`Evaluation Engine auto-run PAUSED.`, "warn");
+            }
+            
+            if(triggerSave) saveSettings();
+        }
+
+        function runAnalyticsEvaluation(isAuto = false) {
+            const tbody = document.getElementById('trending-table-body');
+            const rows = tbody.querySelectorAll('tr');
+            
+            // Check if there are stocks to evaluate
+            if (rows.length === 0 || tbody.innerHTML.includes('Awaiting scan initialization') || tbody.innerHTML.includes('No stocks met criteria') || tbody.innerHTML.includes('Watchlist empty')) {
+                if(!isAuto) alert("You need stocks in the 'Stocks to Watch' list to run an evaluation.");
+                return;
+            }
+
+            // Check if a strategy is active
+            if (activeStrategies.length === 0) {
+                if(!isAuto) alert("Please go to the Strategies tab and toggle at least one strategy ON before evaluating.");
+                return;
+            }
+
+            const activeStratNames = activeStrategies.map(id => strategiesData.find(s => s.id === id).name).join(', ');
+            logToTerminal(`Initiating Analytics Engine using [${activeStratNames}]...`, "highlight");
+            
+            document.getElementById('analytics-empty-state').style.display = 'none';
+            document.getElementById('analytics-table').style.display = 'table';
+            
+            const analyticsBody = document.getElementById('analytics-table-body');
+            analyticsBody.innerHTML = '';
+
+            let passCount = 0;
+
+            rows.forEach((row, index) => {
+                const tickerCell = row.querySelector('.ticker-symbol');
+                if (!tickerCell) return;
+                
+                const ticker = tickerCell.textContent;
+                
+                // Evaluate stock against all active strategies independently
+                let passedStrats = [];
+                let highestConf = 0;
+                
+                activeStrategies.forEach(stratId => {
+                    const stratName = strategiesData.find(s => s.id === stratId).name;
+                    // Simulate evaluation engine (30% pass rate per strategy)
+                    const isPass = Math.random() > 0.7;
+                    if (isPass) {
+                        passedStrats.push(stratName);
+                        // Generate a confidence score for this pass
+                        const confScore = Math.floor(Math.random() * 40) + 60; // 60-99%
+                        if (confScore > highestConf) highestConf = confScore;
+                    }
+                });
+
+                let statusBadge = `<span style="color: var(--accent-red);"><i class="fa-solid fa-xmark"></i> REJECTED</span>`;
+                let actionBtn = `<button class="btn-refresh" disabled style="opacity: 0.5;">No Action</button>`;
+                let stratDisplay = "--";
+                let confDisplay = "--";
+                
+                if (passedStrats.length > 0) {
+                    passCount++;
+                    statusBadge = `<span style="color: var(--accent-green); font-weight: bold;"><i class="fa-solid fa-check"></i> CRITERIA MET</span>`;
+                    stratDisplay = passedStrats.join(', ');
+                    confDisplay = highestConf + '%';
+                    
+                    // Note: Passed combo string to executeTrade
+                    actionBtn = `<button class="btn-scan" onclick="executeTrade('${ticker}', '${stratDisplay}')"><i class="fa-solid fa-bolt"></i> Execute Trade</button>`;
+                } else {
+                    // If it failed everything, just show the strategies it was tested against
+                    stratDisplay = `<span style="color: var(--text-muted); font-size: 0.8rem;">Tested vs ${activeStrategies.length} config(s)</span>`;
+                }
+
+                // Add staggered delay to look like real processing
+                setTimeout(() => {
+                    analyticsBody.innerHTML += `
+                        <tr>
+                            <td class="ticker-symbol">${ticker}</td>
+                            <td>${stratDisplay}</td>
+                            <td>${statusBadge}</td>
+                            <td>${confDisplay}</td>
+                            <td>${actionBtn}</td>
+                        </tr>
+                    `;
+                    logToTerminal(`Evaluated ${ticker}: ${passedStrats.length > 0 ? 'PASS' : 'FAIL'}`, passedStrats.length > 0 ? "success" : "info");
+                }, index * 400); // 400ms delay per row
+            });
+
+            setTimeout(() => {
+                logToTerminal(`Analytics Sweep Complete. ${passCount} targets acquired for selected algorithms.`, "highlight");
+                
+                // Update "Trending Now" metric to reflect Criteria Met count
+                document.getElementById('val-trending').textContent = passCount;
+                document.getElementById('val-last-update').textContent = new Date().toLocaleTimeString();
+
+                if (passCount > 0) {
+                    const analyticsTabBtn = document.querySelector('.tab-btn[data-target="analytics"]');
+                    // Only flash if they are not already looking at the tab
+                    if (!analyticsTabBtn.classList.contains('active')) {
+                        analyticsTabBtn.classList.add('flash-alert');
+                    }
+                    
+                    // Trigger audio alert if enabled
+                    if (audioEnabled) {
+                        alertSound.play().catch(e => console.log("Audio playback failed.", e));
+                    }
+                }
+            }, rows.length * 400 + 500);
+        }
+
+        function executeTrade(ticker, strategyName) {
+            logToTerminal(`Trade Execution Sent: [BUY] ${ticker} via ${strategyName} parameters.`, "success");
+            alert(`API Order Submitted for ${ticker} using ${strategyName} 🚀`);
+        }
+
+        // --- Demo Auto-Start (Production Only) ---
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const hostname = window.location.hostname;
+            if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '') {
+                // If we're on a live server (e.g. sherpa-solutions-llc.com), auto-trigger Demo after 2 seconds
+                logToTerminal("Live environment detected. Interactive Demo starting automatically.", "system");
+                setTimeout(() => {
+                    if (!isDemoRunning) {
+                        toggleDemo();
+                    }
+                }, 2000);
+            }
+        });
+
+    </script>
+</body>
+</html>
