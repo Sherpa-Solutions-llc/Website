@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 
 <head>
@@ -606,6 +606,13 @@
         <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
             <button id="btn-audio-toggle" class="audio-toggle-btn enabled" onclick="toggleAudio()"><i class="fa-solid fa-volume-high"></i> Audio On</button>
             <button id="btn-demo-toggle" class="demo-btn" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+                <div id="demo-volume-control" style="display:none;align-items:center;gap:6px;margin-left:8px;">
+                <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-low"></i></span>
+                <input type="range" id="demo-volume-slider" min="0" max="100" value="50"
+                    style="width:80px;height:4px;cursor:pointer;accent-color:var(--accent, #C06C3B);"
+                    oninput="setDemoVolume(this.value)">
+                <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-high"></i></span>
+            </div>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
         </div>
     </header>
@@ -968,7 +975,7 @@
                     <h2 style="color: white; margin-bottom: 1rem;"><i class="fa-solid fa-satellite-dish" style="color: var(--accent);"></i> Intelligence Matrix Scan</h2>
                     <p style="color: var(--text-muted); margin-bottom: 2rem;">Ensure target profile footprint is submitted before executing payload simulation.</p>
                     <button type="button" id="btn-execute-trace" onclick="executeDetailedTrace()" class="btn-search" style="border-radius: 40px; padding: 1rem 4rem; font-size: 1.2rem; box-shadow: 0 0 20px rgba(192, 108, 59, 0.5);">
-                        <i class="fa-solid fa-bolt"></i> Execute Trace
+                        <i class="fa-solid fa-bolt"></i> Search
                     </button>
                 </div>
 
@@ -1570,7 +1577,7 @@
                 if (allDone) {
                     clearInterval(scanInterval);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Execute New Trace';
+                    btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Search';
                     document.getElementById('trace-complete-badge').style.display = 'block';
                     
                     // Render the Dossier HTML
@@ -2763,6 +2770,7 @@
                 // Slightly higher pitch can also induce a female tone on generic synteshizers
                 utterance.pitch = femaleVoice ? 1.0 : 1.2; 
                 utterance.rate = 1.0; 
+                utterance.volume = demoVolume; 
                 
                 // Handle cancellation mid-speech
                 utterance.onend = resolve;
@@ -2791,12 +2799,24 @@
             });
         }
         
+
+        // Demo volume control
+        let demoVolume = 0.5; // starts at 50%
+        function setDemoVolume(val) {
+            demoVolume = parseInt(val) / 100;
+        }
+        function showDemoVolumeControl(show) {
+            const vc = document.getElementById('demo-volume-control');
+            if (vc) vc.style.display = show ? 'flex' : 'none';
+        }
+
         async function toggleDemo() {
             const btn = document.getElementById('btn-demo-toggle');
             
             if (isDemoRunning) {
                 // User is CANCELING the Demo
                 isDemoRunning = false;
+                showDemoVolumeControl(false);
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
                 }
@@ -2808,6 +2828,8 @@
             
             // Start
             isDemoRunning = true;
+            showDemoVolumeControl(true);
+            const vs = document.getElementById('demo-volume-slider'); if (vs) { vs.value = 50; demoVolume = 0.5; }
             btn.classList.add('active');
             btn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO RUNNING';
 
