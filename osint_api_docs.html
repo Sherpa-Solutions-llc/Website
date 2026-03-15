@@ -229,13 +229,13 @@
                 <h2>Quickstart Guide</h2>
                 <p>Get your first telemetry response in under 3 minutes.</p>
                 <ol style="color: var(--text-dark); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 2rem;">
-                    <li><strong>Sign up for a Sandbox Key.</strong> Visit the <a href="osint_api.html#pricing" style="color: var(--accent);">Pricing page</a> and select the Hobbyist tier. A mock Stripe interface will issue an `sk_hob_` prefixed key instantly.</li>
-                    <li><strong>Set your headers.</strong> All requests to the `/query` endpoint require the `x-api-key` header.</li>
+                    <li><strong>Sign up for a Sandbox Key.</strong> Visit the <a href="osint_api.html#pricing" style="color: var(--accent);">Pricing page</a> and select the Hobbyist tier. A mock Stripe interface will issue an `sk_hob_` prefixed key instantly. Or, subscribe directly via the RapidAPI Marketplace.</li>
+                    <li><strong>Set your headers.</strong> All requests to the `/query` endpoint require the `X-RapidAPI-Key` (or the legacy `x-api-key`) header.</li>
                     <li><strong>Run your first query.</strong> Execute the following cURL command to fetch live aircraft data:</li>
                 </ol>
                 <div class="code-block">
 <pre>curl -X GET "https://api.sherpa-solutions.com/v1/osint/query?type=flights&limit=5" \
-  -H "x-api-key: sk_hob_YOUR_GENERATED_KEY_HERE"</pre>
+  -H "X-RapidAPI-Key: YOUR_GENERATED_KEY_HERE"</pre>
                 </div>
             </section>
 
@@ -265,7 +265,7 @@
                 <h2>Authentication</h2>
                 <p>The OSINT API uses API keys to authenticate requests. You can view and manage your API keys in the developer dashboard.</p>
                 <p>Your API keys carry many privileges, so be sure to keep them secure. Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.</p>
-                <p>Authentication to the API is performed via the HTTP Header <code style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">x-api-key</code>.</p>
+                <p>Authentication to the API is performed via the HTTP Header <code style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">X-RapidAPI-Key</code> (or the legacy <code style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">x-api-key</code>).</p>
                 
                 <div class="code-block">
 <pre># Example Python Request
@@ -273,7 +273,7 @@ import requests
 
 url = "https://api.sherpa-solutions.com/v1/osint/query"
 headers = {
-    "x-api-key": "sk_pro_...your_secret_key"
+    "X-RapidAPI-Key": "your_secret_key"
 }
 params = {"type": "earthquakes", "limit": 10}
 
@@ -328,7 +328,7 @@ print(response.json())</pre>
                     </tr>
                     <tr>
                         <td style="color: #ff5f56; font-weight:bold;">401 - Unauthorized</td>
-                        <td>No valid API key provided in the `x-api-key` header.</td>
+                        <td>No valid API key provided in the `X-RapidAPI-Key` or `x-api-key` header.</td>
                     </tr>
                     <tr>
                         <td style="color: #ff5f56; font-weight:bold;">429 - Too Many Requests</td>
@@ -395,7 +395,7 @@ const options = {
   method: 'GET',
   url: 'https://api.sherpa-solutions.com/v1/osint/query',
   params: { type: 'military_flights', limit: '50' },
-  headers: { 'x-api-key': 'sk_pro_YOUR_KEY' }
+  headers: { 'X-RapidAPI-Key': 'YOUR_KEY' }
 };
 
 axios.request(options).then(function (response) {
