@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FreeMe — AI-Powered Personal Data Removal. Autonomously scrubs your personal information from data brokers using intelligent web agents.">
+    <meta name="keywords" content="Data Removal, Privacy, OSINT, Opt-Out Automation, Data Broker Removal, AI Privacy Tool">
+    <title>FreeMe | Sherpa Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/styles.css?v=1.4">
+    <script src="static/theme.js"></script>
+    <style>
+        .freeme-hero {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+        }
+        .freeme-hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4ade80, #22d3ee, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .freeme-hero .tagline {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        .freeme-hero .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: #4ade80;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .arch-section {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        .arch-section h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(192, 108, 59, 0.3);
+            padding-bottom: 0.75rem;
+        }
+        .arch-section h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            color: #22d3ee;
+            margin-bottom: 0.75rem;
+            margin-top: 2rem;
+        }
+        .arch-section p, .arch-section li {
+            color: var(--text-dark);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .arch-section ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .arch-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .service-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2.5rem 0;
+        }
+        .service-card {
+            background: var(--glass-bg, rgba(20, 25, 35, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        .service-card .card-number {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 4rem;
+            font-weight: 800;
+            opacity: 0.06;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-dark);
+        }
+        .service-card .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .service-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: #fff;
+        }
+        .service-card p {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .tech-stack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .tech-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .tech-item i {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .tech-item .tech-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .tech-item .tech-name {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .first-step-box {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(34, 211, 238, 0.08));
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 3rem 0;
+        }
+        .first-step-box h3 {
+            color: #4ade80;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+        .first-step-box p {
+            color: var(--text-dark);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="index.html"><img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC"></a>
+        </div>
+        <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Our Services</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+            <li><a href="merchandise.html">Merchandise</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="header-actions">
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+            <a href="projects.html" class="btn btn-primary nav-cta"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Projects</a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <div class="freeme-hero">
+        <h1><i class="fa-solid fa-shield-halved" style="margin-right: 0.5rem; font-size: 3rem;"></i> FreeMe</h1>
+        <p class="tagline">AI-Powered Personal Data Removal — Autonomous Agents That Scrub Your Digital Footprint</p>
+        <div class="status-badge"><i class="fa-solid fa-flask"></i> In Development</div>
+    </div>
+
+    <!-- Role & Objective -->
+    <section class="arch-section">
+        <h2><i class="fa-solid fa-crosshairs" style="margin-right: 0.5rem;"></i> Mission</h2>
+        <p>
+            FreeMe is a next-generation Personal Data Removal application designed to outperform current market leaders 
+            by utilizing <strong>autonomous AI web agents</strong> rather than static scrapers. Traditional data removal services 
+            rely on brittle CSS selectors that break whenever a data broker updates their website. FreeMe replaces this fragile 
+            approach with intelligent, vision-based agents that can dynamically navigate any opt-out flow — just like a human would.
+        </p>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="arch-section">
+        <h2><i class="fa-solid fa-layer-group" style="margin-right: 0.5rem;"></i> Core Architecture & Tech Stack</h2>
+        <div class="tech-stack-grid">
+            <div class="tech-item">
+                <i class="fa-brands fa-react" style="color: #61dafb;"></i>
+                <span class="tech-label">Frontend</span>
+                <span class="tech-name">React (Next.js)</span>
+            </div>
+            <div class="tech-item">
+                <i class="fa-brands fa-python" style="color: #ffdd57;"></i>
+                <span class="tech-label">Backend / API</span>
+                <span class="tech-name">Python (FastAPI)</span>
+            </div>
+            <div class="tech-item">
+                <i class="fa-solid fa-robot" style="color: #a78bfa;"></i>
+                <span class="tech-label">Web Automation</span>
+                <span class="tech-name">Playwright + LangChain</span>
+            </div>
+            <div class="tech-item">
+                <i class="fa-solid fa-cloud" style="color: #22d3ee;"></i>
+                <span class="tech-label">Dev Environment</span>
+                <span class="tech-name">Cloud IDE (Replit)</span>
+            </div>
+        </div>
+        <p>
+            The frontend delivers a clean, user-friendly dashboard with <strong>"before and after" screenshot proof</strong> 
+            of data removal. The Python backend handles all heavy lifting — web automation, asynchronous task queues, 
+            and AI agent orchestration.
+        </p>
+    </section>
+
+    <!-- 3 Core Microservices -->
+    <section class="arch-section">
+        <h2><i class="fa-solid fa-cubes" style="margin-right: 0.5rem;"></i> The 3 Core Microservices</h2>
+        <p style="margin-bottom: 2rem;">These are the differentiators that position FreeMe ahead of every competitor in the market.</p>
+        
+        <div class="service-cards">
+            <!-- Service 1 -->
+            <div class="service-card">
+                <span class="card-number">01</span>
+                <div class="card-icon" style="color: #f97316;">🤖</div>
+                <h3>Autonomous Opt-Out Engine</h3>
+                <p>
+                    No static CSS selectors that break when a broker updates their site. A Python-based headless browser agent 
+                    uses a <strong>Vision-Language Model</strong> to visually "read" data broker webpages, dynamically locate 
+                    opt-out forms, and input user data — adapting automatically to layout changes.
+                </p>
+            </div>
+
+            <!-- Service 2 -->
+            <div class="service-card">
+                <span class="card-number">02</span>
+                <div class="card-icon" style="color: #4ade80;">🔒</div>
+                <h3>Local Privacy Parser</h3>
+                <p>
+                    Because we handle highly sensitive PII, <strong>no user data is ever sent to public APIs</strong>. 
+                    All PII extraction and email verification parsing is routed through a local, self-hosted LLM 
+                    (OpenClaw, Clawdbot, or local LLaMA variant) — guaranteeing <strong>zero-data-leakage</strong>.
+                </p>
+            </div>
+
+            <!-- Service 3 -->
+            <div class="service-card">
+                <span class="card-number">03</span>
+                <div class="card-icon" style="color: #22d3ee;">📨</div>
+                <h3>Inbox Automator</h3>
+                <p>
+                    Data brokers send confirmation emails to verify opt-out requests. The Inbox Automator connects 
+                    to a dedicated <strong>IMAP email inbox</strong> and automatically processes confirmation links — 
+                    completing the removal loop without any manual intervention.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- First Step -->
+    <section class="arch-section">
+        <div class="first-step-box">
+            <h3><i class="fa-solid fa-rocket" style="margin-right: 0.5rem;"></i> Development Approach</h3>
+            <p>
+                FreeMe follows a phased development methodology. The first milestone establishes the complete directory structure, 
+                dependency manifests (<code>requirements.txt</code> / <code>package.json</code>), and a detailed technical 
+                specification of how the <strong>Local Privacy Parser</strong> securely passes sanitized variables to the 
+                <strong>Autonomous Opt-Out Engine</strong> — ensuring PII never touches an external endpoint during the 
+                entire removal pipeline.
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-banner">
+        <div class="cta-content">
+            <h2>Interested in FreeMe?</h2>
+            <p>FreeMe is currently in active development. Contact us to learn more or request early access.</p>
+            <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
+        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success. <a href="/login.html" id="admin-login-link" title="Admin Login"></a></p>
+    </footer>
+
+    <script src="static/cms.js"></script>
+</body>
+
+</html>
