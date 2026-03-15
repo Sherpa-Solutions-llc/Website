@@ -885,6 +885,9 @@
 <h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem;">Target Data Brokers</h3>
 <p style="color: var(--text-muted); margin: 0;">Select the sources you want the autonomous agents to process.</p>
 </div>
+<button id="btn-scan-brokers" class="btn-run" style="margin-left: 1rem; width: fit-content; padding: 0.8rem 1.5rem; font-size: 1rem; white-space: nowrap;" onclick="discoverNewBrokers()" type="button">
+    <i class="fa-solid fa-magnifying-glass"></i> Search New Data Brokers
+</button>
 </div>
 <div class="broker-grid" id="main-broker-grid">
 <label class="broker-card">
@@ -1243,6 +1246,9 @@
             const grid = document.getElementById('main-broker-grid');
             const checkboxes = document.querySelectorAll('.pending-broker-checkbox:checked');
             
+            // Load existing custom brokers from localStorage
+            let savedBrokers = JSON.parse(localStorage.getItem('freeme_custom_brokers') || '[]');
+
             checkboxes.forEach(cb => {
                 const broker = pendingDiscoveredBrokers[cb.value];
                 if (broker) {
@@ -1267,8 +1273,16 @@
                         </div>
                     `;
                     grid.appendChild(newCard);
+                    
+                    // Add to our saved array if not already present
+                    if (!savedBrokers.find(b => b.name === broker.name)) {
+                        savedBrokers.push(broker);
+                    }
                 }
             });
+
+            // Persist back to localStorage
+            localStorage.setItem('freeme_custom_brokers', JSON.stringify(savedBrokers));
 
             closeDiscoveryModal();
         }
@@ -1430,7 +1444,44 @@
                 el.addEventListener('input', checkPayloadMutation);
                 el.addEventListener('change', checkPayloadMutation);
             });
+            
+            // Load and inject permanently saved custom brokers
+            loadCustomBrokers();
         });
+
+        function loadCustomBrokers() {
+            const grid = document.getElementById('main-broker-grid');
+            if (!grid) return;
+            
+            let savedBrokers = JSON.parse(localStorage.getItem('freeme_custom_brokers') || '[]');
+            
+            savedBrokers.forEach(broker => {
+                // Ensure we don't duplicate logic if it was already rendered
+                if (!document.querySelector(`.broker-checkbox[value="${broker.name}"]`)) {
+                    let riskColor = broker.risk_level === 'High' ? '#ef4444' : '#f59e0b';
+                    const newCard = document.createElement('label');
+                    newCard.className = 'broker-card';
+                    newCard.style.borderColor = riskColor;
+                    newCard.style.boxShadow = `0 0 10px ${riskColor}22`;
+                    
+                    newCard.innerHTML = `
+                        <div class="broker-icon" style="color: ${riskColor}; background: ${riskColor}22;"><i class="fa-solid fa-spider"></i></div>
+                        <div class="broker-info">
+                            <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                                ${broker.name} 
+                                <span style="font-size: 0.6rem; padding: 2px 6px; background: ${riskColor}44; color: ${riskColor}; border-radius: 4px; text-transform: uppercase;">New Threat</span>
+                            </h3>
+                            <p>${broker.description}</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" class="broker-checkbox" value="${broker.name}" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    `;
+                    grid.appendChild(newCard);
+                }
+            });
+        }
 
         async function startOptOutCampaign() {
             // Switch to results tab immediately
