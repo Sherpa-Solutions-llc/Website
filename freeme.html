@@ -1,325 +1,1690 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FreeMe — AI-Powered Personal Data Removal. Autonomously scrubs your personal information from data brokers using intelligent web agents.">
-    <meta name="keywords" content="Data Removal, Privacy, OSINT, Opt-Out Automation, Data Broker Removal, AI Privacy Tool">
-    <title>FreeMe | Sherpa Solutions</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css?v=1.4">
-    <script src="static/theme.js"></script>
-    <style>
-        .freeme-hero {
-            text-align: center;
-            padding: 4rem 2rem 2rem;
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="FreeMe App: Autonomous Personal Data Removal Dashboard" name="description"/>
+<title>FreeMe App | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.4" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
+        .app-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 0 2rem;
         }
-        .freeme-hero h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 3.5rem;
+
+        .search-panel {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 3rem;
+        }
+
+        .search-header {
+            margin-bottom: 2rem;
+        }
+
+        .search-header h2 {
+            color: var(--accent);
+            font-size: 2.2rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #4ade80, #22d3ee, #a78bfa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
-        .freeme-hero .tagline {
-            font-size: 1.3rem;
-            color: var(--text-dark);
-            margin-bottom: 2rem;
-            font-weight: 300;
+
+        .search-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
-        .freeme-hero .status-badge {
-            display: inline-flex;
-            align-items: center;
+
+        /* View Toggles */
+        .view-toggles {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0;
+        }
+
+        .btn-tab {
+            margin: 0;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: var(--text-muted);
+            padding: 1rem 2rem;
+            box-shadow: none;
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-tab.active-view {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: none;
+            color: white;
+            z-index: 2;
+        }
+
+        .btn-tab:hover:not(.active-view) {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        .tab-content-container {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0 8px 8px 8px;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 1;
+            margin-top: -1px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Forms */
+        .input-group {
+            display: flex;
+            flex-direction: column;
             gap: 0.5rem;
-            background: rgba(74, 222, 128, 0.15);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            color: #4ade80;
-            padding: 0.5rem 1.5rem;
-            border-radius: 40px;
-            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .col {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .input-group label {
+            color: var(--text-dark);
+            font-size: 0.95rem;
             font-weight: 600;
         }
 
-        .arch-section {
-            max-width: 1000px;
-            margin: 3rem auto;
-            padding: 0 2rem;
-        }
-        .arch-section h2 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2rem;
-            color: var(--accent);
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(192, 108, 59, 0.3);
-            padding-bottom: 0.75rem;
-        }
-        .arch-section h3 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.3rem;
-            color: #22d3ee;
-            margin-bottom: 0.75rem;
-            margin-top: 2rem;
-        }
-        .arch-section p, .arch-section li {
+        .standard-input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.9rem 1.25rem;
             color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
             font-size: 1rem;
-            line-height: 1.8;
-        }
-        .arch-section ul {
-            padding-left: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .arch-section li {
-            margin-bottom: 0.5rem;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
 
-        .service-cards {
+        .standard-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn-run {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .btn-run:hover {
+            background: rgba(192, 108, 59, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(192, 108, 59, 0.3);
+        }
+
+        .btn-run:disabled {
+            background: #555;
+            color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Broker Cards */
+        .broker-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin: 2.5rem 0;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
-        .service-card {
-            background: var(--glass-bg, rgba(20, 25, 35, 0.8));
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        .broker-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
-        .service-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+
+        .broker-card:hover {
+            border-color: rgba(192, 108, 59, 0.4);
+            background: rgba(255,255,255,0.05);
         }
-        .service-card .card-number {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 4rem;
-            font-weight: 800;
-            opacity: 0.06;
-            font-family: 'Outfit', sans-serif;
+
+        .broker-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            background: rgba(192, 108, 59, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .broker-info h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
             color: var(--text-dark);
         }
-        .service-card .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+
+        .broker-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
-        .service-card h3 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
+
+        /* Universal Toggle Switch (Orange Theme + Text) */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 64px;
+            height: 30px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 34px;
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 50%;
+            z-index: 3;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .toggle-slider:after {
+            content: 'OFF';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+            color: rgba(255,255,255,0.5);
+            z-index: 1;
+            transition: .0s; /* Instant swap to prevent sliding text */
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(34px);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:after {
+            content: 'ON';
+            left: 10px;
+            right: auto;
             color: #fff;
         }
-        .service-card p {
+
+        /* Results List */
+        .agent-log {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Share Tech Mono', monospace;
+            height: 300px;
+            overflow-y: auto;
+            color: #00e5ff;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .agent-log .log-time { color: #888; margin-right: 10px; }
+        .agent-log .log-success { color: var(--accent); }
+        .agent-log .log-error { color: #ff4757; }
+        .agent-log .log-info { color: #00e5ff; }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-name {
+            font-weight: 600;
             color: var(--text-dark);
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+        .status-running { background: rgba(0, 229, 255, 0.15); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.3); animation: pulse 2s infinite; }
+        .status-complete { background: rgba(192, 108, 59, 0.15); color: var(--accent); border: 1px solid rgba(192, 108, 59, 0.3); }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+
+        /* Discovery Modal Styles */
+        .broker-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .broker-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .broker-modal {
+            background: #111827;
+            border: 1px solid rgba(192, 108, 59, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .broker-modal-overlay.active .broker-modal {
+            transform: translateY(0);
+        }
+
+        /* ==================== MOBILE RESPONSIVE ==================== */
+
+        /* Tablet Breakpoint */
+        @media (max-width: 768px) {
+            .app-container {
+                margin: 2rem auto;
+                padding: 0 1rem;
+            }
+
+            .search-header h2 {
+                font-size: 1.6rem;
+            }
+            .search-header p {
+                font-size: 0.95rem;
+            }
+
+            .view-toggles {
+                flex-wrap: wrap;
+            }
+            .btn-tab {
+                padding: 0.7rem 1rem;
+                font-size: 0.85rem;
+                flex: 1;
+                text-align: center;
+                min-width: 0;
+            }
+
+            .tab-content-container {
+                padding: 1.5rem 1rem;
+                border-radius: 0 0 8px 8px;
+            }
+
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .col {
+                min-width: 100%;
+            }
+
+            .broker-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+            .result-name {
+                font-size: 0.95rem;
+            }
+
+            .agent-log {
+                height: 220px;
+                font-size: 0.8rem;
+                padding: 1rem;
+            }
+
+            .btn-run {
+                padding: 0.85rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .search-panel {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .broker-modal {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+
+        /* Phone Breakpoint */
+        @media (max-width: 480px) {
+            .app-container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+
+            .search-header h2 {
+                font-size: 1.3rem;
+            }
+            .search-header p {
+                font-size: 0.85rem;
+            }
+
+            .btn-tab {
+                padding: 0.6rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .tab-content-container {
+                padding: 1rem 0.75rem;
+            }
+
+            .standard-input {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .broker-card {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .broker-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            .broker-info h3 {
+                font-size: 0.95rem;
+            }
+
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.75rem;
+            }
+
+            .search-panel {
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+            }
+
+            .agent-log {
+                height: 180px;
+                font-size: 0.75rem;
+            }
+
+            .toggle-switch {
+                width: 54px;
+                height: 26px;
+            }
+            .toggle-slider:before {
+                height: 18px;
+                width: 18px;
+            }
+            .toggle-switch input:checked + .toggle-slider:before {
+                transform: translateX(28px);
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+<div class="logo-container">
+<a href="index.html"><img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/></a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+<ul class="nav-links" id="nav-menu">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a class="active" href="projects.html">Projects</a></li>
+<li><a href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" href="index.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back Home</a>
+</div>
+</header>
+<div class="page-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+<h1 style="margin: 0; color: var(--accent);">FreeMe App Dashboard</h1>
+<p style="margin: 0.5rem 0 1rem 0; text-align: center;">Autonomous AI web agents actively removing your data footprint.</p>
+<div id="_cms_ignore_header_btns">
+<div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+
+<button class="btn-primary" id="btn-play-demo" onclick="runGuidedDemo()" style="padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; background: var(--surface-color); border: 1px solid var(--accent); color: var(--accent); cursor: pointer;">
+<i class="fa-solid fa-play"></i> Play Voice Demo Tour
+            </button>
+<div id="demo-volume-control" style="display:flex;align-items:center;gap:6px;">
+<span style="color:var(--text-muted);font-size:0.75rem;"><i class="fa-solid fa-volume-low"></i></span>
+<input id="demo-volume-slider" max="100" min="0" style="width:80px;height:4px;cursor:pointer;accent-color:var(--accent);" type="range" value="50"/>
+<span style="color:var(--text-muted);font-size:0.75rem;"><i class="fa-solid fa-volume-high"></i></span>
+</div>
+</div>
+</div>
+</div>
+<!-- About FreeMe Section -->
+<style>
+        .about-freeme-toggle {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--surface-color);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .about-freeme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .about-freeme-section {
+            max-width: 1000px;
+            margin: 0 auto 2rem;
+            padding: 0 2rem;
+            display: none;
+        }
+        .about-freeme-section.visible {
+            display: block;
+            animation: aboutFadeIn 0.4s ease;
+        }
+        @keyframes aboutFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .about-panel {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .about-panel h2 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0 0 0.5rem;
+        }
+        .about-subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        .about-badge-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .about-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-dev {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        .badge-try {
+            background: rgba(192, 108, 59, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(192, 108, 59, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .badge-try:hover {
+            background: rgba(192, 108, 59, 0.3);
+        }
+        .about-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 2rem 0;
+        }
+        .about-section-title {
+            color: var(--accent);
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .about-section-title i {
+            color: var(--accent);
+        }
+        .about-text {
+            color: var(--text-muted);
             font-size: 0.95rem;
             line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        .tech-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .tech-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+        .microservice-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .microservice-card {
+            background: #11141c;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .microservice-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+        .ms-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .ms-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.06);
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+        }
+        .ms-icon {
+            font-size: 3rem;
+        }
+        .ms-title {
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+        .ms-desc {
+            color: #d1d5db;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            text-align: center;
+        }
+        .ms-desc strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .about-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        .about-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(192, 108, 59, 0.3);
         }
 
         .tech-stack-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        .tech-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            padding: 1.25rem;
-            text-align: center;
-        }
-        .tech-item i {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .tech-item .tech-label {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.85rem;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-        .tech-item .tech-name {
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 700;
         }
 
-        .first-step-box {
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(34, 211, 238, 0.08));
-            border: 1px solid rgba(74, 222, 128, 0.2);
-            border-radius: 16px;
-            padding: 2.5rem;
-            margin: 3rem 0;
+        @media (max-width: 768px) {
+            .about-panel { padding: 1.5rem; }
+            .about-panel h2 { font-size: 1.4rem; }
+            .microservice-grid { grid-template-columns: 1fr; }
+            .tech-stack-grid { grid-template-columns: repeat(2, 1fr); }
+            
+            .row { flex-direction: column; gap: 1rem; } /* Make profile forms wrap */
+            .header-actions { flex-direction: column; width: 100%; } /* Stack header buttons */
+            #_cms_ignore_header_btns > div { flex-wrap: wrap; justify-content: center; }
         }
-        .first-step-box h3 {
-            color: #4ade80;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-            margin-top: 0;
-        }
-        .first-step-box p {
-            color: var(--text-dark);
-            line-height: 1.8;
-            font-size: 1rem;
+        @media (max-width: 480px) {
+            .about-freeme-section { padding: 0 0.5rem; }
+            .tab-content-container { padding: 1rem; } /* Give content breathing room on mobile */
+            .about-panel { padding: 1rem; border-radius: 10px; }
+            .about-panel h2 { font-size: 1.2rem; }
+            .about-subtitle { font-size: 0.9rem; }
+            .tech-stack-grid { grid-template-columns: 1fr; }
         }
     </style>
-</head>
+<script>
+        function toggleAboutFreeMe() {
+            const section = document.getElementById('about-freeme');
+            const btn = document.getElementById('btn-about-freeme');
+            section.classList.toggle('visible');
+            if (section.classList.contains('visible')) {
+                btn.innerHTML = '<i class="fa-solid fa-times"></i> Close About';
+                btn.style.borderColor = 'rgba(255,255,255,0.15)';
+                btn.style.color = 'var(--text-muted)';
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-circle-info"></i> About FreeMe';
+                btn.style.borderColor = 'var(--accent)';
+                btn.style.color = 'var(--accent)';
+            }
+        }
+        function scrollToApp() {
+            document.getElementById('about-freeme').classList.remove('visible');
+            document.getElementById('btn-about-freeme').innerHTML = '<i class="fa-solid fa-circle-info"></i> About FreeMe';
+            document.getElementById('btn-about-freeme').style.borderColor = 'var(--accent)';
+            document.getElementById('btn-about-freeme').style.color = 'var(--accent)';
+            document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 
-<body>
-    <header>
-        <div class="logo-container">
-            <a href="index.html"><img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC"></a>
-        </div>
-        <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
-        <ul class="nav-links" id="nav-menu">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="services.html">Our Services</a></li>
-            <li><a href="projects.html" class="active">Projects</a></li>
-            <li><a href="merchandise.html">Merchandise</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="header-actions">
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
-            <a href="projects.html" class="btn btn-primary nav-cta"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Projects</a>
-        </div>
-    </header>
-
-    <!-- Hero -->
-    <div class="freeme-hero">
-        <h1><i class="fa-solid fa-shield-halved" style="margin-right: 0.5rem; font-size: 3rem;"></i> FreeMe</h1>
-        <p class="tagline">AI-Powered Personal Data Removal — Autonomous Agents That Scrub Your Digital Footprint</p>
-        <div class="status-badge"><i class="fa-solid fa-flask"></i> In Development</div>
-    </div>
-
-    <!-- Role & Objective -->
-    <section class="arch-section">
-        <h2><i class="fa-solid fa-crosshairs" style="margin-right: 0.5rem;"></i> Mission</h2>
-        <p>
-            FreeMe is a next-generation Personal Data Removal application designed to outperform current market leaders 
-            by utilizing <strong>autonomous AI web agents</strong> rather than static scrapers. Traditional data removal services 
-            rely on brittle CSS selectors that break whenever a data broker updates their website. FreeMe replaces this fragile 
-            approach with intelligent, vision-based agents that can dynamically navigate any opt-out flow — just like a human would.
-        </p>
-    </section>
-
-    <!-- Tech Stack -->
-    <section class="arch-section">
-        <h2><i class="fa-solid fa-layer-group" style="margin-right: 0.5rem;"></i> Core Architecture & Tech Stack</h2>
-        <div class="tech-stack-grid">
-            <div class="tech-item">
-                <i class="fa-brands fa-react" style="color: #61dafb;"></i>
-                <span class="tech-label">Frontend</span>
-                <span class="tech-name">React (Next.js)</span>
-            </div>
-            <div class="tech-item">
-                <i class="fa-brands fa-python" style="color: #ffdd57;"></i>
-                <span class="tech-label">Backend / API</span>
-                <span class="tech-name">Python (FastAPI)</span>
-            </div>
-            <div class="tech-item">
-                <i class="fa-solid fa-robot" style="color: #a78bfa;"></i>
-                <span class="tech-label">Web Automation</span>
-                <span class="tech-name">Playwright + LangChain</span>
-            </div>
-            <div class="tech-item">
-                <i class="fa-solid fa-cloud" style="color: #22d3ee;"></i>
-                <span class="tech-label">Dev Environment</span>
-                <span class="tech-name">Cloud IDE (Replit)</span>
-            </div>
-        </div>
-        <p>
-            The frontend delivers a clean, user-friendly dashboard with <strong>"before and after" screenshot proof</strong> 
-            of data removal. The Python backend handles all heavy lifting — web automation, asynchronous task queues, 
-            and AI agent orchestration.
-        </p>
-    </section>
-
-    <!-- 3 Core Microservices -->
-    <section class="arch-section">
-        <h2><i class="fa-solid fa-cubes" style="margin-right: 0.5rem;"></i> The 3 Core Microservices</h2>
-        <p style="margin-bottom: 2rem;">These are the differentiators that position FreeMe ahead of every competitor in the market.</p>
-        
-        <div class="service-cards">
-            <!-- Service 1 -->
-            <div class="service-card">
-                <span class="card-number">01</span>
-                <div class="card-icon" style="color: #f97316;">🤖</div>
-                <h3>Autonomous Opt-Out Engine</h3>
-                <p>
-                    No static CSS selectors that break when a broker updates their site. A Python-based headless browser agent 
-                    uses a <strong>Vision-Language Model</strong> to visually "read" data broker webpages, dynamically locate 
-                    opt-out forms, and input user data — adapting automatically to layout changes.
-                </p>
-            </div>
-
-            <!-- Service 2 -->
-            <div class="service-card">
-                <span class="card-number">02</span>
-                <div class="card-icon" style="color: #4ade80;">🔒</div>
-                <h3>Local Privacy Parser</h3>
-                <p>
-                    Because we handle highly sensitive PII, <strong>no user data is ever sent to public APIs</strong>. 
-                    All PII extraction and email verification parsing is routed through a local, self-hosted LLM 
-                    (OpenClaw, Clawdbot, or local LLaMA variant) — guaranteeing <strong>zero-data-leakage</strong>.
-                </p>
-            </div>
-
-            <!-- Service 3 -->
-            <div class="service-card">
-                <span class="card-number">03</span>
-                <div class="card-icon" style="color: #22d3ee;">📨</div>
-                <h3>Inbox Automator</h3>
-                <p>
-                    Data brokers send confirmation emails to verify opt-out requests. The Inbox Automator connects 
-                    to a dedicated <strong>IMAP email inbox</strong> and automatically processes confirmation links — 
-                    completing the removal loop without any manual intervention.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- First Step -->
-    <section class="arch-section">
-        <div class="first-step-box">
-            <h3><i class="fa-solid fa-rocket" style="margin-right: 0.5rem;"></i> Development Approach</h3>
-            <p>
-                FreeMe follows a phased development methodology. The first milestone establishes the complete directory structure, 
-                dependency manifests (<code>requirements.txt</code> / <code>package.json</code>), and a detailed technical 
-                specification of how the <strong>Local Privacy Parser</strong> securely passes sanitized variables to the 
-                <strong>Autonomous Opt-Out Engine</strong> — ensuring PII never touches an external endpoint during the 
-                entire removal pipeline.
+<div class="app-container">
+<div class="search-panel">
+<!-- Tabs -->
+<div class="view-toggles" id="_cms_ignore_tabs">
+<button class="btn-tab active-view" id="btn-tab-profile" onclick="switchTab('profile')" type="button"><i class="fa-solid fa-user-shield"></i> Profile</button>
+<button class="btn-tab" id="btn-tab-brokers" onclick="switchTab('brokers')" type="button"><i class="fa-solid fa-database"></i> Data Brokers</button>
+<button class="btn-tab" id="btn-tab-results" onclick="switchTab('results')" type="button"><i class="fa-solid fa-list-check"></i> Live Results Dashboard</button>
+<button class="btn-tab" id="btn-tab-ai" onclick="switchTab('ai')" type="button"><i class="fa-solid fa-gear"></i> Settings</button>
+<button class="btn-tab" id="btn-tab-about" onclick="switchTab('about')" type="button"><i class="fa-solid fa-circle-info"></i> About</button></div>
+<!-- Content Area -->
+<div class="tab-content-container">
+<!-- Profile Tab -->
+<div id="tab-profile">
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 2rem;">Personal Information to Scrub</h3>
+<form id="freeme-form">
+<div class="dynamic-list-container" id="list-aliases" style="margin-bottom: 1.5rem;">
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Names / Aliases</span>
+<button onclick="addDynamicField('list-aliases', 'alias-input', 'text', 'e.g. John Doe')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+</label>
+<div class="dynamic-inputs">
+<input class="standard-input alias-input" placeholder="e.g. John Doe" type="text"/>
+</div>
+</div>
+<div class="row">
+<div class="col dynamic-list-container" id="list-emails">
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Email</span>
+<button onclick="addDynamicField('list-emails', 'email-input', 'email', 'e.g. user@domain.com')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+</label>
+<div class="dynamic-inputs">
+<input class="standard-input email-input" placeholder="e.g. user@domain.com" type="email"/>
+</div>
+</div>
+<div class="col dynamic-list-container" id="list-phones">
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Phone number</span>
+<button onclick="addDynamicField('list-phones', 'phone-input', 'tel', 'e.g. 555-123-4567')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+</label>
+<div class="dynamic-inputs">
+<input class="standard-input phone-input" placeholder="e.g. 555-123-4567" type="tel"/>
+</div>
+</div>
+</div>
+<div class="dynamic-list-container" id="list-addresses" style="margin-top: 1.5rem;">
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Address</span>
+<button onclick="addDynamicField('list-addresses', 'address-input', 'text', 'e.g. 123 Main St, City, ST 12345')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+</label>
+<div class="dynamic-inputs">
+<input class="standard-input address-input" placeholder="e.g. 123 Main St, City, ST 12345" type="text"/>
+</div>
+</div>
+<div class="row" style="margin-top: 1.5rem;">
+<div class="col input-group">
+<label>Date of Birth</label>
+<input class="standard-input" id="dob" type="date"/>
+</div>
+<div class="col input-group">
+<label>Driver's License Number</label>
+<input class="standard-input" id="drivers-license" placeholder="e.g. D1234567" type="text"/>
+</div>
+</div>
+<div class="input-group" style="margin-top: 1.5rem;">
+<label>Current Photo (For referencing facial-recognition oriented data brokers)</label>
+<input accept="image/*" class="standard-input" id="photo-upload" style="padding: 0.5rem;" type="file"/>
+</div>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1.5rem;"><i class="fa-solid fa-lock"></i> <strong>Pillars of Privacy:</strong> This data is encrypted and passed locally to our privacy parser. It is only used to directly input into broker opt-out flows.</p>
+<button class="btn-run" onclick="switchTab('brokers')" style="max-width: 300px; margin-left: auto;" type="button">Next: Select Brokers <i class="fa-solid fa-arrow-right"></i></button>
+</form>
+</div>
+<!-- Brokers Tab -->
+<div class="hidden" id="tab-brokers">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+<div>
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem;">Target Data Brokers</h3>
+<p style="color: var(--text-muted); margin: 0;">Select the sources you want the autonomous agents to process.</p>
+</div>
+</div>
+<div class="broker-grid" id="main-broker-grid">
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-address-book"></i></div>
+<div class="broker-info">
+<h3>Whitepages</h3>
+<p>Major directory, high volume.</p>
+</div>
+<div class="toggle-switch">
+<input checked="" class="broker-checkbox" type="checkbox" value="Whitepages"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
+<div class="broker-info">
+<h3>Spokeo</h3>
+<p>Email &amp; phone aggregator.</p>
+</div>
+<div class="toggle-switch">
+<input checked="" class="broker-checkbox" type="checkbox" value="Spokeo"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-check-double"></i></div>
+<div class="broker-info">
+<h3>BeenVerified</h3>
+<p>Background check platform.</p>
+</div>
+<div class="toggle-switch">
+<input checked="" class="broker-checkbox" type="checkbox" value="BeenVerified"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-user-secret"></i></div>
+<div class="broker-info">
+<h3>Intelius</h3>
+<p>Select the data brokers you want our autonomous agents to scrub your data from.</p>
+</div>
+<div class="toggle-switch">
+<input checked="" class="broker-checkbox" type="checkbox" value="Intelius"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-users"></i></div>
+<div class="broker-info">
+<h3>TruePeopleSearch</h3>
+<p>100% free people search.</p>
+</div>
+<div class="toggle-switch">
+<input checked="" class="broker-checkbox" type="checkbox" value="TruePeopleSearch"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-building"></i></div>
+<div class="broker-info">
+<h3>Acxiom</h3>
+<p>Global marketing data.</p>
+</div>
+<div class="toggle-switch">
+<input checked="" class="broker-checkbox" type="checkbox" value="Acxiom"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+</div>
+<button class="btn-run" id="btn-start" onclick="startOptOutCampaign()" style="max-width: 300px; margin-left: auto;" type="button">
+                        Scrub My Data <i class="fa-solid fa-play"></i>
+</button>
+</div>
+<!-- Settings Tab -->
+<div class="hidden" id="tab-ai">
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem;">Settings &amp; Automation</h3>
+<p style="color: var(--text-muted); margin-bottom: 2rem;">Configure the underlying LLMs, execution behavior, and automated scan frequency.</p>
+<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem;">
+<h4 style="color: var(--accent); margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem;"><i class="fa-solid fa-brain"></i> Vision-Language Agent Selection</h4>
+<div class="input-group">
+<label>Primary Navigation VLM (Controls Playwright)</label>
+<select class="standard-input" id="llm-model" onchange="updateApiRates()" style="background: var(--bg-color); color: white;">
+<option value="claude-3-opus">Claude 3.5 Sonnet (Recommended - Best UI parsing)</option>
+<option value="gpt-4-vision">GPT-4o (High Accuracy Vision)</option>
+<option value="local-llama-vision">Local LLaMA-V (Max Privacy, Requires GPU)</option>
+</select>
+</div>
+<!-- Live API Rate Limits Monitor -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+<div>
+<h4 style="color: var(--text-color); margin: 0; font-size: 1rem;">Live Status per Model</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.2rem 0 0 0;">View live API rate limits and capacity used for the selected VLM.</p>
+</div>
+<label class="toggle-switch">
+<input id="api-status-toggle" onchange="toggleApiStatus()" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="hidden" id="api-status-panel" style="margin-top: 1rem; padding: 1.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px;">
+<div id="api-status-content" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+<span style="color: var(--text-muted);">Toggle to fetch live telemetry...</span>
+</div>
+<div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 1rem;">
+<div id="api-status-bar" style="height: 100%; width: 0%; background: var(--accent); transition: width 0.5s ease-out;"></div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+<div>
+<h4 style="color: var(--text-color); margin: 0; font-size: 1rem;">Email Notifications</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.2rem 0 0 0;">Receive a summary report when a scan finishes.</p>
+</div>
+<label class="toggle-switch">
+<input checked="" id="email-notifications-toggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="input-group" style="margin-top: 1.5rem;">
+<label>Frequency of AI scan</label>
+<select class="standard-input" id="scan-frequency" style="background: var(--bg-color); color: white;">
+<option value="Once">Once</option>
+<option value="Weekly">Weekly</option>
+<option value="Monthly">Monthly</option>
+<option value="Yearly">Yearly</option>
+</select>
+</div>
+</div>
+<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<h4 style="color: var(--accent); margin: 0; font-size: 1.2rem;"><i class="fa-solid fa-flask"></i> Demo Mode</h4>
+<div style="display: flex; align-items: center; gap: 1rem;">
+<span style="color: white; font-weight: 500; font-size: 0.95rem;">Demo</span>
+<label class="toggle-switch">
+<input checked="" id="live-mode-toggle" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">
+<strong>Demo Mode (ON):</strong> Bypasses the Playwright engine and fast-forwards through simulated agent logs. Prevents using actual API credits or submitting real opt-outs while testing the UI workflow. 
+                        </p>
+<p style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 1.5rem;">
+<strong>Autonomous Opt-Out Engine (OFF):</strong> Submits real requests. Hard limit of 3 campaigns per IP per day during alpha.
+                        </p>
+<div class="input-group" id="mock-data-container" style="margin-top: 1.5rem;">
+<label>Inject Random Mock Data (Overwrites Target Profile tab)</label>
+<button onclick="injectMockData()" style="padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;" type="button">
+<i class="fa-solid fa-random"></i> Generate Fake Identity
+                            </button>
+</div>
+<script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                if (window.location.hostname.includes('sherpa-solutions') || window.location.hostname === 'sherpa-solutions-llc.com') {
+                                    const mockContainer = document.getElementById('mock-data-container');
+                                    if (mockContainer) mockContainer.style.display = 'none';
+                                }
+                            });
+                        </script>
+</div>
+</div>
+<!-- Results Tab -->
+<div class="hidden" id="tab-results">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin: 0;">Campaign Dashboard</h3>
+<span class="status-badge status-pending" id="campaign-status">Awaiting Deployment</span>
+</div>
+<div class="agent-log" id="agent-log">
+<div class="log-info"><span class="log-time">[System]</span> FreeMe Agent Orchestrator Ready.</div>
+<div class="log-info"><span class="log-time">[System]</span> Awaiting profile and target broker list...</div>
+</div>
+<h4 style="color: var(--text-dark); margin-bottom: 1rem; font-size: 1.2rem;">Live Status per Broker</h4>
+<div id="results-list">
+<!-- Populated dynamically -->
+<div class="result-item" style="opacity: 0.5;">
+<div class="result-name">Targeting profiles will appear here</div>
+<div class="status-badge status-pending">—</div>
+</div>
+</div>
+</div>
+<div class="hidden" id="tab-about"><div class="about-panel">
+<h2>About FreeMe</h2>
+<p class="about-subtitle">AI-Powered Personal Data Removal — Autonomous Agents That Scrub Your Digital Footprint</p>
+<hr class="about-divider"/>
+<!-- Mission -->
+<div class="about-section-title"><i class="fa-solid fa-crosshairs"></i> Mission</div>
+<p class="about-text">
+                FreeMe is a next-generation Personal Data Removal application designed to outperform current market leaders by utilizing <strong>autonomous AI web agents</strong> rather than static scrapers. Traditional data removal services rely on brittle CSS selectors that break whenever a data broker updates their website. FreeMe replaces this fragile approach with intelligent, vision-based agents that can dynamically navigate any opt-out flow — just like a human would.
             </p>
-        </div>
-    </section>
+<hr class="about-divider"/>
+<!-- Core Architecture & Tech Stack -->
+<div class="about-section-title"><i class="fa-solid fa-layer-group"></i> Core Architecture &amp; Tech Stack</div>
+<div class="tech-stack-grid">
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-brands fa-react" style="font-size: 2.5rem; color: #61DAFB; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">React (Next.js)</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Phone number</div>
+</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-brands fa-python" style="font-size: 2.5rem; color: #FFD43B; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Python (FastAPI)</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Address</div>
+</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-solid fa-robot" style="font-size: 2.5rem; color: #b070e0; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Playwright + LangChain</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Dev Environment</div>
+</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-solid fa-cloud" style="font-size: 2.5rem; color: #38bdf8; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Cloud IDE (Replit)</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Cloud IDE (Replit)</div>
+</div>
+</div>
+<hr class="about-divider"/>
+<!-- The 3 Core Microservices -->
+<div class="about-section-title"><i class="fa-solid fa-cubes"></i> The 3 Core Microservices</div>
+<div class="microservice-grid">
+<div class="microservice-card">
+<div class="ms-header">
+<div class="ms-icon">🤖</div>
+<div class="ms-number">01</div>
+</div>
+<div class="ms-title">Autonomous Opt-Out Engine</div>
+<p class="ms-desc">No static CSS selectors that break when a broker updates their site. A Python-based headless browser agent uses a <strong>Vision-Language Model</strong> to visually "read" data broker webpages, dynamically locate opt-out forms, and input user data — adapting automatically to layout changes.</p>
+</div>
+<div class="microservice-card">
+<div class="ms-header">
+<div class="ms-icon">🔒</div>
+<div class="ms-number">02</div>
+</div>
+<div class="ms-title">Local Privacy Parser</div>
+<p class="ms-desc">Because we handle highly sensitive PII, <strong>zero-data-leakage</strong>. All PII extraction and email verification parsing is routed through a local, self-hosted LLM (OpenClaw, Clawdbot, or local LLaMA variant) — guaranteeing <strong>zero-data-leakage</strong>.</p>
+</div>
+<div class="microservice-card">
+<div class="ms-header">
+<div class="ms-icon">📨</div>
+<div class="ms-number">03</div>
+</div>
+<div class="ms-title">Inbox Automator</div>
+<p class="ms-desc">Data brokers send confirmation emails to verify opt-out requests. The Inbox Automator connects to a dedicated <strong>IMAP email inbox</strong> and automatically processes confirmation links — completing the removal loop without any manual intervention.</p>
+</div>
+</div>
+</div></div></div>
+</div>
+</div>
+<!-- Discovery Modal -->
+<div class="broker-modal-overlay" id="discovery-modal">
+<div class="broker-modal">
+<h3 style="color: white; font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem;"><i class="fa-solid fa-radar"></i> New Threats Discovered</h3>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">AI has identified emerging data brokers. Choose which to add to your scrubbing list.</p>
+<div id="discovered-brokers-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+<!-- Populated by JS -->
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 1rem;">
+<button onclick="closeDiscoveryModal()" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;" type="button">Ignore</button>
+<button class="btn-primary" onclick="addSelectedBrokers()" style="padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;" type="button">Add Selected to Target List</button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. <a href="login.html" id="admin-login-link" style="color:transparent;" title="Admin Login">.</a></p>
+</footer>
+<!-- CMS Script -->
+<script src="static/cms.js"></script>
+<!-- App Logic -->
+<script>
+        // Store discovered brokers temporarily
+        let pendingDiscoveredBrokers = [];
 
-    <!-- CTA -->
-    <section class="cta-banner">
-        <div class="cta-content">
-            <h2>Interested in FreeMe?</h2>
-            <p>FreeMe is currently in active development. Contact us to learn more or request early access.</p>
-            <a href="contact.html" class="btn btn-primary">Get in Touch</a>
-        </div>
-    </section>
+        async function discoverNewBrokers() {
+            const btn = document.getElementById('btn-scan-brokers');
+            const grid = document.getElementById('main-broker-grid');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> AI Searching Web...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
 
-    <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
-        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success. <a href="/login.html" id="admin-login-link" title="Admin Login"></a></p>
-    </footer>
+            try {
+                const llmModel = document.getElementById('llm-model') ? document.getElementById('llm-model').value : 'claude-3-opus';
+                const res = await fetch('/api/freeme/discover_brokers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ llm_model: llmModel })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success' && data.discovered_brokers) {
+                    
+                    // Filter out brokers that are already on the grid
+                    pendingDiscoveredBrokers = data.discovered_brokers.filter(broker => {
+                        return !document.querySelector(`.broker-checkbox[value="${broker.name}"]`);
+                    });
 
-    <script src="static/cms.js"></script>
+                    // Update Button text temporarily
+                    const count = pendingDiscoveredBrokers.length;
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> Discovery Complete: ${count} Found`;
+                    btn.style.backgroundColor = '#4ade80';
+                    btn.style.color = '#050b14';
+
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        btn.style.backgroundColor = '';
+                        btn.style.color = '';
+                    }, 4000);
+
+                    if (count > 0) {
+                        showDiscoveryModal();
+                    }
+                }
+            } catch (err) {
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Search Failed';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                }, 3000);
+            }
+        }
+
+        function showDiscoveryModal() {
+            const listEl = document.getElementById('discovered-brokers-list');
+            listEl.innerHTML = ''; // Clear previous
+
+            pendingDiscoveredBrokers.forEach((broker, index) => {
+                let riskColor = broker.risk_level === 'High' ? '#ef4444' : '#f59e0b';
+                
+                const item = document.createElement('div');
+                item.style.cssText = `background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid ${riskColor};`;
+                
+                item.innerHTML = `
+                    <div>
+                        <strong style="color: white; display: block; margin-bottom: 0.2rem;">${broker.name}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">${broker.description}</span>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="pending-broker-${index}" class="pending-broker-checkbox" value="${index}" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+
+            document.getElementById('discovery-modal').classList.add('active');
+        }
+
+        function closeDiscoveryModal() {
+            document.getElementById('discovery-modal').classList.remove('active');
+        }
+
+        function addSelectedBrokers() {
+            const grid = document.getElementById('main-broker-grid');
+            const checkboxes = document.querySelectorAll('.pending-broker-checkbox:checked');
+            
+            checkboxes.forEach(cb => {
+                const broker = pendingDiscoveredBrokers[cb.value];
+                if (broker) {
+                    let riskColor = broker.risk_level === 'High' ? '#ef4444' : '#f59e0b';
+                    const newCard = document.createElement('label');
+                    newCard.className = 'broker-card';
+                    newCard.style.borderColor = riskColor;
+                    newCard.style.boxShadow = `0 0 10px ${riskColor}22`;
+                    
+                    newCard.innerHTML = `
+                        <div class="broker-icon" style="color: ${riskColor}; background: ${riskColor}22;"><i class="fa-solid fa-spider"></i></div>
+                        <div class="broker-info">
+                            <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                                ${broker.name} 
+                                <span style="font-size: 0.6rem; padding: 2px 6px; background: ${riskColor}44; color: ${riskColor}; border-radius: 4px; text-transform: uppercase;">New Threat</span>
+                            </h3>
+                            <p>${broker.description}</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" class="broker-checkbox" value="${broker.name}" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    `;
+                    grid.appendChild(newCard);
+                }
+            });
+
+            closeDiscoveryModal();
+        }
+
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active-view'));
+            document.getElementById('btn-tab-' + tabId).classList.add('active-view');
+            
+            // Update content
+            document.getElementById('tab-profile').classList.add('hidden');
+            document.getElementById('tab-brokers').classList.add('hidden');
+            document.getElementById('tab-ai').classList.add('hidden');
+            document.getElementById('tab-results').classList.add('hidden');
+            document.getElementById('tab-about').classList.add('hidden');
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+        }
+
+        function addDynamicField(containerId, inputClass, type, placeholder) {
+            const container = document.getElementById(containerId).querySelector('.dynamic-inputs');
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.gap = '0.5rem';
+            wrapper.style.marginTop = '0.5rem';
+            
+            wrapper.innerHTML = `
+                <input type="${type}" class="standard-input ${inputClass}" placeholder="${placeholder}">
+                <button type="button" onclick="this.parentElement.remove()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 6px; padding: 0 1rem; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+            `;
+            container.appendChild(wrapper);
+        }
+
+        function injectMockData() {
+            const firstAlias = document.querySelector('.alias-input');
+            if (firstAlias) firstAlias.value = "Jane Smith";
+            
+            const firstEmail = document.querySelector('.email-input');
+            if (firstEmail) firstEmail.value = "interested_n_fun@yahoo.com";
+            
+            const firstPhone = document.querySelector('.phone-input');
+            if (firstPhone) firstPhone.value = "555-018-9942";
+            
+            const address = document.querySelector('.address-input');
+            if (address) address.value = "742 Evergreen Terrace, Springfield, IL 62704";
+            
+            document.getElementById('dob').value = "1992-11-20";
+            document.getElementById('drivers-license').value = "IL-9988776655";
+            
+            // Inject a second alias to demonstrate dynamic lists
+            addDynamicField('list-aliases', 'alias-input', 'text', 'e.g. John Doe');
+            const aliases = document.querySelectorAll('.alias-input');
+            aliases[aliases.length - 1].value = "Jane F. Smith";
+            
+            // Flash color to indicate it worked
+            document.getElementById('tab-profile').querySelectorAll('input').forEach(input => {
+                input.style.borderColor = '#4ade80';
+                setTimeout(() => input.style.borderColor = 'var(--border-color)', 800);
+            });
+            switchTab('profile'); // snap back to show the injected data
+        }
+        
+        function toggleApiStatus() {
+            const isChecked = document.getElementById('api-status-toggle').checked;
+            const panel = document.getElementById('api-status-panel');
+            if (isChecked) {
+                panel.classList.remove('hidden');
+                updateApiRates();
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        async function updateApiRates() {
+            if (!document.getElementById('api-status-toggle').checked) return;
+            
+            const panelContent = document.getElementById('api-status-content');
+            const bar = document.getElementById('api-status-bar');
+            const model = document.getElementById('llm-model').value;
+            
+            panelContent.innerHTML = '<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live API telemetry...</span>';
+            bar.style.width = '0%';
+            
+            try {
+                const response = await fetch(`/api/freeme/rates?model=${model}`);
+                const data = await response.json();
+                
+                let color = '#4ade80';
+                if (data.max_rpm === -1) {
+                    color = '#c06c3b';
+                    panelContent.innerHTML = `
+                        <div>
+                            <strong style="color: white;"><i class="fa-solid fa-server"></i> Local Execution Node</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Requests Per Minute (RPM)</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong style="color: ${color}; font-size: 1.1rem;">N/A</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">/ Unlimited Capacity</div>
+                        </div>`;
+                    bar.style.width = '100%';
+                    bar.style.backgroundColor = color;
+                } else {
+                    const percent = (data.used_rpm / data.max_rpm) * 100;
+                    if (percent > 80) color = '#ef4444';
+                    else if (percent > 50) color = '#f59e0b';
+                    
+                    panelContent.innerHTML = `
+                        <div>
+                            <strong style="color: white;"><i class="fa-solid fa-cloud"></i> Cloud Provider API</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Requests Per Minute (RPM)</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong style="color: ${color}; font-size: 1.1rem;">${data.used_rpm.toLocaleString()}</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">/ ${data.max_rpm.toLocaleString()} Quota</div>
+                        </div>`;
+                    bar.style.width = `${percent}%`;
+                    bar.style.backgroundColor = color;
+                }
+            } catch (err) {
+                panelContent.innerHTML = '<span style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Telemetry Offline</span>';
+            }
+        }
+
+        let lastCampaignPayloadStr = null;
+
+        function checkPayloadMutation() {
+            const btnStart = document.getElementById('btn-start');
+            if (!lastCampaignPayloadStr) return; // Campaign hasn't run yet
+            
+            // Build the current live state of the form
+            const currentPayload = {
+                aliases: Array.from(document.querySelectorAll('.alias-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                emails: Array.from(document.querySelectorAll('.email-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                phones: Array.from(document.querySelectorAll('.phone-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                addresses: Array.from(document.querySelectorAll('.address-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                dob: document.getElementById('dob').value,
+                drivers_license: document.getElementById('drivers-license').value,
+                photo_filename: document.getElementById('photo-upload').files.length > 0 ? document.getElementById('photo-upload').files[0].name : "",
+                brokers: Array.from(document.querySelectorAll('.broker-checkbox:checked')).map(cb => cb.value),
+                demo_mode: document.getElementById('live-mode-toggle').checked,
+                llm_model: document.getElementById('llm-model') ? document.getElementById('llm-model').value : 'claude-3-opus'
+            };
+            
+            const currentStr = JSON.stringify(currentPayload);
+            
+            if (currentStr !== lastCampaignPayloadStr) {
+                // User changed something, re-enable the button
+                btnStart.disabled = false;
+                btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Run Another Campaign';
+            } else {
+                // Data exactly same as last run
+                btnStart.disabled = true;
+                btnStart.innerHTML = '<i class="fa-solid fa-ban"></i> Data Unchanged';
+            }
+        }
+        
+        // Attach listeners to all inputs to check for mutations constantly
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener('input', checkPayloadMutation);
+                el.addEventListener('change', checkPayloadMutation);
+            });
+        });
+
+        async function startOptOutCampaign() {
+            // Switch to results tab immediately
+            switchTab('results');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            const btnStart = document.getElementById('btn-start');
+            btnStart.disabled = true;
+            btnStart.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Agents Running...';
+            
+            document.getElementById('campaign-status').className = 'status-badge status-running';
+            document.getElementById('campaign-status').innerText = 'Initializing';
+
+            // Get selected brokers
+            const checkedBoxes = document.querySelectorAll('.broker-checkbox:checked');
+            const brokers = Array.from(checkedBoxes).map(cb => cb.value);
+            
+            const resultsList = document.getElementById('results-list');
+            resultsList.innerHTML = '';
+            
+            // Populate initial result UI
+            brokers.forEach(b => {
+                resultsList.innerHTML += `
+                    <div class="result-item" id="result-${b}">
+                        <div class="result-name"><i class="fa-solid fa-robot" style="margin-right: 8px; color: var(--text-muted);"></i> ${b}</div>
+                        <div class="status-badge status-pending" id="badge-${b}">Queued</div>
+                    </div>
+                `;
+            });
+
+            const log = document.getElementById('agent-log');
+            const isDemo = document.getElementById('live-mode-toggle').checked;
+            const modeText = isDemo ? 'DEMO MODE (Simulated)' : 'LIVE MODE (Active Scraping)';
+            log.innerHTML = `<div class="log-info"><span class="log-time">[System]</span> Initializing ${modeText}... connecting to agent orchestrator.</div>`;
+            
+            function renderLogs(logArray) {
+                log.innerHTML = logArray.map(m => {
+                    let type = 'info';
+                    if (m.includes('SUCCESS') || m.includes('verified') || m.includes('[Success]')) type = 'success';
+                    if (m.includes('FAILED') || m.includes('ERROR') || m.includes('Captcha') || m.includes('[Error]')) type = 'error';
+                    return `<div class="log-${type}">${m}</div>`;
+                }).join('');
+                log.scrollTop = log.scrollHeight;
+            }
+
+            const payload = {
+                aliases: Array.from(document.querySelectorAll('.alias-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                emails: Array.from(document.querySelectorAll('.email-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                phones: Array.from(document.querySelectorAll('.phone-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                addresses: Array.from(document.querySelectorAll('.address-input')).map(input => input.value).filter(v => v.trim() !== ''),
+                dob: document.getElementById('dob').value,
+                drivers_license: document.getElementById('drivers-license').value,
+                photo_filename: document.getElementById('photo-upload').files.length > 0 ? document.getElementById('photo-upload').files[0].name : "",
+                brokers: brokers,
+                demo_mode: isDemo,
+                llm_model: document.getElementById('llm-model') ? document.getElementById('llm-model').value : 'claude-3-opus'
+            };
+            
+            // Cache the exact payload string to prevent running the exact identical sweep twice
+            lastCampaignPayloadStr = JSON.stringify(payload);
+
+            try {
+                // 1. Dispatch the Campaign to the Python Backend
+                const response = await fetch('http://localhost:8001/api/freeme/campaign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (!data.campaign_id) throw new Error("Failed to start campaign");
+                
+                const campaignId = data.campaign_id;
+                document.getElementById('campaign-status').innerText = `Campaign ${campaignId} Active`;
+
+                // 2. Poll the Backend for Live Agent Updates
+                const pollInterval = setInterval(async () => {
+                    const statusRes = await fetch(`http://localhost:8001/api/freeme/status/${campaignId}`);
+                    const statusData = await statusRes.json();
+                    
+                    if (statusData.error || !statusData.campaign) return;
+
+                    const camp = statusData.campaign;
+
+                    // Update logs
+                    if (camp.logs) {
+                        renderLogs(camp.logs);
+                    }
+
+                    // Update broker badges
+                    if (camp.brokers) {
+                        for (const [broker, state] of Object.entries(camp.brokers)) {
+                            const badge = document.getElementById(`badge-${broker}`);
+                            const row = document.getElementById(`result-${broker}`);
+                            if (!badge || !row) continue;
+
+                            if (state === 'active' || state === 'running') {
+                                badge.className = 'status-badge status-running';
+                                badge.innerText = 'Agents Active';
+                                row.querySelector('i').style.color = '#00e5ff';
+                            } else if (state === 'completed') {
+                                badge.className = 'status-badge status-complete';
+                                badge.innerText = 'Request Sent & Verified';
+                                row.querySelector('i').style.color = '#c06c3b';
+                            } else if (state === 'failed') {
+                                badge.className = 'status-badge status-pending';
+                                badge.innerText = 'Action Required';
+                                badge.style.color = '#ff4757';
+                                badge.style.borderColor = 'rgba(255, 71, 87, 0.3)';
+                                badge.style.background = 'rgba(255, 71, 87, 0.1)';
+                            }
+                        }
+                    }
+
+                    // Check if campaign is finished
+                    if (camp.status === 'Completed' || camp.status === 'Partial Failure' || camp.status === 'Failed') {
+                        clearInterval(pollInterval);
+                        document.getElementById('campaign-status').className = (camp.status === 'Completed') ? 'status-badge status-complete' : 'status-badge status-pending';
+                        if (statusData.error === 'rate_limit_exceeded') {
+                            document.getElementById('campaign-status').innerText = 'Rate Limit Reached';
+                            renderLogs([`[System Error] ${statusData.message || 'Daily limit of 3 live campaigns reached for this IP.'}`]);
+                            
+                            // update the rate limit UI counter on the AI tab
+                            document.getElementById('rate-limit-tracker').innerText = "3/3";
+                        } else {
+                            document.getElementById('campaign-status').innerText = `Campaign ${camp.status}`;
+                        }
+                        
+                        // Instead of blindly reterminating, check if the data has mutated yet
+                        checkPayloadMutation();
+                    }
+                }, 1500); // poll every 1.5 seconds
+
+            } catch (error) {
+                renderLogs([`[System Error] ${error.message}`]);
+                document.getElementById('campaign-status').innerText = 'Connection Error';
+                btnStart.disabled = false;
+                btnStart.innerHTML = 'Try Again';
+            }
+        }
+
+        // --- GUIDED DEMO TTS LOGIC ---
+        let audioEnabled = false;
+        let femaleVoice = null;
+
+        function cacheVoice() {
+            if ('speechSynthesis' in window) {
+                const voices = window.speechSynthesis.getVoices();
+                femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google US English') || v.name.includes('Zira'));
+            }
+        }
+        if ('speechSynthesis' in window) { window.speechSynthesis.onvoiceschanged = cacheVoice; }
+
+        function narrate(text) {
+            return new Promise((resolve) => {
+                if (!audioEnabled || !('speechSynthesis' in window)) {
+                    resolve();
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (femaleVoice) utterance.voice = femaleVoice;
+                
+                const volSlider = document.getElementById('demo-volume-slider');
+                utterance.volume = volSlider ? (volSlider.value / 100) : 0.5;
+                
+                utterance.rate = 0.95;
+                utterance.onend = resolve;
+                utterance.onerror = resolve;
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+
+        let demoActive = false;
+        async function runGuidedDemo() {
+            if (demoActive) {
+                demoActive = false;
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                document.getElementById('btn-play-demo').innerHTML = '<i class="fa-solid fa-play"></i> Play Voice Demo Tour';
+                return;
+            }
+            demoActive = true;
+            document.getElementById('btn-play-demo').innerHTML = '<i class="fa-solid fa-stop"></i> Stop Demo';
+            audioEnabled = true;
+
+            await narrate("Welcome to the FreeMe Autonomous Opt-Out Engine. This dashboard deploys AI-powered browser agents to scrub your personal data from public directories and data brokers.");
+            if (!demoActive) return;
+
+            // Step 1: Profile Tab
+            switchTab('profile');
+            document.getElementById('btn-tab-profile').style.boxShadow = "0 0 15px var(--accent)";
+            await narrate("First, we securely gather your profile. Enter your known aliases, email addresses, phone numbers, and current address. This information is processed locally to prevent exposure.");
+            if (!demoActive) return;
+
+            // Fill mock data using the correct dynamic inputs
+            const aliasInput = document.querySelector('.alias-input');
+            if (aliasInput) aliasInput.value = "Jane F. Smith";
+            const emailInput = document.querySelector('.email-input');
+            if (emailInput) emailInput.value = "jane.smith.privacy@example.com";
+            const phoneInput = document.querySelector('.phone-input');
+            if (phoneInput) phoneInput.value = "555-019-9999";
+            const addressInput = document.querySelector('.address-input');
+            if (addressInput) addressInput.value = "456 Mockingbird Ln, Faketown, NY 10001";
+            document.getElementById('dob').value = "1992-11-20";
+
+            // Flash inputs green
+            document.getElementById('tab-profile').querySelectorAll('input').forEach(input => {
+                input.style.borderColor = '#4ade80';
+                setTimeout(() => input.style.borderColor = 'var(--border-color)', 800);
+            });
+
+            await narrate("You can inject mock data to safely test the application, or enter your real information for a live sweep.");
+            if (!demoActive) return;
+            document.getElementById('btn-tab-profile').style.boxShadow = "";
+
+            // Step 2: Data Brokers Tab
+            switchTab('brokers');
+            document.getElementById('btn-tab-brokers').style.boxShadow = "0 0 15px var(--accent)";
+            await narrate("Next, select from the list of known data brokers holding your digital footprint. Our engine currently supports TruePeopleSearch with more brokers being added.");
+            if (!demoActive) return;
+
+            const btnScan = document.getElementById('btn-scan-brokers');
+            if (btnScan) btnScan.style.boxShadow = "0 0 15px var(--accent)";
+            await narrate("The Discovery Scanner actively scans the internet for newly emerging threat brokers, ensuring total ongoing coverage of your privacy landscape.");
+            if (!demoActive) return;
+            if (btnScan) btnScan.style.boxShadow = "";
+            document.getElementById('btn-tab-brokers').style.boxShadow = "";
+
+            // Step 3: Settings Tab
+            switchTab('ai');
+            document.getElementById('btn-tab-ai').style.boxShadow = "0 0 15px var(--accent)";
+            await narrate("The Settings tab controls the engine's behavior. The Demo Mode toggle determines whether the system performs live, irreversible data removal or runs a safe simulation. When Demo Mode is off, the Playwright browser agent will physically navigate to broker websites and submit real deletion requests.");
+            if (!demoActive) return;
+
+            await narrate("The engine runs invisibly by default. If it encounters a security challenge like a captcha, it will automatically materialize a visible browser window for you to solve, then resume operating in the background.");
+            if (!demoActive) return;
+            document.getElementById('btn-tab-ai').style.boxShadow = "";
+
+            // Step 4: Results Tab
+            switchTab('results');
+            document.getElementById('btn-tab-results').style.boxShadow = "0 0 15px var(--accent)";
+            await narrate("Once you hit Scrub My Data, you are taken to the Results dashboard. Here you can monitor real-time parsing traces as the AI secures your digital footprint. A detailed completion report is sent to your inbox via Sherpa Solutions secure email when the campaign finishes.");
+            if (!demoActive) return;
+
+            await narrate("After a campaign completes, the Start button is locked until you modify your profile data. This safety feature prevents accidental duplicate submissions against the same target.");
+            if (!demoActive) return;
+            document.getElementById('btn-tab-results').style.boxShadow = "";
+
+            // Finish
+            switchTab('profile');
+            await narrate("That concludes the guided tour. You are now ready to take control of your digital privacy. Enter your real information, disable Demo Mode in Settings, and click Scrub My Data to begin a live sweep.");
+            
+            demoActive = false;
+            document.getElementById('btn-play-demo').innerHTML = '<i class="fa-solid fa-play"></i> Play Voice Demo Tour';
+        }
+    </script>
 </body>
-
 </html>
