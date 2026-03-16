@@ -3051,16 +3051,9 @@
             fetchStates(e.target.value);
         });
         
-        // Auto-Start Demo on local only & Fetch Countries
+        // Init Fetch Countries
         document.addEventListener('DOMContentLoaded', () => {
             fetchCountries();
-            
-            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            if (isLocalhost) {
-                setTimeout(() => {
-                    if (!isDemoRunning) toggleDemo();
-                }, 2000);
-            }
         });
     </script>
     <script src="/static/cms.js"></script>
