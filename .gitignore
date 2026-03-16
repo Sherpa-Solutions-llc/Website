@@ -10,6 +10,17 @@ venv/
 *.sqlite
 !satellites.db
 !satellites_data.db
+!satellites_data_source.db
+!sherpa_flights.db
+!sherpa_flights_source.db
+!sherpa_vessels.db
+!sherpa_vessels_source.db
+!sherpa_earthquakes.db
+!sherpa_earthquakes_source.db
+!sherpa_cameras.db
+!sherpa_cameras_source.db
+!weather.db
+!weather_source.db
 
 # Logs
 *.log
