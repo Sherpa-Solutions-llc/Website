@@ -1168,7 +1168,7 @@
 
             try {
                 const llmModel = document.getElementById('llm-model') ? document.getElementById('llm-model').value : 'claude-3-opus';
-                const res = await fetch('/api/freeme/discover_brokers', {
+                const res = await fetch(`${window.apiBaseUrl || ''}/api/freeme/discover_brokers`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ llm_model: llmModel })
