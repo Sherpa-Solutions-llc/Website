@@ -12,3 +12,4 @@ google-genai==0.3.0
 yfinance==0.2.44
 beautifulsoup4==4.12.3
 requests==2.32.3
+playwright==1.49.1
