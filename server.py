@@ -228,6 +228,7 @@ async def startup_event():
     manager.session_id = session_id
     
     await init_flights_db()
+    await init_military_flights_db()
     await init_satellites_db()
     await init_weather_db()
     await init_police_db()
@@ -324,6 +325,7 @@ async def startup_event():
 
     asyncio.create_task(prime_databases_background())
     asyncio.create_task(fetch_flights_loop())
+    asyncio.create_task(fetch_military_flights_loop())
     asyncio.create_task(update_weather_loop())
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -2189,6 +2191,158 @@ async def get_flights():
                 return JSONResponse({"time": source_time, "states": states})
     except Exception as e:
         print(f"[Flights] DB Error: {e}")
+        return JSONResponse({"time": int(time.time()), "states": []})
+
+MILITARY_FLIGHTS_DB = "sherpa_military_flights.db"
+MILITARY_FLIGHTS_SOURCE_DB = "sherpa_military_flights_source.db"
+
+async def init_military_flights_db():
+    async with aiosqlite.connect(MILITARY_FLIGHTS_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS flights (
+                icao24 TEXT PRIMARY KEY,
+                callsign TEXT,
+                country TEXT,
+                time_position INTEGER,
+                last_contact INTEGER,
+                lng REAL,
+                lat REAL,
+                alt REAL,
+                on_ground BOOLEAN,
+                velocity REAL,
+                heading REAL
+            )
+        ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS flight_metadata (
+                key TEXT PRIMARY KEY,
+                value TEXT
+            )
+        ''')
+        await db.commit()
+
+async def fetch_military_flights_loop():
+    import httpx
+    import time
+    import asyncio
+    while True:
+        states = None
+        source_time = int(time.time())
+        try:
+            async with httpx.AsyncClient() as client:
+                res = await client.get('https://api.adsb.lol/v2/mil', timeout=15.0)
+                res.raise_for_status()
+                data = res.json()
+                source_time = int(data.get("now", int(time.time()*1000)) / 1000)
+                ac = data.get("ac", [])
+                states = []
+                for a in ac:
+                    if a.get("lat") is not None and a.get("lon") is not None:
+                        # Calculate velocity uniformly
+                        gs = a.get("gs")
+                        tas = a.get("tas")
+                        mach = a.get("mach")
+                        if gs is not None: vel = gs * 0.51444
+                        elif tas is not None: vel = tas * 0.51444
+                        elif mach is not None: vel = mach * 340
+                        else: vel = 0.8 * 340
+                        
+                        states.append([
+                            a.get("hex", "UNKNOWN"), a.get("flight", ""), "Unknown",
+                            None, None, a.get("lon"), a.get("lat"), a.get("alt_baro", 10000),
+                            False, vel, a.get("track", 0)
+                        ])
+        except Exception as e:
+            print(f"[Military Flights] adsb.lol /v2/mil failed: {e}")
+
+        # Protect against wiping the DB if API fails
+        if states:
+            try:
+                # 1. Write to SOURCE DB
+                async with aiosqlite.connect(MILITARY_FLIGHTS_SOURCE_DB) as db:
+                    await db.execute('''
+                        CREATE TABLE IF NOT EXISTS flights (
+                            icao24 TEXT PRIMARY KEY,
+                            callsign TEXT,
+                            country TEXT,
+                            time_position INTEGER,
+                            last_contact INTEGER,
+                            lng REAL,
+                            lat REAL,
+                            alt REAL,
+                            on_ground BOOLEAN,
+                            velocity REAL,
+                            heading REAL
+                        )
+                    ''')
+                    await db.execute('''
+                        CREATE TABLE IF NOT EXISTS flight_metadata (
+                            key TEXT PRIMARY KEY,
+                            value TEXT
+                        )
+                    ''')
+                    await db.execute("DELETE FROM flights")
+                    insert_data = []
+                    for s in states:
+                        if len(s) >= 11:
+                            insert_data.append((
+                                s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bool(s[8]), s[9], s[10]
+                            ))
+                    await db.executemany('''
+                        INSERT INTO flights 
+                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', insert_data)
+                    
+                    current_time = int(time.time())
+                    await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
+                    await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
+                    await db.commit()
+
+                # 2. Update MAIN DB Atomically
+                async with aiosqlite.connect(MILITARY_FLIGHTS_DB) as db:
+                    await db.execute("DELETE FROM flights")
+                    await db.executemany('''
+                        INSERT INTO flights 
+                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', insert_data)
+                    await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
+                    await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
+                    await db.commit()
+                print(f"Background Scraper: Successfully stored {len(states)} military flights.")
+            except Exception as e:
+                import traceback
+                print(f"Military Scraper DB Save Failed: [{type(e).__name__}] {repr(e)}")
+        else:
+            print("[Military Flights] Could not fetch flights from source, preserving old DB state.")
+
+        await asyncio.sleep(300)
+
+@app.get("/api/military-flights")
+async def get_military_flights():
+    import time
+    try:
+        async with aiosqlite.connect(MILITARY_FLIGHTS_DB) as db:
+            source_time = int(time.time())
+            try:
+                async with db.execute("SELECT value FROM flight_metadata WHERE key = 'source_time'") as cursor:
+                    row = await cursor.fetchone()
+                    if row:
+                        source_time = int(row[0])
+            except Exception as metadata_e:
+                pass
+            
+            async with db.execute("SELECT icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading FROM flights") as cursor:
+                rows = await cursor.fetchall()
+                states = []
+                for r in rows:
+                    states.append([r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], bool(r[8]), r[9], r[10]])
+                
+                print(f"[Military Flights] Returning {len(states)} active flights from DB.")
+                return JSONResponse({"time": source_time, "states": states})
+    except Exception as e:
+        print(f"[Military Flights] DB Error: {e}")
         return JSONResponse({"time": int(time.time()), "states": []})
 
 SATELLITES_DB = os.path.join(BASE_DIR, "satellites_data.db")
