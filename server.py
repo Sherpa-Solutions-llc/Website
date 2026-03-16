@@ -38,11 +38,17 @@ async def health_check():
     return {"status": "ok"}
 
 WEATHER_DB = "weather.db"
+WEATHER_SOURCE_DB = "weather_source.db"
 POLICE_DB = "sherpa_police.db"
+POLICE_SOURCE_DB = "sherpa_police_source.db"
 SCANNERS_DB = "sherpa_scanners.db"
+SCANNERS_SOURCE_DB = "sherpa_scanners_source.db"
 VESSELS_DB = "sherpa_vessels.db"
+VESSELS_SOURCE_DB = "sherpa_vessels_source.db"
 EARTHQUAKES_DB = "sherpa_earthquakes.db"
+EARTHQUAKES_SOURCE_DB = "sherpa_earthquakes_source.db"
 CAMERAS_DB = "sherpa_cameras.db"
+CAMERAS_SOURCE_DB = "sherpa_cameras_source.db"
 from weather_cities import WEATHER_CITIES
 
 class ConnectionManager:
@@ -1924,6 +1930,40 @@ async def fetch_vessels_logic():
                     heading, speed, country, vessel_type, int(time.time())
                 ))
 
+        # 1. Write to SOURCE DB
+        async with aiosqlite.connect(VESSELS_SOURCE_DB) as db:
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS vessels (
+                    mmsi      TEXT PRIMARY KEY,
+                    title     TEXT,
+                    lat       REAL,
+                    lng       REAL,
+                    heading   REAL,
+                    velocity_kmh REAL,
+                    country   TEXT,
+                    vessel_type TEXT DEFAULT 'other',
+                    last_updated INTEGER
+                )
+            ''')
+            try:
+                await db.execute("ALTER TABLE vessels ADD COLUMN vessel_type TEXT DEFAULT 'other'")
+            except Exception:
+                pass
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS vessels_meta (
+                    key TEXT PRIMARY KEY,
+                    last_updated INTEGER
+                )
+            ''')
+            await db.execute("DELETE FROM vessels")
+            await db.executemany(
+                "INSERT OR REPLACE INTO vessels (mmsi, title, lat, lng, heading, velocity_kmh, country, vessel_type, last_updated) VALUES (?,?,?,?,?,?,?,?,?)",
+                vessels
+            )
+            await db.execute("INSERT OR REPLACE INTO vessels_meta (key, last_updated) VALUES ('last_fetch', ?)", (int(time.time()),))
+            await db.commit()
+
+        # 2. Update MAIN DB Atomically
         async with aiosqlite.connect(VESSELS_DB) as db:
             await db.execute("DELETE FROM vessels")
             await db.executemany(
@@ -1988,6 +2028,7 @@ import random
 import math
 
 FLIGHTS_DB = "sherpa_flights.db"
+FLIGHTS_SOURCE_DB = "sherpa_flights_source.db"
 
 async def init_flights_db():
     async with aiosqlite.connect(FLIGHTS_DB) as db:
@@ -2017,25 +2058,81 @@ async def init_flights_db():
 async def fetch_flights_loop():
     import httpx
     import time
+    import asyncio
     while True:
+        states = None
+        source_time = int(time.time())
         try:
             async with httpx.AsyncClient() as client:
                 res = await client.get('https://opensky-network.org/api/states/all', timeout=15.0)
                 res.raise_for_status()
                 data = res.json()
-                
-                states = data.get("states", [])
-                
-                async with aiosqlite.connect(FLIGHTS_DB) as db:
+                states = data.get("states") or []
+                source_time = data.get("time", source_time)
+        except Exception as e:
+            print(f"[Flights] OpenSky API failed. Falling back to adsb.lol... ({e})")
+            
+        if not states:
+            try:
+                async with httpx.AsyncClient() as client:
+                    res = await client.get('https://api.adsb.lol/v2/ladd', timeout=15.0)
+                    res.raise_for_status()
+                    data = res.json()
+                    source_time = int(data.get("now", int(time.time()*1000)) / 1000)
+                    ac = data.get("ac", [])
+                    states = []
+                    for a in ac:
+                        if a.get("lat") is not None and a.get("lon") is not None:
+                            # Calculate velocity uniformly
+                            gs = a.get("gs")
+                            tas = a.get("tas")
+                            mach = a.get("mach")
+                            if gs is not None: vel = gs * 0.51444
+                            elif tas is not None: vel = tas * 0.51444
+                            elif mach is not None: vel = mach * 340
+                            else: vel = 0.8 * 340
+                            
+                            states.append([
+                                a.get("hex", "UNKNOWN"), a.get("flight", ""), "Unknown",
+                                None, None, a.get("lon"), a.get("lat"), a.get("alt_baro", 10000),
+                                False, vel, a.get("track", 0)
+                            ])
+            except Exception as e:
+                print(f"[Flights] adsb.lol fallback failed: {e}")
+
+        # Protect against wiping the DB if both APIs fail
+        if states:
+            try:
+                # 1. Write to SOURCE DB
+                async with aiosqlite.connect(FLIGHTS_SOURCE_DB) as db:
+                    await db.execute('''
+                        CREATE TABLE IF NOT EXISTS flights (
+                            icao24 TEXT PRIMARY KEY,
+                            callsign TEXT,
+                            country TEXT,
+                            time_position INTEGER,
+                            last_contact INTEGER,
+                            lng REAL,
+                            lat REAL,
+                            alt REAL,
+                            on_ground BOOLEAN,
+                            velocity REAL,
+                            heading REAL
+                        )
+                    ''')
+                    await db.execute('''
+                        CREATE TABLE IF NOT EXISTS flight_metadata (
+                            key TEXT PRIMARY KEY,
+                            value TEXT
+                        )
+                    ''')
                     await db.execute("DELETE FROM flights")
-                    
                     insert_data = []
                     for s in states:
                         if len(s) >= 11:
                             insert_data.append((
                                 s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bool(s[8]), s[9], s[10]
                             ))
-                    
                     await db.executemany('''
                         INSERT INTO flights 
                         (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
@@ -2043,23 +2140,30 @@ async def fetch_flights_loop():
                     ''', insert_data)
                     
                     current_time = int(time.time())
-                    source_time = data.get("time", current_time)
+                    await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
+                    await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
+                    await db.commit()
+
+                # 2. Update MAIN DB Atomically
+                async with aiosqlite.connect(FLIGHTS_DB) as db:
+                    await db.execute("DELETE FROM flights")
+                    await db.executemany('''
+                        INSERT INTO flights 
+                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', insert_data)
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
                     await db.commit()
                 print(f"Background Scraper: Successfully stored {len(states)} flights in SQLite database.")
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 429:
-                print(f"[Flights] OpenSky API Rate Limited (429). Daily limit reached or pulling too fast.")
-            else:
-                print(f"Background Scraper Failed (HTTP {e.response.status_code}): {e}")
-        except Exception as e:
-            import traceback
-            print(f"Background Scraper Failed: [{type(e).__name__}] {repr(e)}")
-            traceback.print_exc()
-        
-        # Free public API limit: 100 per day. 4 pulls per hour = 96 pulls/day. Perfect 15m cadence!
-        await asyncio.sleep(900)
+            except Exception as e:
+                import traceback
+                print(f"Background Scraper DB Save Failed: [{type(e).__name__}] {repr(e)}")
+                traceback.print_exc()
+        else:
+            print("[Flights] Could not fetch flights from any source, preserving old DB state.")
+
+        await asyncio.sleep(300)
 
 @app.get("/api/flights")
 async def get_flights():
@@ -2073,7 +2177,7 @@ async def get_flights():
                     return JSONResponse({"time": int(time.time()), "states": []})
                 source_time = int(row[0])
             
-            async with db.execute("SELECT icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading FROM flights WHERE on_ground = 0") as cursor:
+            async with db.execute("SELECT icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading FROM flights") as cursor:
                 rows = await cursor.fetchall()
                 states = []
                 for r in rows:
@@ -2086,6 +2190,7 @@ async def get_flights():
         return JSONResponse({"time": int(time.time()), "states": []})
 
 SATELLITES_DB = os.path.join(BASE_DIR, "satellites_data.db")
+SATELLITES_SOURCE_DB = os.path.join(BASE_DIR, "satellites_data_source.db")
 
 async def init_satellites_db():
     async with aiosqlite.connect(SATELLITES_DB) as db:
@@ -2168,6 +2273,27 @@ async def fetch_satellites_logic():
         
         # Update Database
         if satellites_cache:
+            # 1. Write to SOURCE DB
+            async with aiosqlite.connect(SATELLITES_SOURCE_DB) as db:
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS satellites (
+                        id TEXT PRIMARY KEY,
+                        name TEXT,
+                        line1 TEXT,
+                        line2 TEXT,
+                        type TEXT,
+                        country TEXT,
+                        status TEXT
+                    )
+                ''')
+                await db.execute('DELETE FROM satellites')
+                await db.executemany('''
+                    INSERT OR REPLACE INTO satellites (id, name, line1, line2, type, country, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', satellites_cache)
+                await db.commit()
+                
+            # 2. Update MAIN DB Atomically
             async with aiosqlite.connect(SATELLITES_DB) as db:
                 await db.execute('DELETE FROM satellites')
                 await db.executemany('''
@@ -2175,6 +2301,7 @@ async def fetch_satellites_logic():
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', satellites_cache)
                 await db.commit()
+                
             print(f"[Satellites] Sync complete. {len(satellites_cache)} satellites stored.")
         else:
             print("[Satellites] Sync failed. No data retrieved.")
@@ -2248,6 +2375,48 @@ async def fetch_earthquakes_logic():
                 resp.raise_for_status()
                 data = resp.json()
             features = data.get("features", [])
+            # 1. Write to SOURCE DB
+            async with aiosqlite.connect(EARTHQUAKES_SOURCE_DB) as db:
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS earthquakes (
+                        id         TEXT NOT NULL,
+                        duration   TEXT NOT NULL,
+                        mag        REAL,
+                        place      TEXT,
+                        time_ms    INTEGER,
+                        lng        REAL,
+                        lat        REAL,
+                        depth      REAL,
+                        raw_json   TEXT,
+                        fetched_at INTEGER,
+                        PRIMARY KEY (id, duration)
+                    )
+                ''')
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS earthquakes_meta (
+                        key TEXT PRIMARY KEY,
+                        last_updated INTEGER
+                    )
+                ''')
+                await db.execute("DELETE FROM earthquakes WHERE duration = ?", (duration,))
+                for f in features:
+                    props = f.get("properties", {})
+                    coords = f.get("geometry", {}).get("coordinates", [])
+                    await db.execute(
+                        "INSERT OR REPLACE INTO earthquakes (id, duration, mag, place, time_ms, lng, lat, depth, raw_json, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        (
+                            f.get("id"), duration,
+                            props.get("mag"), props.get("place"), props.get("time"),
+                            coords[0] if len(coords) > 0 else None,
+                            coords[1] if len(coords) > 1 else None,
+                            coords[2] if len(coords) > 2 else None,
+                            _json.dumps(f), int(time.time())
+                        )
+                    )
+                await db.execute("INSERT OR REPLACE INTO earthquakes_meta (key, last_updated) VALUES (?,?)", (f"last_fetch_{duration}", int(time.time())))
+                await db.commit()
+
+            # 2. Update MAIN DB Atomically
             async with aiosqlite.connect(EARTHQUAKES_DB) as db:
                 await db.execute("DELETE FROM earthquakes WHERE duration = ?", (duration,))
                 for f in features:
@@ -2464,6 +2633,48 @@ async def fetch_cameras_logic():
         }]
 
     fetched_at = int(time.time())
+    
+    # 1. Write to SOURCE DB
+    async with aiosqlite.connect(CAMERAS_SOURCE_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS cameras (
+                id          TEXT PRIMARY KEY,
+                title       TEXT,
+                lat         REAL,
+                lng         REAL,
+                type        TEXT DEFAULT 'cctv',
+                country     TEXT,
+                stream_type TEXT,
+                snapshot    TEXT,
+                hls_url     TEXT,
+                video       TEXT,
+                link        TEXT,
+                fetched_at  INTEGER
+            )
+        ''')
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS cameras_meta (
+                key TEXT PRIMARY KEY,
+                last_updated INTEGER
+            )
+        ''')
+        await db.execute("DELETE FROM cameras")
+        for cam in cameras:
+            await db.execute(
+                "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    cam.get("id"), cam.get("title"),
+                    cam.get("lat"), cam.get("lng"),
+                    cam.get("type", "cctv"), cam.get("country", ""),
+                    cam.get("stream_type", "snapshot"), cam.get("snapshot", ""),
+                    cam.get("hls_url", ""), cam.get("video", ""),
+                    cam.get("link", ""), fetched_at
+                )
+            )
+        await db.execute("INSERT OR REPLACE INTO cameras_meta (key, last_updated) VALUES ('last_fetch', ?)", (fetched_at,))
+        await db.commit()
+
+    # 2. Update MAIN DB Atomically
     async with aiosqlite.connect(CAMERAS_DB) as db:
         await db.execute("DELETE FROM cameras")
         for cam in cameras:
@@ -2625,6 +2836,26 @@ async def update_weather_loop():
             print(f"[Weather] Polling Open-Meteo in batches for {len(WEATHER_CITIES)} total cities...")
             current_time = int(time.time())
             
+            # 1. Initialize SOURCE DB
+            async with aiosqlite.connect(WEATHER_SOURCE_DB) as db:
+                try:
+                    await db.execute("ALTER TABLE weather ADD COLUMN tier INTEGER DEFAULT 1")
+                except Exception:
+                    pass
+                await db.execute("""
+                    CREATE TABLE IF NOT EXISTS weather (
+                        city TEXT PRIMARY KEY,
+                        lat REAL,
+                        lng REAL,
+                        temp REAL,
+                        unit TEXT,
+                        last_updated INTEGER,
+                        tier INTEGER DEFAULT 1
+                    )
+                """)
+                await db.execute("DELETE FROM weather")
+                await db.commit()
+                
             chunk_size = 50
             for i in range(0, len(WEATHER_CITIES), chunk_size):
                 chunk = WEATHER_CITIES[i:i + chunk_size]
@@ -2640,7 +2871,8 @@ async def update_weather_loop():
                     
                 dataArr = data if isinstance(data, list) else [data]
                 
-                async with aiosqlite.connect(WEATHER_DB) as db:
+                # Write chunk to SOURCE DB
+                async with aiosqlite.connect(WEATHER_SOURCE_DB) as db:
                     for j, d in enumerate(dataArr):
                         city_obj = chunk[j]
                         city = city_obj["name"]
@@ -2659,6 +2891,19 @@ async def update_weather_loop():
                     await db.commit()
                 # Yield context slightly to prevent Open-Meteo blocking
                 await asyncio.sleep(1)
+
+            # 2. Update MAIN DB Atomically
+            async with aiosqlite.connect(WEATHER_SOURCE_DB) as sdb:
+                async with sdb.execute("SELECT city, lat, lng, temp, unit, last_updated, tier FROM weather") as cursor:
+                    weather_rows = await cursor.fetchall()
+
+            async with aiosqlite.connect(WEATHER_DB) as mdb:
+                await mdb.execute("DELETE FROM weather")
+                await mdb.executemany("""
+                    INSERT INTO weather (city, lat, lng, temp, unit, last_updated, tier)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, weather_rows)
+                await mdb.commit()
                 
             print("[Weather] Successfully updated SQLite weather database for all tiers.")
         except Exception as e:
