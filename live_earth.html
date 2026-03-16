@@ -181,10 +181,10 @@
                     </div>
                     <div class="layer-options-container" id="options-flights">
                         <select id="flight-speed" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
-                            <option value="all" selected>Speed: All</option>
+                            <option value="all">Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
                             <option value="500-1000">Speed: 500-1000 km/h</option>
-                            <option value="1000+">Speed: Over 1000 km/h</option>
+                            <option value="1000+" selected>Speed: Over 1000 km/h</option>
                         </select>
                         <select id="flight-type" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="all">Type: All</option>
