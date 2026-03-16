@@ -1460,13 +1460,29 @@ from fastapi import Request
 @app.post("/api/inbound-email")
 async def handle_inbound_email(request: Request):
     try:
+        # Parse the raw body - handle both JSON and form-encoded payloads
+        content_type = request.headers.get('content-type', '')
+        raw_body = await request.body()
+        print(f"[INBOUND EMAIL] Received webhook. Content-Type: {content_type}")
+        print(f"[INBOUND EMAIL] Raw body (first 500 chars): {raw_body[:500]}")
 
-        payload = await request.json()
-        sender = payload.get('from', 'Unknown Sender')
-        subject = payload.get('subject', 'No Subject')
-        text_body = payload.get('text', '')
-        html_body = payload.get('html', text_body)
-        
+        import json
+        try:
+            payload = json.loads(raw_body)
+        except json.JSONDecodeError:
+            print(f"[INBOUND EMAIL] Failed to parse JSON, trying form decode")
+            payload = {}
+
+        # Resend wraps inbound email data inside a "data" key
+        email_data = payload.get('data', payload)
+
+        sender = email_data.get('from', 'Unknown Sender')
+        subject = email_data.get('subject', 'No Subject')
+        text_body = email_data.get('text', '')
+        html_body = email_data.get('html', text_body)
+
+        print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
+
         import smtplib
         from email.message import EmailMessage
         import os
@@ -1488,15 +1504,20 @@ async def handle_inbound_email(request: Request):
 
         smtp_pass = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_B4yVyVqr_NgY8fuPK7pzZgw4AN9bdZ81e")
         
-        print("Transmitting forwarded email via Resend SMTP...")
-        with smtplib.SMTP_SSL("smtp.resend.com", 465) as server:
+        # Use port 587 with STARTTLS (port 465 SSL is blocked by Railway)
+        print("[INBOUND EMAIL] Connecting to smtp.resend.com:587 via STARTTLS...")
+        with smtplib.SMTP("smtp.resend.com", 587) as server:
+            server.starttls()
             server.login("resend", smtp_pass)
             server.send_message(msg)
             
+        print(f"[INBOUND EMAIL] SUCCESS - Email forwarded to {target_inbox}")
         return {"status": "Forwarded Successfully"}
         
     except Exception as e:
-        print(f"Webhook Failed: {e}")
+        print(f"[INBOUND EMAIL] Webhook Failed: {e}")
+        import traceback
+        traceback.print_exc()
         return {"status": "Error", "details": str(e)}
 
 # --- FreeMe API ---
