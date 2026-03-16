@@ -916,6 +916,7 @@ function updateScannersLayer() {
 async function fetchFlights() {
     try {
         let activeStates = [];
+        let militaryStates = [];
         let timestamp = Math.floor(Date.now() / 1000);
 
         if (state.dataSources.flights === 'opensky') {
@@ -925,6 +926,17 @@ async function fetchFlights() {
             timestamp = data.time || timestamp;
             activeStates = data.states || [];
             console.log(`[Flights] Fetched ${activeStates.length} raw states from OpenSky API`);
+            
+            try {
+                const milRes = await fetch(`${API_BASE}/api/military-flights`);
+                if (milRes.ok) {
+                    const milData = await milRes.json();
+                    militaryStates = milData.states || [];
+                    console.log(`[Flights] Fetched ${militaryStates.length} military states from backend`);
+                }
+            } catch (e) {
+                console.warn("[Flights] Failed to fetch military states:", e);
+            }
         } else if (state.dataSources.flights === 'adsblol') {
             const res = await fetch('https://api.adsb.lol/v2/ladd');
             if (!res.ok) throw new Error('ADSB.lol API Error');
@@ -958,19 +970,46 @@ async function fetchFlights() {
                 else if (ac[i].tas) s[9] = ac[i].tas * 0.51444;
             });
             console.log(`[Flights] Fetched ${activeStates.length} raw states from ADSB.lol API`);
+            
+            // Parallel military fetch for direct mode
+            try {
+                const milRes = await fetch('https://api.adsb.lol/v2/mil');
+                if (milRes.ok) {
+                    const milData = await milRes.json();
+                    const milAc = milData.ac || [];
+                    militaryStates = milAc.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => {
+                        let vel = (a.mach || 0.8) * 340;
+                        if (a.gs) vel = a.gs * 0.51444;
+                        else if (a.tas) vel = a.tas * 0.51444;
+                        return [
+                            a.hex || 'UNKNOWN', a.flight || '', 'Unknown', null, null,
+                            a.lon, a.lat, a.alt_baro || 10000, false, vel, a.track || 0
+                        ];
+                    });
+                    console.log(`[Flights] Fetched ${militaryStates.length} military states from ADSB.lol`);
+                }
+            } catch (e) {
+                console.warn("[Flights] Failed to fetch direct military states:", e);
+            }
         }
 
         // Always hide the loading overlay as soon as we get any valid response
         document.getElementById('loading-overlay').style.display = 'none';
 
         const oldFlightsMap = new Map(state.flights.map(f => [f.id, f]));
+        
+        // Tag and merge arrays
+        activeStates.forEach(s => s.is_mil_source = false);
+        militaryStates.forEach(s => s.is_mil_source = true);
+        const allStates = activeStates.concat(militaryStates);
 
-        state.flights = activeStates
+        state.flights = allStates
             .filter(s => s[5] !== null && s[6] !== null)
             .map(s => {
                 try {
                     const velocityKmH = (s[9] || 0) * 3.6;
-                    const isMilitary = s[1] ? s[1].trim().startsWith("RCH") || s[1].trim().startsWith("AF") || s[1].trim().startsWith("RRR") || s[1].trim().startsWith("CNV") : false;
+                    // Trust the backend/API endpoint explicitly rather than guessing callsigns
+                    const isMilitary = s.is_mil_source === true;
 
                     // Precompute perfectly stable ECEF AlignedAxis vector for 3D orientation
                     const lngRad = Cesium.Math.toRadians(s[5]);
