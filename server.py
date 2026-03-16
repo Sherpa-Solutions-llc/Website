@@ -1466,11 +1466,11 @@ async def handle_inbound_email(request: Request):
         print(f"[INBOUND EMAIL] Received webhook. Content-Type: {content_type}")
         print(f"[INBOUND EMAIL] Raw body (first 500 chars): {raw_body[:500]}")
 
-        import json
+        import json, os
         try:
             payload = json.loads(raw_body)
         except json.JSONDecodeError:
-            print(f"[INBOUND EMAIL] Failed to parse JSON, trying form decode")
+            print(f"[INBOUND EMAIL] Failed to parse JSON")
             payload = {}
 
         # Resend wraps inbound email data inside a "data" key
@@ -1483,35 +1483,27 @@ async def handle_inbound_email(request: Request):
 
         print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
 
-        import smtplib
-        from email.message import EmailMessage
-        import os
-
-        forwarder = "BaseCamp@sherpa-solutions-llc.com"
-        target_inbox = "chris.k.ricks@gmail.com"
+        # Use Resend HTTP API instead of SMTP (port 443 is never blocked)
+        api_key = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_B4yVyVqr_NgY8fuPK7pzZgw4AN9bdZ81e")
         
-        msg = EmailMessage()
-        msg['Subject'] = f"FWD: {subject} (From: {sender})"
-        msg['From'] = forwarder
-        msg['To'] = target_inbox
-        msg['Reply-To'] = sender
+        forward_html = f"<p><i>--- Forwarded message from {sender} ---</i></p><hr>{html_body}" if html_body else None
         
-        msg.set_content(f"--- Forwarded message from {sender} ---\n\n{text_body}")
-        
-        if html_body:
-            header = f"<p><i>--- Forwarded message from {sender} ---</i></p><hr>"
-            msg.add_alternative(header + html_body, subtype='html')
-
-        smtp_pass = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_B4yVyVqr_NgY8fuPK7pzZgw4AN9bdZ81e")
-        
-        # Use port 587 with STARTTLS (port 465 SSL is blocked by Railway)
-        print("[INBOUND EMAIL] Connecting to smtp.resend.com:587 via STARTTLS...")
-        with smtplib.SMTP("smtp.resend.com", 587) as server:
-            server.starttls()
-            server.login("resend", smtp_pass)
-            server.send_message(msg)
+        import httpx
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "from": "BaseCamp@sherpa-solutions-llc.com",
+                    "to": ["chris.k.ricks@gmail.com"],
+                    "subject": f"FWD: {subject} (From: {sender})",
+                    "reply_to": sender,
+                    "html": forward_html or f"<pre>--- Forwarded message from {sender} ---\n\n{text_body}</pre>",
+                }
+            )
+            print(f"[INBOUND EMAIL] Resend API response: {resp.status_code} {resp.text}")
             
-        print(f"[INBOUND EMAIL] SUCCESS - Email forwarded to {target_inbox}")
+        print(f"[INBOUND EMAIL] SUCCESS - Email forwarded to chris.k.ricks@gmail.com")
         return {"status": "Forwarded Successfully"}
         
     except Exception as e:
