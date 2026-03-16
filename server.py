@@ -33,6 +33,10 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app = FastAPI()
 
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok"}
+
 WEATHER_DB = "weather.db"
 POLICE_DB = "sherpa_police.db"
 SCANNERS_DB = "sherpa_scanners.db"
