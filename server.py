@@ -1487,6 +1487,11 @@ async def handle_inbound_email(request: Request):
 
         print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
 
+        # --- SPAM FILTER ---
+        if "hello@notify.railway.app" in sender.lower():
+            print(f"[INBOUND EMAIL] IGNORING Automated Railway Notification to prevent spam loop.")
+            return {"status": "Ignored - System Notification"}
+
         # Use Resend HTTP API instead of SMTP (port 443 is never blocked)
         api_key = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_B4yVyVqr_NgY8fuPK7pzZgw4AN9bdZ81e")
         
