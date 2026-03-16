@@ -389,8 +389,6 @@
                 <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
                             class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
             </ul>
-            <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i
-                        class="fa-solid fa-sun"></i></button></div>
             <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
         </aside>
 
@@ -437,9 +435,13 @@
                     style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
                     <div>
                         <h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
-                        <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
-                                style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
-                            inline.</p>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
+                                    style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
+                                inline.</p>
+                            <div class="header-actions" style="margin-left: 1rem;"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:var(--primary); color:var(--text-light); border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i
+                                        class="fa-solid fa-sun"></i></button></div>
+                        </div>
                     </div>
                     <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
                         <button id="cms-save-btn" class="btn btn-primary" onclick="saveEditorChanges()" disabled
@@ -455,7 +457,7 @@
 
                 <!-- GitHub progress meter -->
                 <div id="sync-progress-container"
-                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid #c0ccc0; border-radius:8px; padding:12px; background:#f9fcf9;">
+                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color);">
                     
                     <!-- GitHub Row -->
                     <div>
@@ -463,16 +465,16 @@
                             <span><i class="fa-brands fa-github"></i> Deploy to GitHub</span>
                             <span id="sync-progress-percent">0%</span>
                         </div>
-                        <div style="width:100%; background:#dce6dc; height:8px; border-radius:4px; overflow:hidden;">
+                        <div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
                             <div id="sync-progress-bar"
-                                style="width:0%; height:100%; background:#1a2e1a; transition:width 0.3s ease, background 0.3s ease;">
+                                style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;">
                             </div>
                         </div>
                         <div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
                     </div>
 
                     <!-- Railway Row -->
-                    <div style="border-top:1px solid #dce6dc; padding-top:8px; margin-top:4px;">
+                    <div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
                         <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
                             <span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
                             <span id="railway-progress-status" style="color:#f39c12; font-weight:600;">Not Needed</span>
@@ -498,9 +500,8 @@
                     <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
                 </div>
 
-                <!-- Status bar -->
                 <div id="cms-status-bar"
-                    style="background:#f0f6f0; border:1.5px solid #c0ccc0; border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:#4a5c4a; display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+                    style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
                     <span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
                         fields. Click to start editing.</span>
                     <span id="cms-unsaved-badge"
@@ -508,9 +509,8 @@
                         Unsaved</span>
                 </div>
 
-                <!-- The full-page iframe editor -->
                 <iframe id="cms-iframe" src="/api/edit-page/index"
-                    style="width:100%; height:78vh; border:1.5px solid #c0ccc0; border-radius:0 0 8px 8px; display:block;"
+                    style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;"
                     sandbox="allow-scripts allow-same-origin">
                 </iframe>
             </div>
