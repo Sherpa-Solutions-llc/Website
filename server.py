@@ -1460,6 +1460,7 @@ from fastapi import Request
 @app.post("/api/inbound-email")
 async def handle_inbound_email(request: Request):
     try:
+
         payload = await request.json()
         sender = payload.get('from', 'Unknown Sender')
         subject = payload.get('subject', 'No Subject')
