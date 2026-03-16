@@ -1811,12 +1811,12 @@
             alert(`API Order Submitted for ${ticker} using ${strategyName} 🚀`);
         }
 
-        // --- Demo Auto-Start (Production Only) ---
+        // --- Demo Auto-Start (Local Only) ---
         window.addEventListener('DOMContentLoaded', (event) => {
             const hostname = window.location.hostname;
-            if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '') {
-                // If we're on a live server (e.g. sherpa-solutions-llc.com), auto-trigger Demo after 2 seconds
-                logToTerminal("Live environment detected. Interactive Demo starting automatically.", "system");
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                // Only auto-start Demo in local development
+                logToTerminal("Local environment detected. Interactive Demo starting automatically.", "system");
                 setTimeout(() => {
                     if (!isDemoRunning) {
                         toggleDemo();
