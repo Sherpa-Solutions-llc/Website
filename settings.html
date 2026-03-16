@@ -12,48 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css">
     <style>
-        /* ============================================================
-           SETTINGS PAGE THEME LOCK — always light regardless of
-           global data-theme attribute set by theme.js / styles.css
-           ============================================================ */
-        .admin-layout {
-            --primary: #2D3F2E;
-            --secondary: #6b8a6b;
-            --accent: #D28052;
-            --surface-color: #ffffff;
-            --bg-color: #f4f6f4;
-            --text-dark: #1a2e1a;
-            --text-light: #ffffff;
-            --border-color: rgba(45, 63, 46, 0.2);
-        }
-
-        /* Hard-reset any global dark-mode text rules */
-        .admin-content h2,
-        .admin-content h3,
-        .admin-content h4 {
-            color: #1a2e1a !important;
-        }
-
-        .admin-content p {
-            color: #4a5c4a !important;
-        }
-
-        .admin-panel {
-            background: #ffffff !important;
-            color: #1a2e1a !important;
-        }
-
-        .user-table th,
-        .user-table td {
-            color: #1a2e1a !important;
-        }
-
-        .sidebar-menu a span,
-        .sidebar-menu a i {
-            color: inherit !important;
-            /* inherit from <a> which we control */
-        }
-
+        /* Removed hardcoded Light Mode overrides so standard theme variables inherited from styles.css apply correctly */
         .admin-layout {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -61,8 +20,8 @@
         }
 
         .sidebar {
-            background: #ffffff;
-            color: #1a2e1a;
+            background: var(--surface-color);
+            color: var(--text-dark);
             padding: 2rem;
             display: flex;
             flex-direction: column;
@@ -90,7 +49,7 @@
         }
 
         .sidebar-menu a {
-            color: #1a2e1a;
+            color: var(--text-dark);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -101,29 +60,29 @@
             transition: all 0.2s;
             font-weight: 600;
             font-size: 0.95rem;
-            border: 1.5px solid #c0ccc0;
+            border-color: var(--border-color);
             margin-bottom: 6px;
-            background: #f8faf8;
+            background: rgba(122, 142, 99, 0.1);
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background: #1a2e1a;
-            color: #ffffff;
-            border-color: #1a2e1a;
+            background: var(--accent);
+            color: var(--text-light);
+            border-color: var(--accent);
         }
 
         .admin-content {
             padding: 3rem;
-            background: #f4f6f4;
-            /* Light content area for forms/settings readability */
+            background: var(--bg-color);
+            /* Standard background area for forms/settings readability */
         }
 
         .admin-panel {
-            background: white;
+            background: var(--surface-color);
             padding: 2.5rem;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             margin-bottom: 2rem;
             display: none;
         }
@@ -132,11 +91,9 @@
         .cms-tab {
             padding: 0.45rem 1rem;
             border-radius: 8px;
-            border: 1.5px solid #c0ccc0;
-            background: #f8faf8;
-            /* light sage — matches sidebar pills */
-            color: #1a2e1a;
-            /* dark forest green text */
+            border: 1.5px solid var(--border-color);
+            background: rgba(122, 142, 99, 0.1);
+            color: var(--text-dark);
             font-size: 0.88rem;
             font-weight: 600;
             cursor: pointer;
@@ -145,9 +102,9 @@
         }
 
         .cms-tab:hover {
-            background: #eef2ee;
-            border-color: #1a2e1a;
-            color: #1a2e1a;
+            background: rgba(122, 142, 99, 0.2);
+            border-color: var(--primary);
+            color: var(--text-dark);
         }
 
         .cms-tab.active {
@@ -171,7 +128,7 @@
         .user-table td {
             text-align: left;
             padding: 1.2rem 1rem;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .btn-danger {
@@ -254,12 +211,12 @@
         }
 
         .modal-content {
-            background: #fff;
+            background: var(--surface-color);
             padding: 2.5rem;
             border-radius: 16px;
             width: 90%;
             max-width: 450px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
 
@@ -338,11 +295,9 @@
                 padding: 8px 14px;
                 font-size: 0.85rem;
                 gap: 6px;
-                background: #f0f4f0;
-                /* light sage pill */
-                color: #1a2e1a !important;
-                /* always dark text */
-                border: 1.5px solid #c0ccc0;
+                background: rgba(122, 142, 99, 0.1);
+                color: var(--text-dark) !important;
+                border: 1.5px solid var(--border-color);
                 border-radius: 8px;
                 font-weight: 600;
                 white-space: nowrap;
@@ -350,18 +305,18 @@
 
             .sidebar-menu a span {
                 display: inline !important;
-                color: #1a2e1a !important;
+                color: var(--text-dark) !important;
             }
 
             .sidebar-menu a i {
-                color: #1a2e1a !important;
+                color: var(--text-dark) !important;
             }
 
             .sidebar-menu a:hover,
             .sidebar-menu a.active {
-                background: #1a2e1a !important;
-                color: #ffffff !important;
-                border-color: #1a2e1a !important;
+                background: var(--accent) !important;
+                color: var(--text-light) !important;
+                border-color: var(--accent) !important;
             }
 
             .sidebar-menu a:hover span,
@@ -466,7 +421,7 @@
                         <div style="position: relative; flex: 1; display: flex;">
                             <input type="password" id="new-password" placeholder="Secure Password" required
                                 autocomplete="new-password" style="flex: 1; padding-right: 40px;">
-                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;">
+                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
                                 <i class="fa-solid fa-eye" id="new-password-eye"></i>
                             </button>
                         </div>
@@ -492,7 +447,7 @@
                             <i class="fa-solid fa-floppy-disk"></i> Save Changes
                         </button>
                         <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
-                            style="white-space:nowrap; background:var(--primary); box-shadow:0 4px 15px rgba(45,63,46,0.2);">
+                            style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
                         </button>
                     </div>
@@ -584,7 +539,7 @@
             </p>
             <div style="position: relative; margin-bottom: 1.5rem;">
                 <input type="password" id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;">
-                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;">
+                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
                     <i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
                 </button>
             </div>
