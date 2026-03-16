@@ -2170,12 +2170,14 @@ async def get_flights():
     import time
     try:
         async with aiosqlite.connect(FLIGHTS_DB) as db:
-            async with db.execute("SELECT value FROM flight_metadata WHERE key = 'source_time'") as cursor:
-                row = await cursor.fetchone()
-                if not row:
-                    print("[Flights] No metadata found in DB yet.")
-                    return JSONResponse({"time": int(time.time()), "states": []})
-                source_time = int(row[0])
+            source_time = int(time.time())
+            try:
+                async with db.execute("SELECT value FROM flight_metadata WHERE key = 'source_time'") as cursor:
+                    row = await cursor.fetchone()
+                    if row:
+                        source_time = int(row[0])
+            except Exception as metadata_e:
+                print(f"[Flights] Metadata not found or table error: {metadata_e}")
             
             async with db.execute("SELECT icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading FROM flights") as cursor:
                 rows = await cursor.fetchall()
