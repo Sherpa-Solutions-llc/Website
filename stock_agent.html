@@ -1108,12 +1108,12 @@
             await speak("Let me start a scan so you can see it in action. The scanner will sweep the market and find stocks that match your criteria in real time.");
             if (!isDemoRunning) return;
             if (!isScanning) toggleScan();
-            await demoDelay(3000);
+            await demoDelay(2000);
             if (!isDemoRunning) return;
             
             await speak("Watch the dashboard at the top. It shows you the total number of stocks found, how many are trending right now, the scan progress, and the timestamp of the last update.");
             if (!isDemoRunning) return;
-            await demoDelay(2000);
+            await demoDelay(4500);
             if (!isDemoRunning) return;
             
             // 4. Strategies
@@ -1360,8 +1360,10 @@
                 logToTerminal(`Strategy Armed: ${strat.name} algorithm is locked and ready.`, "highlight");
                 // Auto-save the newly engaged strategy to DB
                 saveSettings();
-                // Jump to logs to show it engaged
-                switchTab('logs');
+                // Jump to logs to show it engaged, unless we are in the middle of a guided demo
+                if (!isDemoRunning) {
+                    switchTab('logs');
+                }
             }
             pendingModalStrategyId = null;
         }
@@ -1415,11 +1417,11 @@
             
             logToTerminal(`Filters applied: Vol > ${vol}, Price < $${price}`);
 
-            // Simulate progress bar filling (target ~40-45 seconds for 10k stocks)
+            // Simulate progress bar filling
             let progress = 0;
             const bar = document.getElementById('scan-progress-bar');
-            const totalSimTimeMs = 42000; // ~42 seconds
-            const intervalMs = 800;
+            const totalSimTimeMs = isDemoRunning ? 6500 : 42000; // Faster for demo pacing
+            const intervalMs = isDemoRunning ? 100 : 800;
             const progressIncrement = 100 / (totalSimTimeMs / intervalMs);
             
             const scanStartTime = Date.now();
@@ -1811,19 +1813,8 @@
             alert(`API Order Submitted for ${ticker} using ${strategyName} 🚀`);
         }
 
-        // --- Demo Auto-Start (Local Only) ---
-        window.addEventListener('DOMContentLoaded', (event) => {
-            const hostname = window.location.hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                // Only auto-start Demo in local development
-                logToTerminal("Local environment detected. Interactive Demo starting automatically.", "system");
-                setTimeout(() => {
-                    if (!isDemoRunning) {
-                        toggleDemo();
-                    }
-                }, 2000);
-            }
-        });
+        // --- Demo Trigger Removed ---
+        // Demos must be manually initiated by clicking the DEMO OFF button.
 
     </script>
     <script src="/static/cms.js"></script>
