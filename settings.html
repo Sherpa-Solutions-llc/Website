@@ -481,22 +481,39 @@
                     </div>
                 </div>
 
-                <!-- Page selector tabs -->
-                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0;" id="cms-page-tabs">
-                    <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
-                    <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
-                    <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️
-                        Services</button>
-                    <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
-                    <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
-                    <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒
-                        Store</button>
-                    <button onclick="loadEditorPage('live_earth')" class="cms-tab" data-page="live_earth">🌍 Live Earth</button>
-                    <button onclick="loadEditorPage('skip_tracer')" class="cms-tab" data-page="skip_tracer">🔍 Traku</button>
-                    <button onclick="loadEditorPage('stock_agent')" class="cms-tab" data-page="stock_agent">📈 Stock Monitor</button>
-                    <button onclick="loadEditorPage('productivity_agent')" class="cms-tab" data-page="productivity_agent">🤖 Productivity</button>
-                    <button onclick="loadEditorPage('osint_api')" class="cms-tab" data-page="osint_api">🛰️ OSINT API</button>
-                    <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
+                <!-- Page selector sitemap -->
+                <div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
+                    
+                    <!-- Root -->
+                    <div style="margin-bottom: 0.75rem;">
+                        <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
+                    </div>
+
+                    <!-- Main Navigation Branch -->
+                    <div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
+                            <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️ Services</button>
+                            <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒 Store</button>
+                            <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
+                        </div>
+
+                        <!-- Projects Sub-branch -->
+                        <div>
+                            <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
+                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="loadEditorPage('live_earth')" class="cms-tab" data-page="live_earth">🌍 Live Earth</button>
+                                <button onclick="loadEditorPage('skip_tracer')" class="cms-tab" data-page="skip_tracer">🔍 Traku</button>
+                                <button onclick="loadEditorPage('stock_agent')" class="cms-tab" data-page="stock_agent">📈 Stock Monitor</button>
+                                <button onclick="loadEditorPage('productivity_agent')" class="cms-tab" data-page="productivity_agent">🤖 Productivity</button>
+                                <button onclick="loadEditorPage('osint_api')" class="cms-tab" data-page="osint_api">🛰️ OSINT API</button>
+                                <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
                 <div id="cms-status-bar"
