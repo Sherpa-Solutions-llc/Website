@@ -1454,7 +1454,52 @@ async def lead_capture(lead: LeadCapture):
         # Still return success to the user — don't expose SMTP errors publicly
         return JSONResponse({"status": "error", "message": "Failed to login: " + str(e)})
 
+
+from fastapi import Request
+
+@app.post("/api/inbound-email")
+async def handle_inbound_email(request: Request):
+    try:
+        payload = await request.json()
+        sender = payload.get('from', 'Unknown Sender')
+        subject = payload.get('subject', 'No Subject')
+        text_body = payload.get('text', '')
+        html_body = payload.get('html', text_body)
+        
+        import smtplib
+        from email.message import EmailMessage
+        import os
+
+        forwarder = "BaseCamp@sherpa-solutions-llc.com"
+        target_inbox = "chris.k.ricks@gmail.com"
+        
+        msg = EmailMessage()
+        msg['Subject'] = f"FWD: {subject} (From: {sender})"
+        msg['From'] = forwarder
+        msg['To'] = target_inbox
+        msg['Reply-To'] = sender
+        
+        msg.set_content(f"--- Forwarded message from {sender} ---\n\n{text_body}")
+        
+        if html_body:
+            header = f"<p><i>--- Forwarded message from {sender} ---</i></p><hr>"
+            msg.add_alternative(header + html_body, subtype='html')
+
+        smtp_pass = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_B4yVyVqr_NgY8fuPK7pzZgw4AN9bdZ81e")
+        
+        print("Transmitting forwarded email via Resend SMTP...")
+        with smtplib.SMTP_SSL("smtp.resend.com", 465) as server:
+            server.login("resend", smtp_pass)
+            server.send_message(msg)
+            
+        return {"status": "Forwarded Successfully"}
+        
+    except Exception as e:
+        print(f"Webhook Failed: {e}")
+        return {"status": "Error", "details": str(e)}
+
 # --- FreeMe API ---
+
 
 from typing import List
 from pydantic import BaseModel
