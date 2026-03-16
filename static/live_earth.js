@@ -1489,14 +1489,15 @@ function updateFlightsLayer() {
                             scale: isMobile ? 0.35 : 0.45,
                             rotation: 0,
                             alignedAxis: new Cesium.CallbackProperty(() => f.alignedAxis || Cesium.Cartesian3.ZERO, false),
-                            disableDepthTestDistance: 0
+                            disableDepthTestDistance: Number.POSITIVE_INFINITY // Prevents disappearing when camera zooms closely
                         },
                         label: {
                             text: f.callsign || 'N/A',
                             font: '12px monospace',
                             fillColor: Cesium.Color.CYAN,
                             pixelOffset: new Cesium.Cartesian2(0, -25),
-                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2000000),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 5000000), // Extended visibility
+                            disableDepthTestDistance: Number.POSITIVE_INFINITY,
                             show: !isMobile
                         },
                         customData: f
@@ -1934,8 +1935,11 @@ function lockTarget(obj) {
     }
 
     // Offset the camera's actual destination slightly East (+Longitude) 
-    // This physically shifts the target leftward on the viewport, perfectly centering it between the HUD menus.
-    const offsetMultiplier = (window.innerWidth <= 768) ? 0 : 0.2;
+    // This physically shifts the target rightward on the viewport, perfectly centering it in the available space next to the HUD menu.
+    let offsetMultiplier = (window.innerWidth <= 768) ? 0 : 0.2;
+    if (isDemoModeActive && window.innerWidth > 768) {
+        offsetMultiplier = 1.0; // The demo card is very wide, push target further right so it stays perfectly in view
+    }
     const lngOffset = (zoomRange / 100000) * offsetMultiplier; 
     const viewLng = targetLng + lngOffset;
 
@@ -1990,7 +1994,9 @@ function lockTarget(obj) {
                             const currentZoomRange = currentCameraCartographic.height;
 
                             // Maintain the HUD offset
-                            const liveViewLng = currentLng + ((currentZoomRange / 100000) * offsetMultiplier);
+                            let liveOffset = (window.innerWidth <= 768) ? 0 : 0.2;
+                            if (isDemoModeActive && window.innerWidth > 768) liveOffset = 1.0;
+                            const liveViewLng = currentLng + ((currentZoomRange / 100000) * liveOffset);
 
                             viewer.camera.setView({
                                 destination: Cesium.Cartesian3.fromDegrees(liveViewLng, currentLat, currentZoomRange),
@@ -2745,7 +2751,7 @@ function getNarrationForLayer(layer) {
 }
 
 async function runDemoCycle() {
-    const demoLayers = ['satellites', 'flights', 'earthquakes', 'police', 'scanners', 'traffic', 'weather', 'cctv'];
+    const demoLayers = ['flights', 'military', 'satellites', 'earthquakes', 'cctv', 'traffic', 'weather', 'police', 'scanners'];
     let layerIndex = 0;
 
     // Ensure camera is pointing at Earth from a good starting height
@@ -2793,13 +2799,33 @@ async function runDemoCycle() {
         await delay(1000); 
         if (!isDemoModeActive) break;
 
+        // 2.5 Pan camera to a regional cluster BEFORE filtering so the user can watch the items filter out visually
+        const clusterLayers = ['traffic', 'cctv', 'police', 'scanners'];
+        if (clusterLayers.includes(currentLayer)) {
+            const clusterTarget = getRandomDemoEntity(currentLayer);
+            if (clusterTarget && clusterTarget.lat !== undefined && clusterTarget.lng !== undefined) {
+                console.log(`[Demo] Panning to regional cluster for ${currentLayer} before filtering`);
+                let zoomR = 400000; // 400km regional overview for vessels and wide radio scanners
+                if (currentLayer === 'cctv' || currentLayer === 'police') zoomR = 80000; // tighter 80km view for city-level data
+                
+                viewer.camera.flyTo({
+                    destination: Cesium.Cartesian3.fromDegrees(clusterTarget.lng, clusterTarget.lat, zoomR),
+                    duration: 2.0,
+                    orientation: { heading: 0.0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0.0 }
+                });
+                // Wait for the camera to finish moving and user to process the cluster
+                await delay(2500); 
+            }
+        }
+        if (!isDemoModeActive) break;
+
         // 3. (Optional) Run a filter to show off dropdown functionality
         let didFilter = false;
         const selectId = getFilterIdForLayer(currentLayer);
         if (selectId) {
             const selectEl = document.getElementById(selectId);
             if (selectEl && selectEl.options.length > 1) {
-                // Ignore 'all' option which is usually index 0
+                // First demonstrate applying a specific filter (ignore 'all' which is usually index 0)
                 const randomOpt = Math.floor(Math.random() * (selectEl.options.length - 1)) + 1;
                 selectEl.selectedIndex = randomOpt;
                 console.log(`[Demo] Filtering ${currentLayer} to option index ${randomOpt}`);
@@ -2810,7 +2836,16 @@ async function runDemoCycle() {
 
         if (didFilter) {
             await speakDemoText("Filters allow rapid culling of data to identify specific tactical signatures.");
-            await delay(1000); // Wait for filter to apply visually
+            await delay(2000); // Wait for filter to apply visually
+            
+            // Explicitly show resetting to "All" to reveal additional objects as requested
+            const selectEl = document.getElementById(selectId);
+            selectEl.selectedIndex = 0; // "All" is always index 0
+            console.log(`[Demo] Clearing filters for ${currentLayer} to reveal all objects`);
+            selectEl.dispatchEvent(new Event('change'));
+            
+            await speakDemoText("Resetting the filter to 'All' immediately overlays the remaining active targets back onto the globe.");
+            await delay(2500); // Wait for the new objects to populate
         } else {
             await delay(1000); 
         }
@@ -2821,10 +2856,22 @@ async function runDemoCycle() {
         const entity = getRandomDemoEntity(currentLayer);
         if (entity) {
             console.log(`[Demo] Locking target:`, entity.id || entity.name);
-            await speakDemoText("Selecting an entity will fly the camera to its precise coordinates and pull its metadata card.");
+            
+            if (currentLayer === 'flights' || currentLayer === 'military' || currentLayer === 'traffic') {
+                await speakDemoText("Notice how targets cluster into numbered groups at high altitudes. This prevents visual overload. You must zoom in to resolve these clusters into individual entities.");
+                await delay(5000); 
+                if (!isDemoModeActive) break;
+            }
+            
+            await speakDemoText("Selecting a specific entity will fly the camera to its precise coordinates and pull its metadata card.");
             lockTarget(entity);
             // Stand by so user can appreciate the UI card and camera sweep
-            await delay(5000); 
+            if (currentLayer === 'flights' || currentLayer === 'military') {
+                // Give extra time for high-res Earth imagery to load below the live aircraft
+                await delay(8000); 
+            } else {
+                await delay(5000); 
+            }
         } else {
             console.log(`[Demo] No entities found for ${currentLayer}. Sweeping...`);
             await delay(4000); // Less time if empty
@@ -2836,18 +2883,21 @@ async function runDemoCycle() {
         const closeBtn = document.getElementById('close-target');
         if (closeBtn) closeBtn.click();
         
-        // Reset the dropdown filter to All (index 0) for next cycle
-        if (selectId) {
-            const selectEl = document.getElementById(selectId);
-            if (selectEl) {
-                selectEl.selectedIndex = 0;
-                selectEl.dispatchEvent(new Event('change'));
-            }
-        }
+        // (Filter was already reset to 'All' during the initial filtering demonstration)
         
         await delay(1500);
         
         // Advanced Sequence
-        layerIndex = (layerIndex + 1) % demoLayers.length;
+        layerIndex++;
+        if (layerIndex >= demoLayers.length) {
+            console.log("[Demo] Sequence completed. Disabling autopilot.");
+            await speakDemoText("This concludes the Lyve Earth demonstration. You now have the conn.");
+            
+            // Wait for final speech to finish before wiping map
+            await delay(4000); 
+            
+            if (demoBtn) demoBtn.click(); // Gracefully turn off the demo and wipe the board
+            break;
+        }
     }
 }
