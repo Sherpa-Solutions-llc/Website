@@ -966,7 +966,7 @@ async function fetchFlights() {
         const oldFlightsMap = new Map(state.flights.map(f => [f.id, f]));
 
         state.flights = activeStates
-            .filter(s => s[5] !== null && s[6] !== null && s[8] === false)
+            .filter(s => s[5] !== null && s[6] !== null)
             .map(s => {
                 try {
                     const velocityKmH = (s[9] || 0) * 3.6;
@@ -1061,7 +1061,7 @@ async function fetchFlights() {
 
                         // Reset fetch time to reboot the integration engine
                         oldFlight.fetchTime = performance.now();
-                        oldFlight.alt = s[7] || 10000;
+                        oldFlight.alt = s[8] ? (s[7] || 0) : (s[7] || 10000);
                         oldFlight.lastUpdate = timestamp;
                         oldFlight.isMilitary = isMilitary;
                         
@@ -1079,7 +1079,7 @@ async function fetchFlights() {
                         startLat: s[6],
                         lng: s[5], 
                         lat: s[6],
-                        alt: s[7] || 10000,
+                        alt: s[8] ? (s[7] || 0) : (s[7] || 10000),
                         velocity: s[9] || 0,
                         computedVelocity: s[9] || 0, // Fallback for first frame
                         velocityKmH: velocityKmH,
@@ -1392,14 +1392,38 @@ function filterBySpeed(f, speedRange) {
     return false;
 }
 
+function filterByType(f, type) {
+    if (type === 'all') return true;
+    
+    // Heuristic: Commercial flights typically have a 3-letter ICAO airline code followed by numbers
+    // Private (General Aviation) in US usually starts with 'N' followed by numbers, etc.
+    // For simplicity, we assume anything that looks like a 3-letter prefix is commercial, 
+    // and explicitly 'N' numbers or empty callsigns are private.
+    const callsign = typeof f.callsign === 'string' ? f.callsign.trim() : '';
+    
+    // If callsign is missing, assume private to keep things manageable
+    if (!callsign || callsign === 'UNKNOWN') return type === 'private';
+    
+    const isUSPrivate = callsign.match(/^N\d+[A-Z]*$/i);
+    const isCommercialPattern = callsign.match(/^[A-Z]{3}\d+[A-Z]*$/i);
+    
+    const isCommercial = isCommercialPattern && !isUSPrivate;
+
+    if (type === 'commercial') return !!isCommercial;
+    if (type === 'private') return !isCommercial;
+    
+    return true;
+}
+
 // ------------------------------------------
 // DECOUPLED LAYER RENDERING ENGINES
 // ------------------------------------------
 
 function updateHUDCounts() {
     const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+    const flightsType = document.getElementById('flight-type')?.value || 'all';
     const militarySpeed = document.getElementById('military-speed')?.value || 'all';
-    const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed));
+    const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed) && filterByType(f, flightsType));
     const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
 
     const satType = document.getElementById('satellite-type')?.value || 'all';
@@ -1456,8 +1480,9 @@ function updateFlightsLayer() {
     
     if (state.layers.flights || state.layers.military) {
         const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+        const flightsType = document.getElementById('flight-type')?.value || 'all';
         const militarySpeed = document.getElementById('military-speed')?.value || 'all';
-        const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed));
+        const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed) && filterByType(f, flightsType));
         const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
 
         try {
