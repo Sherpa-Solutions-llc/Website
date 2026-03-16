@@ -180,13 +180,13 @@
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-flights">
-                        <select id="flight-speed" class="hud-select">
-                            <option value="all">Speed: All</option>
+                        <select id="flight-speed" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
+                            <option value="all" selected>Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
                             <option value="500-1000">Speed: 500-1000 km/h</option>
-                            <option value="1000+" selected>Speed: Over 1000 km/h</option>
+                            <option value="1000+">Speed: Over 1000 km/h</option>
                         </select>
-                        <select id="flight-type" class="hud-select">
+                        <select id="flight-type" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="all">Type: All</option>
                             <option value="commercial">Type: Commercial</option>
                             <option value="private">Type: Private</option>
@@ -210,8 +210,8 @@
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-military">
-                        <select id="military-speed" class="hud-select">
-                            <option value="all">Speed: All</option>
+                        <select id="military-speed" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
+                            <option value="all" selected>Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
                             <option value="500-1000">Speed: 500-1000 km/h</option>
                             <option value="1000+">Speed: Over 1000 km/h</option>
@@ -235,7 +235,7 @@
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-earthquakes">
-                        <select id="quake-duration" class="hud-select">
+                        <select id="quake-duration" class="hud-select" onchange="if(typeof fetchEarthquakes==='function') { state.earthquakes = []; fetchEarthquakes(); }">
                             <option value="days">Duration: Days</option>
                             <option value="weeks">Duration: Weeks</option>
                             <option value="months">Duration: Months</option>
@@ -259,13 +259,13 @@
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-satellites">
-                        <select id="satellite-type" class="hud-select">
+                        <select id="satellite-type" class="hud-select" onchange="if(typeof updateSatellitesLayer==='function') updateSatellitesLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="military" selected>Type: Military</option>
                             <option value="commercial">Type: Commercial</option>
                             <option value="private">Type: Private</option>
                             <option value="all">Type: All</option>
                         </select>
-                        <select id="satellite-country" class="hud-select" style="margin-top: 5px;">
+                        <select id="satellite-country" class="hud-select" style="margin-top: 5px;" onchange="if(typeof updateSatellitesLayer==='function') updateSatellitesLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="all" selected>Country: All</option>
                             <option value="US">Country: US</option>
                             <option value="PRC">Country: China</option>
@@ -273,7 +273,7 @@
                             <option value="FR">Country: France</option>
                             <option value="ISRA">Country: Israel</option>
                         </select>
-                        <select id="satellite-status" class="hud-select" style="margin-top: 5px;">
+                        <select id="satellite-status" class="hud-select" style="margin-top: 5px;" onchange="if(typeof updateSatellitesLayer==='function') updateSatellitesLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="all" selected>Status: All</option>
                             <option value="active">Status: Active</option>
                             <option value="inactive">Status: Inactive</option>
@@ -324,7 +324,7 @@
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-weather">
-                        <select id="weather-layer" class="hud-select">
+                        <select id="weather-layer" class="hud-select" onchange="if(typeof updateWeatherLayer==='function') updateWeatherLayer();">
                             <option value="clouds">Clouds</option>
                             <option value="rain">Rain</option>
                             <option value="snow">Snow</option>
@@ -349,7 +349,7 @@
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-cctv">
-                        <select id="cctv-mode" class="hud-select">
+                        <select id="cctv-mode" class="hud-select" onchange="if(typeof updateCCTVLayer==='function') updateCCTVLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="all">All Cameras</option>
                             <option value="usa">United States</option>
                             <option value="uk">United Kingdom</option>
