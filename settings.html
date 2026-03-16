@@ -439,8 +439,7 @@
                             <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
                                     style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
                                 inline.</p>
-                            <div class="header-actions" style="margin-left: 1rem;"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:var(--primary); color:var(--text-light); border:none; padding:6px 10px; border-radius:6px; cursor:pointer;"><i
-                                        class="fa-solid fa-sun"></i></button></div>
+                            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border-color)';"><i class="fa-solid fa-moon"></i></button>
                         </div>
                     </div>
                     <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
@@ -838,7 +837,7 @@
                 // Reset and show progress UI
                 progressContainer.style.display = 'flex';
                 progressBar.style.width = '0%';
-                progressBar.style.background = 'var(--primary)';
+                progressBar.style.background = 'var(--accent)';
                 progressText.innerText = 'Checking files...';
                 progressText.style.color = 'var(--secondary)';
                 progressPercent.innerText = '0%';
