@@ -39,5 +39,30 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             icon.classList.replace('fa-moon', 'fa-sun');
         }
+
+        // Sync with CMS Editor Iframe if present
+        const cmsIframe = document.getElementById('cms-iframe');
+        if (cmsIframe && cmsIframe.contentWindow && cmsIframe.contentWindow.document) {
+            try {
+                cmsIframe.contentWindow.document.documentElement.setAttribute('data-theme', newTheme);
+            } catch (e) {
+                console.warn("Could not sync theme to iframe (cross-origin or not loaded yet)");
+            }
+        }
     });
+});
+
+// Also sync iframe on load if it's the CMS page
+window.addEventListener('load', () => {
+    const cmsIframe = document.getElementById('cms-iframe');
+    if (cmsIframe) {
+        cmsIframe.addEventListener('load', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            try {
+                cmsIframe.contentWindow.document.documentElement.setAttribute('data-theme', currentTheme);
+            } catch (e) {
+                console.warn("Could not sync theme to iframe (cross-origin)");
+            }
+        });
+    }
 });
