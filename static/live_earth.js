@@ -1615,7 +1615,7 @@ function updateFlightsLayer() {
                             showBackground: true,
                             backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
                             backgroundPadding: new Cesium.Cartesian2(6, 3),
-                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 8000000),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 500000),
                             disableDepthTestDistance: Number.POSITIVE_INFINITY,
                             eyeOffset: new Cesium.Cartesian3(0, 0, -10),
                             show: true
