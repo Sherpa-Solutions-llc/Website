@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
@@ -369,6 +369,17 @@
         }
     </style>
     <script src="static/theme.js"></script>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 
 <body>
@@ -451,6 +462,46 @@
                             style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
                         </button>
+                    </div>
+                </div>
+
+                <!-- Global Theme Editor -->
+                <div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-palette"></i> Global Theme Colors
+                        </div>
+                        <button onclick="saveThemeColors()" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
+                            <input type="color" id="theme-color-primary" value="#2D3F2E" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
+                            <input type="color" id="theme-color-secondary" value="#7A8E63" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
+                            <input type="color" id="theme-color-accent" value="#C06C3B" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
+                            <input type="color" id="theme-color-bg" value="#FDFBF7" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
+                            <input type="color" id="theme-color-surface" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
+                            <input type="color" id="theme-color-textdark" value="#1A241A" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
+                            <input type="color" id="theme-color-textlight" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
                     </div>
                 </div>
 
@@ -826,7 +877,52 @@
         }
 
 
+        async function saveThemeColors() {
+            const primary = document.getElementById('theme-color-primary').value;
+            const secondary = document.getElementById('theme-color-secondary').value;
+            const accent = document.getElementById('theme-color-accent').value;
+            const bg = document.getElementById('theme-color-bg').value;
+            const surface = document.getElementById('theme-color-surface').value;
+            const textdark = document.getElementById('theme-color-textdark').value;
+            const textlight = document.getElementById('theme-color-textlight').value;
 
+            // Generate CSS override block globally forcing light mode variables ONLY
+            const cssPayload = `
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: ${primary} !important;
+    --secondary: ${secondary} !important;
+    --accent: ${accent} !important;
+    --bg-color: ${bg} !important;
+    --surface-color: ${surface} !important;
+    --text-dark: ${textdark} !important;
+    --text-light: ${textlight} !important;
+}
+`;
+            
+            // Save to CMS so it propagates to all <style data-cms="custom-theme-colors"> elements site-wide
+            const res = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ element_id: 'custom-theme-colors', html_content: cssPayload })
+            });
+            
+            if (res.ok) {
+                // Apply locally immediately instantly
+                let existingStyle = document.querySelector('style[data-cms="custom-theme-colors"]');
+                if (existingStyle) { existingStyle.innerHTML = cssPayload; }
+                
+                // Inject into iframe natively
+                const cmsIframe = document.getElementById('cms-iframe');
+                if (cmsIframe && cmsIframe.contentWindow && cmsIframe.contentWindow.document) {
+                    let iframeStyle = cmsIframe.contentWindow.document.querySelector('style[data-cms="custom-theme-colors"]');
+                    if (iframeStyle) { iframeStyle.innerHTML = cssPayload; }
+                }
+                
+                alert('Theme colors saved globally! The CMS and Live Site will now use these colors.');
+            } else {
+                alert('Error saving theme colors.');
+            }
+        }
 
         async function syncToGitHub() {
             const btn = document.getElementById('btn-sync-github');
