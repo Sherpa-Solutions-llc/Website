@@ -1485,13 +1485,34 @@ async def handle_inbound_email(request: Request):
             print(f"[INBOUND EMAIL] Failed to parse JSON")
             payload = {}
 
-        # Resend wraps inbound email data inside a "data" key
+        # Resend wraps inbound email data inside a "data" key, but occasionally nested multiple times depending on webhook rules
         email_data = payload.get('data', payload)
+        
+        # Sometimes 'data' itself contains a stringified JSON object, or is nested again.
+        if isinstance(email_data, str):
+            try:
+                email_data = json.loads(email_data)
+            except:
+                pass
+
+        if 'html' not in email_data and 'text' not in email_data and 'data' in email_data:
+            # Check one level deeper just in case
+            email_data = email_data['data']
 
         sender = email_data.get('from', 'Unknown Sender')
         subject = email_data.get('subject', 'No Subject')
         text_body = email_data.get('text', '')
         html_body = email_data.get('html', text_body)
+
+        # Fallback 2: Check for raw email payload inside standard SendGrid/Resend raw formats
+        if not text_body and not html_body:
+            text_body = email_data.get('text_body', '')
+            html_body = email_data.get('html_body', text_body)
+
+        # Fallback 3: Dumps the entire object debug so at least something comes through 
+        if not text_body and not html_body:
+            text_body = json.dumps(email_data, indent=2)
+            html_body = f"<pre>{text_body}</pre>"
 
         print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
 
