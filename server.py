@@ -2183,10 +2183,65 @@ async def fetch_flights_loop():
                 import traceback
                 print(f"Background Scraper DB Save Failed: [{type(e).__name__}] {repr(e)}")
                 traceback.print_exc()
-        else:
-            print("[Flights] Could not fetch flights from any source, preserving old DB state.")
+        await asyncio.sleep(3600)   # 1 hour polling restriction
 
-        await asyncio.sleep(300)
+# --- ADSB.LOL CORS PROXIES ---
+@app.get("/api/proxy/adsblol/ladd")
+async def proxy_adsblol_ladd():
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get('https://api.adsb.lol/v2/ladd', timeout=15.0)
+            return JSONResponse(res.json())
+    except Exception as e:
+        print(f"[Proxy] ADSB.lol LADD proxy failed: {e}")
+        return JSONResponse({"ac": [], "error": str(e)})
+
+@app.get("/api/proxy/adsblol/mil")
+async def proxy_adsblol_mil():
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get('https://api.adsb.lol/v2/mil', timeout=15.0)
+            return JSONResponse(res.json())
+    except Exception as e:
+        print(f"[Proxy] ADSB.lol MIL proxy failed: {e}")
+        return JSONResponse({"ac": [], "error": str(e)})
+
+@app.get("/api/proxy/live-flight/{icao24}")
+async def proxy_live_flight(icao24: str):
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get(f'https://api.adsb.lol/v2/icao/{icao24}', timeout=10.0)
+            if res.status_code == 200:
+                data = res.json()
+                ac = data.get("ac", [])
+                if ac:
+                    a = ac[0]
+                    # Compute velocity in m/s safely
+                    gs = a.get("gs")
+                    tas = a.get("tas")
+                    mach = a.get("mach")
+                    if gs is not None: vel = gs * 0.51444
+                    elif tas is not None: vel = tas * 0.51444
+                    elif mach is not None: vel = mach * 340
+                    else: vel = 250.0  # Safe default ~500 knots
+
+                    alt_raw = a.get("alt_baro", 10000)
+                    alt = alt_raw if isinstance(alt_raw, (int, float)) else 10000
+
+                    return JSONResponse({
+                        "lat": a.get("lat"),
+                        "lng": a.get("lon"),
+                        "alt": alt,
+                        "heading": a.get("track", 0),
+                        "velocity": vel
+                    })
+            return JSONResponse({"error": "Live tracking data unavailable for this ICAO"}, status_code=404)
+    except Exception as e:
+        print(f"[Proxy] ADSB.lol Live tracking failed: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/api/flights")
 async def get_flights():
@@ -2338,7 +2393,7 @@ async def fetch_military_flights_loop():
         else:
             print("[Military Flights] Could not fetch flights from source, preserving old DB state.")
 
-        await asyncio.sleep(300)
+        await asyncio.sleep(3600)   # 1 hour polling restriction
 
 @app.get("/api/military-flights")
 async def get_military_flights():
