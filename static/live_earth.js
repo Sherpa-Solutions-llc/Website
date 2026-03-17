@@ -1,5 +1,6 @@
 // ----- UI & STATE MANAGEMENT -----
-const isMobile = window.innerWidth <= 768;
+let isMobile = window.innerWidth <= 768;
+window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
 
 // Define your Railway backend URL here for production!
 // Example: "https://your-custom-app.up.railway.app"
@@ -272,6 +273,7 @@ async function initCesium() {
 
         viewer = new Cesium.Viewer('globe-container', {
             imageryProvider: imageryProvider,
+            shouldAnimate: true, // Forces JulianDate to tick forward even if animation UI is hidden
             animation: false,
             timeline: false,
             infoBox: false,
@@ -544,6 +546,24 @@ async function initCesium() {
         handler.setInputAction(function (movement) {
             const pickedObject = viewer.scene.pick(movement.position);
             if (Cesium.defined(pickedObject) && pickedObject.id) {
+
+                // --- GEOMETRIC LABEL DETECTION (for mobile flights) ---
+                // The callsign label is rendered 22px ABOVE the aircraft billboard.
+                // If the user clicked above the entity's screen center, they clicked the label.
+                // If at or below, they clicked the aircraft icon.
+                let isLabelClick = false;
+                if (isMobile && !Array.isArray(pickedObject.id) && pickedObject.id.position) {
+                    const entity = pickedObject.id;
+                    const entityPos3D = entity.position.getValue(viewer.clock.currentTime);
+                    if (entityPos3D) {
+                        const entityScreenPos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, entityPos3D);
+                        if (entityScreenPos) {
+                            // Label is at pixelOffset (0, -22) above the billboard center
+                            // If click Y is above the entity's screen Y, it's a label click
+                            isLabelClick = movement.position.y < entityScreenPos.y;
+                        }
+                    }
+                }
                 
                 let targetIdToLoad = null;
 
@@ -554,7 +574,7 @@ async function initCesium() {
                         // Pick a random entity directly from the native Cesium cluster payload
                         const randEntity = clusteredEntities[Math.floor(Math.random() * clusteredEntities.length)];
                         if (randEntity.customData) {
-                            lockTarget(randEntity.customData);
+                            lockTarget(randEntity.customData, false);
                             return;
                         }
                         targetIdToLoad = randEntity.id || randEntity;
@@ -562,7 +582,7 @@ async function initCesium() {
                 } else {
                     // It's a single entity pick
                     if (pickedObject.id.customData) {
-                        lockTarget(pickedObject.id.customData);
+                        lockTarget(pickedObject.id.customData, isLabelClick);
                         return; // Fast exit if customData survived
                     } else {
                         targetIdToLoad = pickedObject.id.id || pickedObject.id;
@@ -587,7 +607,7 @@ async function initCesium() {
                     
                     const match = allCandidates.find(c => c.id === targetIdToLoad || ('vessel_' + c.id) === targetIdToLoad);
                     if (match) {
-                        lockTarget(match);
+                        lockTarget(match, isLabelClick);
                     } else {
                         console.warn("Could not resolve backing data for target:", targetIdToLoad);
                     }
@@ -1554,9 +1574,14 @@ function updateFlightsLayer() {
                 if (!ds.entities.getById(f.id)) {
                     ds.entities.add({
                         id: f.id,
-                        position: new Cesium.CallbackProperty(() => {
-                            const now = performance.now();
-                            const dt = (now - (f.fetchTime || now)) / 1000;
+                        position: new Cesium.CallbackProperty((time) => {
+                            const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
+                            // Sync external data-fetch updates (performance.now) to the Cesium rendering clock 
+                            if (!f.fetchDateMs || f.lastFetchTime !== f.fetchTime) {
+                                f.fetchDateMs = frameTimeMs;
+                                f.lastFetchTime = f.fetchTime;
+                            }
+                            const dt = (frameTimeMs - f.fetchDateMs) / 1000;
                             const dist = (f.velocity || 0) * dt;
                             const bearing = f.heading || 0;
                             const R = 6371000;
@@ -1569,19 +1594,31 @@ function updateFlightsLayer() {
                         billboard: {
                             image: f.isMilitary ? militaryAirplaneSvg : airplaneSvg,
                             color: Cesium.Color.WHITE,
-                            scale: isMobile ? 0.35 : 0.45,
+                            scale: new Cesium.CallbackProperty(() => {
+                                let baseScale = isMobile ? 0.70 : 0.70;
+                                return baseScale;
+                            }, false),
                             rotation: 0,
                             alignedAxis: new Cesium.CallbackProperty(() => f.alignedAxis || Cesium.Cartesian3.ZERO, false),
                             disableDepthTestDistance: Number.POSITIVE_INFINITY // Prevents disappearing when camera zooms closely
                         },
                         label: {
-                            text: f.callsign || 'N/A',
-                            font: '12px monospace',
+                            text: f.callsign || '',
+                            font: 'bold 14px "Share Tech Mono", monospace',
                             fillColor: Cesium.Color.CYAN,
-                            pixelOffset: new Cesium.Cartesian2(0, -25),
-                            distanceDisplayCondition: isMobile ? undefined : new Cesium.DistanceDisplayCondition(0, 5000000), // Extended visibility
+                            outlineColor: Cesium.Color.BLACK,
+                            outlineWidth: 3,
+                            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                            pixelOffset: new Cesium.Cartesian2(0, -22),
+                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                            showBackground: true,
+                            backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
+                            backgroundPadding: new Cesium.Cartesian2(6, 3),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 8000000),
                             disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                            show: !isMobile
+                            eyeOffset: new Cesium.Cartesian3(0, 0, -10),
+                            show: true
                         },
                         customData: f
                     });
@@ -1634,9 +1671,9 @@ function updateSatellitesLayer() {
                 if (!satellitesDataSource.entities.getById(s.id)) {
                     satellitesDataSource.entities.add({
                         id: s.id,
-                        position: new Cesium.CallbackProperty(() => {
+                        position: new Cesium.CallbackProperty((time) => {
                             try {
-                                const now = new Date();
+                                const now = Cesium.JulianDate.toDate(time);
                                 const pv = satellite.propagate(s.satRec, now);
                                 if (!pv.position) return undefined;
                                 const gmst = satellite.gstime(now);
@@ -1756,8 +1793,12 @@ function updateShippingLayer() {
                     id: 'vessel_' + t.id,
                     position: new Cesium.CallbackProperty((time, result) => {
                         try {
-                            const now = performance.now();
-                            const dt = t.fetchTime ? (now - t.fetchTime) / 1000 : 0;
+                            const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
+                            if (!t.fetchDateMs || t.lastFetchTime !== t.fetchTime) {
+                                t.fetchDateMs = frameTimeMs;
+                                t.lastFetchTime = t.fetchTime;
+                            }
+                            const dt = (frameTimeMs - t.fetchDateMs) / 1000;
                             const dist = (t.computedVelocity || 0) * dt;
                             const angularDist = dist / earthRadius;
                             const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
@@ -1778,6 +1819,24 @@ function updateShippingLayer() {
                         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                         disableDepthTestDistance: 0
+                    },
+                    label: {
+                        text: t.title || '',
+                        font: 'bold 13px "Share Tech Mono", monospace',
+                        fillColor: new Cesium.Color(1.0, 0.42, 0.51, 1.0), // #ff6b81
+                        outlineColor: Cesium.Color.BLACK,
+                        outlineWidth: 3,
+                        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                        pixelOffset: new Cesium.Cartesian2(0, -20),
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                        showBackground: true,
+                        backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
+                        backgroundPadding: new Cesium.Cartesian2(6, 3),
+                        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 500000),
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                        show: true
                     },
                     customData: t
                 });
@@ -1979,7 +2038,7 @@ async function fetchFlightRoute(target) {
     }, 400);
 }
 
-function lockTarget(obj) {
+function lockTarget(obj, forceShowPanel) {
     state.target = obj;
     if (obj.type === 'flight' && !obj.origin) fetchFlightRoute(obj);
 
@@ -1993,6 +2052,10 @@ function lockTarget(obj) {
     }
 
     if (obj.type === 'flight' || obj.type === 'military') {
+        let liveFlightFailCount = 0;
+        const MAX_LIVE_FAILURES = 3;
+        obj.signalLost = false;
+
         window.liveFlightInterval = setInterval(async () => {
             // Stop polling if user closed panel or clicked something else
             if (!state.target || state.target.id !== obj.id) {
@@ -2003,45 +2066,85 @@ function lockTarget(obj) {
                 const res = await fetch(`${API_BASE}/api/proxy/live-flight/${obj.id}`);
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.lat && data.lng) {
-                        obj.lat = data.lat;
-                        obj.lng = data.lng;
-                        obj.alt = data.alt;
-                        obj.velocity = data.velocity;
-                        obj.heading = data.heading;
-                        obj.velocityKmH = data.velocity * 3.6;
-                        
-                        // SNAP! Reset the extrapolation clock. Cesium's CallbackProperty will effortlessly
-                        // sweep from this exact coordinate forwarding using the new live velocity!
-                        obj.fetchTime = performance.now();
-                        
-                        // Recalculate 3D Nose Coordinate Alignment
-                        const lngRad = Cesium.Math.toRadians(obj.lng);
-                        const latRad = Cesium.Math.toRadians(obj.lat);
-                        const headingRad = Cesium.Math.toRadians(obj.heading);
-                        const cosLat = Math.cos(latRad), sinLat = Math.sin(latRad);
-                        const cosLng = Math.cos(lngRad), sinLng = Math.sin(lngRad);
-                        const eastX = -sinLng, eastY = cosLng, eastZ = 0;
-                        const northX = -sinLat * cosLng, northY = -sinLat * sinLng, northZ = cosLat;
-                        const cosH = Math.cos(headingRad), sinH = Math.sin(headingRad);
-                        obj.alignedAxis = new Cesium.Cartesian3(
-                            northX * cosH + eastX * sinH,
-                            northY * cosH + eastY * sinH,
-                            northZ * cosH + eastZ * sinH
-                        );
+                    // Server returns { status: "unavailable" } when ADSB.lol has no data
+                    if (data.status === 'unavailable' || !data.lat || !data.lng) {
+                        liveFlightFailCount++;
+                        if (liveFlightFailCount >= MAX_LIVE_FAILURES) {
+                            console.warn(`[Live Tracker] Signal lost for ${obj.id} after ${MAX_LIVE_FAILURES} attempts. Stopping poll.`);
+                            obj.signalLost = true;
+                            clearInterval(window.liveFlightInterval);
+                            window.liveFlightInterval = null;
+                            renderTargetDetails(); // Re-render HUD to show SIGNAL LOST
+                        }
+                        return;
+                    }
+                    // Success — reset failure counter
+                    liveFlightFailCount = 0;
+                    if (obj.signalLost) { obj.signalLost = false; renderTargetDetails(); }
+
+                    obj.lat = data.lat;
+                    obj.lng = data.lng;
+                    obj.alt = data.alt;
+                    obj.velocity = data.velocity;
+                    obj.heading = data.heading;
+                    obj.velocityKmH = data.velocity * 3.6;
+                    
+                    // SNAP! Reset the extrapolation clock. Cesium's CallbackProperty will effortlessly
+                    // sweep from this exact coordinate forwarding using the new live velocity!
+                    obj.fetchTime = performance.now();
+                    
+                    // Recalculate 3D Nose Coordinate Alignment
+                    const lngRad = Cesium.Math.toRadians(obj.lng);
+                    const latRad = Cesium.Math.toRadians(obj.lat);
+                    const headingRad = Cesium.Math.toRadians(obj.heading);
+                    const cosLat = Math.cos(latRad), sinLat = Math.sin(latRad);
+                    const cosLng = Math.cos(lngRad), sinLng = Math.sin(lngRad);
+                    const eastX = -sinLng, eastY = cosLng, eastZ = 0;
+                    const northX = -sinLat * cosLng, northY = -sinLat * sinLng, northZ = cosLat;
+                    const cosH = Math.cos(headingRad), sinH = Math.sin(headingRad);
+                    obj.alignedAxis = new Cesium.Cartesian3(
+                        northX * cosH + eastX * sinH,
+                        northY * cosH + eastY * sinH,
+                        northZ * cosH + eastZ * sinH
+                    );
+                } else {
+                    liveFlightFailCount++;
+                    if (liveFlightFailCount >= MAX_LIVE_FAILURES) {
+                        console.warn(`[Live Tracker] Signal lost for ${obj.id} after ${MAX_LIVE_FAILURES} attempts. Stopping poll.`);
+                        obj.signalLost = true;
+                        clearInterval(window.liveFlightInterval);
+                        window.liveFlightInterval = null;
+                        renderTargetDetails();
                     }
                 }
             } catch (e) {
                 console.warn("[Live Tracker] Proxy failed for specific flight:", e);
+                liveFlightFailCount++;
+                if (liveFlightFailCount >= MAX_LIVE_FAILURES) {
+                    obj.signalLost = true;
+                    clearInterval(window.liveFlightInterval);
+                    window.liveFlightInterval = null;
+                    renderTargetDetails();
+                }
             }
         }, 5000); // Check speed & trajectory every 5 seconds
     }
 
     const panel = document.getElementById('target-panel');
-    panel.style.display = 'flex';
-    setTimeout(() => panel.style.transform = 'translateX(0)', 10);
-    renderTargetDetails();
+    // On mobile: skip popup for flights UNLESS the user tapped the callsign label
+    // Desktop: always show. Non-flight types (CCTV, vessels, etc.): always show.
+    const isFlight = obj.type === 'flight' || obj.type === 'military';
+    const skipPanel = isMobile && isFlight && !forceShowPanel;
+    if (!skipPanel) {
+        panel.style.display = 'flex';
+        setTimeout(() => panel.style.transform = 'translateX(0)', 10);
+        renderTargetDetails();
+    }
 
+    // On mobile label click: popup is shown above, but skip camera fly — just show the popup
+    if (isMobile && isFlight && forceShowPanel) {
+        return;
+    }
     // Zoom Cesium camera
     let zoomRange = 500000;
     if (obj.type === 'cctv') zoomRange = 5000;
@@ -2071,126 +2174,99 @@ function lockTarget(obj) {
         } catch(e) { console.warn("Could not calculate satellite target focus."); }
     }
 
-    // Offset the camera's actual destination slightly East (+Longitude) 
-    // This physically shifts the target rightward on the viewport, perfectly centering it in the available space next to the HUD menu.
-    let offsetMultiplier = (window.innerWidth <= 768) ? 0 : 0.2;
-    if (isDemoModeActive && window.innerWidth > 768) {
-        offsetMultiplier = 1.0; // The demo card is very wide, push target further right so it stays perfectly in view
+    // Offset math is no longer needed because native tracking permanently centers the active entity beautifully.
+    let entityId = obj.mmsi || obj.id;
+    let liveEntity = null;
+    for (let i = 0; i < viewer.dataSources.length; i++) {
+        liveEntity = viewer.dataSources.get(i).entities.getById(entityId);
+        if (liveEntity) break;
     }
-    const lngOffset = (zoomRange / 100000) * offsetMultiplier; 
-    const viewLng = targetLng + lngOffset;
 
-    viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(viewLng, targetLat, zoomRange),
-        duration: 2.0, // Smooth sweep
-        orientation: {
-            heading: 0.0,
-            pitch: -Cesium.Math.PI_OVER_TWO, // Look straight down
-            roll: 0.0
-        },
-        complete: () => {
-            // Once the smooth flight finishes, attach a live tracking tether for dynamic objects
-            viewer.scene.preRender.addEventListener(function trackTarget() {
-                // If user closed the target or clicked something else, break the tether
-                if (!state.target || state.target.id !== obj.id) {
-                    viewer.scene.preRender.removeEventListener(trackTarget);
-                    return;
-                }
-
-                // Identify the entity in the Cesium DataSources
-                let entityId = null;
-                if (obj.type === 'flight' || obj.type === 'military') entityId = 'flight_' + (obj.flight_id || obj.id);
-                else if (obj.type === 'satellite') entityId = 'sat_' + obj.id;
-                else if (obj.type === 'earthquake') entityId = 'quake_' + obj.id;
-                else if (obj.type === 'traffic' || obj.type === 'vessel') entityId = 'vessel_' + (obj.mmsi || obj.id);
-                else if (obj.type === 'police') entityId = 'police_' + obj.id;
-                else if (obj.type === 'scanner') entityId = 'scanner_' + obj.id;
-                else if (obj.type === 'cctv') entityId = 'cctv_' + obj.id;
-
-                if (!entityId) return;
-
-                let liveEntity = null;
-                for (let i = 0; i < viewer.dataSources.length; i++) {
-                    liveEntity = viewer.dataSources.get(i).entities.getById(entityId);
-                    if (liveEntity) break;
-                }
-
-                // If it's a moving entity with sampled positions, update camera every frame
-                if (liveEntity && liveEntity.position) {
-                    // Only enforce continuous tracking locks for high-speed dynamic items
-                    if (obj.type === 'flight' || obj.type === 'military' || obj.type === 'satellite') {
-                        const time = viewer.clock.currentTime;
-                        const position = liveEntity.position.getValue(time);
-                        if (position) {
-                            const cartographic = Cesium.Cartographic.fromCartesian(position);
-                            const currentLng = Cesium.Math.toDegrees(cartographic.longitude);
-                            const currentLat = Cesium.Math.toDegrees(cartographic.latitude);
-
-                            // Derive current user zoom level so they can still scroll in and out!
-                            const currentCameraCartographic = Cesium.Cartographic.fromCartesian(viewer.camera.position);
-                            const currentZoomRange = currentCameraCartographic.height;
-
-                            // Maintain the HUD offset
-                            let liveOffset = (window.innerWidth <= 768) ? 0 : 0.2;
-                            if (isDemoModeActive && window.innerWidth > 768) liveOffset = 1.0;
-                            const liveViewLng = currentLng + ((currentZoomRange / 100000) * liveOffset);
-
+    if (liveEntity) {
+        // Fly camera to the entity's current position
+        const entityPos = liveEntity.position.getValue(viewer.clock.currentTime);
+        if (entityPos) {
+            const carto = Cesium.Cartographic.fromCartesian(entityPos);
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, zoomRange),
+                duration: 2.0,
+                orientation: {
+                    heading: 0.0,
+                    pitch: -Cesium.Math.PI_OVER_TWO,
+                    roll: 0.0
+                },
+                complete: () => {
+                    // Start a lightweight camera follow (no trackedEntity)
+                    if (window._followListener) {
+                        viewer.scene.preRender.removeEventListener(window._followListener);
+                    }
+                    let lastEntityPos = liveEntity.position.getValue(viewer.clock.currentTime);
+                    window._followEntity = liveEntity;
+                    window._followListener = function() {
+                        if (!state.target || !window._followEntity) {
+                            viewer.scene.preRender.removeEventListener(window._followListener);
+                            window._followListener = null;
+                            window._followEntity = null;
+                            return;
+                        }
+                        const currentPos = window._followEntity.position.getValue(viewer.clock.currentTime);
+                        if (currentPos && lastEntityPos) {
+                            // Move camera by the same delta the entity moved
+                            const delta = Cesium.Cartesian3.subtract(currentPos, lastEntityPos, new Cesium.Cartesian3());
+                            const camPos = viewer.camera.positionWC;
                             viewer.camera.setView({
-                                destination: Cesium.Cartesian3.fromDegrees(liveViewLng, currentLat, currentZoomRange),
+                                destination: Cesium.Cartesian3.add(camPos, delta, new Cesium.Cartesian3()),
                                 orientation: {
-                                    heading: 0.0,
-                                    pitch: -Cesium.Math.PI_OVER_TWO,
+                                    heading: viewer.camera.heading,
+                                    pitch: viewer.camera.pitch,
                                     roll: 0.0
                                 }
                             });
                         }
-                    }
+                        lastEntityPos = currentPos;
+                    };
+                    viewer.scene.preRender.addEventListener(window._followListener);
                 }
             });
         }
-    });
+    } else {
+        // Fallback for statically declared locations (e.g., CCTV with no live moving DataSource object)
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(targetLng, targetLat, zoomRange),
+            duration: 2.0,
+            orientation: {
+                heading: 0.0,
+                pitch: -Cesium.Math.PI_OVER_TWO,
+                roll: 0.0
+            }
+        });
+    }
 }
 
+document.getElementById('close-target').textContent = 'Close';
 document.getElementById('close-target').addEventListener('click', () => {
-    const prevTarget = state.target;
     state.target = null;
     const panel = document.getElementById('target-panel');
     panel.style.transform = 'translateX(120%)';
     setTimeout(() => panel.style.display = 'none', 300);
 
+    // Stop live flight polling
+    if (window.liveFlightInterval) {
+        clearInterval(window.liveFlightInterval);
+        window.liveFlightInterval = null;
+    }
+
+    // Stop camera follow — just remove listener, zero camera movement
+    if (window._followListener) {
+        viewer.scene.preRender.removeEventListener(window._followListener);
+        window._followListener = null;
+        window._followEntity = null;
+    }
+
     // Clean up camera feeds
     clearInterval(_camRefreshInterval);
     _camRefreshInterval = null;
     if (window._hlsInstance) { window._hlsInstance.destroy(); window._hlsInstance = null; }
-
-    // Execute Contextual Zoom Out based on previous target type
-    if (prevTarget) {
-        let zoomRange = 250000; // default 250km
-        if (prevTarget.type === 'vessel') zoomRange = 30000;         // 30km exposing the local fleet
-        else if (prevTarget.type === 'cctv') zoomRange = 15000;      // 15km exposing the city
-        else if (prevTarget.type === 'satellite') zoomRange = 3000000; // 3000km exposing the orbital constellation
-        else if (prevTarget.type === 'earthquake') zoomRange = 5000000; // 5000km exposing the regional faultline and globe
-        else if (prevTarget.type === 'flight') zoomRange = 150000;   // 150km exposing area traffic
-
-        let lat = prevTarget.lat || 0;
-        let lng = prevTarget.lng || 0;
-
-        // Re-apply the optical HUD offset proportionally to the new back-off altitude
-        // This ensures the target stays perfectly locked in the visual center while pulling back
-        const lngOffset = (zoomRange / 100000) * 0.2; 
-        const viewLng = lng + lngOffset;
-
-        viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(viewLng, lat, zoomRange),
-            duration: 1.5,
-            orientation: { heading: 0.0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0.0 }
-        });
-    } else {
-        viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(-98.5, 39.8, 10000000),
-            duration: 1.5
-        });
-    }
 });
 
 // Global cam refresh interval — cleared when panel closes or a new target is selected
@@ -2205,6 +2281,10 @@ function renderTargetDetails() {
     const t = state.target;
     if (!t) return;
 
+    // Force button text (CMS overwrites HTML on page load)
+    const closeBtn = document.getElementById('close-target');
+    if (closeBtn) closeBtn.textContent = 'Close';
+
     const isFlight = t.type === 'flight';
     const isTraffic = t.type === 'traffic';
 
@@ -2217,6 +2297,16 @@ function renderTargetDetails() {
             <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px; text-transform: uppercase;">
                 ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : (t.type === 'scanner' ? 'LIVE AUDIO FEED' : 'UNKNOWN ORIGIN')))}
             </div>
+            ${t.signalLost ? `
+            <div style="margin-top: 8px; padding: 4px 12px; display: inline-block; border-radius: 4px;
+                        background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.6);
+                        font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: #ff4757;
+                        font-weight: bold; letter-spacing: 1px; animation: signalLostPulse 1.5s ease-in-out infinite;">
+                ⚠ SIGNAL LOST
+            </div>
+            <style>
+                @keyframes signalLostPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+            </style>` : ''}
         </div>
         
         <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
@@ -2429,6 +2519,18 @@ function renderTargetDetails() {
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">ALTITUDE</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.alt).toLocaleString()} <span style="font-size: 0.7rem;">m</span></td>
+            </tr>
+            ` : ''}
+            ${t.type === 'vessel' && (t.velocityKmH !== undefined && t.velocityKmH !== null) ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">SPEED</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.velocityKmH).toLocaleString()} <span style="font-size: 0.7rem;">km/h</span></td>
+            </tr>
+            ` : ''}
+            ${t.type === 'vessel' && t.vesselType ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">VESSEL TYPE</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 1px;">${t.vesselType}</td>
             </tr>
             ` : ''}
             ${(isFlight || t.type === 'vessel') && (t.heading !== undefined && t.heading !== null) ? `
