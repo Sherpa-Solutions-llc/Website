@@ -188,6 +188,21 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('change', (e) => {
                 state.dataSources[layerName] = e.target.value;
                 console.log(`[Settings] Changed ${layerName} source to:`, e.target.value);
+                
+                // --- Dynamic Speed Filter Adjustments ---
+                if (layerName === 'flights') {
+                    const speedSelect = document.getElementById('flight-speed');
+                    if (speedSelect) {
+                        if (e.target.value === 'opensky') {
+                            speedSelect.value = '1000+';
+                        } else if (e.target.value === 'adsblol') {
+                            speedSelect.value = 'all';
+                        }
+                        // Fire the layer redraw immediately so the speed syncs
+                        if (typeof updateFlightsLayer === 'function') updateFlightsLayer();
+                    }
+                }
+
                 // Wipe local cache array
                 state[layerName] = [];
                 // Force engine to re-draw and re-fetch if active
