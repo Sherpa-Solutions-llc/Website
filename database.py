@@ -206,7 +206,7 @@ async def init_traku_db():
         except sqlite3.OperationalError:
             pass
             
-        # Seed Mock Data provider with a fabricated key and enabled by default
+        # Seed Mock Data provider (ON by default on first install only)
         await db.execute('''
             INSERT OR IGNORE INTO traku_providers (provider_name, api_key, is_enabled, limit_max, limit_used)
             VALUES (?, ?, ?, ?, ?)
@@ -218,11 +218,25 @@ async def init_traku_db():
             VALUES (?, ?, ?, ?, ?)
         ''', ('abstractapi', '', 0, 10000, 0))
 
+        # Force AbstractAPI off if no key is configured (fixes persistent state on Railway restarts)
+        await db.execute('''
+            UPDATE traku_providers
+            SET is_enabled = 0
+            WHERE provider_name = 'abstractapi' AND api_key = ''
+        ''')
+
         # Seed Numverify for Phone Validation (100 free requests/month)
         await db.execute('''
             INSERT OR IGNORE INTO traku_providers (provider_name, api_key, is_enabled, limit_max, limit_used)
             VALUES (?, ?, ?, ?, ?)
         ''', ('numverify', '', 0, 100, 0))
+
+        # Force Numverify off if no key is configured (fixes persistent state on Railway restarts)
+        await db.execute('''
+            UPDATE traku_providers
+            SET is_enabled = 0
+            WHERE provider_name = 'numverify' AND api_key = ''
+        ''')
         
         # --- Geography / Default Dropdown Data ---
         await db.execute('''
