@@ -1,8 +1,8 @@
 // Execute immediately to prevent flash of wrong theme
 (function() {
     const savedTheme = localStorage.getItem('sherpa_theme');
-    // Dark is default
-    const theme = savedTheme ? savedTheme : 'dark';
+    // Light is default
+    const theme = savedTheme ? savedTheme : 'light';
     if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
     } else {
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     toggleBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
         document.documentElement.setAttribute('data-theme', newTheme);
@@ -57,7 +57,7 @@ window.addEventListener('load', () => {
     const cmsIframe = document.getElementById('cms-iframe');
     if (cmsIframe) {
         cmsIframe.addEventListener('load', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             try {
                 cmsIframe.contentWindow.document.documentElement.setAttribute('data-theme', currentTheme);
             } catch (e) {
