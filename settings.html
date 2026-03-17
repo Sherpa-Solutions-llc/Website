@@ -836,6 +836,13 @@
             const progressBar = document.getElementById('sync-progress-bar');
             const originalText = btn.innerHTML;
 
+            // Auto-save any unsaved CMS changes before deploying
+            if (cmsHasChanges) {
+                saveEditorChanges();
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Draft...';
+                await new Promise(r => setTimeout(r, 800)); // wait for iframe postMessage to process
+            }
+
             // Use custom confirmation modal instead of native confirm()
             document.getElementById('confirm-modal-text').innerText = "This will check all local files and upload only changed ones to GitHub. Unchanged files are skipped to save time. Proceed?";
             document.getElementById('confirm-modal-btn').innerText = "Yes, Deploy";
