@@ -1388,7 +1388,8 @@ function fetchTraffic() {
 
                         const a = Math.pow(Math.sin(dLat / 2), 2) +
                                   Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLon / 2), 2);
-                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        const aClamped = Math.min(1, Math.max(0, a));
+                        const c = 2 * Math.atan2(Math.sqrt(aClamped), Math.sqrt(1 - aClamped));
                         const earthRadiusMeter = 6371000;
                         const distMeters = earthRadiusMeter * c;
 
@@ -1578,7 +1579,7 @@ function updateFlightsLayer() {
                             font: '12px monospace',
                             fillColor: Cesium.Color.CYAN,
                             pixelOffset: new Cesium.Cartesian2(0, -25),
-                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 5000000), // Extended visibility
+                            distanceDisplayCondition: isMobile ? undefined : new Cesium.DistanceDisplayCondition(0, 5000000), // Extended visibility
                             disableDepthTestDistance: Number.POSITIVE_INFINITY,
                             show: !isMobile
                         },
