@@ -281,6 +281,7 @@ html {
 
 .panel-right {
     right: 20px;
+    width: 280px;
 }
 
 .panel-title {
@@ -628,14 +629,20 @@ html {
         display: none;
     }
 
-    /* Move search to be icon-only hint */
+    /* Search bar: compact GO button fits inside on mobile */
     .hud-search {
-        width: 160px;
+        width: 200px;
     }
 
     .hud-search input {
         font-size: 0.75rem;
-        padding: 6px 10px 6px 28px;
+        padding: 6px 38px 6px 28px;
+    }
+
+    .hud-search .search-btn {
+        padding: 2px 6px;
+        font-size: 0.6rem;
+        right: 3px;
     }
 
     /* Hide the status text on very narrow screens */
@@ -651,15 +658,15 @@ html {
     /* Left data-layer panel: anchor to BOTTOM instead of left side */
     .panel-left {
         left: 0;
-        right: 0;
+        right: auto;
         top: auto;
         bottom: 0;
-        width: 100%;
-        max-height: 45vh;
+        width: 55%;
+        max-height: 35vh;
         border-radius: 12px 12px 0 0;
         border-bottom: none;
         transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        overflow: hidden;           /* override the default hidden for collapsed state */
+        overflow: hidden;
         display: flex;
         flex-direction: column;
     }
@@ -676,13 +683,13 @@ html {
     .panel-content {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 10px;
+        padding: 6px;
         -webkit-overflow-scrolling: touch;
-        flex: 1;                    /* fill available space */
-        min-height: 0;              /* flexbox scroll fix */
+        flex: 1;
+        min-height: 0;
     }
 
     /* Show scrollbar to indicate more items below */
@@ -691,13 +698,34 @@ html {
         width: 6px;
     }
 
-    /* Each layer card: full width */
     .layer-item {
         width: 100%;
         flex: none;
         margin-bottom: 0;
-        padding: 12px;
-        padding-right: 50px; /* Make room for the toggle button */
+        padding: 8px;
+        padding-right: 50px;
+        overflow: visible;
+    }
+
+    /* Hide chevron on mobile — toggle button serves the same purpose */
+    .layer-chevron {
+        display: none;
+    }
+
+    /* Prevent layer name from overlapping count */
+    .layer-row .layer-name,
+    .layer-row .layer-info h3 {
+        min-width: 0;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 1;
+    }
+
+    .layer-row .layer-count {
+        flex-shrink: 0;
+        margin-left: 4px;
     }
 
     /* Layer row: relative so toggle button can position inside */
@@ -729,36 +757,65 @@ html {
         display: flex;
     }
 
+    /* Move filter dropdowns to the far left */
+    .layer-options-container {
+        padding-left: 8px !important;
+    }
+
     /* Counts: smaller font */
     .layer-count {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
 
     /* Target lock panel: scaled down heavily for mobile to not consume screen space */
     .panel-right {
-        right: 5%;
-        left: 5%;
+        right: 2%;
+        left: auto;
         top: 65px;
-        width: 90%;
-        max-height: 45vh;
+        width: 35%;
+        max-height: fit-content; /* Dynamic height, no scrollbar */
         border-radius: 8px;
-        overflow-y: auto;
+        overflow-y: visible;
         box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        padding-bottom: 5px;
+    }
+
+    /* Reduce the header section (icon + callsign + country) by 20% */
+    .panel-right #target-details > div:first-child {
+        margin-bottom: 10px !important;
+    }
+    .panel-right #target-details > div:first-child > div:first-child {
+        font-size: 1.6rem !important; /* down from 2rem */
+    }
+    .panel-right #target-details > div:first-child h3 {
+        font-size: 1.2rem !important; /* down from 1.5rem */
+    }
+    .panel-right #target-details > div:first-child > div:last-of-type {
+        font-size: 0.64rem !important; /* down from 0.8rem */
+        margin-top: 3px !important;
     }
 
     /* Override the JS inline table styles dynamically injected from live_earth.js */
     .panel-right .panel-title {
-        font-size: 0.85rem !important;
-        padding: 8px 10px !important;
+        font-size: 0.75rem !important; /* Smaller header */
+        padding: 4px 8px !important;
+        margin-bottom: 0px !important; /* Pack tighter */
     }
 
     .panel-right td {
-        padding: 4px 0 !important;
-        font-size: 0.8rem !important;
+        padding: 2px 0 !important; /* Ultra tight rows */
+        font-size: 0.65rem !important;
+        line-height: 1.1 !important;
     }
 
     .panel-right td span {
-        font-size: 0.6rem !important;
+        font-size: 0.55rem !important;
+    }
+    
+    .panel-right #close-target {
+        padding: 4px !important;
+        margin-top: 5px !important;
+        font-size: 0.65rem !important;
     }
 
     /* Video iframes & CCTV feeds in panel: much shorter on mobile */
