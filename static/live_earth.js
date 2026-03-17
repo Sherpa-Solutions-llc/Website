@@ -953,42 +953,42 @@ async function fetchFlights() {
                 console.warn("[Flights] Failed to fetch military states:", e);
             }
         } else if (state.dataSources.flights === 'adsblol') {
-            const res = await fetch('https://api.adsb.lol/v2/ladd');
-            if (!res.ok) throw new Error('ADSB.lol API Error');
+            const res = await fetch(`${API_BASE}/api/proxy/adsblol/ladd`);
+            if (!res.ok) throw new Error('ADSB.lol Proxy API Error');
             const data = await res.json();
             timestamp = Math.floor(data.now / 1000) || timestamp;
             
-            // Map ADSB.lol `.ac` array into OpenSky tuple format for uniform pipeline execution
             const ac = data.ac || [];
-            activeStates = ac.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => [
-                a.hex || 'UNKNOWN',     // [0] icao24
-                a.flight || '',         // [1] callsign
-                'Unknown',              // [2] origin_country
-                null,                   // [3] time_position
-                null,                   // [4] last_contact
-                a.lon,                  // [5] longitude
-                a.lat,                  // [6] latitude
-                a.alt_baro || 10000,    // [7] baro_altitude
-                false,                  // [8] on_ground
-                (a.mach || 0.8) * 340,  // [9] velocity (m/s fallback approximation if mach is provided, else rough guess)
-                a.track || 0,           // [10] true_track
-                0,                      // [11] vertical_rate
-                null,                   // [12] sensors
-                a.alt_geom || null,     // [13] geo_altitude
-                null,                   // [14] squawk
-                false,                  // [15] spi
-                0                       // [16] position_source
-            ]);
-            // Attempt to resolve real velocity if available in knots (1 kt = 0.51444 m/s)
-            activeStates.forEach((s, i) => {
-                if (ac[i].gs) s[9] = ac[i].gs * 0.51444; 
-                else if (ac[i].tas) s[9] = ac[i].tas * 0.51444;
+            activeStates = ac.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => {
+                let trueVel = (a.mach || 0.8) * 340;
+                if (typeof a.gs === 'number') trueVel = a.gs * 0.51444; 
+                else if (typeof a.tas === 'number') trueVel = a.tas * 0.51444;
+                
+                return [
+                    a.hex || 'UNKNOWN',     // [0] icao24
+                    (a.flight || '').trim() || 'UNKNOWN', // [1] callsign
+                    'Unknown',              // [2] origin_country
+                    null,                   // [3] time_position
+                    null,                   // [4] last_contact
+                    a.lon,                  // [5] longitude
+                    a.lat,                  // [6] latitude
+                    (typeof a.alt_baro === 'number' ? a.alt_baro : 10000), // [7] baro_altitude
+                    false,                  // [8] on_ground
+                    trueVel,                // [9] velocity (m/s)
+                    a.track || 0,           // [10] true_track
+                    0,                      // [11] vertical_rate
+                    null,                   // [12] sensors
+                    a.alt_geom || null,     // [13] geo_altitude
+                    null,                   // [14] squawk
+                    false,                  // [15] spi
+                    0                       // [16] position_source
+                ];
             });
-            console.log(`[Flights] Fetched ${activeStates.length} raw states from ADSB.lol API`);
+            console.log(`[Flights] Fetched ${activeStates.length} raw states from ADSB proxy`);
             
             // Parallel military fetch for direct mode
             try {
-                const milRes = await fetch('https://api.adsb.lol/v2/mil');
+                const milRes = await fetch(`${API_BASE}/api/proxy/adsblol/mil`);
                 if (milRes.ok) {
                     const milData = await milRes.json();
                     const milAc = milData.ac || [];
@@ -997,8 +997,11 @@ async function fetchFlights() {
                         if (a.gs) vel = a.gs * 0.51444;
                         else if (a.tas) vel = a.tas * 0.51444;
                         return [
-                            a.hex || 'UNKNOWN', a.flight || '', 'Unknown', null, null,
-                            a.lon, a.lat, a.alt_baro || 10000, false, vel, a.track || 0
+                            a.hex || 'UNKNOWN', 
+                            (a.flight || '').trim() || 'UNKNOWN', 
+                            'Unknown', 
+                            null, null,
+                            a.lon, a.lat, (typeof a.alt_baro === 'number' ? a.alt_baro : 10000), false, vel, a.track || 0
                         ];
                     });
                     console.log(`[Flights] Fetched ${militaryStates.length} military states from ADSB.lol`);
@@ -1979,6 +1982,60 @@ function lockTarget(obj) {
     state.target = obj;
     if (obj.type === 'flight' && !obj.origin) fetchFlightRoute(obj);
 
+    // --- LIVE FLIGHT TRACKING ---
+    // The background server only polls flights globally every 1 hour to save API limits.
+    // If we select a specific target, tightly poll ADSB.lol every 5s for *only* this plane
+    // to achieve perfectly smooth, real-time extrapolate-motion on the map.
+    if (window.liveFlightInterval) {
+        clearInterval(window.liveFlightInterval);
+        window.liveFlightInterval = null;
+    }
+
+    if (obj.type === 'flight' || obj.type === 'military') {
+        window.liveFlightInterval = setInterval(async () => {
+            // Stop polling if user closed panel or clicked something else
+            if (!state.target || state.target.id !== obj.id) {
+                clearInterval(window.liveFlightInterval);
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/api/proxy/live-flight/${obj.id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.lat && data.lng) {
+                        obj.lat = data.lat;
+                        obj.lng = data.lng;
+                        obj.alt = data.alt;
+                        obj.velocity = data.velocity;
+                        obj.heading = data.heading;
+                        obj.velocityKmH = data.velocity * 3.6;
+                        
+                        // SNAP! Reset the extrapolation clock. Cesium's CallbackProperty will effortlessly
+                        // sweep from this exact coordinate forwarding using the new live velocity!
+                        obj.fetchTime = performance.now();
+                        
+                        // Recalculate 3D Nose Coordinate Alignment
+                        const lngRad = Cesium.Math.toRadians(obj.lng);
+                        const latRad = Cesium.Math.toRadians(obj.lat);
+                        const headingRad = Cesium.Math.toRadians(obj.heading);
+                        const cosLat = Math.cos(latRad), sinLat = Math.sin(latRad);
+                        const cosLng = Math.cos(lngRad), sinLng = Math.sin(lngRad);
+                        const eastX = -sinLng, eastY = cosLng, eastZ = 0;
+                        const northX = -sinLat * cosLng, northY = -sinLat * sinLng, northZ = cosLat;
+                        const cosH = Math.cos(headingRad), sinH = Math.sin(headingRad);
+                        obj.alignedAxis = new Cesium.Cartesian3(
+                            northX * cosH + eastX * sinH,
+                            northY * cosH + eastY * sinH,
+                            northZ * cosH + eastZ * sinH
+                        );
+                    }
+                }
+            } catch (e) {
+                console.warn("[Live Tracker] Proxy failed for specific flight:", e);
+            }
+        }, 5000); // Check speed & trajectory every 5 seconds
+    }
+
     const panel = document.getElementById('target-panel');
     panel.style.display = 'flex';
     setTimeout(() => panel.style.transform = 'translateX(0)', 10);
@@ -2361,25 +2418,25 @@ function renderTargetDetails() {
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; color: #fff; letter-spacing: 2px;">${t.destination || 'UNKNOWN'}</td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'satellite' || t.type === 'vessel') && t.velocityKmH !== undefined ? `
+            ${isFlight && (t.velocityKmH !== undefined && t.velocityKmH !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">VELOCITY</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.velocityKmH).toLocaleString()} <span style="font-size: 0.7rem;">km/h</span></td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'satellite') && t.alt !== undefined ? `
+            ${(isFlight || t.type === 'satellite') && (t.alt !== undefined && t.alt !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">ALTITUDE</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.alt).toLocaleString()} <span style="font-size: 0.7rem;">m</span></td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'vessel') && t.heading !== undefined ? `
+            ${(isFlight || t.type === 'vessel') && (t.heading !== undefined && t.heading !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">HEADING</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.heading)}°</td>
             </tr>
             ` : ''}
-            ${t.lat !== undefined ? `
+            ${(t.lat !== undefined && t.lat !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">LATITUDE</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${t.lat.toFixed(4)}</td>
