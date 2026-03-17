@@ -2238,7 +2238,7 @@ async def proxy_live_flight(icao24: str):
                         "heading": a.get("track", 0),
                         "velocity": vel
                     })
-            return JSONResponse({"error": "Live tracking data unavailable for this ICAO"}, status_code=404)
+            return JSONResponse({"status": "unavailable"})
     except Exception as e:
         print(f"[Proxy] ADSB.lol Live tracking failed: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
