@@ -845,3 +845,48 @@ textarea:focus {
         height: 350px;
     }
 }
+
+/* Mobile-specific fixes */
+@media (max-width: 768px) {
+    .glass-header {
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .logo h1 {
+        font-size: 1rem;
+    }
+
+    .logo .subtitle {
+        display: none;
+    }
+
+    .header-controls {
+        gap: 0.4rem;
+    }
+
+    .chat-message {
+        max-width: 90%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .chat-message pre {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .agents-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .agent-card {
+        padding: 0.8rem;
+    }
+
+    .agent-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+}
