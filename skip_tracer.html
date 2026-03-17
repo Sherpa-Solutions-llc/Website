@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 
 <head>
     <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
@@ -13,7 +13,7 @@
     <!-- Modern Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css?v=1.4">
+    <link rel="stylesheet" href="static/styles.css?v=1.6">
     <script src="static/theme.js"></script>
 
 
@@ -57,13 +57,13 @@
             gap: 1rem;
             justify-content: center;
             margin-bottom: 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 1.5rem;
         }
 
         .search-toggle {
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
             color: var(--text-dark);
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
@@ -79,7 +79,7 @@
         }
 
         .search-toggle:hover {
-            background: rgba(255,255,255,0.1);
+            background: var(--bg-color);
             transform: translateY(-1px);
         }
 
@@ -149,52 +149,12 @@
             margin-top: 1rem;
         }
         
-        /* Toggle Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333;
-            transition: .4s;
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
+        /* Global Toggle Switch styling moved to styles.css */
 
         /* Multi-Modal Smart Search UI */
         .data-pill {
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
             color: var(--text-muted);
             padding: 0.6rem 1.2rem;
             border-radius: 30px;
@@ -339,7 +299,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 1rem;
             margin-bottom: 1.5rem;
         }
@@ -351,7 +311,7 @@
         }
 
         .badge {
-            background: rgba(255,255,255,0.1);
+            background: var(--bg-color);
             color: var(--text-dark);
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -516,7 +476,7 @@
             border-bottom: none;
         }
         .custom-option:hover {
-            background: rgba(255,255,255,0.1);
+            background: var(--bg-color);
         }
         .custom-option.selected {
             color: var(--accent);
@@ -564,7 +524,7 @@
 
         .audio-toggle-btn {
             background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
             color: var(--text-muted);
             padding: 0.5rem 1rem;
             border-radius: 4px;
@@ -802,8 +762,36 @@
                 gap: 0.5rem !important;
                 align-items: center;
             }
+
+            /* Provider Cards Data Sources */
+            .provider-card > div[style*="justify-content: space-between"] {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1rem !important;
+            }
+            .provider-card > div[style*="justify-content: space-between"] > div {
+                width: 100% !important;
+                justify-content: space-between !important;
+            }
+            .provider-card > div[style*="gap: 10px;"] {
+                flex-direction: column !important;
+            }
+            .provider-card > div[style*="gap: 10px;"] > button {
+                width: 100% !important;
+            }
         }
     </style>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 
 <body>
@@ -842,7 +830,7 @@
     <div class="page-header" style="display: flex; flex-direction: column; align-items: center;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 0.5rem;">
             <h1 style="margin: 0;">Traku</h1>
-            <button type="button" class="btn-search" id="btn-view-api" style="padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); color: white; font-size: 0.85rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" onclick="switchView('api')"><b>&lt;/&gt;</b> API</button>
+            <button type="button" class="btn-search" id="btn-view-api" style="padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); color: white; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;" onclick="switchView('api')"><b>&lt;/&gt;</b> API</button>
         </div>
         <p style="margin: 0; text-align: center;">Enterprise-grade OSINT personnel intelligence and location tracking.</p>
     </div>
@@ -863,18 +851,18 @@
 
             <!-- GLOBAL NAVIGATION TABS (Tabbed Box Design) -->
             <div class="view-toggles" style="display: flex; gap: 4px; margin-bottom: 0;">
-                <button type="button" class="btn-search active-view" id="btn-view-omni" onclick="switchView('omni')" style="margin: 0; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-bottom: none; border-radius: 8px 8px 0 0; color: white; padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 2;"><i class="fa-solid fa-cloud-bolt"></i> Target Profile</button>
-                <button type="button" class="btn-search" id="btn-view-results" onclick="switchView('results')" style="margin: 0; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--text-muted); padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 1;"><i class="fa-solid fa-list-check"></i> Search Results</button>
-                <button type="button" class="btn-search" id="btn-view-data" onclick="switchView('data')" style="margin: 0; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--text-muted); padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 1;"><i class="fa-solid fa-database"></i> Data Sources</button>
+                <button type="button" class="btn-search active-view" id="btn-view-omni" onclick="switchView('omni')" style="margin: 0; background: var(--surface-color); border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--accent); font-weight: 600; padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 2;"><i class="fa-solid fa-cloud-bolt"></i> Target Profile</button>
+                <button type="button" class="btn-search" id="btn-view-results" onclick="switchView('results')" style="margin: 0; background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--text-muted); padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 1;"><i class="fa-solid fa-list-check"></i> Search Results</button>
+                <button type="button" class="btn-search" id="btn-view-data" onclick="switchView('data')" style="margin: 0; background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--text-muted); padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 1;"><i class="fa-solid fa-database"></i> Data Sources</button>
             </div>
 
             <!-- TAB CONTENT CONTAINER -->
-            <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 0 8px 8px 8px; padding: 2rem; position: relative; z-index: 1; margin-top: -1px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 0 8px 8px 8px; padding: 2rem; position: relative; z-index: 1; margin-top: -1px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             
                 <!-- OMNI-BAR REDESIGN -->
                 <div id="omni-search-view" style="padding: 2rem 0; text-align: center;">
                     
-                    <h2 style="color: white; font-size: 2.2rem; font-weight: 300; margin-bottom: 0.5rem; letter-spacing: 1px;">Smart Search</h2>
+                    <h2 style="color: var(--text-dark); font-size: 2.2rem; font-weight: 300; margin-bottom: 0.5rem; letter-spacing: 1px;">Smart Search</h2>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem;">Enter a Phone Number, Email Address, Name, or Address snippet to begin.</p>
 
                 <form id="omni-search-form" onsubmit="executeOmniSearch(event)" style="max-width: 900px; margin: 0 auto; position: relative;">
@@ -895,7 +883,7 @@
                     </div>
 
                     <!-- DYNAMIC INPUT CONTAINERS -->
-                    <div id="dynamic-inputs-container" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div id="dynamic-inputs-container" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
                         
                         <!-- Name Field (Default Active) -->
                         <div id="field-name" class="dynamic-field visible">
@@ -1120,21 +1108,21 @@
             </div><!-- /omni-search-view -->
 
             <div id="batch-processing-view" style="display: none; text-align: center; padding: 2rem 0;">
-                <h3 style="color: white; margin-bottom: 1rem;"><i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent);"></i> Upload Batch File</h3>
+                <h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent);"></i> Upload Batch File</h3>
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
                     Upload a CSV containing names, addresses, or partial contact info. The Traku automated engine will cross-reference OSINT databases and append matched phone numbers, emails, and confidence scores to standard format output.
                 </p>
                 
                 <div style="border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 4rem 2rem; background: rgba(0,0,0,0.2); max-width: 500px; margin: 0 auto 2rem; cursor: pointer; transition: all 0.3s ease;" id="drop-zone">
                     <i class="fa-solid fa-file-csv" style="font-size: 3rem; color: var(--text-dark); margin-bottom: 1rem;"></i>
-                    <h4 style="color: white; margin-bottom: 0.5rem;">Drag & Drop CSV</h4>
+                    <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">Drag & Drop CSV</h4>
                     <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">or click to select file from your computer</p>
                     <input type="file" id="batch-file-input" accept=".csv" style="display: none;">
                 </div>
 
                 <div class="input-field" style="max-width: 400px; margin: 0 auto 2rem; text-align: center;">
                     <label style="margin-bottom: 10px; display: block;">Batch Permissible Purpose <span style="color:var(--accent); font-weight: bold;">*</span></label>
-                    <select id="batch-permissible-purpose" class="form-control" style="background: rgba(0,0,0,0.3); border: 1px solid var(--accent); color: white; padding: 0.8rem; border-radius: 8px; width: 100%; text-align: center; font-size: 0.95rem; cursor: pointer;" onchange="validateBatchPurpose()">
+                    <select id="batch-permissible-purpose" class="form-control" style="background: var(--surface-color); border: 1px solid var(--accent); color: white; padding: 0.8rem; border-radius: 8px; width: 100%; text-align: center; font-size: 0.95rem; cursor: pointer;" onchange="validateBatchPurpose()">
                         <option value="">-- Select Compliant Purpose --</option>
                         <option value="debt_collection">Debt Collection / Asset Recovery</option>
                         <option value="real_estate">Real Estate Investment Analysis</option>
@@ -1150,7 +1138,7 @@
                         <span style="color: var(--text-light); font-size: 0.85rem;" id="batch-status-text">Processing records...</span>
                         <span style="color: var(--accent); font-size: 0.85rem; font-weight: bold;" id="batch-percent">0%</span>
                     </div>
-                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                    <div style="width: 100%; height: 8px; background: var(--bg-color); border-radius: 4px; overflow: hidden;">
                         <div id="batch-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.3s ease;"></div>
                     </div>
                     <button id="btn-download-batch" class="btn-search" style="margin: 2rem auto 0; background: #28a745; display: none;" onclick="downloadBatchRessults()"><i class="fa-solid fa-download"></i> Download Enriched CSV</button>
@@ -1159,15 +1147,15 @@
 
             <!-- API Integration View -->
             <div id="api-integration-view" style="display: none; padding: 2rem 0; text-align: left;">
-                <div style="max-width: 800px; margin: 0 auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2rem;">
-                    <h3 style="color: white; margin-bottom: 1rem;"><i class="fa-solid fa-plug" style="color: var(--accent);"></i> Traku REST API Connect</h3>
+                <div style="max-width: 800px; margin: 0 auto; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem;">
+                    <h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-plug" style="color: var(--accent);"></i> Traku REST API Connect</h3>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
                         Automate your skip tracing workflow by connecting your CRM or internal systems directly to the Traku architecture. Retrieve identity resolution and confidence scores instantly.
                     </p>
                     
                     <h4 style="color: #00e5ff; margin-bottom: 0.5rem; font-family: monospace;">POST /api/v1/osint/batch</h4>
                     <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Upload a CSV payload for bulk enrichment.</p>
-                    <div style="background: #0d1117; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto;">
+                    <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color); overflow-x: auto;">
 <pre style="color: #a5d6ff; font-family: monospace; font-size: 0.85rem; margin: 0;">curl -X POST https://api.sherpa-solutions.com/v1/osint/batch \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: multipart/form-data" \
@@ -1177,7 +1165,7 @@
 
                     <h4 style="color: #00e5ff; margin-bottom: 0.5rem; font-family: monospace;">Webhook Configuration</h4>
                     <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Receive asynchronous JSON payloads when batch processing completes.</p>
-                    <div style="background: #0d1117; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto;">
+                    <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto;">
 <pre style="color: #7ee787; font-family: monospace; font-size: 0.85rem; margin: 0;">{
   "event": "batch_completed",
   "batch_id": "trk_batch_98723",
@@ -1190,10 +1178,10 @@
 
         <!-- Search Results View -->
         <div id="search-results-view" style="display: none; padding: 2rem 0;">
-            <div style="max-width: 1000px; margin: 0 auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2rem; position: relative;">
+            <div style="max-width: 1000px; margin: 0 auto; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; position: relative;">
                 
                 <!-- Execute Trace Header Area -->
-                <div style="text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1);" id="trace-execution-header">
+                <div style="text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color);" id="trace-execution-header">
                     <h2 style="color: white; margin-bottom: 1rem;"><i class="fa-solid fa-satellite-dish" style="color: var(--accent);"></i> Intelligence Matrix Scan</h2>
                     <p style="color: var(--text-muted); margin-bottom: 2rem;">Ensure target profile footprint is submitted before executing payload simulation.</p>
                     <button type="button" id="btn-execute-trace" onclick="executeDetailedTrace()" class="btn-search" style="border-radius: 40px; padding: 1rem 4rem; font-size: 1.2rem; box-shadow: 0 0 20px rgba(192, 108, 59, 0.5);">
@@ -1206,7 +1194,7 @@
                     
                     <!-- Social Media Column -->
                     <div>
-                        <h4 style="color: white; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <h4 style="color: var(--text-dark, #fff); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
                             <i class="fa-solid fa-users-viewfinder" style="color: #00e5ff;"></i> Social Media Extraction
                         </h4>
                         <div id="progress-container-social">
@@ -1216,7 +1204,7 @@
 
                     <!-- Other Sources Column -->
                     <div>
-                        <h4 style="color: white; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <h4 style="color: var(--text-dark, #fff); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
                             <i class="fa-solid fa-server" style="color: #00e5ff;"></i> Public & Deep Records
                         </h4>
                         <div id="progress-container-other">
@@ -1228,7 +1216,7 @@
                 
                 <!-- Final Global Completion Badge -->
                 <div id="trace-complete-badge" style="display: none; text-align: center; margin-bottom: 3rem;">
-                    <span style="background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.5); padding: 0.8rem 2rem; border-radius: 40px; font-weight: bold; font-size: 1.1rem;">
+                    <span style="background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.5); padding: 0.8rem 2rem; border-radius: 40px; font-weight: bold; font-size: 1.1rem; display: inline-block;">
                         <i class="fa-solid fa-check-double"></i> Multi-Source Intelligence Scan Complete
                     </span>
                 </div>
@@ -1244,9 +1232,9 @@
 
             <!-- Data Sources View -->
             <div id="data-sources-view" style="display: none; padding: 2rem 0; text-align: left;">
-                <div style="max-width: 600px; margin: 0 auto; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2.5rem;">
+                <div style="max-width: 600px; margin: 0 auto; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2.5rem;">
                     
-                    <h3 style="color: white; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                    <h3 style="color: var(--text-dark); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
                         <i class="fa-solid fa-network-wired" style="color: var(--accent); margin-right: 10px;"></i> Master Provider Selection
                     </h3>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
@@ -1256,10 +1244,10 @@
                     <div class="api-vault" style="display: flex; flex-direction: column; gap: 1.5rem;">
                         
                         <!-- Mock Data Source -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid #00e5ff; border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid #00e5ff; border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="position: absolute; top: -10px; right: 20px; background: #00e5ff; color: #000; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Default Engine</div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-server" style="color: #00e5ff;"></i> Mock Data Traku Engine
                                 </h4>
                                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -1274,16 +1262,16 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px; opacity: 0.5; pointer-events: none;">
-                                <input type="password" id="key-mock" value="mk_sk_sherpa_engine_local_8f9c2a1b" readonly style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-mock" value="mk_sk_sherpa_engine_local_8f9c2a1b" readonly style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Locked</button>
                             </div>
                             <p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">The internal secure mock engine is used when live external APIs are offline or rate-limited.</p>
                         </div>
                         
                         <!-- AbstractAPI (IP Geolocation) -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-network-wired" style="color: var(--text-muted);"></i> AbstractAPI (IP Trace)
                                 </h4>
                                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -1293,21 +1281,21 @@
                                             <input type="checkbox" id="toggle-abstractapi" onchange="toggleTrakuProvider('abstractapi')">
                                             <span class="slider"></span>
                                         </label>
-                                        <span id="status-abstractapi" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-muted);">Not Configured</span>
+                                        <span id="status-abstractapi" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
                                     </div>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="password" id="key-abstractapi" placeholder="Enter API Key..." style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-abstractapi" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" onclick="saveTrakuProvider('abstractapi')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Save</button>
                             </div>
                             <p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);"><a href="https://app.abstractapi.com/api/ip-geolocation/pricing" target="_blank" style="color: var(--accent);">Free Tier</a>: 10,000 requests / month</p>
                         </div>
 
                         <!-- Numverify API -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-phone" style="color: var(--text-muted);"></i> Numverify
                                 </h4>
                                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -1317,21 +1305,21 @@
                                             <input type="checkbox" id="toggle-numverify" onchange="toggleTrakuProvider('numverify')">
                                             <span class="slider"></span>
                                         </label>
-                                        <span id="status-numverify" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-muted);">Not Configured</span>
+                                        <span id="status-numverify" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
                                     </div>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="password" id="key-numverify" placeholder="Enter API Key..." style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-numverify" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" onclick="saveTrakuProvider('numverify')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Save</button>
                             </div>
                             <p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);"><a href="https://apilayer.com/marketplace/numverify-api" target="_blank" style="color: var(--accent);">Free Tier</a>: 100 requests / month. Validates MSISDN telecom status.</p>
                         </div>
 
                         <!-- USA People Search -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-flag-usa" style="color: var(--text-muted);"></i> USA People Search
                                 </h4>
                                 <div style="display: flex; align-items: center;">
@@ -1339,19 +1327,19 @@
                                         <input type="checkbox" id="toggle-usa_people_search" onchange="toggleTrakuProvider('usa_people_search')">
                                         <span class="slider"></span>
                                     </label>
-                                    <span id="status-usa_people_search" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-muted);">Not Configured</span>
+                                    <span id="status-usa_people_search" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="password" id="key-usa_people_search" placeholder="Enter API Key..." style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-usa_people_search" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" onclick="saveTrakuProvider('usa_people_search')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Save</button>
                             </div>
                         </div>
 
                         <!-- PIPL API -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> PIPL API
                                 </h4>
                                 <div style="display: flex; align-items: center;">
@@ -1359,19 +1347,19 @@
                                         <input type="checkbox" id="toggle-pipl" onchange="toggleTrakuProvider('pipl')">
                                         <span class="slider"></span>
                                     </label>
-                                    <span id="status-pipl" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-muted);">Not Configured</span>
+                                    <span id="status-pipl" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="password" id="key-pipl" placeholder="Enter API Key..." style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-pipl" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" onclick="saveTrakuProvider('pipl')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Save</button>
                             </div>
                         </div>
 
                         <!-- Spokeo -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-address-book" style="color: var(--text-muted);"></i> Spokeo / Whitepages
                                 </h4>
                                 <div style="display: flex; align-items: center;">
@@ -1379,19 +1367,19 @@
                                         <input type="checkbox" id="toggle-spokeo" onchange="toggleTrakuProvider('spokeo')">
                                         <span class="slider"></span>
                                     </label>
-                                    <span id="status-spokeo" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-muted);">Not Configured</span>
+                                    <span id="status-spokeo" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="password" id="key-spokeo" placeholder="Enter API Key..." style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-spokeo" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" onclick="saveTrakuProvider('spokeo')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Save</button>
                             </div>
                         </div>
 
                         <!-- Enhanced People Search -->
-                        <div class="provider-card" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.5rem; position: relative;">
+                        <div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                <h4 style="color: white; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
                                     <i class="fa-solid fa-user-ninja" style="color: var(--text-muted);"></i> Enhanced People Search
                                 </h4>
                                 <div style="display: flex; align-items: center;">
@@ -1399,11 +1387,11 @@
                                         <input type="checkbox" id="toggle-enhanced_people" onchange="toggleTrakuProvider('enhanced_people')">
                                         <span class="slider"></span>
                                     </label>
-                                    <span id="status-enhanced_people" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: var(--text-muted);">Not Configured</span>
+                                    <span id="status-enhanced_people" class="status-badge" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <input type="password" id="key-enhanced_people" placeholder="Enter API Key..." style="flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 4px; color: white; font-family: monospace; outline: none;">
+                                <input type="password" id="key-enhanced_people" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;">
                                 <button type="button" class="btn-search" onclick="saveTrakuProvider('enhanced_people')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;">Save</button>
                             </div>
                         </div>
@@ -1477,20 +1465,23 @@
             
             if(btnOmni) {
                 btnOmni.classList.remove('active-view');
-                btnOmni.style.background = "rgba(0,0,0,0.2)";
+                btnOmni.style.background = "rgba(0,0,0,0.05)";
                 btnOmni.style.color = "var(--text-muted)";
+                btnOmni.style.fontWeight = "normal";
                 btnOmni.style.zIndex = "1";
             }
             if(btnResults) {
                 btnResults.classList.remove('active-view');
-                btnResults.style.background = "rgba(0,0,0,0.2)";
+                btnResults.style.background = "rgba(0,0,0,0.05)";
                 btnResults.style.color = "var(--text-muted)";
+                btnResults.style.fontWeight = "normal";
                 btnResults.style.zIndex = "1";
             }
             if(btnData) {
                 btnData.classList.remove('active-view');
-                btnData.style.background = "rgba(0,0,0,0.2)";
+                btnData.style.background = "rgba(0,0,0,0.05)";
                 btnData.style.color = "var(--text-muted)";
+                btnData.style.fontWeight = "normal";
                 btnData.style.zIndex = "1";
             }
 
@@ -1513,16 +1504,18 @@
             if(view === 'omni' || view === 'single') {
                 if(btnOmni) {
                     btnOmni.classList.add('active-view');
-                    btnOmni.style.background = "rgba(0,0,0,0.5)";
-                    btnOmni.style.color = "white";
+                    btnOmni.style.background = "var(--surface-color)";
+                    btnOmni.style.color = "var(--accent)";
+                    btnOmni.style.fontWeight = "600";
                     btnOmni.style.zIndex = "2";
                 }
                 document.getElementById('omni-search-view').style.display = 'block';
             } else if (view === 'results') {
                 if(btnResults) {
                     btnResults.classList.add('active-view');
-                    btnResults.style.background = "rgba(0,0,0,0.5)";
-                    btnResults.style.color = "white";
+                    btnResults.style.background = "var(--surface-color)";
+                    btnResults.style.color = "var(--accent)";
+                    btnResults.style.fontWeight = "600";
                     btnResults.style.zIndex = "2";
                 }
                 document.getElementById('search-results-view').style.display = 'block';
@@ -1537,8 +1530,9 @@
             } else if (view === 'data') {
                 if(btnData) {
                     btnData.classList.add('active-view');
-                    btnData.style.background = "rgba(0,0,0,0.5)";
-                    btnData.style.color = "white";
+                    btnData.style.background = "var(--surface-color)";
+                    btnData.style.color = "var(--accent)";
+                    btnData.style.fontWeight = "600";
                     btnData.style.zIndex = "2";
                 }
                 document.getElementById('data-sources-view').style.display = 'block';
@@ -1617,7 +1611,7 @@
             const file = batchFileInput.files[0];
             if(file) {
                 dropZone.innerHTML = `<i class="fa-solid fa-file-circle-check" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem;"></i>
-                                      <h4 style="color: white; margin-bottom: 0.5rem;">${file.name}</h4>
+                                      <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">${file.name}</h4>
                                       <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">${(file.size / 1024).toFixed(2)} KB Ready to Process</p>`;
                 validateBatchPurpose();
             }
@@ -1705,14 +1699,14 @@
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
-                        <span style="color: white; font-weight: 500; flex: 2;"><i class="${iconClass}" style="width:20px;"></i> ${sourceName}</span>
+                        <span style="color: var(--text-dark, #fff); font-weight: 500; flex: 2;"><i class="${iconClass}" style="width:20px;"></i> ${sourceName}</span>
                         <span style="color: var(--text-muted); flex: 1; text-align: center;" id="hits-${idSafe}"></span>
                         <span style="color: var(--accent); font-weight: bold; flex: 1; text-align: right;" id="status-${idSafe}">0%</span>
                     </div>
                     <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-bottom: 1.2rem;" id="bar-wrap-${idSafe}">
                         <div id="bar-${idSafe}" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.3s ease-out;"></div>
                     </div>
-                    <div id="results-box-${idSafe}" style="display: none; padding: 12px; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 0.85rem;">
+                    <div id="results-box-${idSafe}" style="display: none; padding: 12px; margin-bottom: 1.5rem; background: var(--surface-color, rgba(0,0,0,0.4)); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 0.85rem;">
                     </div>
                 `;
                 container.appendChild(wrapper);
@@ -1911,15 +1905,15 @@
 
             function section(icon, title, color, searched, rows) {
                 const rowsHtml = rows.map(([label, value]) => `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border-color, rgba(255,255,255,0.04));">
                         <span style="color:var(--text-muted);font-size:0.88rem;flex:1;">${label}</span>
-                        <span style="color:white;font-size:0.88rem;text-align:right;flex:1.5;font-weight:600;">${value}</span>
+                        <span style="color:var(--text-dark, #fff);font-size:0.88rem;text-align:right;flex:1.5;font-weight:600;">${value}</span>
                     </div>`).join('');
-                const searchedHtml = searched ? `<div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 12px;margin-bottom:1rem;font-size:0.8rem;color:var(--text-muted);">Searched: <span style="color:${color};font-family:monospace;font-weight:600;">${searched}</span></div>` : '';
+                const searchedHtml = searched ? `<div style="background:var(--surface-color, rgba(255,255,255,0.04));border-radius:4px;padding:6px 12px;margin-bottom:1rem;font-size:0.8rem;color:var(--text-muted);">Searched: <span style="color:${color};font-family:monospace;font-weight:600;">${searched}</span></div>` : '';
                 return `
-                    <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-top:2px solid ${color};border-radius:8px;padding:1.4rem;margin-bottom:0;" class="person-card">
+                    <div style="background:var(--surface-color, rgba(0,0,0,0.4));border:1px solid var(--border-color, rgba(255,255,255,0.06));border-top:2px solid ${color};border-radius:8px;padding:1.4rem;margin-bottom:0;" class="person-card">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                            <h4 style="color:white;margin:0;font-size:0.95rem;display:flex;align-items:center;gap:8px;">
+                            <h4 style="color:var(--text-dark, #fff);margin:0;font-size:0.95rem;display:flex;align-items:center;gap:8px;">
                                 <i class="${icon}" style="color:${color};width:18px;"></i> ${title}
                             </h4>
                             <span style="background:rgba(40,167,69,0.15);color:#28a745;border:1px solid rgba(40,167,69,0.3);font-size:0.72rem;padding:2px 10px;border-radius:20px;font-weight:600;white-space:nowrap;">&#10003; MATCH FOUND</span>
@@ -2028,7 +2022,7 @@
                         <span style="color: white; font-size: 0.9rem; font-weight: bold;"><i class="fa-brands fa-${icon}"></i> ${platform} DB</span>
                         <span style="color: var(--accent); font-size: 0.85rem;" id="social-status-${platform.replace(/\s+/g,'')}">Scanning 0 / ${totalProfiles} Profiles</span>
                     </div>
-                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                    <div style="width: 100%; height: 8px; background: var(--bg-color); border-radius: 4px; overflow: hidden;">
                         <div id="social-bar-${platform.replace(/\s+/g,'')}" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.2s linear;"></div>
                     </div>
                 `;
@@ -2088,7 +2082,7 @@
                 resContainer.style.paddingTop = '2rem';
                 document.getElementById('social-progress-container').appendChild(resContainer);
             }
-            resContainer.innerHTML = '<h4 style="color: white; margin-bottom: 1.5rem;"><i class="fa-solid fa-bullseye" style="color: #28a745;"></i> Facial Geometry Matches Found</h4>';
+            resContainer.innerHTML = '<h4 style="color: var(--text-dark); margin-bottom: 1.5rem;"><i class="fa-solid fa-bullseye" style="color: #28a745;"></i> Facial Geometry Matches Found</h4>';
             
             // Generate 1-3 mock results randomly
             const hitCount = Math.floor(Math.random() * 3) + 1;
@@ -2119,11 +2113,11 @@
                 card.style.alignItems = 'flex-start';
                 
                 card.innerHTML = `
-                    <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #00e5ff;">
+                    <div style="width: 80px; height: 80px; background: var(--bg-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #00e5ff;">
                         <i class="fa-solid fa-user-astronaut"></i>
                     </div>
                     <div style="flex: 1;">
-                        <h4 style="color: white; margin: 0 0 0.5rem 0;">${handle} <span style="font-size: 0.8rem; background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745; padding: 2px 8px; border-radius: 4px; margin-left: 10px; font-weight: bold;">${(92 + (Math.random() * 7)).toFixed(1)}% Biometric Match</span></h4>
+                        <h4 style="color: var(--text-dark); margin: 0 0 0.5rem 0;">${handle} <span style="font-size: 0.8rem; background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745; padding: 2px 8px; border-radius: 4px; margin-left: 10px; font-weight: bold;">${(92 + (Math.random() * 7)).toFixed(1)}% Biometric Match</span></h4>
                         <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1rem 0;"><i class="fa-brands fa-${icon}" style="color: white; margin-right: 5px;"></i> <strong style="color: #00e5ff;">${platform}</strong> | Status: Active | Last Seen: Today</p>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 6px;">
@@ -2189,7 +2183,7 @@
             
             // Reset Dropzone UI
             dropZone.innerHTML = `<i class="fa-solid fa-file-csv" style="font-size: 3rem; color: var(--text-dark); margin-bottom: 1rem;"></i>
-                                  <h4 style="color: white; margin-bottom: 0.5rem;">Drag & Drop CSV</h4>
+                                  <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">Drag & Drop CSV</h4>
                                   <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">or click to select file from your computer</p>`;
             batchFileInput.value = '';
             validateBatchPurpose();
@@ -2231,16 +2225,26 @@
                             // Update Status Badge
                             const badge = document.getElementById(`status-${prov}`);
                             if (badge) {
-                                if (providerData.is_configured) {
+                                // Store configured state on the element for toggle handler to read
+                                badge.setAttribute('data-configured', providerData.is_configured ? 'true' : 'false');
+                                if (providerData.is_configured && providerData.is_enabled) {
+                                    // API key saved AND toggle is ON → Connected
                                     badge.textContent = "Connected";
                                     badge.style.color = "#28a745";
-                                    badge.style.background = "rgba(40, 167, 69, 0.1)";
-                                    badge.style.border = "1px solid rgba(40, 167, 69, 0.3)";
-                                } else {
-                                    badge.textContent = "Not Configured";
+                                    badge.style.background = "var(--surface-color)";
+                                    badge.style.border = "1px solid rgba(40, 167, 69, 0.5)";
+                                } else if (providerData.is_configured && !providerData.is_enabled) {
+                                    // API key saved but toggle is OFF → show Configured
+                                    badge.textContent = "Configured";
                                     badge.style.color = "var(--text-muted)";
-                                    badge.style.background = "rgba(255,255,255,0.1)";
-                                    badge.style.border = "none";
+                                    badge.style.background = "var(--surface-color)";
+                                    badge.style.border = "1px solid var(--border-color)";
+                                } else {
+                                    // No API key → prompt user to enter one
+                                    badge.textContent = "Enter API Key";
+                                    badge.style.color = "var(--text-muted)";
+                                    badge.style.background = "var(--bg-color)";
+                                    badge.style.border = "1px solid var(--border-color)";
                                 }
                             }
                             
@@ -2265,6 +2269,30 @@
             }
         }
 
+        // Helper: update a single provider's badge without toggling it
+        function updateProviderBadge(provName, isEnabled) {
+            const badge = document.getElementById(`status-${provName}`);
+            if (!badge) return;
+            const hasKey = badge.getAttribute('data-configured') === 'true';
+            if (isEnabled && hasKey) {
+                badge.textContent = 'Connected';
+                badge.style.color = '#28a745';
+                badge.style.background = 'var(--surface-color)';
+                badge.style.border = '1px solid rgba(40, 167, 69, 0.5)';
+            } else if (!isEnabled && hasKey) {
+                badge.textContent = 'Configured';
+                badge.style.color = 'var(--text-muted)';
+                badge.style.background = 'var(--surface-color)';
+                badge.style.border = '1px solid var(--border-color)';
+            } else {
+                // No API key saved — prompt user to enter one
+                badge.textContent = 'Enter API Key';
+                badge.style.color = 'var(--text-muted)';
+                badge.style.background = 'var(--bg-color)';
+                badge.style.border = '1px solid var(--border-color)';
+            }
+        }
+
         async function toggleTrakuProvider(providerName) {
             const toggleEl = document.getElementById(`toggle-${providerName}`);
             const isEnabled = toggleEl.checked;
@@ -2273,13 +2301,45 @@
                 const res = await fetch('/api/v1/traku/providers/toggle', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        provider_name: providerName,
-                        is_enabled: isEnabled
-                    })
+                    body: JSON.stringify({ provider_name: providerName, is_enabled: isEnabled })
                 });
                 
                 if (res.ok) {
+                    // Update the clicked provider's badge
+                    updateProviderBadge(providerName, isEnabled);
+
+                    // --- Mutual Exclusion: Mock vs Real APIs ---
+                    const realProviders = ['abstractapi', 'numverify', 'pipl', 'spokeo', 'usa_people_search', 'enhanced_people'];
+
+                    if (isEnabled && providerName === 'mock') {
+                        // Mock turned ON → turn off all real API providers
+                        for (const other of realProviders) {
+                            const otherEl = document.getElementById(`toggle-${other}`);
+                            if (otherEl && otherEl.checked) {
+                                otherEl.checked = false;
+                                await fetch('/api/v1/traku/providers/toggle', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ provider_name: other, is_enabled: false })
+                                });
+                                updateProviderBadge(other, false);
+                            }
+                        }
+                    } else if (isEnabled && providerName !== 'mock') {
+                        // Real provider turned ON → turn off mock
+                        const mockEl = document.getElementById('toggle-mock');
+                        if (mockEl && mockEl.checked) {
+                            mockEl.checked = false;
+                            await fetch('/api/v1/traku/providers/toggle', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ provider_name: 'mock', is_enabled: false })
+                            });
+                            updateProviderBadge('mock', false);
+                        }
+                    }
+
+                    // Sync enabledProviders list
                     if (isEnabled && !enabledProviders.includes(providerName)) {
                         enabledProviders.push(providerName);
                     } else if (!isEnabled) {
@@ -2885,7 +2945,7 @@
             // Fake file drop
             const fDrop = document.getElementById('drop-zone');
             fDrop.innerHTML = `<i class="fa-solid fa-file-circle-check" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem;"></i>
-                                      <h4 style="color: white; margin-bottom: 0.5rem;">skip_trace_targets_v2.csv</h4>
+                                      <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">skip_trace_targets_v2.csv</h4>
                                       <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">2,450.2 KB Ready to Process</p>`;
             document.getElementById('batch-permissible-purpose').value = 'real_estate';
             document.getElementById('btn-batch-submit').disabled = false;
