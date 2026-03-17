@@ -239,6 +239,8 @@ async def startup_event():
     await init_cameras_db()
     await database.init_stock_db()
     await database.init_traku_db()
+    await database.init_traku_search_history()
+    await database.init_stock_alerts()
 
     # We must NEVER block the startup_event with network fetches, or Railway will kill Uvicorn for failing the 30s healthcheck.
     # Instead, we spin off a background task that safely primes empty databases while the server accepts incoming connections.
@@ -3329,6 +3331,111 @@ async def toggle_provider(toggle: ProviderToggle):
     except Exception as e:
         print(f"Error toggling Traku provider: {e}")
         return JSONResponse({"error": "Failed to toggle provider"}, status_code=500)
+
+
+# ─── Traku Search History API ───────────────────────────────────────
+
+@app.post("/api/v1/traku/search-history")
+async def save_traku_search(request: Request):
+    """Save a completed search and its results."""
+    try:
+        body = await request.json()
+        search_query = json.dumps(body.get("search_query", {}))
+        results = json.dumps(body.get("results", []))
+        result_count = body.get("result_count", 0)
+        await database.save_search_history(search_query, results, result_count)
+        return JSONResponse({"status": "saved"})
+    except Exception as e:
+        print(f"Error saving search history: {e}")
+        return JSONResponse({"error": "Failed to save search history"}, status_code=500)
+
+@app.get("/api/v1/traku/search-history")
+async def get_traku_search_history():
+    """Return the most recent 50 search history entries."""
+    try:
+        history = await database.get_search_history(50)
+        return JSONResponse(history)
+    except Exception as e:
+        print(f"Error fetching search history: {e}")
+        return JSONResponse({"error": "Failed to fetch search history"}, status_code=500)
+
+@app.get("/api/v1/traku/search-history/{search_id}/export")
+async def export_traku_search(search_id: int):
+    """Export a single search's results as a downloadable CSV file."""
+    try:
+        entry = await database.get_search_history_by_id(search_id)
+        if not entry:
+            return JSONResponse({"error": "Search not found"}, status_code=404)
+        
+        results = json.loads(entry["results"]) if isinstance(entry["results"], str) else entry["results"]
+        query = json.loads(entry["search_query"]) if isinstance(entry["search_query"], str) else entry["search_query"]
+        
+        # Build CSV
+        import io, csv
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        if results and len(results) > 0:
+            # Use keys from first result as headers
+            headers = list(results[0].keys())
+            writer.writerow(headers)
+            for row in results:
+                writer.writerow([row.get(h, "") for h in headers])
+        else:
+            writer.writerow(["No results"])
+        
+        csv_content = output.getvalue()
+        query_summary = query.get("first_name", "") + "_" + query.get("last_name", "") if isinstance(query, dict) else "search"
+        filename = f"traku_export_{query_summary}_{search_id}.csv".replace(" ", "_")
+
+        from starlette.responses import Response
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
+    except Exception as e:
+        print(f"Error exporting search: {e}")
+        return JSONResponse({"error": "Failed to export"}, status_code=500)
+
+
+# ─── Stock Monitor Persistent Alerts API ────────────────────────────
+
+@app.post("/api/stock-alerts")
+async def save_alert(request: Request):
+    """Persist a triggered stock alert."""
+    try:
+        body = await request.json()
+        await database.save_stock_alert(
+            body.get("ticker", ""),
+            body.get("strategy_name", ""),
+            body.get("confidence", 0),
+            body.get("price_at_alert", 0)
+        )
+        return JSONResponse({"status": "saved"})
+    except Exception as e:
+        print(f"Error saving stock alert: {e}")
+        return JSONResponse({"error": "Failed to save alert"}, status_code=500)
+
+@app.get("/api/stock-alerts")
+async def get_alerts():
+    """Return the most recent 100 stock alerts."""
+    try:
+        alerts = await database.get_stock_alerts(100)
+        return JSONResponse(alerts)
+    except Exception as e:
+        print(f"Error fetching stock alerts: {e}")
+        return JSONResponse({"error": "Failed to fetch alerts"}, status_code=500)
+
+@app.delete("/api/stock-alerts")
+async def delete_alerts():
+    """Clear all stock alert history."""
+    try:
+        await database.clear_stock_alerts()
+        return JSONResponse({"status": "cleared"})
+    except Exception as e:
+        print(f"Error clearing stock alerts: {e}")
+        return JSONResponse({"error": "Failed to clear alerts"}, status_code=500)
 
 
 # ==========================================
