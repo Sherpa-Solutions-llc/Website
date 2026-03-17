@@ -2848,7 +2848,10 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 const demoVoice = window.speechSynthesis;
 let currentDemoUtterance = null;
 
-// Attach a live listener to the volume slider
+let resolveCurrentSpeech = null;
+let isIntentionalCancel = false;
+let volUpdateTimer;
+
 const volSliderEl = document.getElementById('demo-volume-slider');
 if (volSliderEl) {
     volSliderEl.addEventListener('input', (e) => {
@@ -2857,19 +2860,69 @@ if (volSliderEl) {
             currentDemoUtterance.volume = newVol;
         }
         
-        // If pulled to zero, cancel the current audio
+        // If pulled to zero, cancel the current audio and let script advance
         if (newVol === 0 && demoVoice && demoVoice.speaking) {
             demoVoice.cancel();
+            return;
         }
+
+        // Web Speech API ignores mid-utterance volume updates.
+        // We must re-spool the utterance to apply volume immediately.
+        clearTimeout(volUpdateTimer);
+        volUpdateTimer = setTimeout(() => {
+            if (demoVoice && demoVoice.speaking && currentDemoUtterance && newVol > 0) {
+                isIntentionalCancel = true;
+                demoVoice.cancel();
+                isIntentionalCancel = false;
+                
+                const fullText = currentDemoUtterance.fullText || currentDemoUtterance.text;
+                const newUtterance = new SpeechSynthesisUtterance(fullText);
+                newUtterance.voice = currentDemoUtterance.voice;
+                newUtterance.rate = currentDemoUtterance.rate;
+                newUtterance.pitch = currentDemoUtterance.pitch;
+                newUtterance.volume = newVol;
+                newUtterance.fullText = fullText;
+                
+                const fallbackTimer = setTimeout(() => {
+                    if (resolveCurrentSpeech) {
+                        resolveCurrentSpeech();
+                        resolveCurrentSpeech = null;
+                    }
+                }, fullText.length * 100 + 2000);
+
+                newUtterance.onend = () => {
+                    if (!isIntentionalCancel && resolveCurrentSpeech) {
+                        clearTimeout(fallbackTimer);
+                        resolveCurrentSpeech();
+                        resolveCurrentSpeech = null;
+                    }
+                };
+                newUtterance.onerror = () => {
+                    if (!isIntentionalCancel && resolveCurrentSpeech) {
+                        clearTimeout(fallbackTimer);
+                        resolveCurrentSpeech();
+                        resolveCurrentSpeech = null;
+                    }
+                };
+                
+                currentDemoUtterance = newUtterance;
+                demoVoice.speak(newUtterance);
+            }
+        }, 150);
     });
 }
 
 function speakDemoText(text) {
     if (!isDemoModeActive || !demoVoice) return Promise.resolve();
+    isIntentionalCancel = true;
     demoVoice.cancel(); // Stop talking if already talking
+    isIntentionalCancel = false;
     
     return new Promise(resolve => {
+        resolveCurrentSpeech = resolve;
+        
         currentDemoUtterance = new SpeechSynthesisUtterance(text);
+        currentDemoUtterance.fullText = text;
         
         // Attempt to find a clean, professional English voice
         const voices = demoVoice.getVoices();
@@ -2884,15 +2937,26 @@ function speakDemoText(text) {
         }
         
         // Safety timeout in case speech synthesis engine gets stuck (calc duration approx)
-        const fallbackTimer = setTimeout(() => resolve(), text.length * 100 + 2000);
+        const fallbackTimer = setTimeout(() => {
+            if (resolveCurrentSpeech) {
+                resolveCurrentSpeech();
+                resolveCurrentSpeech = null;
+            }
+        }, text.length * 100 + 2000);
         
         currentDemoUtterance.onend = () => {
-            clearTimeout(fallbackTimer);
-            resolve();
+            if (!isIntentionalCancel && resolveCurrentSpeech) {
+                clearTimeout(fallbackTimer);
+                resolveCurrentSpeech();
+                resolveCurrentSpeech = null;
+            }
         };
         currentDemoUtterance.onerror = () => {
-            clearTimeout(fallbackTimer);
-            resolve();
+            if (!isIntentionalCancel && resolveCurrentSpeech) {
+                clearTimeout(fallbackTimer);
+                resolveCurrentSpeech();
+                resolveCurrentSpeech = null;
+            }
         };
         
         demoVoice.speak(currentDemoUtterance);
