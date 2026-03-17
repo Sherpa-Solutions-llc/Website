@@ -586,11 +586,11 @@
         @media (max-width: 768px) {
             .skip-tracer-container {
                 margin: 2rem auto;
-                padding: 0 1rem;
+                padding: 0 0.5rem;
             }
 
             .search-panel {
-                padding: 1.5rem;
+                padding: 1rem;
             }
 
             .search-header h2 {
@@ -635,30 +635,121 @@
                 gap: 1rem;
             }
 
-            .btn-primary, .btn-secondary, .demo-btn, .audio-toggle-btn {
+            .btn-primary, .btn-secondary {
                 width: 100%;
                 justify-content: center;
                 text-align: center;
             }
+
+            /* Header: compact layout on mobile */
+            header {
+                flex-wrap: wrap;
+                padding: 0.5rem 1rem !important;
+                gap: 0.5rem;
+            }
+
+            .header-actions {
+                gap: 0.4rem !important;
+                flex-wrap: wrap;
+            }
+
+            .audio-toggle-btn,
+            .demo-btn {
+                padding: 0.35rem 0.6rem !important;
+                font-size: 0.7rem !important;
+                gap: 4px !important;
+            }
+
+            .theme-toggle {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.8rem !important;
+            }
+
+            /* View toggle tabs: stack vertically */
+            .view-toggles {
+                flex-direction: column !important;
+                gap: 0 !important;
+            }
+
+            .view-toggles .btn-search {
+                border-radius: 0 !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 0.85rem !important;
+                width: 100%;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+            }
+
+            .view-toggles .btn-search:first-child {
+                border-radius: 8px 8px 0 0 !important;
+            }
+
+            .view-toggles .btn-search:last-child {
+                border-radius: 0 !important;
+                border-bottom: none !important;
+            }
+
+            /* Name inputs: stack vertically */
+            #field-name > div,
+            #field-phone > div {
+                flex-direction: column !important;
+            }
+
+            #field-phone > div select {
+                width: 100% !important;
+            }
+
+            /* Progress grid: single column */
+            #trace-progress-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+
+            /* Dossier results grid: single column on mobile */
+            #main-dossier-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Dossier card internal rows: stack label above value */
+            #trace-results-dossier div[style*="justify-content:space-between"] {
+                flex-direction: column !important;
+                gap: 2px !important;
+            }
+
+            #trace-results-dossier div[style*="justify-content:space-between"] > span {
+                text-align: left !important;
+                flex: unset !important;
+            }
+
+            /* Completion badge: allow text wrapping */
+            #trace-complete-badge span {
+                white-space: normal !important;
+                line-height: 1.4;
+            }
+
+            /* Tab content padding */
+            .tab-content-container {
+                padding: 1rem !important;
+            }
             
             .nav-links {
                 flex-direction: column;
-                display: none; /* Hide by default on mobile unless toggled */
+                left: -100%;
                 width: 100%;
                 background: var(--surface-color);
-                position: absolute;
+                position: fixed;
                 top: 70px;
-                left: 0;
+                height: calc(100vh - 70px);
                 padding: 1rem;
                 z-index: 1000;
+                transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
             
             .nav-links.active {
-                display: flex;
+                left: 0;
             }
             
             .menu-toggle {
-                display: block; /* Ensure hamburger menu is visible */
+                display: block;
             }
             
             .tab-container {
@@ -676,6 +767,40 @@
             .tab-btn.active {
                 border-left-color: var(--accent);
                 background: rgba(255,255,255,0.05);
+            }
+
+            /* Person card stats: stack on mobile */
+            .person-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stat-group {
+                min-width: unset;
+            }
+
+            /* Page header title sizing */
+            .page-header h1 {
+                font-size: 1.8rem !important;
+            }
+
+            .page-header p {
+                font-size: 0.85rem !important;
+                padding: 0 0.5rem;
+            }
+
+            /* DL / Bank fields: stack */
+            #field-dl > div,
+            #field-bank .bank-input-row,
+            #field-plate > div {
+                flex-direction: column !important;
+            }
+
+            /* Bottom hints: stack */
+            .search-btn-container + div {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+                align-items: center;
             }
         }
     </style>
@@ -1538,7 +1663,7 @@
         }
 
         // --- New Search Results Progress Engine ---
-        function executeDetailedTrace() {
+        function executeDetailedTrace(searchPayload) {
             const btn = document.getElementById('btn-execute-trace');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Establishing Relays...';
@@ -1560,23 +1685,22 @@
             const otherProviders = enabledProviders.filter(p => !socialProviders.includes(p));
 
             const progressState = [];
-            window.simulatedHits = {}; // Object to hold randomized hit counts
+            window.simulatedHits = {};
 
             // Factory for bars
             function buildBar(sourceName, container, iconClass) {
                 const idSafe = sourceName.replace(/\s+/g,'_').replace(/\//g,'');
-                const max = Math.floor(Math.random() * (5000000 - 1000000 + 1) + 1000000); // Max progress value
+                const max = Math.floor(Math.random() * (5000000 - 1000000 + 1) + 1000000);
                 
-                // Simulate hits logic
                 let hits = 0;
                 if (sourceName.includes('Facebook') || sourceName.includes('Twitter') || sourceName.includes('Instagram') || sourceName.includes('Snap Chat') || sourceName.includes('LinkedIn')) {
-                    hits = Math.floor(Math.random() * 3); // 0-2 hits for social
+                    hits = Math.floor(Math.random() * 3);
                 } else if (sourceName.includes('WhitePages') || sourceName.includes('LexisNexis') || sourceName.includes('DMV')) {
-                    hits = Math.floor(Math.random() * 5); // 0-4 hits for public records
+                    hits = Math.floor(Math.random() * 5);
                 } else {
-                    hits = Math.floor(Math.random() * 2); // 0-1 for others
+                    hits = Math.floor(Math.random() * 2);
                 }
-                window.simulatedHits[sourceName] = hits; // Store hits globally
+                window.simulatedHits[sourceName] = hits;
 
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `
@@ -1589,7 +1713,6 @@
                         <div id="bar-${idSafe}" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.3s ease-out;"></div>
                     </div>
                     <div id="results-box-${idSafe}" style="display: none; padding: 12px; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 0.85rem;">
-                        <!-- Data injected here -->
                     </div>
                 `;
                 container.appendChild(wrapper);
@@ -1604,13 +1727,13 @@
                     hitsEl: wrapper.querySelector(`#hits-${idSafe}`),
                     resultsBoxEl: wrapper.querySelector(`#results-box-${idSafe}`),
                     barWrapEl: wrapper.querySelector(`#bar-wrap-${idSafe}`),
-                    simulatedHits: hits // Store the simulated hits directly in the progress state
+                    simulatedHits: hits
                 });
             }
 
             // Populate progress bars based on enabled providers
             socialProviders.forEach(p => {
-                let icon = 'fa-solid fa-users-viewfinder'; // Default
+                let icon = 'fa-solid fa-users-viewfinder';
                 if (p.includes('Facebook')) icon = 'fa-brands fa-facebook';
                 else if (p.includes('Twitter') || p.includes('X')) icon = 'fa-brands fa-x-twitter';
                 else if (p.includes('Instagram')) icon = 'fa-brands fa-instagram';
@@ -1620,7 +1743,7 @@
             });
 
             otherProviders.forEach(p => {
-                let icon = 'fa-solid fa-server'; // Default
+                let icon = 'fa-solid fa-server';
                 if (p.includes('WhitePages') || p.includes('Spokeo')) icon = 'fa-solid fa-address-book';
                 else if (p.includes('Google')) icon = 'fa-brands fa-google';
                 else if (p.includes('DMV')) icon = 'fa-solid fa-car';
@@ -1636,14 +1759,46 @@
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Extracting Intelligence...';
 
-            let scanInterval = setInterval(() => {
+            // --- REAL API CALL: fire in parallel with progress animation ---
+            let apiResults = [];
+            const apiPromise = (async () => {
+                try {
+                    const queryPromises = [];
+                    for (const provider of enabledProviders) {
+                        const params = new URLSearchParams();
+                        for (const [key, value] of Object.entries(searchPayload || {})) {
+                            params.append(key, value);
+                        }
+                        queryPromises.push(fetchEndpoint('omni', params, provider));
+                    }
+                    const resultsArray = await Promise.all(queryPromises);
+                    const allPeople = [];
+                    const seenIds = new Set();
+                    resultsArray.forEach(group => {
+                        if (Array.isArray(group)) {
+                            group.forEach(person => {
+                                const id = person["Person ID"];
+                                if (id && !seenIds.has(id)) {
+                                    seenIds.add(id);
+                                    allPeople.push(person);
+                                }
+                            });
+                        }
+                    });
+                    apiResults = allPeople;
+                } catch (err) {
+                    console.error("API Trace Error:", err);
+                    apiResults = [];
+                }
+            })();
+
+            // --- Progress animation ---
+            let scanInterval = setInterval(async () => {
                 let allDone = true;
 
                 progressState.forEach(p => {
                     if (p.current < p.max) {
                         allDone = false;
-                        
-                        // Increment random bump between 2% and 15%
                         let advance = Math.floor(p.max * (Math.random() * 0.13 + 0.02));
                         p.current += advance;
                         if (p.current > p.max) p.current = p.max;
@@ -1652,16 +1807,12 @@
                         p.barEl.style.width = pct + '%';
 
                         if (p.current === p.max && !p.completedMarker) {
-                            p.completedMarker = true; // ensure we only trip this once
+                            p.completedMarker = true;
                             p.barEl.style.background = '#28a745';
                             p.statusEl.style.color = '#28a745';
                             p.statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Completed';
-                            
-                            // Use the pre-simulated hits
                             const hits = p.simulatedHits;
                             p.hitsEl.innerHTML = `<span style="color: ${hits > 0 ? '#00e5ff' : 'var(--text-muted)'}; font-weight: ${hits > 0 ? 'bold' : 'normal'};">Results: ${hits}</span>`;
-                            
-                            // The detailed results are now rendered in renderSocialDataCards
                         } else if (!p.completedMarker) {
                             p.statusEl.innerText = pct + '%';
                             if (pct > 5) {
@@ -1673,12 +1824,16 @@
 
                 if (allDone) {
                     clearInterval(scanInterval);
+                    
+                    // Wait for real API to finish too
+                    await apiPromise;
+                    
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Search';
                     document.getElementById('trace-complete-badge').style.display = 'block';
                     
-                    // Render the Dossier HTML
-                    renderDossier();
+                    // Render the Dossier using REAL API data
+                    renderDossier(apiResults, searchPayload);
                 }
 
             }, 400);
@@ -1751,17 +1906,9 @@
             return html;
         }
 
-        function renderDossier() {
+        function renderDossier(apiResults, searchPayload) {
             const dossier = document.getElementById('trace-results-dossier');
 
-            function isVisible(id) {
-                const el = document.getElementById(id);
-                return el && el.classList.contains('visible');
-            }
-            function val(id) {
-                const el = document.getElementById(id);
-                return el ? el.value.trim() : '';
-            }
             function section(icon, title, color, searched, rows) {
                 const rowsHtml = rows.map(([label, value]) => `
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
@@ -1770,7 +1917,7 @@
                     </div>`).join('');
                 const searchedHtml = searched ? `<div style="background:rgba(255,255,255,0.04);border-radius:4px;padding:6px 12px;margin-bottom:1rem;font-size:0.8rem;color:var(--text-muted);">Searched: <span style="color:${color};font-family:monospace;font-weight:600;">${searched}</span></div>` : '';
                 return `
-                    <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-top:2px solid ${color};border-radius:8px;padding:1.4rem;margin-bottom:0;">
+                    <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-top:2px solid ${color};border-radius:8px;padding:1.4rem;margin-bottom:0;" class="person-card">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
                             <h4 style="color:white;margin:0;font-size:0.95rem;display:flex;align-items:center;gap:8px;">
                                 <i class="${icon}" style="color:${color};width:18px;"></i> ${title}
@@ -1783,172 +1930,45 @@
             }
 
             let sections = [];
+            const searchedText = Object.values(searchPayload).join(' | ');
 
-            // NAME
-            if (isVisible('field-name')) {
-                const fn = val('input-fname'), ln = val('input-lname');
-                const sv = [fn, ln].filter(Boolean).join(' ') || 'N/A';
-                sections.push(section('fa-solid fa-id-card', 'Name Results', '#C06C3B', sv, [
-                    ['Full Legal Name', 'Johnathan R. Doe'],
-                    ['Date of Birth', '11/14/1985 &nbsp;<span style="color:var(--text-muted);font-weight:400;">(Age 39)</span>'],
-                    ['Status', '<span style="color:#28a745;background:rgba(40,167,69,0.15);padding:1px 8px;border-radius:4px;font-size:0.82rem;">Alive / Active</span>'],
-                    ['Current Address', '1492 Elm Street, Dallas TX 75201'],
-                    ['Phone (Primary)', '(555) 019-2834'],
-                    ['Phone (Secondary)', '(555) 882-1923'],
-                    ['Email on File', '<span style="color:#00e5ff;">j.doe.tx@gmail.com</span>'],
-                ]));
-            }
-
-            // PHONE
-            if (isVisible('field-phone')) {
-                const code = val('input-phone-code'), ph = val('input-phone');
-                const sv = ph ? `${code} ${ph}` : 'N/A';
-                sections.push(section('fa-solid fa-phone', 'Phone Results', '#00e5ff', sv, [
-                    ['Registered Owner', 'Johnathan R. Doe'],
-                    ['Carrier', 'AT&amp;T Mobility'],
-                    ['Line Type', 'Mobile — Postpaid'],
-                    ['Status', '<span style="color:#28a745;">Active</span>'],
-                    ['CNAM', 'J DOE'],
-                    ['Linked Address', '1492 Elm Street, Dallas TX 75201'],
-                    ['Ported', 'No'],
-                ]));
-            }
-
-            // EMAIL
-            if (isVisible('field-email')) {
-                const em = val('input-email') || 'N/A';
-                sections.push(section('fa-solid fa-envelope', 'Email Results', '#a78bfa', em, [
-                    ['Registered Name', 'Johnathan Doe'],
-                    ['Provider', 'Google (Gmail)'],
-                    ['Account Created', 'March 2012'],
-                    ['Breach Exposure', '<span style="color:#e74c3c;">3 Known Breaches</span>'],
-                    ['Breaches', '<span style="color:#e74c3c;font-size:0.82rem;">LinkedIn (2021), Equifax (2019), Adobe (2013)</span>'],
-                    ['Linked Phone', '(555) 019-2834'],
-                    ['Last Login IP', '<span style="color:#00e5ff;font-family:monospace;">192.168.10.45</span> &nbsp;(Dallas, TX)'],
-                ]));
-            }
-
-            // ADDRESS
-            if (isVisible('field-address')) {
-                const addr = val('input-address') || 'N/A';
-                sections.push(section('fa-solid fa-location-dot', 'Address Results', '#f59e0b', addr, [
-                    ['Current Resident', 'Johnathan R. Doe'],
-                    ['Co-Resident', 'Jane Sylvia Doe (Spouse)'],
-                    ['Resident Since', '2018'],
-                    ['Property Type', 'Single Family Residential'],
-                    ['Estimated Value', '$450,000'],
-                    ['Previous Resident', 'Mark T. Sullivan (2014–2018)'],
-                    ['Status', '<span style="color:#28a745;">Owner Occupied</span>'],
-                ]));
-            }
-
-            // SSN
-            if (isVisible('field-ssn')) {
-                const ssn = val('input-ssn');
-                const masked = ssn.length > 4 ? 'XXX-XX-' + ssn.slice(-4) : (ssn || 'Provided');
-                sections.push(section('fa-solid fa-shield-halved', 'SSN Results', '#e74c3c', masked, [
-                    ['Full Name Match', 'Johnathan R. Doe'],
-                    ['Date of Birth', '11/14/1985'],
-                    ['Issued State', 'Texas'],
-                    ['Issue Date', 'Est. 2001–2003'],
-                    ['Current Address', '1492 Elm Street, Dallas TX 75201'],
-                    ['Credit Header', '<span style="color:#28a745;">Active — Clean</span>'],
-                    ['Fraud Flag', '<span style="color:#28a745;">None Detected</span>'],
-                ]));
-            }
-
-            // DRIVER'S LICENSE
-            if (isVisible('field-dl')) {
-                const st = val('input-dl-state'), dlNum = val('input-dl');
-                const sv = [st, dlNum].filter(Boolean).join(' / ') || 'Provided';
-                sections.push(section('fa-solid fa-id-badge', "Driver's License Results", '#f97316', sv, [
-                    ['Registered Name', 'Johnathan R. Doe'],
-                    ['Date of Birth', '11/14/1985'],
-                    ['License Class', 'Class C (Standard)'],
-                    ['Expiration', '11/14/2027'],
-                    ['Status', '<span style="color:#28a745;">Valid</span>'],
-                    ['Restrictions', 'None'],
-                    ['Linked Vehicle', '2021 Toyota Tacoma — TX MJR-9382'],
-                ]));
-            }
-
-            // BANK
-            if (isVisible('field-bank')) {
-                sections.push(section('fa-solid fa-building-columns', 'Bank Results', '#10b981', 'Bank Account Inputs', [
-                    ['Account Holder', 'Johnathan R. Doe'],
-                    ['Institution', 'Wells Fargo Bank, N.A.'],
-                    ['Account Type', 'Checking — Personal'],
-                    ['Linked Address', '1492 Elm Street, Dallas TX 75201'],
-                    ['Account Status', '<span style="color:#28a745;">Active</span>'],
-                    ['Last Activity', 'March 14, 2026'],
-                    ['Flags', '<span style="color:#28a745;">None</span>'],
-                ]));
-            }
-
-            // CREDIT CARD
-            if (isVisible('field-cc')) {
-                sections.push(section('fa-solid fa-credit-card', 'Credit Card Results', '#6366f1', 'Card Inputs', [
-                    ['Cardholder Name', 'Johnathan R. Doe'],
-                    ['Card Network', 'Visa'],
-                    ['Issuing Bank', 'Chase Bank'],
-                    ['Billing Address', '1492 Elm Street, Dallas TX 75201'],
-                    ['Card Status', '<span style="color:#28a745;">Active</span>'],
-                    ['Last POS', 'Starbucks #1492 — Austin, TX'],
-                    ['Last Transaction', '<span style="color:#C06C3B;">Yesterday, 14:32 CST</span>'],
-                ]));
-            }
-
-            // IP ADDRESS
-            if (isVisible('field-ip')) {
-                const ip = val('input-ip') || 'N/A';
-                sections.push(section('fa-solid fa-network-wired', 'IP Address Results', '#22d3ee', ip, [
-                    ['City / Region', 'Dallas, Texas — United States'],
-                    ['ISP', 'AT&amp;T Internet Services'],
-                    ['Organization', 'AT&amp;T Corp'],
-                    ['Connection Type', 'Broadband / Cable'],
-                    ['Approx. Coordinates', '32.7767° N, 96.7970° W'],
-                    ['Reverse DNS', '<span style="font-family:monospace;font-size:0.8rem;color:#22d3ee;">pool-219-109-12.dllstx.att.net</span>'],
-                    ['Blacklist Status', '<span style="color:#28a745;">Clean</span>'],
-                ]));
-            }
-
-            // LICENSE PLATE
-            if (isVisible('field-plate')) {
-                const st = val('input-plate-state'), pl = val('input-plate');
-                const sv = [st, pl].filter(Boolean).join(' — ') || 'Provided';
-                sections.push(section('fa-solid fa-car', 'License Plate Results', '#84cc16', sv, [
-                    ['Registered Owner', 'Johnathan R. Doe'],
-                    ['Make / Model', '2021 Toyota Tacoma TRD Pro'],
-                    ['Color', 'Midnight Black'],
-                    ['VIN (Partial)', '<span style="font-family:monospace;">4TAZM5CN*********</span>'],
-                    ['Registration Status', '<span style="color:#28a745;">Active</span>'],
-                    ['Expiration', 'December 2026'],
-                    ['Registered Address', '1492 Elm Street, Dallas TX 75201'],
-                ]));
-            }
-
-            // SOCIAL MEDIA
-            if (isVisible('field-socialMedia')) {
-                const handle = val('social-nickname') || 'N/A';
-                const checked = Array.from(document.querySelectorAll('.social-checkbox:checked')).map(b => b.value);
-                const platforms = checked.length > 0 ? checked.join(', ') : 'All Platforms';
-                sections.push(section('fa-solid fa-users-viewfinder', 'Social Media Results', '#ec4899', handle, [
-                    ['Handle / Alias', `<span style="font-family:monospace;color:#ec4899;">${handle}</span>`],
-                    ['Platforms Scanned', platforms],
-                    ['Real Name (LinkedIn)', 'Johnathan Doe — Senior Engineer, Tech Innovators Inc.'],
-                    ['X (Twitter)', '@jdoe_tx &nbsp;<span style="color:var(--text-muted);font-weight:400;">1.2k followers</span>'],
-                    ['Facebook', 'Johnathan Doe — Dallas, TX'],
-                    ['Instagram', '@jdoe.spectre &nbsp;<span style="color:var(--text-muted);font-weight:400;">(Private)</span>'],
-                    ['Linked Email', '<span style="color:#00e5ff;">j.doe.tx@gmail.com</span>'],
-                ]));
-            }
-
-            // Fallback
-            if (sections.length === 0) {
+            if (!apiResults || apiResults.length === 0) {
                 sections.push(`<div style="text-align:center;padding:3rem;color:var(--text-muted);grid-column:1/-1;">
                     <i class="fa-solid fa-ghost" style="font-size:2.5rem;margin-bottom:1rem;opacity:0.4;display:block;"></i>
-                    <p>No data fields were active. Enable fields on the Target Profile tab and search again.</p>
+                    <p>No digital footprint discovered for these parameters.</p>
+                    <p style="font-size: 0.9rem;">Try adjusting the search criteria or broadening the operational scope.</p>
                 </div>`);
+            } else {
+                apiResults.forEach((person, index) => {
+                    // MAIN IDENTITY
+                    let identityRows = [
+                        ['Full Name', person.Name || 'Unknown'],
+                        ['Age', person.Age || 'Unknown'],
+                        ['Location', person["Lives in"] || 'Unknown'],
+                        ['Previous', person["Used to live in"] || 'None on file'],
+                        ['Relatives/Associates', person["Related to"] || 'None found']
+                    ];
+                    sections.push(section('fa-solid fa-id-card', `Identity Match #${index + 1}`, '#C06C3B', searchedText, identityRows));
+
+                    // PHONES
+                    if (person.Phones && person.Phones.length > 0) {
+                        let phoneRows = person.Phones.map((p, i) => {
+                            let statusHtml = p.status === 'Active' ? '<span style="color:#28a745;">Active</span>' : '<span style="color:#e74c3c;">Disconnected</span>';
+                            let litHtml = p.is_litigator ? '<span style="color:#e74c3c;font-size:0.7rem;margin-left:5px;">[LITIGATOR]</span>' : '';
+                            return [`Phone ${i+1}`, `${p.number} ${statusHtml} ${litHtml}`];
+                        });
+                        sections.push(section('fa-solid fa-phone', `Telephony Records #${index + 1}`, '#00e5ff', '', phoneRows));
+                    }
+
+                    // EMAILS
+                    if (person.Emails && person.Emails.length > 0) {
+                        let emailRows = person.Emails.map((e, i) => {
+                            let style = e.email.includes('FLAG:') ? 'color:#e74c3c;font-weight:bold;' : 'color:#00e5ff;';
+                            return [`Email ${i+1}`, `<span style="${style}">${e.email}</span>`];
+                        });
+                        sections.push(section('fa-solid fa-envelope', `Digital Fingerprint #${index + 1}`, '#a78bfa', '', emailRows));
+                    }
+                });
             }
 
             dossier.innerHTML = `
@@ -2530,174 +2550,14 @@
                 return;
             }
 
-            // Navigate to search results tab and run the trace there
+            // Navigate to search results tab and run the trace with real API data
             switchView('results');
-            executeDetailedTrace();
-            return;
+            executeDetailedTrace(searchPayload);
 
-            const originalBtnHtml = submitBtn.innerHTML;
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-            
-            document.getElementById('results-panel').style.display = 'none';
-            document.getElementById('loading-spinner').style.display = 'block';
-
-            try {
-                if (enabledProviders.length === 0) {
-                    throw new Error("No Data Providers are currently enabled. Please enable at least one in the Data Sources Tab.");
-                }
-
-                const queryPromises = [];
-
-                // Spin up concurrent requests for each enabled provider
-                for (const provider of enabledProviders) {
-                    const params = new URLSearchParams();
-                    
-                    // Push all active fields to query
-                    for (const [key, value] of Object.entries(searchPayload)) {
-                        params.append(key, value);
-                    }
-                    
-                    queryPromises.push(fetchEndpoint('omni', params, provider));
-                }
-
-                const resultsArray = await Promise.all(queryPromises);
-                
-                // Aggregate deduplicated results
-                const allPeople = [];
-                const seenIds = new Set();
-                
-                resultsArray.forEach(group => {
-                    group.forEach(person => {
-                        const id = person["Person ID"];
-                        if (id && !seenIds.has(id)) {
-                            seenIds.add(id);
-                            allPeople.push(person);
-                        }
-                    });
-                });
-
-                renderResults(allPeople);
-
-            } catch (err) {
-                console.error("Trace Error:", err);
-                showError(err.message || 'Failed to communicate with intelligence servers.');
-                document.getElementById('results-panel').style.display = 'none';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
-                document.getElementById('loading-spinner').style.display = 'none';
-            }
         }
 
-        function renderResults(people) {
-            const container = document.getElementById('results-container');
-            container.innerHTML = '';
-            
-            document.getElementById('results-count').innerHTML = `<i class="fa-solid fa-bullseye" style="margin-right:5px; color:#C06C3B;"></i> ${people.length} Hits Found`;
-            document.getElementById('results-panel').style.display = 'block';
-
-            if (people.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
-                        <i class="fa-solid fa-ghost" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <p style="font-size: 1.1rem;">No digital footprint discovered for these parameters.</p>
-                        <p style="font-size: 0.9rem;">Try adjusting the search criteria or broadening the operational scope.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            people.forEach(person => {
-                const card = document.createElement('div');
-                card.className = 'person-card';
-                
-                // Format associated states/cities nicely
-                const locations = person["Used to live in"] ? person["Used to live in"].split(', ').join('<br>') : 'Unknown';
-                const relatives = person["Related to"] ? person["Related to"].split(', ').join('<br>') : 'No known associates';
-
-                // Parse New Architecture Arrays or Fallback
-                let phoneHtml = '';
-                if (person.Phones && Array.isArray(person.Phones)) {
-                    phoneHtml = person.Phones.map(p => {
-                        let confColor = p.confidence >= 80 ? '#28a745' : (p.confidence >= 50 ? '#ffc107' : '#dc3545');
-                        let statusBadge = '';
-                        if (p.status === 'Disconnected') statusBadge = '<span style="background: rgba(220,53,69,0.2); color: #dc3545; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; border: 1px solid #dc3545;">Disconnected</span>';
-                        if (p.is_litigator) statusBadge += '<span style="background: rgba(255,193,7,0.2); color: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; border: 1px solid #ffc107;"><i class="fa-solid fa-scale-balanced"></i> Litigator</span>';
-                        
-                        return `<div style="margin-bottom: 5px; display: flex; align-items: center; flex-wrap: wrap;">
-                                    <span style="font-family: monospace; font-size: 1rem;">${p.number}</span>
-                                    <span style="background: ${confColor}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 10px; font-weight: bold;">${p.confidence}%</span>
-                                    ${statusBadge}
-                                </div>`;
-                    }).join('');
-                } else {
-                    phoneHtml = '<span style="color: var(--text-muted); font-size: 0.9rem;">No telecom data found.</span>';
-                }
-
-                let emailHtml = '';
-                if (person.Emails && Array.isArray(person.Emails)) {
-                    emailHtml = person.Emails.map(e => {
-                        let confColor = e.confidence >= 80 ? '#28a745' : (e.confidence >= 50 ? '#ffc107' : '#dc3545');
-                        return `<div style="margin-bottom: 5px; display: flex; align-items: center; flex-wrap: wrap;">
-                                    <span style="font-size: 0.95rem;">${e.email}</span>
-                                    <span style="background: ${confColor}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 10px; font-weight: bold;">${e.confidence}%</span>
-                                </div>`;
-                    }).join('');
-                } else {
-                    emailHtml = '<span style="color: var(--text-muted); font-size: 0.9rem;">No digital footprint found.</span>';
-                }
-
-                card.innerHTML = `
-                    <div class="person-header">
-                        <div>
-                            <h4 class="person-name">${person.Name || 'Unknown Identity'} <i class="fa-solid fa-circle-check" style="color: #28a745; font-size: 1rem; margin-left: 5px;" title="Identity Resolved"></i></h4>
-                            <p class="person-age">Age: <span style="color:var(--text-dark);">${person.Age || 'N/A'}</span> &nbsp;|&nbsp; ID: <span style="font-family:monospace; color:var(--text-dark);">${person["Person ID"] || 'N/A'}</span></p>
-                        </div>
-                        <a href="${person.Link || '#'}" target="_blank" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size:0.9rem;">
-                            View Source <i class="fa-solid fa-external-link-alt" style="margin-left:5px;"></i>
-                        </a>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
-                        <!-- Telecom & Comms -->
-                        <div class="stat-group">
-                            <div class="stat-label"><i class="fa-solid fa-phone" style="margin-right:5px; color:#C06C3B;"></i> Contact Intelligence</div>
-                            <div class="stat-value" style="margin-top: 10px;">
-                                ${phoneHtml}
-                            </div>
-                        </div>
-
-                        <!-- Emails -->
-                        <div class="stat-group">
-                            <div class="stat-label"><i class="fa-solid fa-envelope" style="margin-right:5px; color:#C06C3B;"></i> Digital Footprint</div>
-                            <div class="stat-value" style="margin-top: 10px;">
-                                ${emailHtml}
-                            </div>
-                        </div>
-
-                        <!-- Addresses -->
-                        <div class="stat-group">
-                            <div class="stat-label"><i class="fa-solid fa-location-dot" style="margin-right:5px; color:#C06C3B;"></i> Location History</div>
-                            <div class="stat-value" style="font-size:0.9rem; margin-top: 10px;">
-                                <div style="margin-bottom: 8px;"><strong>Current:</strong> ${person["Lives in"] || 'Unknown'}</div>
-                                <div style="color: var(--text-muted);">${locations}</div>
-                            </div>
-                        </div>
-
-                        <!-- Network Map -->
-                        <div class="stat-group">
-                            <div class="stat-label"><i class="fa-solid fa-users" style="margin-right:5px; color:#C06C3B;"></i> Known Associates & Relatives</div>
-                            <div class="stat-value" style="font-size:0.9rem; margin-top: 10px; padding-left: 10px; border-left: 2px solid rgba(192, 108, 59, 0.5);">
-                                ${relatives}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+        // The UI now uses executeDetailedTrace + renderDossier for rendering.
+        // We removed the old renderResults function as its functionality is superseded.
 
         function renderSocialDataCards(simulatedHits) {
             // Find the main dossier grid. If not present (e.g., search failed), do nothing.
