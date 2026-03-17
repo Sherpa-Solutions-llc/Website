@@ -734,20 +734,37 @@ html {
         font-size: 0.8rem;
     }
 
-    /* Target lock panel: full width at top */
+    /* Target lock panel: scaled down heavily for mobile to not consume screen space */
     .panel-right {
-        right: 0;
-        left: 0;
-        top: 55px;
-        width: 100%;
-        max-height: 60vh;
-        border-radius: 0 0 8px 8px;
+        right: 5%;
+        left: 5%;
+        top: 65px;
+        width: 90%;
+        max-height: 45vh;
+        border-radius: 8px;
         overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.8);
     }
 
-    /* Video iframes in CCTV panel: shorter on mobile */
-    .panel-right iframe {
-        height: 140px !important;
+    /* Override the JS inline table styles dynamically injected from live_earth.js */
+    .panel-right .panel-title {
+        font-size: 0.85rem !important;
+        padding: 8px 10px !important;
+    }
+
+    .panel-right td {
+        padding: 4px 0 !important;
+        font-size: 0.8rem !important;
+    }
+
+    .panel-right td span {
+        font-size: 0.6rem !important;
+    }
+
+    /* Video iframes & CCTV feeds in panel: much shorter on mobile */
+    .panel-right iframe, .panel-right img, .panel-right video {
+        height: 110px !important;
+        min-height: 110px !important;
     }
 
     /* Settings Modal: full width, constrained height, scrollable */
