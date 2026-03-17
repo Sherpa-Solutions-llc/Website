@@ -349,3 +349,92 @@ async def increment_traku_provider_usage(provider_name: str):
             WHERE provider_name = ?
         ''', (provider_name,))
         await db.commit()
+
+
+# ─── Traku Search History ───────────────────────────────────────────
+
+async def init_traku_search_history():
+    """Create the search history table if it doesn't exist."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS traku_search_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                search_query TEXT NOT NULL,
+                results TEXT NOT NULL,
+                result_count INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        await db.commit()
+
+async def save_search_history(search_query: str, results: str, result_count: int):
+    """Persist a completed Traku search and its results (both stored as JSON strings)."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        await db.execute('''
+            INSERT INTO traku_search_history (search_query, results, result_count)
+            VALUES (?, ?, ?)
+        ''', (search_query, results, result_count))
+        await db.commit()
+
+async def get_search_history(limit: int = 50):
+    """Return the most recent search history entries."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            'SELECT * FROM traku_search_history ORDER BY created_at DESC LIMIT ?', (limit,)
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [dict(row) for row in rows]
+
+async def get_search_history_by_id(search_id: int):
+    """Return a single search history entry by ID."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            'SELECT * FROM traku_search_history WHERE id = ?', (search_id,)
+        ) as cursor:
+            row = await cursor.fetchone()
+            return dict(row) if row else None
+
+
+# ─── Stock Monitor Persistent Alerts ────────────────────────────────
+
+async def init_stock_alerts():
+    """Create the stock alerts table if it doesn't exist."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS stock_alerts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticker TEXT NOT NULL,
+                strategy_name TEXT NOT NULL,
+                confidence REAL DEFAULT 0,
+                price_at_alert REAL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        await db.commit()
+
+async def save_stock_alert(ticker: str, strategy_name: str, confidence: float, price_at_alert: float):
+    """Persist a triggered stock alert from the analytics engine."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        await db.execute('''
+            INSERT INTO stock_alerts (ticker, strategy_name, confidence, price_at_alert)
+            VALUES (?, ?, ?, ?)
+        ''', (ticker, strategy_name, confidence, price_at_alert))
+        await db.commit()
+
+async def get_stock_alerts(limit: int = 100):
+    """Return the most recent stock alerts."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            'SELECT * FROM stock_alerts ORDER BY created_at DESC LIMIT ?', (limit,)
+        ) as cursor:
+            rows = await cursor.fetchall()
+            return [dict(row) for row in rows]
+
+async def clear_stock_alerts():
+    """Delete all stock alerts."""
+    async with aiosqlite.connect(TRAKU_DB) as db:
+        await db.execute('DELETE FROM stock_alerts')
+        await db.commit()
