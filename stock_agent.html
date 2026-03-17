@@ -900,6 +900,20 @@
                     <h3 style="color: var(--text-muted);">Awaiting Execution</h3>
                     <p style="color: var(--text-muted);">Ensure a Strategy is toggled ON and you have Stocks to Watch, then Run Evaluation.</p>
                 </div>
+
+                <!-- Alert History Panel -->
+                <div id="alert-history-panel" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem;"><i class="fa-solid fa-bell" style="color: var(--accent-cyan); margin-right: 8px;"></i>Alert History</h3>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span id="alert-history-count" style="color: var(--text-muted); font-size: 0.85rem;"></span>
+                            <button class="btn-refresh" onclick="clearAlertHistory()" style="font-size: 0.8rem;"><i class="fa-solid fa-trash"></i> Clear</button>
+                        </div>
+                    </div>
+                    <div id="alert-history-container">
+                        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">No alerts yet. Analytics hits will appear here and persist across sessions.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Strategies Tab -->
@@ -1967,6 +1981,18 @@
                     stratDisplay = passedStrats.join(', ');
                     confDisplay = highestConf + '%';
                     
+                    // Persist the alert to database
+                    fetch(API_BASE + '/api/stock-alerts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ticker: ticker,
+                            strategy_name: passedStrats.join(', '),
+                            confidence: highestConf,
+                            price_at_alert: 0  // simulated, no real price
+                        })
+                    }).catch(e => console.warn('Alert save failed:', e));
+                    
                     // Note: Passed combo string to executeTrade
                     actionBtn = `<button class="btn-scan" onclick="executeTrade('${ticker}', '${stratDisplay}')"><i class="fa-solid fa-bolt"></i> Execute Trade</button>`;
                 } else {
@@ -2015,6 +2041,69 @@
             logToTerminal(`Trade Execution Sent: [BUY] ${ticker} via ${strategyName} parameters.`, "success");
             alert(`API Order Submitted for ${ticker} using ${strategyName} 🚀`);
         }
+
+        // ─── Alert History Persistence ──────────────────────────────
+
+        async function loadAlertHistory() {
+            const container = document.getElementById('alert-history-container');
+            const countEl = document.getElementById('alert-history-count');
+            if (!container) return;
+
+            try {
+                const res = await fetch(API_BASE + '/api/stock-alerts');
+                if (!res.ok) return;
+                const alerts = await res.json();
+
+                if (!alerts || alerts.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No alerts yet. Analytics hits will appear here and persist across sessions.</p>';
+                    countEl.textContent = '';
+                    return;
+                }
+
+                countEl.textContent = `${alerts.length} alerts`;
+                container.innerHTML = `
+                    <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Strategy</th>
+                                <th>Confidence</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alert-history-tbody"></tbody>
+                    </table>
+                    </div>`;
+
+                const tbody = document.getElementById('alert-history-tbody');
+                alerts.forEach(a => {
+                    const date = new Date(a.created_at).toLocaleString();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ticker-symbol">${a.ticker}</td>
+                            <td>${a.strategy_name}</td>
+                            <td style="color: var(--accent-green); font-weight: bold;">${a.confidence}%</td>
+                            <td style="color: var(--text-muted); font-size: 0.85rem;">${date}</td>
+                        </tr>`;
+                });
+            } catch (err) {
+                console.warn('Failed to load alert history:', err);
+            }
+        }
+
+        async function clearAlertHistory() {
+            try {
+                await fetch(API_BASE + '/api/stock-alerts', { method: 'DELETE' });
+                loadAlertHistory();
+                logToTerminal('Alert history cleared.', 'info');
+            } catch (e) {
+                console.warn('Failed to clear alert history:', e);
+            }
+        }
+
+        // Load alert history on page load
+        loadAlertHistory();
 
         // --- Demo Trigger Removed ---
         // Demos must be manually initiated by clicking the DEMO OFF button.
