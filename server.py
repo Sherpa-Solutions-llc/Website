@@ -3270,10 +3270,19 @@ async def get_providers():
         # Return structured status to frontend without leaking raw keys
         status_dict = {}
         for prov in ["mock", "usa_people_search", "pipl", "spokeo", "enhanced_people", "abstractapi", "numverify"]:
-            if prov in keys:
+            if prov == "mock":
+                # Mock engine is always available locally — always configured, enabled from DB
+                mock_data = keys.get("mock", {})
+                status_dict["mock"] = {
+                    "is_configured": True,
+                    "is_enabled": mock_data.get("is_enabled", True),  # Respect DB state, default ON
+                    "limit_max": mock_data.get("limit_max", 999999),
+                    "limit_used": mock_data.get("limit_used", 0)
+                }
+            elif prov in keys:
                 prov_data = keys[prov]
                 status_dict[prov] = {
-                    "is_configured": bool(prov_data.get("api_key")),
+                    "is_configured": bool(prov_data.get("api_key", "").strip()),  # empty/whitespace = not configured
                     "is_enabled": prov_data.get("is_enabled", False),
                     "limit_max": prov_data.get("limit_max", 0),
                     "limit_used": prov_data.get("limit_used", 0)
@@ -3293,12 +3302,19 @@ async def get_providers():
 
 @app.post("/api/v1/traku/providers")
 async def save_provider(update: ProviderUpdate):
-    """Saves or updates an API key for a specific Traku provider."""
+    """Saves or updates an API key for a specific Traku provider. 
+    Passing an empty api_key clears the key (un-configures the provider)."""
     try:
-        if not update.provider_name or not update.api_key:
-            return JSONResponse({"error": "Missing provider_name or api_key"}, status_code=400)
-            
-        await database.save_traku_provider(update.provider_name, update.api_key)
+        if not update.provider_name:
+            return JSONResponse({"error": "Missing provider_name"}, status_code=400)
+
+        # Allow empty key to clear/un-configure; also turn off if clearing
+        api_key = update.api_key.strip() if update.api_key else ""
+        await database.save_traku_provider(update.provider_name, api_key)
+        if not api_key:
+            # If clearing the key, also disable the provider
+            await database.update_traku_provider_status(update.provider_name, False)
+            return JSONResponse({"status": "cleared", "message": f"API Key for {update.provider_name} cleared."})
         return JSONResponse({"status": "success", "message": f"API Key for {update.provider_name} securely saved."})
     except Exception as e:
         print(f"Error saving Traku provider: {e}")
