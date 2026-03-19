@@ -747,10 +747,22 @@
                         <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-high"></i></span>
                     </div>
                 </div>
-
+                <button class="btn-refresh" id="btn-auth-header" onclick="openAuthModal()"><i class="fa-solid fa-user"></i> Sign In</button>
+                <button class="btn-refresh" onclick="openArchitectureModal()"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
                 <button class="btn-refresh" onclick="openDocModal()"><i class="fa-solid fa-book"></i> Documentation</button>
                 <a href="/projects.html" class="btn-refresh" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Exit</a>
             </div>
+        </div>
+
+        <!-- Consulting CTA Banner -->
+        <div style="background: linear-gradient(90deg, rgba(209,117,64,0.1), rgba(46,160,67,0.1)); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div>
+                <h3 style="margin: 0 0 0.2rem 0; font-size: 1.1rem; color: var(--text-main);"><i class="fa-solid fa-briefcase"></i> Enterprise Quantitative Consulting</h3>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Need a custom algorithmic sentiment engine for your fund or firm?</p>
+            </div>
+            <button onclick="openConsultingModal('Stock Monitor / Quantitative Engine')" class="btn-search" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 0 10px rgba(209,117,64,0.3); margin:0;">
+                Schedule Architecture Call
+            </button>
         </div>
 
         <div class="metrics-grid">
@@ -2108,7 +2120,295 @@
         // --- Demo Trigger Removed ---
         // Demos must be manually initiated by clicking the DEMO OFF button.
 
+        // --- Consulting & Architecture Modals ---
+        function openArchitectureModal() {
+            document.getElementById('architecture-modal').style.display = 'flex';
+        }
+        function closeArchitectureModal() {
+            document.getElementById('architecture-modal').style.display = 'none';
+        }
+        function openConsultingModal(project) {
+            document.getElementById('consulting-project-interest').value = project;
+            document.getElementById('consulting-modal').style.display = 'flex';
+        }
+        function closeConsultingModal() {
+            document.getElementById('consulting-modal').style.display = 'none';
+        }
+        async function submitConsultingLead(event) {
+            event.preventDefault();
+            const btn = document.getElementById('consulting-submit-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('consulting-name').value,
+                email: document.getElementById('consulting-email').value,
+                company: document.getElementById('consulting-company').value || "",
+                project_interest: document.getElementById('consulting-project-interest').value
+            };
+
+            try {
+                const res = await fetch('/api/consulting/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(res.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Request Received';
+                    btn.style.background = 'var(--accent-green)';
+                    setTimeout(() => {
+                        closeConsultingModal();
+                        btn.innerHTML = 'Submit Request';
+                        btn.style.background = '';
+                        btn.disabled = false;
+                        document.getElementById('consulting-form').reset();
+                    }, 2000);
+                } else {
+                    throw new Error('Failed to submit');
+                }
+            } catch(e) {
+                btn.innerHTML = 'Error. Try Again.';
+                btn.disabled = false;
+                console.error(e);
+            }
+        }
+
+        // --- Authentication Logic ---
+        let authMode = 'login'; // 'login' or 'register'
+        
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-form').reset();
+        }
+        function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            document.getElementById('auth-modal-title').innerHTML = authMode === 'login' ? '<i class="fa-solid fa-user" style="color: var(--accent-cyan); margin-right:10px;"></i>Sign In' : '<i class="fa-solid fa-user-plus" style="color: var(--accent-cyan); margin-right:10px;"></i>Create Account';
+            document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
+            document.getElementById('auth-toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
+        }
+
+        async function submitAuth(event) {
+            event.preventDefault();
+            const btn = document.getElementById('auth-submit-btn');
+            const errEl = document.getElementById('auth-error');
+            const originalText = btn.textContent;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+            errEl.style.display = 'none';
+
+            const payload = {
+                email: document.getElementById('auth-email').value,
+                password: document.getElementById('auth-password').value
+            };
+
+            const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('sherpa_saas_token', data.token);
+                    localStorage.setItem('sherpa_saas_user', JSON.stringify(data.user));
+                    location.reload(); // Reload to apply authenticated state
+                } else {
+                    errEl.textContent = data.detail || 'Authentication failed';
+                    errEl.style.display = 'block';
+                }
+            } catch(e) {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.style.display = 'block';
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('sherpa_saas_token');
+            localStorage.removeItem('sherpa_saas_user');
+            location.reload();
+        }
+
+        // Init Auth State
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('sherpa_saas_token');
+            const userStr = localStorage.getItem('sherpa_saas_user');
+            const authBtn = document.getElementById('btn-auth-header');
+            
+            let isPremium = false;
+            let isLoggedIn = false;
+            let userObj = null;
+
+            if (token && userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    userObj = user;
+                    isLoggedIn = true;
+                    if(user.is_premium) isPremium = true;
+
+                    authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> Logout</span>`;
+                    authBtn.onclick = logout;
+                    authBtn.title = `Logged in as ${user.email.split('@')[0]}`;
+                    authBtn.style.color = "var(--text-muted)";
+                    authBtn.style.borderColor = "var(--border-color)";
+                } catch(e) {}
+            }
+            
+            // --- ENFORCE PAYWALL ---
+            if(!isPremium) {
+                // Blur the entire main content area below the control panel
+                const mainArea = document.querySelector('.main-content-area');
+                if(mainArea) {
+                    mainArea.style.filter = "blur(5px)";
+                    mainArea.style.pointerEvents = "none";
+                    mainArea.style.userSelect = "none";
+                    mainArea.style.opacity = "0.7";
+                    mainArea.style.transition = "all 0.3s";
+                }
+                
+                // Disable the Start Scan button and change text to CTA
+                const scanBtn = document.getElementById('btn-toggle-scan');
+                if(scanBtn) {
+                    scanBtn.innerHTML = isLoggedIn ? '<i class="fa-solid fa-lock"></i> Upgrade to Pro ($29/mo)' : '<i class="fa-solid fa-lock"></i> Sign In to Unlock Engine';
+                    scanBtn.style.background = isLoggedIn ? '#5469d4' : '';
+                    scanBtn.style.borderColor = isLoggedIn ? '#5469d4' : '';
+                    scanBtn.style.color = 'white';
+                    
+                    scanBtn.onclick = async () => {
+                        if(isLoggedIn) {
+                            scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Secure Checkout...';
+                            try {
+                                const res = await fetch('/api/billing/create-checkout-session', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer ' + token
+                                    },
+                                    body: JSON.stringify({plan: 'sherpa_pro_monthly'})
+                                });
+                                const data = await res.json();
+                                if(data.url) {
+                                    window.location.href = data.url;
+                                } else {
+                                    throw new Error("No URL returned");
+                                }
+                            } catch(e) {
+                                scanBtn.innerHTML = 'Error. Try Again.';
+                            }
+                        } else {
+                            openAuthModal();
+                        }
+                    };
+                }
+            }
+        });
     </script>
+
+    <!-- Architecture Modal -->
+    <div id="architecture-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-dark); border: 1px solid var(--accent-cyan); width: 90%; max-width: 800px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(209, 117, 64, 0.2);">
+            <div style="background: var(--bg-darker); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.3rem;"><i class="fa-solid fa-diagram-project" style="color: var(--accent-cyan); margin-right:10px;"></i>Quantitative Analysis Engine & Infrastructure</h2>
+                <button onclick="closeArchitectureModal()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 2rem; max-height: 70vh; overflow-y: auto; color: var(--text-muted); line-height: 1.6;">
+                <h3 style="color: white; margin-top:0;">High-Frequency Data Ingestion Pipeline</h3>
+                <p>The system utilizes asynchronous Websocket streams and high-capacity REST polling against aggregated financial feeds to maintain millisecond-accurate order book states.</p>
+                
+                <h3 style="color: white;">Algorithmic Evaluation Engine (FastAPI)</h3>
+                <p>Built on Python FastAPI, the backend handles concurrent evaluation of hundreds of ticker streams against predefined technical indicator thresholds (RVOL, Price-to-Earnings anomalies, Volume surges).</p>
+                
+                <h3 style="color: white;">Event-Driven Architecture</h3>
+                <p>Instead of continuous frontend polling, the engine pushes state updates directly to the client via WebSockets, ensuring zero latency between algorithm triggers and UI updates.</p>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button onclick="closeArchitectureModal(); openConsultingModal('Stock Monitor / Quantitative Engine');" class="btn-search" style="border-radius: 30px; padding: 0.8rem 2rem;">
+                        Discuss Custom Implementation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consulting Modal -->
+    <div id="consulting-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2500; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-dark); border: 1px solid var(--accent-green); width: 90%; max-width: 500px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(46, 160, 67, 0.2);">
+            <div style="background: var(--bg-darker); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.2rem;"><i class="fa-solid fa-briefcase" style="color: var(--accent-green); margin-right:10px;"></i>Request Enterprise Pitch</h2>
+                <button onclick="closeConsultingModal()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 2rem;">
+                <p style="color: var(--text-muted); margin-top: 0; margin-bottom: 1.5rem;">Interested in customizing this technology for your organization? Send us your details and an architect will reach out.</p>
+                <form id="consulting-form" onsubmit="submitConsultingLead(event)">
+                    <input type="hidden" id="consulting-project-interest">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Full Name *</label>
+                        <input type="text" id="consulting-name" required style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Work Email *</label>
+                        <input type="email" id="consulting-email" required style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Company Name (Optional)</label>
+                        <input type="text" id="consulting-company" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <button type="submit" id="consulting-submit-btn" class="btn-search" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0;">
+                        Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-dark); border: 1px solid var(--accent-cyan); width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(209, 117, 64, 0.2);">
+            <div style="background: var(--bg-darker); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.2rem;" id="auth-modal-title"><i class="fa-solid fa-user" style="color: var(--accent-cyan); margin-right:10px;"></i>Sign In</h2>
+                <button onclick="closeAuthModal()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 2rem;">
+                <form id="auth-form" onsubmit="submitAuth(event)">
+                    <p id="auth-error" style="color: var(--accent-red); font-size: 0.85rem; display: none; margin-top: 0; margin-bottom: 1rem;"></p>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Email Address</label>
+                        <input type="email" id="auth-email" required style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Password</label>
+                        <input type="password" id="auth-password" required style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <button type="submit" id="auth-submit-btn" class="btn-search" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0;">
+                        Sign In
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link" style="color: var(--accent-cyan); text-decoration: none;">Need an account? Sign up</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="/static/cms.js"></script>
 </body>
 </html>
