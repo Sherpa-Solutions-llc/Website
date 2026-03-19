@@ -12,6 +12,10 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import json
+import time
+import hmac
+import hashlib
+import base64
 from datetime import datetime, timedelta
 import traceback
 from fastapi import FastAPI, Request, Form, Response, Depends, HTTPException, status, Query
@@ -153,6 +157,102 @@ def require_admin(request: Request):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return user
 
+# --- SaaS JWT Authentication ---
+JWT_SECRET = os.environ.get("JWT_SECRET", "super-secret-sherpa-fallback-key")
+
+def base64url_encode(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
+
+def create_jwt(payload: dict) -> str:
+    header = {"alg": "HS256", "typ": "JWT"}
+    header_enc = base64url_encode(json.dumps(header).encode('utf-8'))
+    # add expiration
+    payload["exp"] = int(time.time()) + (24 * 3600)  # 24 hours
+    payload_enc = base64url_encode(json.dumps(payload).encode('utf-8'))
+    sig = hmac.new(JWT_SECRET.encode(), f"{header_enc}.{payload_enc}".encode(), hashlib.sha256).digest()
+    sig_enc = base64url_encode(sig)
+    return f"{header_enc}.{payload_enc}.{sig_enc}"
+
+def verify_jwt(token: str):
+    try:
+        header_enc, payload_enc, sig_enc = token.split('.')
+        expected_sig = hmac.new(JWT_SECRET.encode(), f"{header_enc}.{payload_enc}".encode(), hashlib.sha256).digest()
+        if base64url_encode(expected_sig) != sig_enc:
+            return None
+        
+        # pad if missing
+        pad = len(payload_enc) % 4
+        if pad: payload_enc += '=' * (4 - pad)
+        payload = json.loads(base64.urlsafe_b64decode(payload_enc).decode('utf-8'))
+        
+        if payload.get("exp", 0) < int(time.time()):
+            return None # expired
+            
+        return payload
+    except Exception:
+        return None
+
+def require_saas_user(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid authentication token")
+    token = auth_header.split(" ")[1]
+    payload = verify_jwt(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return payload
+
+class RegisterUserRequest(BaseModel):
+    email: str
+    password: str
+
+class LoginUserRequest(BaseModel):
+    email: str
+    password: str
+
+@app.post("/api/auth/register")
+async def saas_register(req: RegisterUserRequest):
+    user = await database.create_saas_user(req.email, req.password)
+    if not user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    token = create_jwt(user)
+    return {"status": "success", "token": token, "user": user}
+
+@app.post("/api/auth/login")
+async def saas_login(req: LoginUserRequest):
+    user = await database.verify_saas_user(req.email, req.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    token = create_jwt(user)
+    return {"status": "success", "token": token, "user": user}
+
+# --- Stripe Billing Implementation ---
+# For proof of concept, this mocks the Stripe Checkout and Webhook flows.
+class CreateCheckoutRequest(BaseModel):
+    plan: str
+
+@app.post("/api/billing/create-checkout-session")
+async def create_checkout_session(req: CreateCheckoutRequest, request: Request):
+    user = require_saas_user(request)
+    
+    # MOCK FLOW: Instead of stripe.checkout.Session.create(), we redirect to a local mock UI.
+    encoded_email = urllib.parse.quote(user.get("email", ""))
+    mock_url = f"/static/mock_checkout.html?email={encoded_email}&plan={req.plan}"
+    
+    return {"status": "success", "url": mock_url}
+
+class MockWebhookRequest(BaseModel):
+    email: str
+
+@app.post("/api/billing/webhook-mock")
+async def mock_webhook(req: MockWebhookRequest):
+    # Simulates Stripe webhook 'checkout.session.completed'
+    if req.email:
+        mock_cus_id = "cus_mock_" + secrets.token_hex(4)
+        await database.upgrade_saas_user_to_premium(req.email, mock_cus_id)
+        return {"status": "success", "message": "Upgraded to Pro via Mock Payment"}
+    raise HTTPException(status_code=400, detail="Missing email")
+
 @app.get("/api/health")
 async def health_check():
     """Railway healthcheck endpoint"""
@@ -241,6 +341,21 @@ async def startup_event():
     await database.init_traku_db()
     await database.init_traku_search_history()
     await database.init_stock_alerts()
+    await database.init_consulting_leads()
+
+    # Init SaaS User table
+    await database.db.execute('''
+        CREATE TABLE IF NOT EXISTS saas_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            is_premium BOOLEAN DEFAULT 0,
+            stripe_customer_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''') if hasattr(database, "db") else None 
+    # Actually wait, database.init_db() now initializes saas_users. 
+    # It was added to `init_db()` in database.py !
 
     # We must NEVER block the startup_event with network fetches, or Railway will kill Uvicorn for failing the 30s healthcheck.
     # Instead, we spin off a background task that safely primes empty databases while the server accepts incoming connections.
@@ -356,6 +471,22 @@ async def skip_tracer_page(request: Request):
 @app.get("/stock_agent", response_class=HTMLResponse)
 async def stock_agent_page(request: Request):
     return FileResponse(os.path.join(BASE_DIR, 'stock_agent.html'))
+
+@app.get("/b2b_leads.html", response_class=HTMLResponse)
+async def b2b_leads_page(request: Request):
+    return FileResponse(os.path.join(BASE_DIR, 'b2b_leads.html'))
+
+@app.get("/seo_sniper.html", response_class=HTMLResponse)
+async def seo_sniper_page(request: Request):
+    return FileResponse(os.path.join(BASE_DIR, 'seo_sniper.html'))
+
+@app.get("/arbitrage.html", response_class=HTMLResponse)
+async def arbitrage_page(request: Request):
+    return FileResponse(os.path.join(BASE_DIR, 'arbitrage.html'))
+
+@app.get("/brand_monitor.html", response_class=HTMLResponse)
+async def brand_monitor_page(request: Request):
+    return FileResponse(os.path.join(BASE_DIR, 'brand_monitor.html'))
 
 async def init_scanners_db():
     async with aiosqlite.connect(SCANNERS_DB) as db:
@@ -479,6 +610,27 @@ async def proxy_scanner_stream(url: str = ""):
             "Connection": "keep-alive"
         }
     )
+
+class ConsultingLead(BaseModel):
+    name: str
+    email: str
+    company: str = ""
+    project_interest: str
+
+@app.post("/api/consulting/lead")
+async def submit_consulting_lead(lead: ConsultingLead):
+    try:
+        await database.save_consulting_lead(
+            name=lead.name,
+            email=lead.email,
+            company=lead.company,
+            project_interest=lead.project_interest
+        )
+        return {"status": "success", "message": "Lead captured successfully"}
+    except Exception as e:
+        print(f"Error saving consulting lead: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save lead")
+
 
 @app.get("/api/police-data")
 async def get_police_data():
@@ -1505,17 +1657,36 @@ async def handle_inbound_email(request: Request):
         subject = email_data.get('subject', 'No Subject')
         text_body = email_data.get('text', '')
         html_body = email_data.get('html', text_body)
+        # Resend Inbound Webhooks strip the actual message body payload to save weight. We must fetch it!
+        email_id = email_data.get('email_id', '')
+        if email_id and not text_body and not html_body:
+            import httpx
+            api_key = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_B4yVyVqr_NgY8fuPK7pzZgw4AN9bdZ81e")
+            try:
+                async with httpx.AsyncClient() as client:
+                    email_resp = await client.get(
+                        f"https://api.resend.com/emails/{email_id}",
+                        headers={"Authorization": f"Bearer {api_key}"}
+                    )
+                    if email_resp.status_code == 200:
+                        fetched = email_resp.json()
+                        text_body = fetched.get('text', '')
+                        html_body = fetched.get('html', text_body)
+                        print(f"[INBOUND EMAIL] Actively retrieved stripped email body for {email_id} from Resend API.")
+                    else:
+                        print(f"[INBOUND EMAIL] Failed to fetch body. Resend HTTP {email_resp.status_code}")
+            except Exception as e:
+                print(f"[INBOUND EMAIL] Error fetching body from Resend API: {e}")
 
         # Fallback 2: Check for raw email payload inside standard SendGrid/Resend raw formats
         if not text_body and not html_body:
             text_body = email_data.get('text_body', '')
             html_body = email_data.get('html_body', text_body)
 
-        # Fallback 3: Dumps the entire object debug so at least something comes through 
+        # If the email legitimately has no body (e.g. user just sent a subject), leave it blank instead of dumping JSON
         if not text_body and not html_body:
-            text_body = json.dumps(email_data, indent=2)
-            html_body = f"<pre>{text_body}</pre>"
-
+            text_body = "[No Message Body Provided]"
+            html_body = "<p>[No Message Body Provided]</p>"
         print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
 
         # --- SPAM FILTER ---
@@ -1639,8 +1810,15 @@ async def discover_new_brokers(req: DiscoverBrokersRequest):
 async def skip_trace_api(search_type: str, request: Request):
     """
     Proxy to the RapidAPI "Skip Tracing Working API".
-    Supported search_types: email, phone, name, address, name_address
+    Requires active SaaS premium subscription.
     """
+    try:
+        user = require_saas_user(request)
+        if not user.get('is_premium'):
+            return JSONResponse(status_code=403, content={"error": "Premium subscription required. Upgrade to unlock the engine."})
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
+
     # Read query parameters sent by the frontend
     params = dict(request.query_params)
     provider = params.get("provider", "mock")
