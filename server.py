@@ -1667,7 +1667,7 @@ async def handle_inbound_email(request: Request):
         email_id = email_data.get('email_id', '')
         if email_id and not text_body and not html_body:
             import httpx
-            api_key = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
+            api_key = os.environ.get("RESEND_API_KEY", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
             try:
                 async with httpx.AsyncClient() as client:
                     email_resp = await client.get(
@@ -1712,7 +1712,7 @@ async def handle_inbound_email(request: Request):
             return {"status": "Ignored - System Notification"}
 
         # Use Resend HTTP API instead of SMTP (port 443 is never blocked)
-        api_key = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
+        api_key = os.environ.get("RESEND_API_KEY", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
         
         forward_html = f"<p><i>--- Forwarded message from {sender} ---</i></p><hr>{html_body}" if html_body else None
         
