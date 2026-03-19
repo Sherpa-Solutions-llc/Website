@@ -17,7 +17,7 @@ def _send_email_sync(recipient: str, subject: str, html_body: str):
     # Fallback to the inbound credentials if explicit outbounds aren't set
     if not smtp_pass:
         smtp_user = os.environ.get("FREEME_EMAIL_ADDRESS", "resend")
-        smtp_pass = os.environ.get("FREEME_EMAIL_APP_PASSWORD", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
+        smtp_pass = os.environ.get("RESEND_API_KEY", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
     else:
         smtp_user = os.environ.get("FREEME_SMTP_USER", "resend")
         
