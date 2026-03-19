@@ -1688,13 +1688,22 @@ async def handle_inbound_email(request: Request):
 
         # Fallback 2: Check for raw email payload inside standard SendGrid/Resend raw formats
         if not text_body and not html_body:
-            text_body = email_data.get('text_body', '')
-            html_body = email_data.get('html_body', text_body)
+            t_fallback = email_data.get('text_body', '')
+            h_fallback = email_data.get('html_body', t_fallback)
+            text_body = json.dumps(t_fallback, indent=2) if isinstance(t_fallback, (dict, list)) else str(t_fallback) if t_fallback else ''
+            html_body = json.dumps(h_fallback, indent=2) if isinstance(h_fallback, (dict, list)) else str(h_fallback) if h_fallback else ''
 
         # If the email legitimately has no body (e.g. user just sent a subject), leave it blank instead of dumping JSON
         if not text_body and not html_body:
-            text_body = "[No Message Body Provided]"
-            html_body = "<p>[No Message Body Provided]</p>"
+            debug_info = {
+                "webhook_payload": email_data,
+                "api_key_used": api_key[:10] + "..." if 'api_key' in locals() else "None",
+                "api_fetch_status": email_resp.status_code if 'email_resp' in locals() else "Not Attempted",
+                "fetched_body": fetched if 'fetched' in locals() else {}
+            }
+            debug_str = json.dumps(debug_info, indent=2)
+            text_body = f"[No Message Body Provided]\n\n--- DEBUG INFO ---\n{debug_str}"
+            html_body = f"<p>[No Message Body Provided]</p><pre>--- DEBUG INFO ---\n{debug_str}</pre>"
         print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
 
         # --- SPAM FILTER ---
