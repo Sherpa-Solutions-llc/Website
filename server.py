@@ -1640,6 +1640,7 @@ async def handle_inbound_email(request: Request):
             payload = {}
 
         # Resend wraps inbound email data inside a "data" key, but occasionally nested multiple times depending on webhook rules
+        raw_payload_capture = payload
         email_data = payload.get('data', payload)
         
         # Sometimes 'data' itself contains a stringified JSON object, or is nested again.
@@ -1696,6 +1697,7 @@ async def handle_inbound_email(request: Request):
         # If the email legitimately has no body (e.g. user just sent a subject), leave it blank instead of dumping JSON
         if not text_body and not html_body:
             debug_info = {
+                "raw_root_payload": raw_payload_capture if 'raw_payload_capture' in locals() else {"error": "not json payload"},
                 "webhook_payload": email_data,
                 "api_key_used": api_key[:10] + "..." if 'api_key' in locals() else "None",
                 "api_fetch_status": email_resp.status_code if 'email_resp' in locals() else "Not Attempted",
