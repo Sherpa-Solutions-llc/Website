@@ -1655,9 +1655,15 @@ async def handle_inbound_email(request: Request):
 
         sender = email_data.get('from', 'Unknown Sender')
         subject = email_data.get('subject', 'No Subject')
-        text_body = email_data.get('text', '')
-        html_body = email_data.get('html', text_body)
+        
+        text_raw = email_data.get('text', '')
+        text_body = json.dumps(text_raw, indent=2) if isinstance(text_raw, (dict, list)) else str(text_raw) if text_raw else ''
+        
+        html_raw = email_data.get('html', text_body)
+        html_body = json.dumps(html_raw, indent=2) if isinstance(html_raw, (dict, list)) else str(html_raw) if html_raw else ''
+
         # Resend Inbound Webhooks strip the actual message body payload to save weight. We must fetch it!
+        # [forced deploy commit]
         email_id = email_data.get('email_id', '')
         if email_id and not text_body and not html_body:
             import httpx
@@ -1670,8 +1676,10 @@ async def handle_inbound_email(request: Request):
                     )
                     if email_resp.status_code == 200:
                         fetched = email_resp.json()
-                        text_body = fetched.get('text', '')
-                        html_body = fetched.get('html', text_body)
+                        t_raw = fetched.get('text', '')
+                        h_raw = fetched.get('html', t_raw)
+                        text_body = json.dumps(t_raw, indent=2) if isinstance(t_raw, (dict, list)) else str(t_raw) if t_raw else ''
+                        html_body = json.dumps(h_raw, indent=2) if isinstance(h_raw, (dict, list)) else str(h_raw) if h_raw else ''
                         print(f"[INBOUND EMAIL] Actively retrieved stripped email body for {email_id} from Resend API.")
                     else:
                         print(f"[INBOUND EMAIL] Failed to fetch body. Resend HTTP {email_resp.status_code}")
