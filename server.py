@@ -35,6 +35,17 @@ from fastapi.middleware.cors import CORSMiddleware
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
+import logging
+class CDPLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Suppress Chrome DevTools Protocol 404 terminal spam from background VS Code / Antivirus port scanners
+        msg = record.getMessage()
+        if "/json/version" in msg or "/json/list" in msg:
+            return False
+        return True
+
+logging.getLogger("uvicorn.access").addFilter(CDPLogFilter())
+
 app = FastAPI()
 
 @app.get("/api/health")
