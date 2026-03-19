@@ -26,6 +26,17 @@ async def init_db():
             html_content TEXT NOT NULL
         )
         ''')
+        
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS saas_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            is_premium BOOLEAN DEFAULT 0,
+            stripe_customer_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
         await db.commit()
         
         # Seed the requested admin user
@@ -57,6 +68,40 @@ async def verify_user(username, password):
                 if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
                     return True
             return False
+
+# --- SaaS Authentication Layer ---
+async def create_saas_user(email, password):
+    salt = bcrypt.gensalt()
+    pwd_hash = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    
+    async with aiosqlite.connect(DB_NAME) as db:
+        try:
+            await db.execute('''
+            INSERT INTO saas_users (email, password_hash)
+            VALUES (?, ?)
+            ''', (email, pwd_hash))
+            await db.commit()
+            
+            async with db.execute('SELECT id, email, is_premium, stripe_customer_id FROM saas_users WHERE email = ?', (email,)) as cursor:
+                row = await cursor.fetchone()
+                return {"id": row[0], "email": row[1], "is_premium": bool(row[2]), "stripe_customer_id": row[3]}
+        except aiosqlite.IntegrityError:
+            return None # Email already exists
+
+async def verify_saas_user(email, password):
+    async with aiosqlite.connect(DB_NAME) as db:
+        async with db.execute('SELECT id, email, password_hash, is_premium, stripe_customer_id FROM saas_users WHERE email = ?', (email,)) as cursor:
+            row = await cursor.fetchone()
+            if row:
+                stored_hash = row[2].encode('utf-8')
+                if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
+                    return {"id": row[0], "email": row[1], "is_premium": bool(row[3]), "stripe_customer_id": row[4]}
+        return None
+
+async def upgrade_saas_user_to_premium(email, stripe_customer_id):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('UPDATE saas_users SET is_premium = 1, stripe_customer_id = ? WHERE email = ?', (stripe_customer_id, email))
+        await db.commit()
 
 async def get_all_users():
     async with aiosqlite.connect(DB_NAME) as db:
@@ -437,4 +482,30 @@ async def clear_stock_alerts():
     """Delete all stock alerts."""
     async with aiosqlite.connect(TRAKU_DB) as db:
         await db.execute('DELETE FROM stock_alerts')
+        await db.commit()
+
+# ─── Consulting Leads ───────────────────────────────────────────────
+
+async def init_consulting_leads():
+    """Create the consulting leads table if it doesn't exist."""
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS consulting_leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                company TEXT,
+                project_interest TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        await db.commit()
+
+async def save_consulting_lead(name: str, email: str, company: str, project_interest: str):
+    """Save a new consulting lead."""
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('''
+            INSERT INTO consulting_leads (name, email, company, project_interest)
+            VALUES (?, ?, ?, ?)
+        ''', (name, email, company, project_interest))
         await db.commit()
