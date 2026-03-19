@@ -814,6 +814,7 @@
             <li><a href="contact.html">Contact</a></li>
         </ul>
         <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+            <button id="btn-auth-header" onclick="openAuthModal()" style="background:transparent;border:1px solid var(--border-color);color:var(--text-dark);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.85rem;"><i class="fa-solid fa-user"></i> Sign In</button>
             <button id="btn-audio-toggle" class="audio-toggle-btn enabled" onclick="toggleAudio()"><i class="fa-solid fa-volume-high"></i> Audio On</button>
             <button id="btn-demo-toggle" class="demo-btn" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
                 <div id="demo-volume-control" style="display:none;align-items:center;gap:6px;margin-left:8px;">
@@ -831,8 +832,20 @@
         <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 0.5rem;">
             <h1 style="margin: 0;">Traku</h1>
             <button type="button" class="btn-search" id="btn-view-api" style="padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); color: white; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;" onclick="switchView('api')"><b>&lt;/&gt;</b> API</button>
+            <button type="button" class="btn-search" style="padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); color: white; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;" onclick="openArchitectureModal()"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
         </div>
         <p style="margin: 0; text-align: center;">Enterprise-grade OSINT personnel intelligence and location tracking.</p>
+    </div>
+
+    <!-- Consulting CTA Banner -->
+    <div style="max-width: 1200px; margin: 0 auto 2rem auto; background: linear-gradient(90deg, rgba(209,117,64,0.1), rgba(46,160,67,0.1)); border: 1px solid var(--accent); border-radius: 8px; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div>
+            <h3 style="margin: 0 0 0.2rem 0; font-size: 1.1rem; color: var(--text-dark);"><i class="fa-solid fa-briefcase"></i> Enterprise OSINT Consulting</h3>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Need a custom intelligence dashboard or data integration for your firm?</p>
+        </div>
+        <button onclick="openConsultingModal('Traku / OSINT Dashboard')" class="btn-search" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 0 10px rgba(192,108,59,0.3); margin:0;">
+            Schedule Architecture Call
+        </button>
     </div>
 
     <div class="skip-tracer-container">
@@ -3264,7 +3277,292 @@
             fetchCountries();
             loadSearchHistory();
         });
+
+        // --- Consulting & Architecture Modals ---
+        function openArchitectureModal() {
+            document.getElementById('architecture-modal').style.display = 'flex';
+        }
+        function closeArchitectureModal() {
+            document.getElementById('architecture-modal').style.display = 'none';
+        }
+        function openConsultingModal(project) {
+            document.getElementById('consulting-project-interest').value = project;
+            document.getElementById('consulting-modal').style.display = 'flex';
+        }
+        function closeConsultingModal() {
+            document.getElementById('consulting-modal').style.display = 'none';
+        }
+        async function submitConsultingLead(event) {
+            event.preventDefault();
+            const btn = document.getElementById('consulting-submit-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('consulting-name').value,
+                email: document.getElementById('consulting-email').value,
+                company: document.getElementById('consulting-company').value || "",
+                project_interest: document.getElementById('consulting-project-interest').value
+            };
+
+            try {
+                const res = await fetch('/api/consulting/lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(res.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Request Received';
+                    btn.style.background = '#2ea043';
+                    setTimeout(() => {
+                        closeConsultingModal();
+                        btn.innerHTML = 'Submit Request';
+                        btn.style.background = '#2ea043';
+                        btn.disabled = false;
+                        document.getElementById('consulting-form').reset();
+                    }, 2000);
+                } else {
+                    throw new Error('Failed to submit');
+                }
+            } catch(e) {
+                btn.innerHTML = 'Error. Try Again.';
+                btn.disabled = false;
+                console.error(e);
+            }
+        }
+
+        // --- Authentication Logic ---
+        let authMode = 'login'; // 'login' or 'register'
+        
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-form').reset();
+        }
+        function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            document.getElementById('auth-modal-title').innerHTML = authMode === 'login' ? '<i class="fa-solid fa-user" style="color: var(--accent); margin-right:10px;"></i>Sign In' : '<i class="fa-solid fa-user-plus" style="color: var(--accent); margin-right:10px;"></i>Create Account';
+            document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
+            document.getElementById('auth-toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
+        }
+
+        async function submitAuth(event) {
+            event.preventDefault();
+            const btn = document.getElementById('auth-submit-btn');
+            const errEl = document.getElementById('auth-error');
+            const originalText = btn.textContent;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+            errEl.style.display = 'none';
+
+            const payload = {
+                email: document.getElementById('auth-email').value,
+                password: document.getElementById('auth-password').value
+            };
+
+            const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('sherpa_saas_token', data.token);
+                    localStorage.setItem('sherpa_saas_user', JSON.stringify(data.user));
+                    location.reload(); // Reload to apply authenticated state
+                } else {
+                    errEl.textContent = data.detail || 'Authentication failed';
+                    errEl.style.display = 'block';
+                }
+            } catch(e) {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.style.display = 'block';
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('sherpa_saas_token');
+            localStorage.removeItem('sherpa_saas_user');
+            location.reload();
+        }
+
+        // Init Auth State
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('sherpa_saas_token');
+            const userStr = localStorage.getItem('sherpa_saas_user');
+            const authBtn = document.getElementById('btn-auth-header');
+            
+            let isPremium = false;
+            let isLoggedIn = false;
+            let userObj = null;
+
+            if (token && userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    userObj = user;
+                    isLoggedIn = true;
+                    if(user.is_premium) isPremium = true;
+                    
+                    authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> Logout`;
+                    authBtn.onclick = logout;
+                    authBtn.title = `Logged in as ${user.email.split('@')[0]}`;
+                } catch(e) {}
+            }
+            
+            // --- ENFORCE PAYWALL ---
+            if(!isPremium) {
+                // Blur the search options area to preview utility but prevent interaction
+                const searchArea = document.querySelector('.search-options');
+                if(searchArea) {
+                    searchArea.style.filter = "blur(4px)";
+                    searchArea.style.pointerEvents = "none";
+                    searchArea.style.userSelect = "none";
+                    searchArea.style.opacity = "0.7";
+                    searchArea.style.transition = "all 0.3s";
+                }
+                
+                // Transform the execute button into an upgrade/login CTA
+                const execBtn = document.getElementById('btn-execute-trace');
+                if(execBtn) {
+                    execBtn.innerHTML = isLoggedIn ? '<i class="fa-solid fa-lock"></i> Upgrade to Pro ($29/mo)' : '<i class="fa-solid fa-lock"></i> Sign In to Use Engine';
+                    execBtn.style.background = isLoggedIn ? '#5469d4' : '';
+                    execBtn.style.borderColor = isLoggedIn ? '#5469d4' : '';
+                    
+                    execBtn.onclick = async () => {
+                        if(isLoggedIn) {
+                            execBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Secure Checkout...';
+                            try {
+                                const res = await fetch('/api/billing/create-checkout-session', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer ' + token
+                                    },
+                                    body: JSON.stringify({plan: 'sherpa_pro_monthly'})
+                                });
+                                const data = await res.json();
+                                if(data.url) {
+                                    window.location.href = data.url;
+                                } else {
+                                    throw new Error("No URL returned");
+                                }
+                            } catch(e) {
+                                execBtn.innerHTML = 'Error. Try Again.';
+                            }
+                        } else {
+                            openAuthModal();
+                        }
+                    };
+                }
+            }
+        });
     </script>
+    
+    <!-- Architecture Modal -->
+    <div id="architecture-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-color); border: 1px solid var(--accent); width: 90%; max-width: 800px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(192, 108, 59, 0.2);">
+            <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.3rem; color: var(--text-dark);"><i class="fa-solid fa-diagram-project" style="color: var(--accent); margin-right:10px;"></i>Architecture & Data Flows</h2>
+                <button onclick="closeArchitectureModal()" style="background: transparent; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 2rem; max-height: 70vh; overflow-y: auto; color: var(--text-muted); line-height: 1.6;">
+                <h3 style="color: var(--text-dark); margin-top:0;">API Orchestration (FastAPI)</h3>
+                <p>Traku utilizes a high-performance ASGI Python framework to orchestrate parallel API calls across distinct OSINT data vendors (AbstractAPI, Numverify, People Data Labs) minimizing search resolution time.</p>
+                
+                <h3 style="color: var(--text-dark);">Identity Resolution Engine</h3>
+                <p>Raw JSON returns are synthesized in real-time, matching overlapping identity keys (phone, email hashes) to build a unified Target Profile dynamically.</p>
+                
+                <h3 style="color: var(--text-dark);">Batch Processing Pipeline</h3>
+                <p>The system natively supports asynchronous bulk processing of flat files (.CSV), utilizing background Web Workers to prevent UI blocking during massive data ingestion.</p>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button onclick="closeArchitectureModal(); openConsultingModal('Traku / OSINT Dashboard');" class="btn-search" style="border-radius: 30px; padding: 0.8rem 2rem;">
+                        Discuss Custom Implementation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consulting Modal -->
+    <div id="consulting-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2500; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-color); border: 1px solid #2ea043; width: 90%; max-width: 500px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(46, 160, 67, 0.2);">
+            <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.2rem; color: var(--text-dark);"><i class="fa-solid fa-briefcase" style="color: #2ea043; margin-right:10px;"></i>Request Enterprise Pitch</h2>
+                <button onclick="closeConsultingModal()" style="background: transparent; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 2rem;">
+                <p style="color: var(--text-muted); margin-top: 0; margin-bottom: 1.5rem;">Interested in customizing this technology for your organization? Send us your details and an architect will reach out.</p>
+                <form id="consulting-form" onsubmit="submitConsultingLead(event)">
+                    <input type="hidden" id="consulting-project-interest">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Full Name *</label>
+                        <input type="text" id="consulting-name" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Work Email *</label>
+                        <input type="email" id="consulting-email" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Company Name (Optional)</label>
+                        <input type="text" id="consulting-company" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <button type="submit" id="consulting-submit-btn" class="btn-search" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0; background-color: #2ea043; border-color: #2ea043; color: white;">
+                        Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: var(--bg-color); border: 1px solid var(--accent); width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(192, 108, 59, 0.2);">
+            <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; font-size: 1.2rem; color: var(--text-dark);" id="auth-modal-title"><i class="fa-solid fa-user" style="color: var(--accent); margin-right:10px;"></i>Sign In</h2>
+                <button onclick="closeAuthModal()" style="background: transparent; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 2rem;">
+                <form id="auth-form" onsubmit="submitAuth(event)">
+                    <p id="auth-error" style="color: #ff4444; font-size: 0.85rem; display: none; margin-top: 0; margin-bottom: 1rem;"></p>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Email Address</label>
+                        <input type="email" id="auth-email" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Password</label>
+                        <input type="password" id="auth-password" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    
+                    <button type="submit" id="auth-submit-btn" class="btn-search" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0;">
+                        Sign In
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link" style="color: var(--accent); text-decoration: none;">Need an account? Sign up</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script src="/static/cms.js"></script>
 </body>
 </html>
