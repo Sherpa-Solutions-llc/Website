@@ -1672,7 +1672,7 @@ async def handle_inbound_email(request: Request):
             try:
                 async with httpx.AsyncClient() as client:
                     email_resp = await client.get(
-                        f"https://api.resend.com/emails/{email_id}",
+                        f"https://api.resend.com/emails/inbound/{email_id}",
                         headers={"Authorization": f"Bearer {api_key}"}
                     )
                     if email_resp.status_code == 200:
