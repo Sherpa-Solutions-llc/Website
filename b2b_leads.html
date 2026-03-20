@@ -42,7 +42,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
             const flag = isLocal ? 'live' : 'sim';
-            const host = isLocal ? 'http://localhost:8501' : 'https://sherpa-dashboards.up.railway.app';
+            const host = isLocal ? 'http://localhost:8501' : 'https://sherpa-dashboards.streamlit.app';
             
             const ind = document.getElementById('env-indicator');
             if(isLocal) {
