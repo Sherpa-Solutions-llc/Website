@@ -2907,10 +2907,14 @@
                 // Try to find a good Female English voice
                 const voices = window.speechSynthesis.getVoices();
                 
-                // Priority 1: Explicitly female English voices (Windows/Mac/Google standard names)
-                let femaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                // Priority 1: British Female
+                let femaleVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
                 
-                // Priority 2: Any English voice fallback
+                // Priority 2: Other female English voices
+                if (!femaleVoice) {
+                    femaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                }
+                
                 let engVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
                 
                 // Apply highest priority match
