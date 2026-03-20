@@ -48,6 +48,14 @@ logging.getLogger("uvicorn.access").addFilter(CDPLogFilter())
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok"}
@@ -3831,6 +3839,34 @@ async def api_remove_stock_watchlist(request: Request, ticker: str):
     session_id = request.cookies.get("session_token", request.client.host)
     await database.remove_stock_from_watchlist(session_id, ticker)
     return JSONResponse({"status": "success", "message": f"Removed {ticker}"})
+
+class StockAlertRequest(BaseModel):
+    ticker: str
+    strategy_name: str
+    confidence: float
+    price_at_alert: float
+
+@app.post("/api/stock-alerts")
+async def api_save_stock_alert(req: StockAlertRequest):
+    await database.save_stock_alert(req.ticker, req.strategy_name, req.confidence, req.price_at_alert)
+    return JSONResponse({"status": "success"})
+
+@app.get("/api/stock-alerts")
+async def api_get_stock_alerts():
+    alerts = await database.get_stock_alerts(100)
+    return JSONResponse(alerts)
+
+@app.delete("/api/stock-alerts")
+async def api_clear_stock_alerts():
+    await database.clear_stock_alerts()
+    return JSONResponse({"status": "success"})
+
+@app.get("/api/stock-scan")
+async def api_stock_scan(vol: int = 500, price: int = 15):
+    import random
+    mock_tickers = ["PLTR", "SOFI", "RIVN", "HOOD", "MARA", "RIOT", "LCID", "MSTR", "CVNA", "DJT", "SNOW", "U", "DKNG"]
+    results = random.sample(mock_tickers, random.randint(3, 6))
+    return JSONResponse(results)
 # ==========================================
 # FREEME AUTONOMOUS OPT-OUT API (Campaigns)
 # ==========================================
