@@ -1,8 +1,10 @@
 // Execute immediately to prevent flash of wrong theme
 (function() {
     const savedTheme = localStorage.getItem('sherpa_theme');
-    // Light is default
-    const theme = savedTheme ? savedTheme : 'light';
+    // Inherit from hardcoded HTML attribute, otherwise default to Light
+    const defaultTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const theme = savedTheme ? savedTheme : defaultTheme;
+    
     if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
     } else {
