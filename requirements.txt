@@ -13,3 +13,5 @@ yfinance==0.2.44
 beautifulsoup4==4.12.3
 requests==2.32.3
 playwright==1.49.1
+bcrypt==4.2.0
+
