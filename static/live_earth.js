@@ -2926,10 +2926,16 @@ function speakDemoText(text) {
         
         // Attempt to find a clean, professional English voice
         const voices = demoVoice.getVoices();
-        let preferredVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female')));
+        // Prioritize British Female (Google UK English Female / Microsoft Hazel)
+        let preferredVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
+        
+        // Fallback to en-US standard professional voices
+        if (!preferredVoice) {
+            preferredVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female')));
+        }
         if (preferredVoice) currentDemoUtterance.voice = preferredVoice;
         
-        currentDemoUtterance.rate = 0.9; // Slowed down from 1.05 to sound more deliberate and clear
+        currentDemoUtterance.rate = 1.15; // Increased to match Brand Monitor's energetic style
         currentDemoUtterance.pitch = 1.0;
         
         if (volSliderEl) {
@@ -3038,6 +3044,94 @@ function getRandomDemoEntity(layer) {
     return target;
 }
 
+/**
+ * ============================================================
+ * VIRTUAL MOUSE & GUIDED DEMO HELPERS
+ * ============================================================
+ */
+let virtualCursor = null;
+
+function initVirtualCursor() {
+    if (virtualCursor) return;
+    virtualCursor = document.createElement('div');
+    virtualCursor.id = 'virtual-cursor';
+    document.body.appendChild(virtualCursor);
+}
+
+function removeVirtualCursor() {
+    if (virtualCursor) {
+        virtualCursor.remove();
+        virtualCursor = null;
+    }
+}
+
+async function moveVirtualMouse(targetX, targetY, duration = 1000, click = false) {
+    if (!virtualCursor || !isDemoModeActive) return;
+    
+    virtualCursor.style.display = 'block';
+    
+    return new Promise(resolve => {
+        const startX = parseFloat(virtualCursor.style.left) || window.innerWidth / 2;
+        const startY = parseFloat(virtualCursor.style.top) || window.innerHeight / 2;
+        const startTime = performance.now();
+        
+        function animate(now) {
+            if (!isDemoModeActive) {
+                virtualCursor.style.display = 'none';
+                return resolve();
+            }
+            
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Cubic easing
+            const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+            const curX = startX + (targetX - startX) * ease;
+            const curY = startY + (targetY - startY) * ease;
+            
+            virtualCursor.style.left = `${curX}px`;
+            virtualCursor.style.top = `${curY}px`;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                if (click) {
+                    virtualCursor.classList.add('clicking');
+                    setTimeout(() => {
+                        virtualCursor.classList.remove('clicking');
+                        resolve();
+                    }, 200);
+                } else {
+                    resolve();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    });
+}
+
+function getEntityScreenCoords(entity) {
+    if (!viewer || !entity) return null;
+    
+    let position;
+    if (entity.lat !== undefined && entity.lng !== undefined) {
+        position = Cesium.Cartesian3.fromDegrees(entity.lng, entity.lat, entity.alt || 0);
+    } else if (entity.satrec) {
+        // For satellites, we need to compute their current position since they move
+        const now = Cesium.JulianDate.now();
+        const pos = entity.satrec ? getSatellitePosition(entity.satrec, now) : null;
+        if (pos) position = pos;
+    }
+    
+    if (!position) return null;
+    
+    const canvasCoords = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, position);
+    if (!canvasCoords) return null;
+    
+    return { x: canvasCoords.x, y: canvasCoords.y };
+}
+
 function getNarrationForLayer(layer) {
     const scripts = {
         'flights': "We analyze global commercial aviation utilizing crowdsourced ADS-B receivers. We track thousands of transponders simultaneously.",
@@ -3057,6 +3151,8 @@ async function runDemoCycle() {
     const demoLayers = ['flights', 'military', 'satellites', 'earthquakes', 'cctv', 'traffic', 'weather', 'police', 'scanners'];
     let layerIndex = 0;
 
+    initVirtualCursor();
+
     // Ensure camera is pointing at Earth from a good starting height
     if (viewer && viewer.camera) {
         viewer.camera.flyTo({
@@ -3065,7 +3161,7 @@ async function runDemoCycle() {
         });
     }
 
-    // UI Management: Mobile devices get a collapsed panel to save space. Desktop users keep it expanded.
+    // UI Management: Mobile devices get a collapsed panel to save space.
     const panel = document.getElementById('layers-panel');
     if (panel) {
         if (isMobile && !panel.classList.contains('collapsed')) {
@@ -3075,131 +3171,90 @@ async function runDemoCycle() {
         }
     }
 
-    // Give the engine a moment to breathe before talking
     await delay(1000);
     if (!isDemoModeActive) return;
 
-    // Introductory Speech
     await speakDemoText("Welcome to Lyve Earth by Sherpa Solutions. This platform aggregates real-time, global O S INT data feeds into a unified 3D geospatial dashboard. Let's take a look at the capabilities.");
-    await delay(1000); // Small pause before first layer
+    await delay(1000); 
 
     while (isDemoModeActive) {
-        // 1. Wipe all layers clean to focus on one subject type.
+        // 1. Wipe all layers clean
         for (const l of Object.keys(state.layers)) {
             if (state.layers[l]) toggleLayer(l);
         }
-        await delay(1000); 
+        
+        // --- NEW: Force Zoom Out to Whole Earth for each layer ---
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-95, 38, 18000000), 
+            duration: 2.5
+        });
+        
+        await delay(1500); 
         if (!isDemoModeActive) break;
 
         // 2. Turn on current layer & Speak
         const currentLayer = demoLayers[layerIndex];
         console.log(`[Demo] Activating layer: ${currentLayer}`);
         
-        toggleLayer(currentLayer); // Let it turn on first so user has visual feedback while narrator talks
+        toggleLayer(currentLayer); 
         await speakDemoText(getNarrationForLayer(currentLayer));
         
-        // Wait for data to populate (network + cesium rendering) natively during and slightly after speech
         await delay(1000); 
         if (!isDemoModeActive) break;
 
-        // 2.5 Pan camera to a regional cluster BEFORE filtering so the user can watch the items filter out visually
-        const clusterLayers = ['traffic', 'cctv', 'police', 'scanners'];
-        if (clusterLayers.includes(currentLayer)) {
-            const clusterTarget = getRandomDemoEntity(currentLayer);
-            if (clusterTarget && clusterTarget.lat !== undefined && clusterTarget.lng !== undefined) {
-                console.log(`[Demo] Panning to regional cluster for ${currentLayer} before filtering`);
-                let zoomR = 400000; // 400km regional overview for vessels and wide radio scanners
-                if (currentLayer === 'cctv' || currentLayer === 'police') zoomR = 80000; // tighter 80km view for city-level data
-                
-                viewer.camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(clusterTarget.lng, clusterTarget.lat, zoomR),
-                    duration: 2.0,
-                    orientation: { heading: 0.0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0.0 }
-                });
-                // Wait for the camera to finish moving and user to process the cluster
-                await delay(2500); 
-            }
-        }
-        if (!isDemoModeActive) break;
-
-        // 3. (Optional) Run a filter to show off dropdown functionality
-        let didFilter = false;
-        const selectId = getFilterIdForLayer(currentLayer);
-        if (selectId) {
-            const selectEl = document.getElementById(selectId);
-            if (selectEl && selectEl.options.length > 1) {
-                // First demonstrate applying a specific filter (ignore 'all' which is usually index 0)
-                const randomOpt = Math.floor(Math.random() * (selectEl.options.length - 1)) + 1;
-                selectEl.selectedIndex = randomOpt;
-                console.log(`[Demo] Filtering ${currentLayer} to option index ${randomOpt}`);
-                selectEl.dispatchEvent(new Event('change'));
-                didFilter = true;
-            }
-        }
-
-        if (didFilter) {
-            await speakDemoText("Filters allow rapid culling of data to identify specific tactical signatures.");
-            await delay(2000); // Wait for filter to apply visually
-            
-            // Explicitly show resetting to "All" to reveal additional objects as requested
-            const selectEl = document.getElementById(selectId);
-            selectEl.selectedIndex = 0; // "All" is always index 0
-            console.log(`[Demo] Clearing filters for ${currentLayer} to reveal all objects`);
-            selectEl.dispatchEvent(new Event('change'));
-            
-            await speakDemoText("Resetting the filter to 'All' immediately overlays the remaining active targets back onto the globe.");
-            await delay(2500); // Wait for the new objects to populate
-        } else {
-            await delay(1000); 
-        }
-
-        if (!isDemoModeActive) break;
-
-        // 4. Aquire Target & Zoom
+        // 3. Find Entity & Select with Virtual Mouse
         const entity = getRandomDemoEntity(currentLayer);
         if (entity) {
-            console.log(`[Demo] Locking target:`, entity.id || entity.name);
+            console.log(`[Demo] Targeting entity:`, entity.id || entity.name);
             
-            if (currentLayer === 'flights' || currentLayer === 'military' || currentLayer === 'traffic') {
-                await speakDemoText("Notice how targets cluster into numbered groups at high altitudes. This prevents visual overload. You must zoom in to resolve these clusters into individual entities.");
-                await delay(5000); 
-                if (!isDemoModeActive) break;
+            // Move mouse to entity while still zoomed out
+            const coords = getEntityScreenCoords(entity);
+            if (coords) {
+                await moveVirtualMouse(coords.x, coords.y, 1500, true);
             }
             
-            await speakDemoText("Selecting a specific entity will fly the camera to its precise coordinates and pull its metadata card.");
+            if (!isDemoModeActive) break;
+
+            // Zoom in medium speed via lockTarget
             lockTarget(entity);
-            // Stand by so user can appreciate the UI card and camera sweep
-            if (currentLayer === 'flights' || currentLayer === 'military') {
-                // Give extra time for high-res Earth imagery to load below the live aircraft
-                await delay(8000); 
-            } else {
-                await delay(5000); 
+            
+            // Wait for flyTo duration (2.0s in lockTarget + buffer)
+            await delay(3000); 
+            if (!isDemoModeActive) break;
+
+            // 4. Move Mouse to Identifier in the HUD
+            const targetHudTitle = document.querySelector('#target-panel h3');
+            if (targetHudTitle) {
+                const rect = targetHudTitle.getBoundingClientRect();
+                await moveVirtualMouse(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
             }
+            
+            // Hold for 4 seconds as requested
+            await delay(4000);
+            if (!isDemoModeActive) break;
+
+            // 5. Move Mouse to Close button and click
+            const closeBtn = document.getElementById('close-target');
+            if (closeBtn) {
+                const rect = closeBtn.getBoundingClientRect();
+                await moveVirtualMouse(rect.left + rect.width / 2, rect.top + rect.height / 2, 800, true);
+                closeBtn.click();
+            }
+            
+            await delay(1000);
         } else {
-            console.log(`[Demo] No entities found for ${currentLayer}. Sweeping...`);
-            await delay(4000); // Less time if empty
+            console.log(`[Demo] No entities found for ${currentLayer}. Skipping...`);
+            await delay(3000);
         }
 
         if (!isDemoModeActive) break;
 
-        // 5. Release Target
-        const closeBtn = document.getElementById('close-target');
-        if (closeBtn) closeBtn.click();
-        
-        // (Filter was already reset to 'All' during the initial filtering demonstration)
-        
-        await delay(1500);
-        
-        // Advanced Sequence
         layerIndex++;
         if (layerIndex >= demoLayers.length) {
-            console.log("[Demo] Sequence completed. Disabling autopilot.");
             await speakDemoText("This concludes the Lyve Earth demonstration. You now have the conn.");
-            
-            // Wait for final speech to finish before wiping map
             await delay(4000); 
-            
-            if (demoBtn) demoBtn.click(); // Gracefully turn off the demo and wipe the board
+            removeVirtualCursor();
+            if (demoBtn) demoBtn.click(); 
             break;
         }
     }
