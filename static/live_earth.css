@@ -616,7 +616,9 @@ html {
     /* Header: tighten up, hide clock */
     .hud-header {
         padding: 0 1rem;
-        height: 50px;
+        padding-top: env(safe-area-inset-top, 0); /* Notch support */
+        height: auto;
+        min-height: 50px;
     }
 
     .hud-logo {
@@ -657,12 +659,13 @@ html {
 
     /* Left data-layer panel: anchor to BOTTOM instead of left side */
     .panel-left {
-        left: 0;
-        right: auto;
+        left: 2%;
+        right: 2%;
         top: auto;
         bottom: 0;
-        width: 55%;
-        max-height: 35vh;
+        width: 96%; /* Widen for 19.5:9 / 20:9 screens */
+        max-height: 38vh;
+        padding-bottom: env(safe-area-inset-bottom, 15px); /* Home indicator support */
         border-radius: 12px 12px 0 0;
         border-bottom: none;
         transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -771,9 +774,9 @@ html {
     .panel-right {
         right: 2%;
         left: auto;
-        top: 65px;
-        width: 35%;
-        max-height: fit-content; /* Dynamic height, no scrollbar */
+        top: calc(70px + env(safe-area-inset-top, 0)); /* Clear header + Notch */
+        width: 45%; /* Slightly wider for legible text */
+        max-height: 45vh; /* Allow a bit more room for target details */
         border-radius: 8px;
         overflow-y: visible;
         box-shadow: 0 10px 25px rgba(0,0,0,0.8);
