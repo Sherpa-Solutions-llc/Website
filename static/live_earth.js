@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const speedSelect = document.getElementById('flight-speed');
                     if (speedSelect) {
                         if (e.target.value === 'opensky') {
-                            speedSelect.value = '1000+';
+                            speedSelect.value = 'all';
                         } else if (e.target.value === 'adsblol') {
                             speedSelect.value = 'all';
                         }
