@@ -193,6 +193,16 @@
             transition: all 0.2s;
         }
         .btn-scan:hover { background: #00b3cc; }
+
+        .btn-theme-orange {
+            background: var(--accent-orange) !important;
+            color: white !important;
+        }
+        .btn-theme-orange:hover {
+            background: #ff6b1a !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(235, 90, 14, 0.4);
+        }
         
         .btn-stop {
             background: rgba(255, 59, 48, 0.2);
@@ -357,6 +367,40 @@
             margin-bottom: 1.5rem;
             font-size: 0.9rem;
             line-height: 1.4;
+        }
+
+        /* Consulting Banner Refactor */
+        .consulting-banner {
+            background: linear-gradient(90deg, rgba(209,117,64,0.1), rgba(46,160,67,0.1));
+            border: 1px solid var(--accent-orange);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .consulting-banner h3 { margin: 0 0 0.2rem 0; font-size: 1.1rem; color: var(--text-main); }
+        .consulting-banner p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+        .consulting-banner .btn-search {
+            background: var(--accent-orange);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(209,117,64,0.3);
+            margin: 0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .consulting-banner .btn-search:hover {
+            background: #ff6b1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(235, 90, 14, 0.4);
+            color: white;
         }
 
         /* Strategies Tab specific styles */
@@ -606,35 +650,45 @@
             }
             .app-title { font-size: 1.2rem; }
             .header-controls {
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 width: 100%;
-                gap: 0.2rem;
-                justify-content: space-between;
+                gap: 0.5rem;
+                justify-content: center;
             }
             .header-controls button, .header-controls a {
-                flex: 1;
+                flex: 1 1 45%; /* Allow stacking in 2 per row */
                 justify-content: center;
                 text-align: center;
-                padding: 0.4rem 0.2rem;
-                font-size: 0.75rem;
+                padding: 0.6rem 0.4rem;
+                font-size: 0.8rem;
                 white-space: nowrap;
             }
 
             .metrics-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 0.2rem;
-                margin-bottom: 0.5rem;
+                grid-template-columns: repeat(2, 1fr); /* 2x2 grid is better for readability */
+                gap: 0.5rem;
+                margin-bottom: 1rem;
                 flex-shrink: 0;
             }
             .metric-card {
-                padding: 0.5rem 0.2rem;
+                padding: 1rem 0.5rem;
             }
             .metric-value {
-                font-size: 1rem;
+                font-size: 1.5rem;
             }
             .metric-label {
-                font-size: 0.55rem;
-                letter-spacing: 0;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+            }
+
+            .consulting-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            .consulting-banner .btn-search {
+                width: 100%;
             }
             
             .scan-control-panel {
@@ -773,16 +827,6 @@
             </div>
         </div>
 
-        <!-- Consulting CTA Banner -->
-        <div style="background: linear-gradient(90deg, rgba(209,117,64,0.1), rgba(46,160,67,0.1)); border: 1px solid var(--accent-orange); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            <div>
-                <h3 style="margin: 0 0 0.2rem 0; font-size: 1.1rem; color: var(--text-main);"><i class="fa-solid fa-briefcase"></i> Enterprise Quantitative Consulting</h3>
-                <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Need a custom algorithmic sentiment engine for your fund or firm?</p>
-            </div>
-            <button onclick="openConsultingModal('Stock Monitor / Quantitative Engine')" class="btn-search" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 0 10px rgba(209,117,64,0.3); margin:0;">
-                Schedule Architecture Call
-            </button>
-        </div>
 
         <div class="metrics-grid">
             <div class="metric-card">
@@ -1059,10 +1103,21 @@
                             <input type="password" class="form-control" placeholder="Broker Secret Token..." id="broker-secret">
                         </div>
                         
-                        <button class="btn-scan" onclick="linkBrokerAccount()" id="btn-link-broker" style="margin-top:2rem;"><i class="fa-solid fa-link"></i> Connect Account</button>
+                        <a href="/contact.html" class="btn-scan btn-theme-orange" data-cms="contact-us-button" style="margin-top:2rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.5rem;"><i class="fa-solid fa-envelope"></i> Contact US</a>
                     </div>
 
                 </div>
+            </div>
+
+            <!-- Consulting CTA Banner -->
+            <div class="consulting-banner" style="margin-top: 3rem;">
+                <div>
+                    <h3><i class="fa-solid fa-briefcase"></i> Enterprise Quantitative Consulting</h3>
+                    <p>Need a custom algorithmic sentiment engine for your fund or firm?</p>
+                </div>
+                <a href="/contact.html" class="btn-search" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    Contact Us
+                </a>
             </div>
 
         </div>
@@ -1221,7 +1276,14 @@
         function cacheVoice() {
             const voices = window.speechSynthesis.getVoices();
             if (voices.length > 0) {
-                cachedFemaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                // Prioritize British Female (Google UK English Female / Microsoft Hazel)
+                cachedFemaleVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
+                
+                // Fallback to other female voices if UK not found
+                if (!cachedFemaleVoice) {
+                    cachedFemaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                }
+                
                 if (!cachedFemaleVoice) cachedFemaleVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
                 voicesReady = true;
             }
