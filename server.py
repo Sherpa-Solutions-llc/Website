@@ -1110,13 +1110,17 @@ async def serve_pages(page_name: str, request: Request):
     
     html_path = os.path.join(BASE_DIR, f"{page_name}.html")
     if os.path.exists(html_path):
+        if page_name == 'login':
+           print(f"[Login Page] User {request.client.host} serving login.html")
         return FileResponse(html_path)
     return HTMLResponse(content="Page not found", status_code=404)
 
 
 @app.post("/api/login")
 async def login(response: Response, username: str = Form(...), password: str = Form(...)):
+    print(f"[Login Attempt] Username: {username}")
     if await database.verify_user(username, password):
+        print(f"[Login Success] Correct for {username}")
         token = secrets.token_urlsafe(32)
         sessions[token] = {
             "username": username,
@@ -1127,6 +1131,7 @@ async def login(response: Response, username: str = Form(...), password: str = F
         return response
     
     # Return error param
+    print(f"[Login Failure] Credentials didn't match for {username}")
     return RedirectResponse(url="/login.html?error=1", status_code=status.HTTP_302_FOUND)
 
 @app.post("/api/logout")
@@ -3871,8 +3876,6 @@ async def api_stock_scan(vol: int = 500, price: int = 15):
 # FREEME AUTONOMOUS OPT-OUT API (Campaigns)
 # ==========================================
 
-from freeme_engine.orchestrator import launch_campaign, get_campaign_status
-
 class BrokerCampaignRequest(BaseModel):
     aliases: list[str]
     emails: list[str]
@@ -3890,6 +3893,7 @@ from fastapi import BackgroundTasks
 def _run_campaign_async_wrapper(campaign_id, profile, brokers, demo_mode, llm_model):
     import sys
     import asyncio
+    from freeme_engine.orchestrator import launch_campaign # Local import for startup resilience
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     asyncio.run(launch_campaign(
@@ -3941,6 +3945,7 @@ async def get_freeme_status(campaign_id: str):
     Heartbeat endpoint for the UI to constantly poll the active campaign
     and redraw the UI with new logs and progress bars.
     """
+    from freeme_engine.orchestrator import get_campaign_status # Local import for startup resilience
     status_data = get_campaign_status(campaign_id)
     if not status_data:
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
