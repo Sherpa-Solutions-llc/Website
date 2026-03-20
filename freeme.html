@@ -551,7 +551,17 @@
 <li><a href="merchandise.html">Merchandise</a></li>
 <li><a href="contact.html">Contact</a></li>
 </ul>
-<div class="header-actions">
+<div class="header-actions" style="gap: 1.5rem;">
+<div id="demo-header-container" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+    <button id="btn-play-demo" onclick="runGuidedDemo()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-play"></i> Demo
+    </button>
+    <div id="demo-volume-control" style="display:flex;align-items:center;gap:6px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 0.8rem;">
+        <span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-low"></i></span>
+        <input id="demo-volume-slider" max="100" min="0" style="width:60px;height:3px;cursor:pointer;accent-color:var(--accent);" type="range" value="50"/>
+        <span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-high"></i></span>
+    </div>
+</div>
 <button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
 <a class="btn btn-primary nav-cta" href="index.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back Home</a>
 </div>
@@ -561,15 +571,7 @@
 <p style="margin: 0.5rem 0 1rem 0; text-align: center;">Autonomous AI web agents actively removing your data footprint.</p>
 <div id="_cms_ignore_header_btns">
 <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
-
-<button class="btn-primary" id="btn-play-demo" onclick="runGuidedDemo()" style="padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; background: var(--surface-color); border: 1px solid var(--accent); color: var(--accent); cursor: pointer;">
-<i class="fa-solid fa-play"></i> Play Voice Demo Tour
-            </button>
-<div id="demo-volume-control" style="display:flex;align-items:center;gap:6px;">
-<span style="color:var(--text-muted);font-size:0.75rem;"><i class="fa-solid fa-volume-low"></i></span>
-<input id="demo-volume-slider" max="100" min="0" style="width:80px;height:4px;cursor:pointer;accent-color:var(--accent);" type="range" value="50"/>
-<span style="color:var(--text-muted);font-size:0.75rem;"><i class="fa-solid fa-volume-high"></i></span>
-</div>
+<!-- Relocated to Header -->
 </div>
 </div>
 </div>
@@ -1658,7 +1660,13 @@
         function cacheVoice() {
             if ('speechSynthesis' in window) {
                 const voices = window.speechSynthesis.getVoices();
-                femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google US English') || v.name.includes('Zira'));
+                // Prioritize British Female
+                femaleVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
+                
+                // Fallback
+                if (!femaleVoice) {
+                    femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google US English') || v.name.includes('Zira'));
+                }
             }
         }
         if ('speechSynthesis' in window) { window.speechSynthesis.onvoiceschanged = cacheVoice; }
