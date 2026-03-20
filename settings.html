@@ -527,7 +527,7 @@
                     <div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
                         <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
                             <span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
-                            <span id="railway-progress-status" style="color:#f39c12; font-weight:600;">Not Needed</span>
+                            <span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
                         </div>
                     </div>
                 </div>
@@ -958,18 +958,19 @@
                 progressContainer.style.display = 'flex';
                 progressBar.style.width = '0%';
                 progressBar.style.background = 'var(--accent)';
-                progressText.innerText = 'Checking files...';
+                progressText.innerText = 'Ready...';
                 progressText.style.color = 'var(--secondary)';
                 progressPercent.innerText = '0%';
                 progressPercent.style.color = 'var(--secondary)';
                 
                 // Railway Status Reset
                 const railwayStatus = document.getElementById('railway-progress-status');
-                railwayStatus.innerText = 'Checking...';
+                railwayStatus.innerText = 'Ready';
                 railwayStatus.style.color = 'var(--secondary)';
 
                 // Step 1: Kick off the background deploy — this returns immediately
                 try {
+                    progressText.innerText = 'Committing changes...';
                     const res = await fetch('/api/sync-github', { method: 'POST' });
                     if (!res.ok) {
                         const data = await res.json();
@@ -1014,25 +1015,31 @@
                             clearInterval(pollInterval);
                             progressBar.style.width = '100%';
                             progressBar.style.background = '#2ecc71';
-                            progressText.innerText = `✓ ${p.message || 'Deployment complete'}`;
+                            progressText.innerText = `✓ Deployed to GitHub`;
                             progressText.style.color = '#2ecc71';
                             progressPercent.innerText = '100%';
                             progressPercent.style.color = '#2ecc71';
                             btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
                             
                             // If files were actually modified/uploaded, Railway will rebuild
-                            if (p.current > 0) {
-                                railwayStatus.innerText = 'Completed';
-                                railwayStatus.style.color = '#2ecc71';
+                            if (p.current > 0 || p.message.includes('uploaded')) {
+                                railwayStatus.innerText = 'Deploying...';
+                                railwayStatus.style.color = '#3498db';
+                                
+                                // Show "Deployed" on Railway after a reasonable wait (matching the alert timer)
+                                setTimeout(() => {
+                                    railwayStatus.innerText = 'Deployed';
+                                    railwayStatus.style.color = '#2ecc71';
+                                }, 60000); // Show Deployed after 60s
                             } else {
-                                railwayStatus.innerText = 'Not Needed';
+                                railwayStatus.innerText = 'No Changes';
                                 railwayStatus.style.color = '#f39c12';
                             }
 
                             setTimeout(() => {
                                 progressContainer.style.display = 'none';
                                 alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates shortly.');
-                            }, 90000); // Changed from 1200ms to 90 seconds
+                            }, 90000); 
                         }
                     } catch (e) { console.error('Polling error:', e); }
                 }, 600);
