@@ -101,6 +101,29 @@
             gap: 0.4rem;
         }
         .btn-refresh:hover { border-color: var(--text-main); color: var(--text-main); }
+        
+        /* Environment Detection Badge */
+        .env-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .env-live {
+            background: rgba(46, 160, 67, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(46, 160, 67, 0.4);
+        }
+        .env-simulated {
+            background: rgba(209, 117, 64, 0.15);
+            color: #d17540;
+            border: 1px solid rgba(209, 117, 64, 0.4);
+        }
 
         /* Metrics Ribbon */
         .metrics-grid {
@@ -728,13 +751,10 @@
                     <img src="/static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 28px;">
                 </a>
                 Stock Monitor Pro
+                <div id="env-badge" class="env-badge env-simulated"><i class="fa-solid fa-server"></i> Simulated</div>
             </div>
             <div class="header-controls">
-                <div class="status-indicator">
-                    <div class="status-dot" id="system-status-dot"></div>
-                    <span id="system-status-text">Offline</span>
-                </div>
-                <button id="btn-demo-toggle" class="demo-btn" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+                <button id="btn-demo-toggle" class="demo-btn" style="margin-right: 15px;" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
                 
                 <div class="audio-control-wrapper audio-on" style="position: relative; display: flex; flex: 1; justify-content: center;">
                     <button class="btn-refresh" id="btn-audio-toggle" onclick="toggleAudio()" style="width: 100%;"><i class="fa-solid fa-bell" style="color: var(--accent-cyan);"></i> Audio On</button>
@@ -747,9 +767,8 @@
                         <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-high"></i></span>
                     </div>
                 </div>
-                <button class="btn-refresh" id="btn-auth-header" onclick="openAuthModal()"><i class="fa-solid fa-user"></i> Sign In</button>
-                <button class="btn-refresh" onclick="openArchitectureModal()"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
-                <button class="btn-refresh" onclick="openDocModal()"><i class="fa-solid fa-book"></i> Documentation</button>
+                <button class="btn-refresh" onclick="openArchitectureModal()" data-cms="header-arch-btn"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
+                <button class="btn-refresh" onclick="openDocModal()" data-cms="header-doc-btn"><i class="fa-solid fa-book"></i> Documentation</button>
                 <a href="/projects.html" class="btn-refresh" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Exit</a>
             </div>
         </div>
@@ -1635,10 +1654,14 @@
         // Scan Simulation / API Request
         async function startScan() {
             isScanning = true;
-            document.getElementById('system-status-text').textContent = "Scanning...";
-            document.getElementById('system-status-dot').className = "status-dot scanning";
             
-            logToTerminal("Initiating Market Sweep Protocol...", "highlight");
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            if (isLocalhost) {
+                logToTerminal("Initiating Live Market Sweep...", "highlight");
+            } else {
+                logToTerminal("Initiating Simulated Market Sweep (Web View)...", "highlight");
+            }
             
             // Build query params from settings
             const vol = localStorage.getItem('sm_vol') || '2000000';
@@ -1673,11 +1696,28 @@
             }, intervalMs);
 
             try {
-                // Fetch real data from our backend proxy
-                const response = await fetch(`${API_BASE}/api/stock-scan?vol=${vol}&price=${price}`);
-                const data = await response.json();
-                
-                if(!response.ok) throw new Error(data.error || 'Server responded with an error');
+                let data;
+                if (isLocalhost) {
+                    // Fetch real data on localhost
+                    const response = await fetch(`${API_BASE}/api/stock-scan?vol=${vol}&price=${price}`);
+                    data = await response.json();
+                    if(!response.ok) throw new Error(data.error || 'Server responded with an error');
+                    logToTerminal("Live scan data received from local engine.", "success");
+                } else {
+                    // Mock data for the web
+                    await new Promise(r => setTimeout(r, 1500)); // Network simulation
+                    data = {
+                        status: "success",
+                        trending_count: 4,
+                        results: [
+                            { ticker: "NVDA", name: "NVIDIA Corp", price: "925.30", change: "+12.45", rvol: "4.2x", signal: "STRONG BUY" },
+                            { ticker: "TSLA", name: "Tesla Inc", price: "175.40", change: "-2.10", rvol: "2.8x", signal: "WATCH" },
+                            { ticker: "SMCI", name: "Super Micro Computer", price: "1080.50", change: "+45.20", rvol: "8.5x", signal: "BREAKOUT" },
+                            { ticker: "PLTR", name: "Palantir Tech", price: "24.15", change: "+0.85", rvol: "3.1x", signal: "BUY" }
+                        ]
+                    };
+                    logToTerminal("Simulated patterns detected from cloud sandbox.", "highlight");
+                }
 
                 // Ensure the visual simulation lasts the full 42 seconds even if API is fast
                 const elapsedTime = Date.now() - scanStartTime;
@@ -1764,8 +1804,6 @@
         function stopScan() {
             isScanning = false;
             clearInterval(scanInterval);
-            document.getElementById('system-status-text').textContent = "Online";
-            document.getElementById('system-status-dot').className = "status-dot online";
             document.getElementById('scan-progress-bar').style.width = '0%';
             document.getElementById('val-progress').textContent = 'Inactive';
             
@@ -2174,142 +2212,19 @@
             }
         }
 
-        // --- Authentication Logic ---
-        let authMode = 'login'; // 'login' or 'register'
-        
-        function openAuthModal() {
-            document.getElementById('auth-modal').style.display = 'flex';
-        }
-        function closeAuthModal() {
-            document.getElementById('auth-modal').style.display = 'none';
-            document.getElementById('auth-error').style.display = 'none';
-            document.getElementById('auth-form').reset();
-        }
-        function toggleAuthMode() {
-            authMode = authMode === 'login' ? 'register' : 'login';
-            document.getElementById('auth-modal-title').innerHTML = authMode === 'login' ? '<i class="fa-solid fa-user" style="color: var(--accent-cyan); margin-right:10px;"></i>Sign In' : '<i class="fa-solid fa-user-plus" style="color: var(--accent-cyan); margin-right:10px;"></i>Create Account';
-            document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
-            document.getElementById('auth-toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
-        }
-
-        async function submitAuth(event) {
-            event.preventDefault();
-            const btn = document.getElementById('auth-submit-btn');
-            const errEl = document.getElementById('auth-error');
-            const originalText = btn.textContent;
-            
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-            btn.disabled = true;
-            errEl.style.display = 'none';
-
-            const payload = {
-                email: document.getElementById('auth-email').value,
-                password: document.getElementById('auth-password').value
-            };
-
-            const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-
-            try {
-                const res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await res.json();
-                if(res.ok) {
-                    localStorage.setItem('sherpa_saas_token', data.token);
-                    localStorage.setItem('sherpa_saas_user', JSON.stringify(data.user));
-                    location.reload(); // Reload to apply authenticated state
-                } else {
-                    errEl.textContent = data.detail || 'Authentication failed';
-                    errEl.style.display = 'block';
-                }
-            } catch(e) {
-                errEl.textContent = 'Network error. Please try again.';
-                errEl.style.display = 'block';
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-        
-        function logout() {
-            localStorage.removeItem('sherpa_saas_token');
-            localStorage.removeItem('sherpa_saas_user');
-            location.reload();
-        }
-
-        // Init Auth State
+        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('sherpa_saas_token');
-            const userStr = localStorage.getItem('sherpa_saas_user');
-            const authBtn = document.getElementById('btn-auth-header');
             
-            let isPremium = false;
-            let isLoggedIn = false;
-            let userObj = null;
-
-            if (token && userStr) {
-                try {
-                    const user = JSON.parse(userStr);
-                    userObj = user;
-                    isLoggedIn = true;
-                    if(user.is_premium) isPremium = true;
-
-                    authBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> Logout</span>`;
-                    authBtn.onclick = logout;
-                    authBtn.title = `Logged in as ${user.email.split('@')[0]}`;
-                    authBtn.style.color = "var(--text-muted)";
-                    authBtn.style.borderColor = "var(--border-color)";
-                } catch(e) {}
-            }
-            
-            // --- ENFORCE PAYWALL ---
-            if(false) {
-                // Blur the entire main content area below the control panel
-                const mainArea = document.querySelector('.main-content-area');
-                if(mainArea) {
-                    mainArea.style.filter = "blur(5px)";
-                    mainArea.style.pointerEvents = "none";
-                    mainArea.style.userSelect = "none";
-                    mainArea.style.opacity = "0.7";
-                    mainArea.style.transition = "all 0.3s";
-                }
-                
-                // Disable the Start Scan button and change text to CTA
-                const scanBtn = document.getElementById('btn-toggle-scan');
-                if(scanBtn) {
-                    scanBtn.innerHTML = isLoggedIn ? '<i class="fa-solid fa-lock"></i> Upgrade to Pro ($29/mo)' : '<i class="fa-solid fa-lock"></i> Sign In to Unlock Engine';
-                    scanBtn.style.background = isLoggedIn ? '#5469d4' : '';
-                    scanBtn.style.borderColor = isLoggedIn ? '#5469d4' : '';
-                    scanBtn.style.color = 'white';
-                    
-                    scanBtn.onclick = async () => {
-                        if(isLoggedIn) {
-                            scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Secure Checkout...';
-                            try {
-                                const res = await fetch('/api/billing/create-checkout-session', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': 'Bearer ' + token
-                                    },
-                                    body: JSON.stringify({plan: 'sherpa_pro_monthly'})
-                                });
-                                const data = await res.json();
-                                if(data.url) {
-                                    window.location.href = data.url;
-                                } else {
-                                    throw new Error("No URL returned");
-                                }
-                            } catch(e) {
-                                scanBtn.innerHTML = 'Error. Try Again.';
-                            }
-                        } else {
-                            openAuthModal();
-                        }
-                    };
+            // --- Environment State Management ---
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const badge = document.getElementById('env-badge');
+            if (badge) {
+                if (isLocalhost) {
+                    badge.innerHTML = '<i class="fa-solid fa-server"></i> Live Mode';
+                    badge.className = 'env-badge env-live';
+                } else {
+                    badge.innerHTML = '<i class="fa-solid fa-cloud"></i> Simulated';
+                    badge.className = 'env-badge env-simulated';
                 }
             }
         });
@@ -2376,38 +2291,6 @@
         </div>
     </div>
 
-    <!-- Auth Modal -->
-    <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: var(--bg-dark); border: 1px solid var(--accent-cyan); width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(209, 117, 64, 0.2);">
-            <div style="background: var(--bg-darker); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0; font-size: 1.2rem;" id="auth-modal-title"><i class="fa-solid fa-user" style="color: var(--accent-cyan); margin-right:10px;"></i>Sign In</h2>
-                <button onclick="closeAuthModal()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            <div style="padding: 2rem;">
-                <form id="auth-form" onsubmit="submitAuth(event)">
-                    <p id="auth-error" style="color: var(--accent-red); font-size: 0.85rem; display: none; margin-top: 0; margin-bottom: 1rem;"></p>
-                    
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Email Address</label>
-                        <input type="email" id="auth-email" required style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
-                    </div>
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-main); font-size: 0.9rem;">Password</label>
-                        <input type="password" id="auth-password" required style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white; border-radius: 4px; box-sizing: border-box;">
-                    </div>
-                    
-                    <button type="submit" id="auth-submit-btn" class="btn-search" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0;">
-                        Sign In
-                    </button>
-                    
-                    <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
-                        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link" style="color: var(--accent-cyan); text-decoration: none;">Need an account? Sign up</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <script src="/static/cms.js"></script>
 </body>
