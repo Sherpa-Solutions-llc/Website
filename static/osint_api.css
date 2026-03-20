@@ -1,7 +1,7 @@
 /* OSINT API Specific Styling */
 .osint-body {
-    background: #060a0f;
-    color: #e2e8f0;
+    background: var(--bg-color);
+    color: var(--text-dark);
     font-family: 'Inter', sans-serif;
 }
 
@@ -17,7 +17,7 @@
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 1.5rem;
-    color: #fff;
+    color: var(--primary);
     letter-spacing: -1px;
 }
 
@@ -31,7 +31,7 @@
     font-size: 1.25rem;
     max-width: 800px;
     margin: 0 auto 3rem;
-    color: #94a3b8;
+    color: var(--secondary);
     line-height: 1.6;
 }
 
@@ -66,8 +66,8 @@
 }
 
 .feature-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 2.5rem;
     transition: transform 0.3s ease, background 0.3s ease;
@@ -89,11 +89,11 @@
     font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: #fff;
+    color: var(--primary);
 }
 
 .feature-card p {
-    color: #94a3b8;
+    color: var(--text-dark);
     line-height: 1.5;
     font-size: 1rem;
 }
@@ -110,18 +110,18 @@
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 0.5rem;
-    color: #fff;
+    color: var(--primary);
 }
 
 .sandbox-subtitle {
     text-align: center;
-    color: #94a3b8;
+    color: var(--secondary);
     margin-bottom: 3rem;
 }
 
 .terminal-container {
-    background: #0d1117;
-    border: 1px solid #30363d;
+    background: #0d1117; /* Always dark for terminal vibe */
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -210,10 +210,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
-    background: rgba(255,255,255,0.03);
+    background: var(--surface-color);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--border-color);
     align-items: flex-end; /* Keeps the bottom aligned with Run Query */
 }
 
@@ -226,7 +226,7 @@
 
 .control-group label {
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: var(--secondary);
     font-weight: 600;
 }
 
@@ -238,9 +238,9 @@
 
 .key-input-wrapper input {
     flex: 1 1 150px; /* Allow the input to shrink and grow but maintain a min size */
-    background: #0d1117;
-    border: 1px solid #30363d;
-    color: #c9d1d9;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-family: 'Fira Code', monospace;
@@ -250,7 +250,7 @@
 
 .key-input-wrapper input:focus {
     outline: none;
-    border-color: #c06c3b;
+    border-color: var(--accent);
 }
 
 .key-input-wrapper .btn {
@@ -259,9 +259,9 @@
 
 select {
     width: 100%; /* Ensure it spans the container */
-    background: #0d1117;
-    border: 1px solid #30363d;
-    color: #c9d1d9;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
     padding: 0.6rem 1rem;
     border-radius: 6px;
     font-family: 'Inter', sans-serif;
@@ -270,7 +270,7 @@ select {
     cursor: pointer;
 }
 
-select:focus { border-color: #c06c3b; }
+select:focus { border-color: var(--accent); }
 
 .btn-group-bottom { flex: 0 0 auto; }
 
@@ -286,7 +286,7 @@ select:focus { border-color: #c06c3b; }
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 3rem;
-    color: #fff;
+    color: var(--primary);
 }
 
 .pricing-grid {
@@ -296,8 +296,8 @@ select:focus { border-color: #c06c3b; }
 }
 
 .pricing-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 3rem 2rem;
     text-align: center;
@@ -317,8 +317,8 @@ select:focus { border-color: #c06c3b; }
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: #c06c3b;
-    color: #fff;
+    background: var(--accent);
+    color: var(--text-light);
     font-size: 0.75rem;
     font-weight: 700;
     padding: 4px 12px;
@@ -330,20 +330,20 @@ select:focus { border-color: #c06c3b; }
 .pricing-card h3 {
     font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
-    color: #fff;
+    color: var(--primary);
     margin-bottom: 1rem;
 }
 
 .pricing-card .price {
     font-size: 3rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--text-dark);
     margin-bottom: 2rem;
 }
 
 .pricing-card .price span {
     font-size: 1rem;
-    color: #94a3b8;
+    color: var(--secondary);
     font-weight: 400;
 }
 
@@ -357,7 +357,7 @@ select:focus { border-color: #c06c3b; }
 
 .pricing-features li {
     margin-bottom: 1rem;
-    color: #e2e8f0;
+    color: var(--text-dark);
     font-size: 0.95rem;
     display: flex;
     align-items: flex-start;
@@ -393,8 +393,8 @@ select:focus { border-color: #c06c3b; }
 .modal:not(.hidden) { display: flex; }
 
 .modal-content {
-    background: #161b22;
-    border: 1px solid #30363d;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     width: 100%;
     max-width: 400px;
@@ -412,12 +412,12 @@ select:focus { border-color: #c06c3b; }
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid #30363d;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
     margin: 0;
-    color: #fff;
+    color: var(--primary);
     font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
 }
@@ -433,28 +433,28 @@ select:focus { border-color: #c06c3b; }
 .close-btn:hover { color: #fff; }
 
 .modal-body { padding: 1.5rem; }
-.modal-body p { margin-bottom: 1.5rem; color: #94a3b8; }
-.modal-body strong { color: #c06c3b; }
+.modal-body p { margin-bottom: 1.5rem; color: var(--secondary); }
+.modal-body strong { color: var(--accent); }
 
 .form-group { margin-bottom: 1.5rem; }
 .form-group label {
     display: block;
     font-size: 0.85rem;
-    color: #c9d1d9;
+    color: var(--primary);
     margin-bottom: 0.5rem;
     font-weight: 600;
 }
 .form-group input {
     width: 100%;
-    background: #0d1117;
-    border: 1px solid #30363d;
-    color: #fff;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
     padding: 0.75rem;
     border-radius: 6px;
     font-family: 'Inter', sans-serif;
     outline: none;
 }
-.form-group input:focus { border-color: #c06c3b; }
+.form-group input:focus { border-color: var(--accent); }
 
 .cc-input {
     position: relative;
