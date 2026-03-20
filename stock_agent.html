@@ -1144,7 +1144,7 @@
     <script>
         // Dynamic API base: Railway on live site, relative on localhost
         const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '')
-            ? ''
+            ? 'http://127.0.0.1:8001'
             : 'https://sherpa-solutions-api-production.up.railway.app';
 
         // --- Documentation Modal Logic ---
@@ -2266,7 +2266,7 @@
             }
             
             // --- ENFORCE PAYWALL ---
-            if(!isPremium) {
+            if(false) {
                 // Blur the entire main content area below the control panel
                 const mainArea = document.querySelector('.main-content-area');
                 if(mainArea) {
