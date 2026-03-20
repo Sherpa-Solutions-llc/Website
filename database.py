@@ -1,12 +1,14 @@
 import aiosqlite
+import os
 import bcrypt
 import json
 import sqlite3
 import httpx
 
-DB_NAME = "sherpa_cms.db"
-STOCKS_DB = "sherpa_stocks.db"
-TRAKU_DB = "sherpa_traku.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = os.path.join(BASE_DIR, "sherpa_cms.db")
+STOCKS_DB = os.path.join(BASE_DIR, "sherpa_stocks.db")
+TRAKU_DB = os.path.join(BASE_DIR, "sherpa_traku.db")
 
 async def init_db():
     async with aiosqlite.connect(DB_NAME) as db:
