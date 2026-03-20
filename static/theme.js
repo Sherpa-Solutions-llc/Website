@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sherpaFrame && sherpaFrame.contentWindow) {
             sherpaFrame.contentWindow.postMessage({
                 stCommVersion: 1,
-                type: "setTheme",
+                type: "SHERPA_THEME",
                 theme: {
                     base: newTheme,
                     primaryColor: "#ff6600",
