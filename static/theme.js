@@ -51,6 +51,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.warn("Could not sync theme to iframe (cross-origin or not loaded yet)");
             }
         }
+        
+        // Sync with Streamlit Application Iframes if present
+        const sherpaFrame = document.getElementById('sherpa-frame');
+        if (sherpaFrame && sherpaFrame.contentWindow) {
+            sherpaFrame.contentWindow.postMessage({
+                stCommVersion: 1,
+                type: "setTheme",
+                theme: {
+                    base: newTheme,
+                    primaryColor: "#ff6600",
+                    backgroundColor: newTheme === 'dark' ? "#0e1117" : "#ffffff",
+                    secondaryBackgroundColor: newTheme === 'dark' ? "#262730" : "#f0f2f6",
+                    textColor: newTheme === 'dark' ? "#fafafa" : "#31333F",
+                    font: "sans serif"
+                }
+            }, "*");
+        }
     });
 });
 
