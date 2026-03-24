@@ -7,6 +7,7 @@ from .web_agent import WebDeveloperAgent
 from .data_agent import DataAnalystAgent
 from .code_agent import CodeReviewerAgent
 from .qa_agent import SoftwareTesterAgent
+from .file_editor_agent import FileEditorAgent
 
 class MasterAgent(BaseAgent):
     def __init__(self, callback_manager):
@@ -17,6 +18,7 @@ class MasterAgent(BaseAgent):
         self.data_agent = DataAnalystAgent(callback_manager)
         self.code_agent = CodeReviewerAgent(callback_manager)
         self.qa_agent = SoftwareTesterAgent(callback_manager)
+        self.file_editor_agent = FileEditorAgent(callback_manager)
         
         # Halt coordination
         self.cancel_event = asyncio.Event()
@@ -33,16 +35,6 @@ class MasterAgent(BaseAgent):
         
         # Halt coordination
         self.cancel_event = asyncio.Event()
-
-    def reset_memory(self):
-        super().reset_memory()
-        self.stock_agent.reset_memory()
-        self.research_agent.reset_memory()
-        self.web_agent.reset_memory()
-        self.data_agent.reset_memory()
-        self.code_agent.reset_memory()
-        self.qa_agent.reset_memory()
-        self.cancel_event.clear()
 
     async def run_task(self, payload: dict):
         """
@@ -85,6 +77,10 @@ class MasterAgent(BaseAgent):
             """Writes automated unit tests for software applications."""
             pass
 
+        def call_file_editor(file_name: str, error_description: str):
+            """Reads a server-side source file, applies an AI fix for the described error, validates it, and writes it back. Use when the user reports an error or bug in a specific file and wants it resolved automatically. file_name should be just the filename (e.g. 'telegram_bot.py') or relative path."""
+            pass
+
         def ask_user(question: str):
             """Suspends execution to politely ask the user a clarifying question if their prompt is too vague or missing details."""
             pass
@@ -95,7 +91,8 @@ class MasterAgent(BaseAgent):
             call_web_agent, 
             call_data_agent, 
             call_code_reviewer, 
-            call_qa_agent, 
+            call_qa_agent,
+            call_file_editor,
             ask_user
         ]
 
@@ -147,7 +144,7 @@ If the user's message is JUST a conversational greeting or acknowledgement, you 
         await self.update_progress(30)
         
         # Build God View Mermaid Diagram
-        diagram = "graph TD\nMaster[Master Orchestrator]\n"
+        diagram: str = "graph TD\nMaster[Master Orchestrator]\n"
         has_delegation = False
         for idx, call in enumerate(function_calls):
             if call.name != "ask_user":
@@ -157,7 +154,8 @@ If the user's message is JUST a conversational greeting or acknowledgement, you 
                     "call_web_agent": "Web Developer",
                     "call_data_agent": "Data Analyst",
                     "call_code_reviewer": "Code Reviewer",
-                    "call_qa_agent": "Software Tester"
+                    "call_qa_agent": "Software Tester",
+                    "call_file_editor": "File Editor"
                 }
                 sub_agent = agent_map.get(call.name, call.name)
                 diagram += f"Master -->|Delegates| Node{idx}[{sub_agent}]\n"
@@ -210,8 +208,17 @@ If the user's message is JUST a conversational greeting or acknowledgement, you 
                     await self.log("Delegating to Software Tester Agent...")
                     return await self.qa_agent.run(pld)
                 tasks.append(run_qa(payload))
+
+            elif name == "call_file_editor":
+                await self.file_editor_agent.update_status("Standby")
+                _fe_file = args.get("file_name", "")
+                _fe_err = args.get("error_description", "")
+                async def run_file_editor(fn, err):
+                    await self.log(f"Delegating to File Editor Agent for {fn}...")
+                    return await self.file_editor_agent.run(fn, err)
+                tasks.append(run_file_editor(_fe_file, _fe_err))
                 
-        results = ""
+        results: str = ""
         # Execute the data-gathering agents concurrently
         if tasks:
             if self.cancel_event.is_set():
@@ -230,14 +237,14 @@ If the user's message is JUST a conversational greeting or acknowledgement, you 
                 await self.web_agent.update_status("Standby")
                 await self.log("Delegating to Web Developer Agent...")
                 web_prompt = f"Using this context:\n{results}\n\nFulfill the web development requirement: {call.args.get('web_request', call.args.get('website_topic'))}"
-                web_res = await self.web_agent.run(web_prompt)
+                web_res: str = str(await self.web_agent.run(web_prompt))
                 results += f"Web Dev Output saved at: {web_res}\n\n"
                 
                 # Auto-QA the website changes
                 await self.qa_agent.update_status("Standby")
                 await self.log("Auto-delegating to QA Agent to test web changes...", "info")
                 qa_prompt = f"The website was just modified with these requirements: {call.args.get('web_request', call.args.get('website_topic'))}.\nWeb Output:\n{web_res}\n\nPlease test the website codebase to ensure the requirement is completed and all functionality is in-place and not broken."
-                qa_res = await self.qa_agent.run({"task": qa_prompt})
+                qa_res: str = str(await self.qa_agent.run({"task": qa_prompt}))
                 results += f"QA Test Results:\n{qa_res}\n\n"
                 
                 await self.update_progress(95)
