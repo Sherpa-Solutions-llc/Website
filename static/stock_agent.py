@@ -51,9 +51,8 @@ class StockMonitorAgent(BaseAgent):
         except Exception as e:
             import traceback
             err_str = traceback.format_exc()
-            with open(r"c:\Users\choos\.gemini\antigravity\playground\axial-halo\debug_stock.txt", "w") as f:
-                f.write(err_str)
-            await self.log(f"Failed to fetch stock data: {str(e)}\n\nTraceback:\n{err_str}", level="error")
+            await self.log(f"Failed to fetch stock data for {symbol}: {str(e)}", level="error")
+            await self.log(f"Traceback:\n{err_str}", level="error")
             await self.update_status("Error")
             await self.update_progress(0)
-            return f"Error analyzing {symbol}"
+            return f"Error analyzing {symbol}: {str(e)}"
