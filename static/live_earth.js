@@ -1,9 +1,15 @@
 // ----- UI & STATE MANAGEMENT -----
-const isMobile = window.innerWidth <= 768;
+let isMobile = window.innerWidth <= 768;
+window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
 
 // Define your Railway backend URL here for production!
 // Example: "https://your-custom-app.up.railway.app"
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? '' : 'https://sherpa-solutions-api-production.up.railway.app'; // <--- REPLACE THIS WITH YOUR REAL RAILWAY URL IF THIS IS INCORRECT
+let API_BASE = 'https://sherpa-solutions-api-production.up.railway.app';
+if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+    API_BASE = 'http://127.0.0.1:8001';
+}
+// The Python Uvicorn backend caches telemetry natively (weather.db, satellites_data.db),
+// preventing Localhost IP rate-limit blocks securely without requiring Edge tunneling.
 
 // Performance caps — satellite entities have per-frame CallbackProperty callbacks too;
 // keep this reasonable. Flights use viewport culling instead (no hard cap).
@@ -20,7 +26,9 @@ const state = {
         earthquakes: false,
         traffic: false,
         weather: false,
-        cctv: false
+        cctv: false,
+        police: false,
+        scanners: false
     },
     dataSources: {
         flights: 'opensky',
@@ -29,7 +37,9 @@ const state = {
         satellites: 'celestrak',
         traffic: 'aisstream',
         weather: 'rainviewer',
-        cctv: 'public'
+        cctv: 'public',
+        police: 'arcgis',
+        scanners: 'broadcastify'
     },
     flights: [],
     satellites: [],
@@ -37,12 +47,16 @@ const state = {
     weatherData: [],
     traffic: [],
     cctv_cameras: [],
+    police_data: [],
+    scanners: [],
     target: null,
     lastFetchTime: 0
 };
 
 let _fetchingSatellites = false;
 let _fetchingEarthquakes = false;
+let _fetchingPolice = false;
+let _fetchingScanners = false;
 
 // Global DataSources for efficient entity tracking
 const flightsDataSource = new Cesium.CustomDataSource('flights');
@@ -52,6 +66,8 @@ const earthquakesDataSource = new Cesium.CustomDataSource('earthquakes');
 const cctvDataSource = new Cesium.CustomDataSource('cctvs');
 const shippingDataSource = new Cesium.CustomDataSource('shipping');
 const weatherDataSource = new Cesium.CustomDataSource('weather');
+const policeDataSource = new Cesium.CustomDataSource('police');
+const scannersDataSource = new Cesium.CustomDataSource('scanners');
 
 // Active weather imagery layer (RainViewer) — stored outside entities so
 // it persists across entity refresh calls
@@ -64,15 +80,50 @@ setInterval(() => {
     document.getElementById('clock-display').innerHTML = now.toISOString().replace('T', '<br>').replace('Z', ' UTC');
 }, 1000);
 
+// Unify Layout: Move toggle buttons inside layer headers so they are embedded directly in the card panel for all devices
+document.querySelectorAll('.layer-row').forEach(row => {
+    const toggleBtn = row.querySelector('.layer-toggle-btn');
+    const header = row.querySelector('.layer-header');
+    if (toggleBtn && header) {
+        // Move the toggle button into the header (before the chevron)
+        toggleBtn.style.cssText = 'flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:rgba(0,20,30,0.8); border:1px solid rgba(0,210,255,0.3); border-radius:6px; cursor:pointer; margin-left:auto;';
+        const chevron = header.querySelector('.layer-chevron');
+        if (chevron) {
+            header.insertBefore(toggleBtn, chevron);
+        } else {
+            header.appendChild(toggleBtn);
+        }
+        // Prevent toggle click from also expanding the layer options
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+});
+
 // Layer Toggles
+window.toggleLayerOptions = function(layerName) {
+    const el = document.getElementById(`layer-${layerName}`);
+    if (el) {
+        el.classList.toggle('expanded');
+    }
+};
+
 window.toggleLayer = function (layerName) {
     state.layers[layerName] = !state.layers[layerName];
+    
     const el = document.getElementById(`layer-${layerName}`);
-    if (!el) return;
-    const toggleIcon = el.querySelector('.layer-toggle i');
+    const toggleBtn = document.getElementById(`toggle-${layerName}`);
+    
+    let toggleIcon = null;
+    if (toggleBtn) {
+        toggleIcon = toggleBtn.querySelector('i');
+    } else if (el) {
+        toggleIcon = el.querySelector('.layer-toggle i');
+    }
 
     if (state.layers[layerName]) {
-        el.classList.add('active');
+        if (el) el.classList.add('active');
+        if (toggleBtn) toggleBtn.classList.add('active');
         if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-on';
         
         // Trigger fetch if we have no data yet
@@ -81,8 +132,11 @@ window.toggleLayer = function (layerName) {
         if (layerName === 'weather' && state.weatherData.length === 0) fetchWeather();
         if (layerName === 'traffic' && state.traffic.length === 0) fetchTraffic();
         if (layerName === 'cctv' && state.cctv_cameras.length === 0) fetchCCTVs();
+        if (layerName === 'police' && state.police_data.length === 0) fetchPolice();
+        if (layerName === 'scanners' && state.scanners.length === 0) fetchScanners();
     } else {
-        el.classList.remove('active');
+        if (el) el.classList.remove('active');
+        if (toggleBtn) toggleBtn.classList.remove('active');
         if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-off';
     }
 
@@ -92,6 +146,8 @@ window.toggleLayer = function (layerName) {
     else if (layerName === 'weather') updateWeatherLayer();
     else if (layerName === 'traffic') updateShippingLayer();
     else if (layerName === 'cctv') updateCCTVLayer();
+    else if (layerName === 'police') updatePoliceLayer();
+    else if (layerName === 'scanners') updateScannersLayer();
     updateHUDCounts();
 };
 
@@ -113,7 +169,7 @@ window.toggleSettingsPanel = function() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
     if (modal.style.display === 'none') {
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     } else {
         modal.style.display = 'none';
     }
@@ -133,6 +189,21 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('change', (e) => {
                 state.dataSources[layerName] = e.target.value;
                 console.log(`[Settings] Changed ${layerName} source to:`, e.target.value);
+                
+                // --- Dynamic Speed Filter Adjustments ---
+                if (layerName === 'flights') {
+                    const speedSelect = document.getElementById('flight-speed');
+                    if (speedSelect) {
+                        if (e.target.value === 'opensky') {
+                            speedSelect.value = 'all';
+                        } else if (e.target.value === 'adsblol') {
+                            speedSelect.value = 'all';
+                        }
+                        // Fire the layer redraw immediately so the speed syncs
+                        if (typeof updateFlightsLayer === 'function') updateFlightsLayer();
+                    }
+                }
+
                 // Wipe local cache array
                 state[layerName] = [];
                 // Force engine to re-draw and re-fetch if active
@@ -202,6 +273,7 @@ async function initCesium() {
 
         viewer = new Cesium.Viewer('globe-container', {
             imageryProvider: imageryProvider,
+            shouldAnimate: true, // Forces JulianDate to tick forward even if animation UI is hidden
             animation: false,
             timeline: false,
             infoBox: false,
@@ -224,31 +296,81 @@ async function initCesium() {
         await viewer.dataSources.add(cctvDataSource);
         await viewer.dataSources.add(shippingDataSource);
         await viewer.dataSources.add(weatherDataSource);
+        await viewer.dataSources.add(policeDataSource);
+        await viewer.dataSources.add(scannersDataSource);
+
+        // Setup Police Cluster Features
+        policeDataSource.clustering.enabled = true;
+        policeDataSource.clustering.pixelRange = 130; // Increased massively so 4x scaled shields absorb each other rather than drawing on top of each other!
+        policeDataSource.clustering.minimumClusterSize = 2;
+        policeDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+            const count = clusteredEntities.length;
+            const extraScale = Math.log10(count) * 0.075;
+            const baseScale = isMobile ? 0.80 : 1.04; // 2x larger again per user request (clusters only)
+            const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
+
+            cluster.label.show = true;
+            cluster.label.text = count.toLocaleString();
+            cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+            cluster.label.fillColor = Cesium.Color.BLACK; // Black text for contrast against blue shield
+            cluster.label.outlineColor = Cesium.Color.WHITE;
+            cluster.label.outlineWidth = 2; // Thinner outline for better legibility when small
+            cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+            cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+            cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+            
+            // Adjust offset to sit right in the center of the shield body
+            // Shield is a 0.25 scaled SVG, usually about ~40-50px tall. The origin is CENTER.
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); 
+            cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
+            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+
+            cluster.billboard.show = true;
+            cluster.billboard.image = policeSvg;
+            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+            cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+            cluster.billboard.disableDepthTestDistance = 0;
+            cluster.billboard.scale = baseScale + extraScale;
+
+            cluster.billboard.id = clusteredEntities;
+            cluster.label.id = clusteredEntities;
+        });
 
         // Setup Shipping Cluster Features
         shippingDataSource.clustering.enabled = true;
         shippingDataSource.clustering.pixelRange = 40;
         shippingDataSource.clustering.minimumClusterSize = 2;
-
         shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+            const count = clusteredEntities.length;
+            const extraScale = Math.log10(count) * 0.075;
+            const baseScale = isMobile ? 0.20 : 0.26; // Dialed back: ~1/3rd smaller than the 0.40 size
+            // Proportionally shrink font bounds to smoothly fill the dialed-back hull
+            const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
+
             cluster.label.show = true;
-            cluster.label.text = clusteredEntities.length.toLocaleString();
-            cluster.label.font = 'bold 14px "Share Tech Mono"';
-            cluster.label.fillColor = Cesium.Color.WHITE;
-            cluster.label.outlineColor = Cesium.Color.BLACK;
+            cluster.label.text = count.toLocaleString();
+            cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+            cluster.label.fillColor = Cesium.Color.BLACK;
+            cluster.label.outlineColor = Cesium.Color.WHITE;
             cluster.label.outlineWidth = 3;
             cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
             cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-            cluster.label.pixelOffset = new Cesium.Cartesian2(25, -15);
+            cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5); 
+            cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
+            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+            
             cluster.billboard.show = true;
             cluster.billboard.image = shipSvg;
-            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
             cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
             // Provide occlusion instead of letting clusters bleed through earth
             cluster.billboard.disableDepthTestDistance = 0;
-            cluster.billboard.scale = isMobile ? 0.15 : 0.20;
-            cluster.billboard.rotation = -Math.PI / 2;
-            cluster.billboard.alignedAxis = Cesium.Cartesian3.UNIT_Z;
+            cluster.billboard.scale = baseScale + extraScale;
+            
+            
+            cluster.billboard.id = clusteredEntities;
+            cluster.label.id = clusteredEntities;
         });
 
         // Setup Flights Cluster Features
@@ -258,30 +380,156 @@ async function initCesium() {
             dataSource.clustering.minimumClusterSize = 2;
 
             dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.4;
+                const baseScale = isMobile ? 0.70 : 0.90;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
                 cluster.label.show = true;
-                cluster.label.text = clusteredEntities.length.toLocaleString();
-                cluster.label.font = 'bold 14px monospace';
-                cluster.label.fillColor = Cesium.Color.WHITE;
-                cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 3;
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+                
+                cluster.label.fillColor = Cesium.Color.BLACK;
+                cluster.label.outlineColor = Cesium.Color.WHITE;
+                cluster.label.outlineWidth = 4;
+                
                 cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
                 cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(20, -15);
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                 
                 cluster.billboard.show = true;
                 cluster.billboard.image = airplaneSvg;
                 cluster.billboard.color = color;
                 cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.billboard.heightReference = Cesium.HeightReference.NONE;
-                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                cluster.billboard.scale = isMobile ? 0.35 : 0.45;
+                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
+                cluster.billboard.scale = baseScale + extraScale;
                 // Keep clusters flat/unrotated since they represent many different headings
                 cluster.billboard.alignedAxis = new Cesium.Cartesian3(0, 0, -1);
+                
+                cluster.billboard.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
             });
         };
 
         setupFlightClustering(flightsDataSource, Cesium.Color.WHITE);
         setupFlightClustering(militaryDataSource, Cesium.Color.ORANGE);
+
+        // Setup CCTV Clustering
+        const setupCCTVClustering = (dataSource) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.4;
+                const baseScale = isMobile ? 0.7 : 0.9;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
+                cluster.label.show = true;
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+                cluster.label.fillColor = Cesium.Color.WHITE;
+                cluster.label.outlineColor = Cesium.Color.BLACK;
+                cluster.label.outlineWidth = 5;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                
+                cluster.billboard.show = true;
+                cluster.billboard.image = cctvSvg;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
+                cluster.billboard.scale = baseScale + extraScale;
+                
+                cluster.billboard.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
+            });
+        };
+        setupCCTVClustering(cctvDataSource);
+
+        // Setup Scanners Clustering
+        const setupScannersClustering = (dataSource) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.4;
+                const baseScale = isMobile ? 0.35 : 0.45;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
+                cluster.label.show = true;
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+                cluster.label.fillColor = Cesium.Color.BLACK;
+                cluster.label.outlineColor = Cesium.Color.WHITE;
+                cluster.label.outlineWidth = 3;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // Center in the scanner icon
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                
+                cluster.billboard.show = true;
+                cluster.billboard.image = scannerSvg;
+                cluster.billboard.color = Cesium.Color.RED;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
+                cluster.billboard.disableDepthTestDistance = 0;
+                cluster.billboard.scale = baseScale + extraScale;
+                
+                cluster.billboard.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
+            });
+        };
+        setupScannersClustering(scannersDataSource);
+
+        // Setup Earthquake Clustering
+        const setupEarthquakeClustering = (dataSource) => {
+            dataSource.clustering.enabled = true;
+            dataSource.clustering.pixelRange = 40;
+            dataSource.clustering.minimumClusterSize = 2;
+            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                const count = clusteredEntities.length;
+                const extraScale = Math.log10(count) * 0.2;
+                const baseScale = isMobile ? 0.35 : 0.45;
+                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
+
+                cluster.label.show = true;
+                cluster.label.text = count.toLocaleString();
+                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
+                cluster.label.fillColor = Cesium.Color.BLACK;
+                cluster.label.outlineColor = Cesium.Color.WHITE;
+                cluster.label.outlineWidth = 4;
+                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
+                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
+                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                
+                const pixelBase = isMobile ? 30 : 40;
+                cluster.point.show = true;
+                cluster.point.color = Cesium.Color.fromHsl(0.16, 1.0, 0.5, 0.9);
+                cluster.point.pixelSize = pixelBase + (Math.log10(count) * 20);
+                cluster.point.outlineColor = Cesium.Color.YELLOW;
+                cluster.point.outlineWidth = 2;
+                cluster.point.disableDepthTestDistance = 0;
+                
+                cluster.point.id = clusteredEntities;
+                cluster.label.id = clusteredEntities;
+            });
+        };
+        setupEarthquakeClustering(earthquakesDataSource);
 
         viewer.targetFrameRate = 30;
         if (isMobile) viewer.resolutionScale = 0.75;
@@ -297,8 +545,78 @@ async function initCesium() {
         }
         handler.setInputAction(function (movement) {
             const pickedObject = viewer.scene.pick(movement.position);
-            if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData) {
-                lockTarget(pickedObject.id.customData);
+            if (Cesium.defined(pickedObject) && pickedObject.id) {
+
+                // --- GEOMETRIC LABEL DETECTION (for mobile flights) ---
+                // The callsign label is rendered 22px ABOVE the aircraft billboard.
+                // If the user clicked above the entity's screen center, they clicked the label.
+                // If at or below, they clicked the aircraft icon.
+                let isLabelClick = false;
+                if (isMobile && !Array.isArray(pickedObject.id) && pickedObject.id.position) {
+                    const entity = pickedObject.id;
+                    const entityPos3D = entity.position.getValue(viewer.clock.currentTime);
+                    if (entityPos3D) {
+                        const entityScreenPos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, entityPos3D);
+                        if (entityScreenPos) {
+                            // Label is at pixelOffset (0, -22) above the billboard center
+                            // If click Y is above the entity's screen Y, it's a label click
+                            isLabelClick = movement.position.y < entityScreenPos.y;
+                        }
+                    }
+                }
+                
+                let targetIdToLoad = null;
+
+                // If pickedObject.id is an Array, this is a Cesium Cluster!
+                if (Array.isArray(pickedObject.id)) {
+                    const clusteredEntities = pickedObject.id;
+                    if (clusteredEntities.length > 0) {
+                        // Pick a random entity directly from the native Cesium cluster payload
+                        const randEntity = clusteredEntities[Math.floor(Math.random() * clusteredEntities.length)];
+                        if (randEntity.customData) {
+                            lockTarget(randEntity.customData, false);
+                            return;
+                        }
+                        targetIdToLoad = randEntity.id || randEntity;
+                    }
+                } else {
+                    // It's a single entity pick
+                    if (pickedObject.id.customData) {
+                        lockTarget(pickedObject.id.customData, isLabelClick);
+                        return; // Fast exit if customData survived
+                    } else {
+                        targetIdToLoad = pickedObject.id.id || pickedObject.id;
+                    }
+                }
+
+                if (targetIdToLoad) {
+                    // Safe Fallback: Assemble all candidates and lock via ID
+                    let allCandidates = [];
+                    if (state.layers.traffic) allCandidates = allCandidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
+                    if (state.layers.flights) allCandidates = allCandidates.concat((state.flights || []).map(f => ({...f, type: 'flight'})));
+                    if (state.layers.military) allCandidates = allCandidates.concat((state.military || []).map(f => ({...f, type: 'flight', isMilitary: true})));
+                    if (state.layers.cctv) allCandidates = allCandidates.concat((state.cctv_cameras || []).map(c => ({...c, type: 'cctv'})));
+                    if (state.layers.earthquakes) allCandidates = allCandidates.concat(
+                        (state.earthquakes || []).map(q => ({
+                            type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
+                            lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2],
+                            mag: q.properties?.mag || 1, time: q.properties?.time, 
+                            felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region
+                        }))
+                    );
+                    
+                    const match = allCandidates.find(c => c.id === targetIdToLoad || ('vessel_' + c.id) === targetIdToLoad);
+                    if (match) {
+                        lockTarget(match, isLabelClick);
+                    } else {
+                        console.warn("Could not resolve backing data for target:", targetIdToLoad);
+                    }
+                }
+                
+                // CRITICAL FIX: Even with `selectionIndicator: false`, Cesium natively tries to render 
+                // a "selected state" duplicate of the billboard over the original entity when clicked.
+                // We must forcibly clear the native selection state immediately to prevent visual ghosting/doubling.
+                setTimeout(() => { viewer.selectedEntity = undefined; }, 10);
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         
@@ -315,13 +633,18 @@ async function initCesium() {
             }
         });
 
-        // Initial data sync
-        updateFlightsLayer();
-        if (state.layers.satellites) updateSatellitesLayer();
-        if (state.layers.earthquakes) updateEarthquakesLayer();
-        if (state.layers.cctv) updateCCTVLayer();
-        if (state.layers.traffic) updateShippingLayer();
+        // Initial data sync - Force background fetches unconditionally so HUD metrics parse correctly
+        fetchFlights();
+        fetchSatellites();
+        fetchEarthquakes();
+        fetchCCTVs();
+        fetchTraffic();
+        fetchPolice();
+        fetchScanners();
         if (state.layers.weather) updateWeatherLayer();
+        if (state.layers.flights || state.layers.military) updateFlightsLayer();
+        
+        // Ensure UI displays current empty counts immediately while waiting for fetches
         updateHUDCounts();
         
     } catch (initErr) {
@@ -340,16 +663,295 @@ viewerInitPromise = initCesium();
 const airplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik00NDggMzM2di00MEwyODggMTkyVjc5LjJjMC0xNy43LTE0LjgtMzEuMi0zMi0zMS4ycy0zMiAxMy41LTMyIDMxLjJWMTkyTDY0IDI5NnY0MGwxNjAtNDh2MTEzLjZsLTQ4IDMxLjJWNDY0bDgwLTE2IDgwIDE2di0zMS4ybC00OC0zMS4yVjI4OGwxNjAgNDh6Ii8+PC9zdmc+`;
 const militaryAirplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9Im9yYW5nZSIgZD0iTTQ0OCAzMzZ2LTQwTDI4OCAxOTJWNzkuMmMwLTE3LjctMTQuOC0zMS4yLTMyLTMxLjJzLTMyIDEzLjUtMzIgMzEuMlYxOTJMNjQgMjk2djQwbDE2MC00OHYxMTMuNmwtNDggMzEuMlY0NjRsODAtMTYgODAgMTZ2LTMxLjJsLTQ4LTMxLjJWMjg4bDE2MCA0OHoiLz48L3N2Zz4=`;
 const satelliteSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMyZWQ1NzMiIGQ9Ik05OCA2MmwtODggODhDLTIuNSAxNjIuNS0zLjMgMTgyLjggNS44IDE5NC4ybDU2LjUgNzAuNkwxOCAzMTAuNmMtNy45IDcuOS03LjkgMjAuNiAwIDI4LjVsNzAuOSA3MC45YzcuOSA3LjkgMjAuNiA3LjkgMjguNSAwbDQ1LjgtNDUuOCA3MC42IDU2LjVjMTEuNCA5LjEgMzEuOCA4LjMgNDQuMy00LjJsODgtODhjMTIuNS0xMi41IDEyLjUtMzIuOCAwLTQ1LjNMMTQzLjMgNjJjLTEyLjUtMTIuNS0zMi44LTEyLjUtNDUuMyAwek0xMjggMTYwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyIDMyIDE0LjMgMzIgMzItMTQuMyAzMi0zMiAzMnptMzQ0LTk2Yy0xMy4zIDAtMjQgMTAuNy0yNCAyNHMxMC43IDI0IDI0IDI0IDI0LTEwLjcgMjQtMjQtMTAuNy0yNC0yNC0yNHptMCA5NmMtMTMuMyAwLTI0IDEwLjctMjQgMjRzMTAuNyAyNCAyNCAyNCAyNC0xMC43IDI0LTI0LTEwLjctMjQtMjQtMjR6bTAgOTZjLTEzLjMgMC0yNCAxMC43LTI0IDI0czEwLjcgMjQgMjQgMjQgMjQtMTAuNyAyNC0yNC0xMC43LTI0LTI0LTI0eiIvPjwvc3ZnPg==`;
-const shipSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgRnJlZSA2LjcuMiBieSBAZm9udGF3ZXNvbWUgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbSBMaWNlbnNlIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20vbGljZW5zZS9mcmVlIChJY29uczogQ0MgQlkgNC4wLCBGb250czogU0lMIE9GTCAxLjEsIENvZGU6IE1JVCBMaWNlbnNlKSBDb3B5cmlnaHQgMjAyNCBGb250aWNvbnMsIEluYy4gLS0+PHBhdGggZmlsbD0iI2ZmNmI4MSIgZD0iTTE5MiAzMmMwLTE3LjcgMTQuMy0zMiAzMi0zMkwzNTIgMGMxNy43IDAgMzIgMTQuMyAzMiAzMmwwIDMyIDQ4IDBjMjYuNSAwIDQ4IDIxLjUgNDggNDhsMCAxMjggNDQuNCAxNC44YzIzLjEgNy43IDI5LjUgMzcuNSAxMS41IDUzLjlsLTEwMSA5Mi42Yy0xNi4yIDkuNC0zNC43IDE1LjEtNTAuOSAxNS4xYy0xOS42IDAtNDAuOC03LjctNTkuMi0yMC4zYy0yMi4xLTE1LjUtNTEuNi0xNS41LTczLjcgMGMtMTcuMSAxMS44LTM4IDIwLjMtNTkuMiAyMC4zYy0xNi4yIDAtMzQuNy01LjctNTAuOS0xNS4xbC0xMDEtOTIuNmMtMTgtMTYuNS0xMS42LTQ2LjIgMTEuNS01My45TDk2IDI0MGwwLTEyOGMwLTI2LjUgMjEuNS00OCA0OC00OGw0OCAwIDAtMzJ6TTE2MCAyMTguN2wxMDcuOC0zNS45YzEzLjEtNC40IDI3LjMtNC40IDQwLjUgMEw0MTYgMjE4LjdsMC05MC43LTI1NiAwIDAgOTAuN3pNMzA2LjUgNDIxLjlDMzI5IDQzNy40IDM1Ni41IDQ0OCAzODQgNDQ4YzI2LjkgMCA1NS40LTEwLjggNzcuNC0yNi4xYzAgMCAwIDAgMCAwYzExLjktOC41IDI4LjEtNy44IDM5LjIgMS43YzE0LjQgMTEuOSAzMi41IDIxIDUwLjYgMjUuMmMxNy4yIDQgMjcuOSAyMS4yIDIzLjkgMzguNHMtMjEuMiAyNy45LTM4LjQgMjMuOWMtMjQuNS01LjctNDQuOS0xNi41LTU4LjItMjVDNDQ5LjUgNTAxLjcgNDE3IDUxMiAzODQgNTEyYy0zMS45IDAtNjAuNi05LjktODAuNC0xOC45Yy01LjgtMi43LTExLjEtNS4zLTE1LjYtNy43Yy00LjUgMi40LTkuNyA1LjEtMTUuNiA3LjdjLTE5LjggOS00OC41IDE4LjktODAuNCAxOC45Yy0zMyAwLTY1LjUtMTAuMy05NC41LTI1LjhjLTEzLjQgOC40LTMzLjcgMTkuMy01OC4yIDI1Yy0xNy4yIDQtMzQuNC02LjctMzguNC0yMy45czYuNy0zNC40IDIzLjktMzguNGMxOC4xLTQuMiAzNi4yLTEzLjMgNTAuNi0yNS4yYzExLjEtOS40IDI3LjMtMTAuMSAzOS4yLTEuN2MwIDAgMCAwIDAgMEMxMzYuNyA0MzcuMiAxNjUuMSA0NDggMTkyIDQ0OGMyNy41IDAgNTUtMTAuNiA3Ny41LTI2LjFjMTEuMS03LjkgMjUuOS03LjkgMzcgMHoiLz48L3N2Zz4=`;
+const rawShipSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="#ff6b81" d="M192 32c0-17.7 14.3-32 32-32L352 0c17.7 0 32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 128 44.4 14.8c23.1 7.7 29.5 37.5 11.5 53.9l-101 92.6c-16.2 9.4-34.7 15.1-50.9 15.1c-19.6 0-40.8-7.7-59.2-20.3c-22.1-15.5-51.6-15.5-73.7 0c-17.1 11.8-38 20.3-59.2 20.3c-16.2 0-34.7-5.7-50.9-15.1l-101-92.6c-18-16.5-11.6-46.2 11.5-53.9L96 240l0-128c0-26.5 21.5-48 48-48l48 0 0-32zM160 218.7l107.8-35.9c13.1-4.4 27.3-4.4 40.5 0L416 218.7l0-90.7-256 0 0 90.7zM306.5 421.9C329 437.4 356.5 448 384 448c26.9 0 55.4-10.8 77.4-26.1c0 0 0 0 0 0c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 501.7 417 512 384 512c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7c-19.8 9-48.5 18.9-80.4 18.9c-33 0-65.5-10.3-94.5-25.8c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.4 27.3-10.1 39.2-1.7c0 0 0 0 0 0C136.7 437.2 165.1 448 192 448c27.5 0 55-10.6 77.5-26.1c11.1-7.9 25.9-7.9 37 0z"/></svg>`;
+const shipSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(rawShipSvg);
 const cctvSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NEgzMjBjMzUuMyAwIDY0IDI4LjcgNjQgNjRWMzg0YzAgMzUuMy0yOC43IDY0LTY0IDY0SDY0Yy0zNS4zIDAtNjQtMjguNy02NC02NFYxMjh6TTU1OS4xIDk5LjhjMTAuNCA1LjYgMTYuOSAxNi40IDE2LjkgMjguMlYzODRjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xVjMyMCAxOTIgMTc0LjlsMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi41LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=`;
+const policeSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMwZDQ3YTEiIGQ9Ik0yNTYgMGM0LjYgMCA5LjIgMSAxMy40IDIuOUw0NTcuNyA4Mi44YzIyIDkuMyAzOC40IDMxIDM4LjMgNTcuMmMtLjUgOTkuMi00MS4zIDI4MC43LTIxMy42IDM2My4yYy0xNi43IDgtMzYuMSA4LTUyLjggMEM1Ny4zIDQyMC43IDE2LjUgMjM5LjIgMTYgMTQwYy0uMS0yNi4yIDE2LjMtNDcuOSAzOC4zLTU3LjJMMjQyLjcgMi45QzI0Ni44IDEgMjUxLjQgMCAyNTYgMHoiLz48L3N2Zz4=`;
+const scannerSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNkMzJmMmYiIGQ9Ik0xMTIgMjRjMC0xMy4zLTEwLjctMjQtMjQtMjRTNjQgMTAuNyA2NCAyNGwwIDcyTDQ4IDk2QzIxLjUgOTYgMCAxMTcuNSAwIDE0NEwwIDMwMC4xYzAgMTIuNyA1LjEgMjQuOSAxNC4xIDMzLjlsMy45IDMuOWM5IDkgMTQuMSAyMS4yIDE0LjEgMzMuOUwzMiA0NjRjMCAyNi41IDIxLjUgNDggNDggNDhsMjI0IDBjMjYuNSAwIDQ4LTIxLjUgNDgtNDhsMC05Mi4xYzAtMTIuNyA1LjEtMjQuOSAxNC4xLTMzLjlsMy45LTMuOWM5LTkgMTQuMS0yMS4yIDE0LjEtMzMuOUwzODQgMTQ0YzAtMjYuNS0yMS41LTQ4LTQ4LTQ4bC0xNiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC0zMiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC00OCAwIDAtNzJ6bTAgMTM2bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnptMCA2NGwxNjAgMGM4LjggMCAxNiA3LjIgMTYgMTZzLTcuMiAxNi0xNiAxNmwtMTYwIDBjLTguOCAwLTE2LTcuMi0xNi0xNnM3LjItMTYgMTYtMTZ6bTAgNjRsMTYwIDBjOC44IDAgMTYgNy4yIDE2IDE2cy03LjIgMTYtMTYgMTZsLTE2MCAwYy04LjggMC0xNi03LjItMTYtMTZzNy4yLTE2IDE2LTE2em0wIDY0bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnoiLz48L3N2Zz4=`;
 
+// ----- NEW DATA FETCHING (Police & Scanners) -----
+async function fetchPolice() {
+    if (_fetchingPolice) return;
+    _fetchingPolice = true;
+    try {
+        const res = await fetch(`${API_BASE}/api/police-data`);
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        state.police_data = []; // Explicit clear
+        state.police_data = data || [];
+        window.updateLastFetchTime('police');
+        updateHUDCounts();
+        populatePoliceDropdowns();
+        if (state.layers.police) updatePoliceLayer();
+    } catch (e) { console.error('Police fetch failed', e); }
+    finally { _fetchingPolice = false; }
+}
 
+// --- Cascading Police Dropdown Filters ---
+function populatePoliceDropdowns() {
+    const data = state.police_data || [];
+    const sourceEl = document.getElementById('setting-source-police');
+    const countryEl = document.getElementById('police-country-filter');
+    const stateEl = document.getElementById('police-state-filter');
+    const cityEl = document.getElementById('police-city-filter');
+    const stationEl = document.getElementById('police-station-filter');
+    if (!countryEl) return;
+
+    const countries = [...new Set(data.map(s => s.country).filter(Boolean))].sort();
+    countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+    stateEl.innerHTML = '<option value="all">All States</option>';
+    cityEl.innerHTML = '<option value="all">All Cities</option>';
+    stationEl.innerHTML = '<option value="all">All Stations</option>';
+}
+
+window.filterPoliceDropdowns = function(level) {
+    const data = state.police_data || [];
+    const sourceEl = document.getElementById('setting-source-police');
+    const countryEl = document.getElementById('police-country-filter');
+    const stateEl = document.getElementById('police-state-filter');
+    const cityEl = document.getElementById('police-city-filter');
+    const stationEl = document.getElementById('police-station-filter');
+    if (!countryEl) return;
+
+    const selSource = sourceEl ? sourceEl.value : 'all';
+    const selCountry = countryEl.value;
+    const selState = stateEl.value;
+    const selCity = cityEl.value;
+
+    let filtered = data;
+    if (selSource !== 'all') filtered = filtered.filter(s => (s.source || 'arcgis') === selSource);
+
+    if (level === 'source') {
+        const countries = [...new Set(filtered.map(s => s.country).filter(Boolean))].sort();
+        countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+        stateEl.innerHTML = '<option value="all">All States</option>';
+        cityEl.innerHTML = '<option value="all">All Cities</option>';
+        stationEl.innerHTML = '<option value="all">All Stations</option>';
+    }
+
+    if (selCountry !== 'all') filtered = filtered.filter(s => s.country === selCountry);
+
+    if (level === 'country') {
+        const states = [...new Set(filtered.map(s => s.state).filter(Boolean))].sort();
+        stateEl.innerHTML = '<option value="all">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+        cityEl.innerHTML = '<option value="all">All Cities</option>';
+        stationEl.innerHTML = '<option value="all">All Stations</option>';
+    }
+
+    if (level === 'country' || level === 'state') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (level === 'state') {
+            const cities = [...new Set(filtered.map(s => s.city).filter(Boolean))].sort();
+            cityEl.innerHTML = '<option value="all">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+            stationEl.innerHTML = '<option value="all">All Stations</option>';
+        }
+    }
+
+    if (level === 'city' || level === 'station') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (selCity !== 'all') filtered = filtered.filter(s => s.city === selCity);
+        if (level === 'city') {
+            stationEl.innerHTML = '<option value="all">All Stations</option>' + filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+    }
+
+    // Re-render map markers with the current filter selection
+    if (state.layers.police) updatePoliceLayer();
+};
+
+function getFilteredPolice() {
+    let filtered = state.police_data || [];
+    const sourceEl = document.getElementById('setting-source-police');
+    const countryEl = document.getElementById('police-country-filter');
+    const stateEl = document.getElementById('police-state-filter');
+    const cityEl = document.getElementById('police-city-filter');
+    const stationEl = document.getElementById('police-station-filter');
+
+    if (sourceEl && sourceEl.value !== 'all') filtered = filtered.filter(s => (s.source || 'arcgis') === sourceEl.value);
+    if (countryEl && countryEl.value !== 'all') filtered = filtered.filter(s => s.country === countryEl.value);
+    if (stateEl && stateEl.value !== 'all') filtered = filtered.filter(s => s.state === stateEl.value);
+    if (cityEl && cityEl.value !== 'all') filtered = filtered.filter(s => s.city === cityEl.value);
+    if (stationEl && stationEl.value !== 'all') filtered = filtered.filter(s => s.id === stationEl.value);
+    return filtered;
+}
+
+function updatePoliceLayer() {
+    if (!viewer) return;
+    if (state.layers.police) {
+        const filtered = getFilteredPolice();
+        policeDataSource.entities.removeAll(); // Ensure Cluster manager sees this event clearly before suspending!
+        policeDataSource.entities.suspendEvents();
+        filtered.forEach(p => {
+            policeDataSource.entities.add({
+                id: 'police_' + p.id,
+                position: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, 0),
+                billboard: {
+                    image: policeSvg,
+                    scale: isMobile ? 0.70 : 0.90, // Doubled from 0.35 : 0.45 per user request
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                },
+                customData: {
+                    type: 'police', id: p.id, title: p.name || 'Police Station',
+                    lat: p.lat, lng: p.lng,
+                    address: p.address || '', phone: p.phone || '',
+                    country: p.country, state: p.state, city: p.city
+                }
+            });
+        });
+        policeDataSource.entities.resumeEvents();
+    } else {
+        policeDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
+
+async function fetchScanners() {
+    if (_fetchingScanners) return;
+    _fetchingScanners = true;
+    try {
+        const res = await fetch(`${API_BASE}/api/scanners`);
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        state.scanners = data || [];
+        window.updateLastFetchTime('scanners');
+        updateHUDCounts();
+        populateScannerDropdowns();
+        if (state.layers.scanners) updateScannersLayer();
+    } catch (e) { console.error('Scanners fetch failed', e); }
+    finally { _fetchingScanners = false; }
+}
+
+// --- Cascading Scanner Dropdown Filters ---
+function populateScannerDropdowns() {
+    const data = state.scanners || [];
+    const sourceEl = document.getElementById('setting-source-scanners');
+    const countryEl = document.getElementById('scanner-country-filter');
+    const stateEl = document.getElementById('scanner-state-filter');
+    const cityEl = document.getElementById('scanner-city-filter');
+    const feedEl = document.getElementById('scanner-feed-filter');
+    if (!countryEl) return;
+
+    const countries = [...new Set(data.map(s => s.country).filter(Boolean))].sort();
+    countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+    stateEl.innerHTML = '<option value="all">All States</option>';
+    cityEl.innerHTML = '<option value="all">All Locations</option>';
+    feedEl.innerHTML = '<option value="all">All Feeds</option>';
+}
+
+window.filterScannerDropdowns = function(level) {
+    const data = state.scanners || [];
+    const sourceEl = document.getElementById('setting-source-scanners');
+    const countryEl = document.getElementById('scanner-country-filter');
+    const stateEl = document.getElementById('scanner-state-filter');
+    const cityEl = document.getElementById('scanner-city-filter');
+    const feedEl = document.getElementById('scanner-feed-filter');
+    if (!countryEl) return;
+
+    const selSource = sourceEl ? sourceEl.value : 'all';
+    const selCountry = countryEl.value;
+    const selState = stateEl.value;
+    const selCity = cityEl.value;
+
+    let filtered = data;
+    if (selSource !== 'all') filtered = filtered.filter(s => (s.source || 'broadcastify') === selSource);
+
+    if (level === 'source') {
+        // Reset all downstream
+        const countries = [...new Set(filtered.map(s => s.country).filter(Boolean))].sort();
+        countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
+        stateEl.innerHTML = '<option value="all">All States</option>';
+        cityEl.innerHTML = '<option value="all">All Locations</option>';
+        feedEl.innerHTML = '<option value="all">All Feeds</option>';
+    }
+
+    if (selCountry !== 'all') filtered = filtered.filter(s => s.country === selCountry);
+
+    if (level === 'country') {
+        const states = [...new Set(filtered.map(s => s.state).filter(Boolean))].sort();
+        stateEl.innerHTML = '<option value="all">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+        cityEl.innerHTML = '<option value="all">All Locations</option>';
+        feedEl.innerHTML = '<option value="all">All Feeds</option>';
+    }
+
+    if (level === 'country' || level === 'state') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (level === 'state') {
+            const cities = [...new Set(filtered.map(s => s.city).filter(Boolean))].sort();
+            cityEl.innerHTML = '<option value="all">All Locations</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+            feedEl.innerHTML = '<option value="all">All Feeds</option>';
+        }
+    }
+
+    if (level === 'city' || level === 'feed') {
+        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
+        if (selCity !== 'all') filtered = filtered.filter(s => s.city === selCity);
+        if (level === 'city') {
+            feedEl.innerHTML = '<option value="all">All Feeds</option>' + filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+    }
+
+    // Re-render map markers with the current filter selection
+    if (state.layers.scanners) updateScannersLayer();
+};
+
+function getFilteredScanners() {
+    let filtered = state.scanners || [];
+    const sourceEl = document.getElementById('setting-source-scanners');
+    const countryEl = document.getElementById('scanner-country-filter');
+    const stateEl = document.getElementById('scanner-state-filter');
+    const cityEl = document.getElementById('scanner-city-filter');
+    const feedEl = document.getElementById('scanner-feed-filter');
+
+    if (sourceEl && sourceEl.value !== 'all') filtered = filtered.filter(s => (s.source || 'broadcastify') === sourceEl.value);
+    if (countryEl && countryEl.value !== 'all') filtered = filtered.filter(s => s.country === countryEl.value);
+    if (stateEl && stateEl.value !== 'all') filtered = filtered.filter(s => s.state === stateEl.value);
+    if (cityEl && cityEl.value !== 'all') filtered = filtered.filter(s => s.city === cityEl.value);
+    if (feedEl && feedEl.value !== 'all') filtered = filtered.filter(s => s.id === feedEl.value);
+    return filtered;
+}
+
+function updateScannersLayer() {
+    if (!viewer) return;
+    if (state.layers.scanners) {
+        const filtered = getFilteredScanners();
+        scannersDataSource.entities.removeAll(); // Ensure cluster manager cleans up visuals first
+        scannersDataSource.entities.suspendEvents();
+        filtered.forEach(s => {
+            scannersDataSource.entities.add({
+                id: 'scanner_' + s.id,
+                position: Cesium.Cartesian3.fromDegrees(s.lng, s.lat, 0),
+                billboard: {
+                    image: scannerSvg,
+                    color: Cesium.Color.RED,
+                    scale: isMobile ? 0.42 : 0.54,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                },
+                customData: {
+                    type: 'scanner', id: s.id, title: s.name || 'Scanner',
+                    lat: s.lat, lng: s.lng,
+                    audio_url: s.audio_url, feed_id: s.feed_id || '',
+                    listeners: s.listeners || 0, status: s.status || 'online',
+                    country: s.country, state: s.state, city: s.city
+                }
+            });
+        });
+        scannersDataSource.entities.resumeEvents();
+    } else {
+        scannersDataSource.entities.removeAll();
+    }
+    viewer.scene.requestRender();
+}
 
 // ----- DATA FETCHING -----
 
 async function fetchFlights() {
     try {
         let activeStates = [];
+        let militaryStates = [];
         let timestamp = Math.floor(Date.now() / 1000);
 
         if (state.dataSources.flights === 'opensky') {
@@ -359,52 +961,93 @@ async function fetchFlights() {
             timestamp = data.time || timestamp;
             activeStates = data.states || [];
             console.log(`[Flights] Fetched ${activeStates.length} raw states from OpenSky API`);
+            
+            try {
+                const milRes = await fetch(`${API_BASE}/api/military-flights`);
+                if (milRes.ok) {
+                    const milData = await milRes.json();
+                    militaryStates = milData.states || [];
+                    console.log(`[Flights] Fetched ${militaryStates.length} military states from backend`);
+                }
+            } catch (e) {
+                console.warn("[Flights] Failed to fetch military states:", e);
+            }
         } else if (state.dataSources.flights === 'adsblol') {
-            const res = await fetch('https://api.adsb.lol/v2/ladd');
-            if (!res.ok) throw new Error('ADSB.lol API Error');
+            const res = await fetch(`${API_BASE}/api/proxy/adsblol/ladd`);
+            if (!res.ok) throw new Error('ADSB.lol Proxy API Error');
             const data = await res.json();
             timestamp = Math.floor(data.now / 1000) || timestamp;
             
-            // Map ADSB.lol `.ac` array into OpenSky tuple format for uniform pipeline execution
             const ac = data.ac || [];
-            activeStates = ac.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => [
-                a.hex || 'UNKNOWN',     // [0] icao24
-                a.flight || '',         // [1] callsign
-                'Unknown',              // [2] origin_country
-                null,                   // [3] time_position
-                null,                   // [4] last_contact
-                a.lon,                  // [5] longitude
-                a.lat,                  // [6] latitude
-                a.alt_baro || 10000,    // [7] baro_altitude
-                false,                  // [8] on_ground
-                (a.mach || 0.8) * 340,  // [9] velocity (m/s fallback approximation if mach is provided, else rough guess)
-                a.track || 0,           // [10] true_track
-                0,                      // [11] vertical_rate
-                null,                   // [12] sensors
-                a.alt_geom || null,     // [13] geo_altitude
-                null,                   // [14] squawk
-                false,                  // [15] spi
-                0                       // [16] position_source
-            ]);
-            // Attempt to resolve real velocity if available in knots (1 kt = 0.51444 m/s)
-            activeStates.forEach((s, i) => {
-                if (ac[i].gs) s[9] = ac[i].gs * 0.51444; 
-                else if (ac[i].tas) s[9] = ac[i].tas * 0.51444;
+            activeStates = ac.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => {
+                let trueVel = (a.mach || 0.8) * 340;
+                if (typeof a.gs === 'number') trueVel = a.gs * 0.51444; 
+                else if (typeof a.tas === 'number') trueVel = a.tas * 0.51444;
+                
+                return [
+                    a.hex || 'UNKNOWN',     // [0] icao24
+                    (a.flight || '').trim() || 'UNKNOWN', // [1] callsign
+                    'Unknown',              // [2] origin_country
+                    null,                   // [3] time_position
+                    null,                   // [4] last_contact
+                    a.lon,                  // [5] longitude
+                    a.lat,                  // [6] latitude
+                    (typeof a.alt_baro === 'number' ? a.alt_baro : 10000), // [7] baro_altitude
+                    false,                  // [8] on_ground
+                    trueVel,                // [9] velocity (m/s)
+                    a.track || 0,           // [10] true_track
+                    0,                      // [11] vertical_rate
+                    null,                   // [12] sensors
+                    a.alt_geom || null,     // [13] geo_altitude
+                    null,                   // [14] squawk
+                    false,                  // [15] spi
+                    0                       // [16] position_source
+                ];
             });
-            console.log(`[Flights] Fetched ${activeStates.length} raw states from ADSB.lol API`);
+            console.log(`[Flights] Fetched ${activeStates.length} raw states from ADSB proxy`);
+            
+            // Parallel military fetch for direct mode
+            try {
+                const milRes = await fetch(`${API_BASE}/api/proxy/adsblol/mil`);
+                if (milRes.ok) {
+                    const milData = await milRes.json();
+                    const milAc = milData.ac || [];
+                    militaryStates = milAc.filter(a => a.lat !== undefined && a.lon !== undefined).map(a => {
+                        let vel = (a.mach || 0.8) * 340;
+                        if (a.gs) vel = a.gs * 0.51444;
+                        else if (a.tas) vel = a.tas * 0.51444;
+                        return [
+                            a.hex || 'UNKNOWN', 
+                            (a.flight || '').trim() || 'UNKNOWN', 
+                            'Unknown', 
+                            null, null,
+                            a.lon, a.lat, (typeof a.alt_baro === 'number' ? a.alt_baro : 10000), false, vel, a.track || 0
+                        ];
+                    });
+                    console.log(`[Flights] Fetched ${militaryStates.length} military states from ADSB.lol`);
+                }
+            } catch (e) {
+                console.warn("[Flights] Failed to fetch direct military states:", e);
+            }
         }
 
         // Always hide the loading overlay as soon as we get any valid response
         document.getElementById('loading-overlay').style.display = 'none';
 
         const oldFlightsMap = new Map(state.flights.map(f => [f.id, f]));
+        
+        // Tag and merge arrays
+        activeStates.forEach(s => s.is_mil_source = false);
+        militaryStates.forEach(s => s.is_mil_source = true);
+        const allStates = activeStates.concat(militaryStates);
 
-        state.flights = activeStates
-            .filter(s => s[5] !== null && s[6] !== null && s[8] === false)
+        state.flights = allStates
+            .filter(s => s[5] !== null && s[6] !== null)
             .map(s => {
                 try {
                     const velocityKmH = (s[9] || 0) * 3.6;
-                    const isMilitary = s[1] ? s[1].trim().startsWith("RCH") || s[1].trim().startsWith("AF") || s[1].trim().startsWith("RRR") || s[1].trim().startsWith("CNV") : false;
+                    // Trust the backend/API endpoint explicitly rather than guessing callsigns
+                    const isMilitary = s.is_mil_source === true;
 
                     // Precompute perfectly stable ECEF AlignedAxis vector for 3D orientation
                     const lngRad = Cesium.Math.toRadians(s[5]);
@@ -495,7 +1138,7 @@ async function fetchFlights() {
 
                         // Reset fetch time to reboot the integration engine
                         oldFlight.fetchTime = performance.now();
-                        oldFlight.alt = s[7] || 10000;
+                        oldFlight.alt = s[8] ? (s[7] || 0) : (s[7] || 10000);
                         oldFlight.lastUpdate = timestamp;
                         oldFlight.isMilitary = isMilitary;
                         
@@ -513,7 +1156,7 @@ async function fetchFlights() {
                         startLat: s[6],
                         lng: s[5], 
                         lat: s[6],
-                        alt: s[7] || 10000,
+                        alt: s[8] ? (s[7] || 0) : (s[7] || 10000),
                         velocity: s[9] || 0,
                         computedVelocity: s[9] || 0, // Fallback for first frame
                         velocityKmH: velocityKmH,
@@ -698,24 +1341,18 @@ async function fetchCCTVs() {
 
 async function fetchWeather() {
     try {
-        // Fetch all cities in one batched request (open-meteo supports comma-separated lat/lng)
-        // and returns an array when multiple coordinates are supplied
-        const lats = majorCities.map(c => c.lat).join(',');
-        const lngs = majorCities.map(c => c.lng).join(',');
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m&timezone=auto`;
+        // Fetch temperatures directly from our persistent SQLite backend cache
+        const url = `${API_BASE}/api/weather-proxy?_t=` + Date.now();
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const dataArr = await res.json();
 
-        // open-meteo returns an array when multiple lat/lng are provided
-        const dataArr = Array.isArray(data) ? data : [data];
-
-        state.weatherData = dataArr.map((d, i) => ({
-            city: majorCities[i] ? majorCities[i].name : `City ${i}`,
-            lat: majorCities[i] ? majorCities[i].lat : 0,
-            lng: majorCities[i] ? majorCities[i].lng : 0,
-            temp: d.current ? d.current.temperature_2m : null,
-            unit: d.current_units ? d.current_units.temperature_2m : '°C'
+        state.weatherData = dataArr.map(d => ({
+            city: d.city,
+            lat: d.lat,
+            lng: d.lng,
+            temp: d.temp,
+            unit: d.unit
         })).filter(w => w.temp !== null && w.temp !== undefined);
 
         console.log(`[Weather] Temperature data loaded for ${state.weatherData.length} cities`);
@@ -771,12 +1408,13 @@ function fetchTraffic() {
 
                         const a = Math.pow(Math.sin(dLat / 2), 2) +
                                   Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dLon / 2), 2);
-                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        const aClamped = Math.min(1, Math.max(0, a));
+                        const c = 2 * Math.atan2(Math.sqrt(aClamped), Math.sqrt(1 - aClamped));
                         const earthRadiusMeter = 6371000;
                         const distMeters = earthRadiusMeter * c;
 
-                        // Target polling interval for vessels is ~10s
-                        let computedVelocity = distMeters / 10; 
+                        // Target polling interval for vessels is ~30s
+                        let computedVelocity = distMeters / 30; 
                         
                         const y = Math.sin(dLon) * Math.cos(lat2);
                         const x = Math.cos(lat1) * Math.sin(lat2) -
@@ -832,14 +1470,38 @@ function filterBySpeed(f, speedRange) {
     return false;
 }
 
+function filterByType(f, type) {
+    if (type === 'all') return true;
+    
+    // Heuristic: Commercial flights typically have a 3-letter ICAO airline code followed by numbers
+    // Private (General Aviation) in US usually starts with 'N' followed by numbers, etc.
+    // For simplicity, we assume anything that looks like a 3-letter prefix is commercial, 
+    // and explicitly 'N' numbers or empty callsigns are private.
+    const callsign = typeof f.callsign === 'string' ? f.callsign.trim() : '';
+    
+    // If callsign is missing, assume private to keep things manageable
+    if (!callsign || callsign === 'UNKNOWN') return type === 'private';
+    
+    const isUSPrivate = callsign.match(/^N\d+[A-Z]*$/i);
+    const isCommercialPattern = callsign.match(/^[A-Z]{3}\d+[A-Z]*$/i);
+    
+    const isCommercial = isCommercialPattern && !isUSPrivate;
+
+    if (type === 'commercial') return !!isCommercial;
+    if (type === 'private') return !isCommercial;
+    
+    return true;
+}
+
 // ------------------------------------------
 // DECOUPLED LAYER RENDERING ENGINES
 // ------------------------------------------
 
 function updateHUDCounts() {
     const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+    const flightsType = document.getElementById('flight-type')?.value || 'all';
     const militarySpeed = document.getElementById('military-speed')?.value || 'all';
-    const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed));
+    const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed) && filterByType(f, flightsType));
     const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
 
     const satType = document.getElementById('satellite-type')?.value || 'all';
@@ -852,14 +1514,22 @@ function updateHUDCounts() {
         return true;
     });
 
+    const trafficType = document.getElementById('traffic-type')?.value || 'all';
+    const visibleTraffic = (state.traffic || []).filter(t => {
+        if (trafficType === 'all') return true;
+        return (t.vesselType || 'other') === trafficType;
+    });
+
     const counts = {
         flights: visibleFlights.length,
         military: visibleMilitary.length,
         satellites: visibleSatellites.length,
         earthquakes: (state.earthquakes || []).length,
         cctvs: (state.cctv_cameras || []).length,
-        traffic: (state.traffic || []).length,
-        weather: (state.weatherData || []).length
+        traffic: visibleTraffic.length,
+        weather: (state.weatherData || []).length,
+        police: (state.police_data || []).length,
+        scanners: (state.scanners || []).length
     };
 
     try {
@@ -870,7 +1540,9 @@ function updateHUDCounts() {
             'layer-earthquakes': counts.earthquakes,
             'layer-cctv': counts.cctvs,
             'layer-traffic': counts.traffic,
-            'layer-weather': counts.weather
+            'layer-weather': counts.weather,
+            'layer-police': counts.police,
+            'layer-scanners': counts.scanners
         };
         for (const [id, count] of Object.entries(hudMap)) {
             const el = document.getElementById(id);
@@ -886,8 +1558,9 @@ function updateFlightsLayer() {
     
     if (state.layers.flights || state.layers.military) {
         const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+        const flightsType = document.getElementById('flight-type')?.value || 'all';
         const militarySpeed = document.getElementById('military-speed')?.value || 'all';
-        const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed));
+        const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed) && filterByType(f, flightsType));
         const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
 
         try {
@@ -901,9 +1574,14 @@ function updateFlightsLayer() {
                 if (!ds.entities.getById(f.id)) {
                     ds.entities.add({
                         id: f.id,
-                        position: new Cesium.CallbackProperty(() => {
-                            const now = performance.now();
-                            const dt = (now - (f.fetchTime || now)) / 1000;
+                        position: new Cesium.CallbackProperty((time) => {
+                            const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
+                            // Sync external data-fetch updates (performance.now) to the Cesium rendering clock 
+                            if (!f.fetchDateMs || f.lastFetchTime !== f.fetchTime) {
+                                f.fetchDateMs = frameTimeMs;
+                                f.lastFetchTime = f.fetchTime;
+                            }
+                            const dt = (frameTimeMs - f.fetchDateMs) / 1000;
                             const dist = (f.velocity || 0) * dt;
                             const bearing = f.heading || 0;
                             const R = 6371000;
@@ -916,18 +1594,31 @@ function updateFlightsLayer() {
                         billboard: {
                             image: f.isMilitary ? militaryAirplaneSvg : airplaneSvg,
                             color: Cesium.Color.WHITE,
-                            scale: isMobile ? 0.35 : 0.45,
+                            scale: new Cesium.CallbackProperty(() => {
+                                let baseScale = isMobile ? 0.70 : 0.70;
+                                return baseScale;
+                            }, false),
                             rotation: 0,
                             alignedAxis: new Cesium.CallbackProperty(() => f.alignedAxis || Cesium.Cartesian3.ZERO, false),
-                            disableDepthTestDistance: Number.POSITIVE_INFINITY
+                            disableDepthTestDistance: Number.POSITIVE_INFINITY // Prevents disappearing when camera zooms closely
                         },
                         label: {
-                            text: f.callsign || 'N/A',
-                            font: '12px monospace',
+                            text: f.callsign || '',
+                            font: 'bold 14px "Share Tech Mono", monospace',
                             fillColor: Cesium.Color.CYAN,
-                            pixelOffset: new Cesium.Cartesian2(0, -25),
-                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2000000),
-                            show: !isMobile
+                            outlineColor: Cesium.Color.BLACK,
+                            outlineWidth: 3,
+                            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                            pixelOffset: new Cesium.Cartesian2(0, -22),
+                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                            showBackground: true,
+                            backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
+                            backgroundPadding: new Cesium.Cartesian2(6, 3),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 500000),
+                            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                            eyeOffset: new Cesium.Cartesian3(0, 0, -10),
+                            show: true
                         },
                         customData: f
                     });
@@ -972,14 +1663,17 @@ function updateSatellitesLayer() {
                 return true;
             });
 
-            visibleSatellites.forEach(s => {
+            // Prevent WebGL catastrophic exhaustion
+            const renderingSlice = visibleSatellites.slice(0, SAT_DISPLAY_CAP);
+
+            renderingSlice.forEach(s => {
                 currentSatIds.add(s.id);
                 if (!satellitesDataSource.entities.getById(s.id)) {
                     satellitesDataSource.entities.add({
                         id: s.id,
-                        position: new Cesium.CallbackProperty(() => {
+                        position: new Cesium.CallbackProperty((time) => {
                             try {
-                                const now = new Date();
+                                const now = Cesium.JulianDate.toDate(time);
                                 const pv = satellite.propagate(s.satRec, now);
                                 if (!pv.position) return undefined;
                                 const gmst = satellite.gstime(now);
@@ -990,7 +1684,7 @@ function updateSatellitesLayer() {
                         billboard: {
                             image: satelliteSvg,
                             scale: isMobile ? 0.35 : 0.45,
-                            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
+                            disableDepthTestDistance: 0
                         },
                         customData: s
                     });
@@ -1028,6 +1722,7 @@ function updateEarthquakesLayer() {
                 const quakeColor = Cesium.Color.fromHsl(0.16, 1.0, lightness, 0.9);
 
                 earthquakesDataSource.entities.add({
+                    id: q.id,
                     position: Cesium.Cartesian3.fromDegrees(q.geometry.coordinates[0], q.geometry.coordinates[1], q.geometry.coordinates[2] * 1000),
                     point: { 
                         pixelSize: mag * 4, 
@@ -1035,7 +1730,7 @@ function updateEarthquakesLayer() {
                         outlineColor: Cesium.Color.fromHsl(0.16, 1.0, lightness * 0.8, 1.0), // slightly darker yellow outline
                         outlineWidth: 1.5
                     },
-                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], mag: mag, time: q.properties?.time }
+                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2], mag: mag, time: q.properties?.time, felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region }
                 });
             });
         } catch(e) { console.error('[Globe] Earthquakes fail:', e); }
@@ -1080,57 +1775,74 @@ function updateShippingLayer() {
 
     if (state.layers.traffic) {
         try {
-            shippingDataSource.entities.suspendEvents();
-            const currentVesselIds = new Set((state.traffic || []).map(t => 'vessel_' + t.id));
-            const toRemove = [];
-            shippingDataSource.entities.values.forEach(e => { if (!currentVesselIds.has(e.id)) toRemove.push(e.id); });
-            toRemove.forEach(id => shippingDataSource.entities.removeById(id));
+            // Apply vessel type filter from dropdown
+            const typeFilter = document.getElementById('traffic-type');
+            const selectedType = typeFilter ? typeFilter.value : 'all';
+            const filteredTraffic = (state.traffic || []).filter(t => {
+                if (selectedType === 'all') return true;
+                return (t.vesselType || 'other') === selectedType;
+            });
+
+            // Clean slate: remove all and re-add filtered entities
+            // This forces CesiumJS to recalculate cluster counts
+            shippingDataSource.entities.removeAll();
 
             const earthRadius = 6371000;
-            (state.traffic || []).forEach(t => {
-                const existing = shippingDataSource.entities.getById('vessel_' + t.id);
-                const headingRad = Cesium.Math.toRadians(t.trueHeading || 0);
-                const imageRotationRad = -headingRad + (Math.PI / 2);
-
-                if (!existing) {
-                    shippingDataSource.entities.add({
-                        id: 'vessel_' + t.id,
-                        position: new Cesium.CallbackProperty((time, result) => {
-                            try {
-                                const now = performance.now();
-                                const dt = t.fetchTime ? (now - t.fetchTime) / 1000 : 0;
-                                const dist = (t.computedVelocity || 0) * dt;
-                                const angularDist = dist / earthRadius;
-                                const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
-                                const sLng = Cesium.Math.toRadians(t.startLng || t.lng);
-                                const head = t.computedHeading || 0;
-                                const nLat = Math.asin(Math.sin(sLat) * Math.cos(angularDist) + Math.cos(sLat) * Math.sin(angularDist) * Math.cos(head));
-                                const nLng = sLng + Math.atan2(Math.sin(head) * Math.sin(angularDist) * Math.cos(sLat), Math.cos(angularDist) - Math.sin(sLat) * Math.sin(nLat));
-                                t.lat = Cesium.Math.toDegrees(nLat);
-                                t.lng = Cesium.Math.toDegrees(nLng);
-                                return Cesium.Cartesian3.fromRadians(nLng, nLat, 0, viewer.scene.globe.ellipsoid, result);
-                            } catch (cpErr) {
-                                return undefined;
+            filteredTraffic.forEach(t => {
+                shippingDataSource.entities.add({
+                    id: 'vessel_' + t.id,
+                    position: new Cesium.CallbackProperty((time, result) => {
+                        try {
+                            const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
+                            if (!t.fetchDateMs || t.lastFetchTime !== t.fetchTime) {
+                                t.fetchDateMs = frameTimeMs;
+                                t.lastFetchTime = t.fetchTime;
                             }
-                        }, false),
-                        billboard: {
-                            image: shipSvg,
-                            rotation: imageRotationRad,
-                            scale: isMobile ? 0.15 : 0.20,
-                            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                            disableDepthTestDistance: 0
-                        },
-                        customData: t
-                    });
-                } else {
-                    existing.billboard.rotation = imageRotationRad;
-                }
+                            const dt = (frameTimeMs - t.fetchDateMs) / 1000;
+                            const dist = (t.computedVelocity || 0) * dt;
+                            const angularDist = dist / earthRadius;
+                            const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
+                            const sLng = Cesium.Math.toRadians(t.startLng || t.lng);
+                            const head = t.computedHeading || 0;
+                            const nLat = Math.asin(Math.sin(sLat) * Math.cos(angularDist) + Math.cos(sLat) * Math.sin(angularDist) * Math.cos(head));
+                            const nLng = sLng + Math.atan2(Math.sin(head) * Math.sin(angularDist) * Math.cos(sLat), Math.cos(angularDist) - Math.sin(sLat) * Math.sin(nLat));
+                            t.lat = Cesium.Math.toDegrees(nLat);
+                            t.lng = Cesium.Math.toDegrees(nLng);
+                            return Cesium.Cartesian3.fromRadians(nLng, nLat, 0, viewer.scene.globe.ellipsoid, result);
+                        } catch (cpErr) {
+                            return undefined;
+                        }
+                    }, false),
+                    billboard: {
+                        image: shipSvg,
+                        scale: isMobile ? 0.15 : 0.20,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                        disableDepthTestDistance: 0
+                    },
+                    label: {
+                        text: t.title || '',
+                        font: 'bold 13px "Share Tech Mono", monospace',
+                        fillColor: new Cesium.Color(1.0, 0.42, 0.51, 1.0), // #ff6b81
+                        outlineColor: Cesium.Color.BLACK,
+                        outlineWidth: 3,
+                        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                        pixelOffset: new Cesium.Cartesian2(0, -20),
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                        showBackground: true,
+                        backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
+                        backgroundPadding: new Cesium.Cartesian2(6, 3),
+                        distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 500000),
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                        show: true
+                    },
+                    customData: t
+                });
             });
         } catch (e) {
             console.error('[Globe] Traffic fail:', e.name || 'Error', e.message || e, e.stack);
-        } finally {
-            shippingDataSource.entities.resumeEvents();
         }
     } else {
         shippingDataSource.entities.removeAll();
@@ -1151,6 +1863,10 @@ function updateWeatherLayer() {
 
             if (weatherType === 'temperature' && state.weatherData) {
                 state.weatherData.forEach(w => {
+                    let farDist = Number.MAX_VALUE;
+                    if (w.tier === 2) farDist = 8000000.0;
+                    if (w.tier === 3) farDist = 3500000.0;
+                    
                     weatherDataSource.entities.add({
                         id: 'weather_' + w.city,
                         position: Cesium.Cartesian3.fromDegrees(w.lng || 0, w.lat || 0, 10000),
@@ -1164,9 +1880,16 @@ function updateWeatherLayer() {
                             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                             pixelOffset: new Cesium.Cartesian2(0, -10),
                             showBackground: false,
-                            backgroundColor: new Cesium.Color(0.1, 0.1, 0.1, 0.7)
+                            backgroundColor: new Cesium.Color(0.1, 0.1, 0.1, 0.7),
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, farDist)
                         },
-                        point: { pixelSize: 8, color: Cesium.Color.fromCssColorString('#a4b0be'), outlineColor: Cesium.Color.BLACK, outlineWidth: 2 }
+                        point: { 
+                            pixelSize: 8, 
+                            color: Cesium.Color.fromCssColorString('#a4b0be'), 
+                            outlineColor: Cesium.Color.BLACK, 
+                            outlineWidth: 2,
+                            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, farDist)
+                        }
                     });
                 });
                 if (_weatherImageryLayer) { viewer.imageryLayers.remove(_weatherImageryLayer, true); _weatherImageryLayer = null; _weatherLastType = null; }
@@ -1234,6 +1957,7 @@ async function applyWeatherLayer(type) {
                     console.log('[Weather] Applied cloud (radar fallback) layer:', tileUrl);
                 }
             }
+            window.updateLastFetchTime('weather');
             return;
         }
 
@@ -1267,6 +1991,7 @@ async function applyWeatherLayer(type) {
         _weatherImageryLayer.alpha = 0.75;
 
         console.log(`[Weather] Applied ${type} radar layer: ${tileUrl}`);
+        window.updateLastFetchTime('weather');
     } catch (e) {
         console.error('[Weather] Failed to apply weather layer:', e);
     }
@@ -1313,20 +2038,120 @@ async function fetchFlightRoute(target) {
     }, 400);
 }
 
-function lockTarget(obj) {
+function lockTarget(obj, forceShowPanel) {
     state.target = obj;
     if (obj.type === 'flight' && !obj.origin) fetchFlightRoute(obj);
 
-    const panel = document.getElementById('target-panel');
-    panel.style.display = 'flex';
-    setTimeout(() => panel.style.transform = 'translateX(0)', 10);
-    renderTargetDetails();
+    // --- LIVE FLIGHT TRACKING ---
+    // The background server only polls flights globally every 1 hour to save API limits.
+    // If we select a specific target, tightly poll ADSB.lol every 5s for *only* this plane
+    // to achieve perfectly smooth, real-time extrapolate-motion on the map.
+    if (window.liveFlightInterval) {
+        clearInterval(window.liveFlightInterval);
+        window.liveFlightInterval = null;
+    }
 
+    if (obj.type === 'flight' || obj.type === 'military') {
+        let liveFlightFailCount = 0;
+        const MAX_LIVE_FAILURES = 3;
+        obj.signalLost = false;
+
+        window.liveFlightInterval = setInterval(async () => {
+            // Stop polling if user closed panel or clicked something else
+            if (!state.target || state.target.id !== obj.id) {
+                clearInterval(window.liveFlightInterval);
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/api/proxy/live-flight/${obj.id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    // Server returns { status: "unavailable" } when ADSB.lol has no data
+                    if (data.status === 'unavailable' || !data.lat || !data.lng) {
+                        liveFlightFailCount++;
+                        if (liveFlightFailCount >= MAX_LIVE_FAILURES) {
+                            console.warn(`[Live Tracker] Signal lost for ${obj.id} after ${MAX_LIVE_FAILURES} attempts. Stopping poll.`);
+                            obj.signalLost = true;
+                            clearInterval(window.liveFlightInterval);
+                            window.liveFlightInterval = null;
+                            renderTargetDetails(); // Re-render HUD to show SIGNAL LOST
+                        }
+                        return;
+                    }
+                    // Success — reset failure counter
+                    liveFlightFailCount = 0;
+                    if (obj.signalLost) { obj.signalLost = false; renderTargetDetails(); }
+
+                    obj.lat = data.lat;
+                    obj.lng = data.lng;
+                    obj.alt = data.alt;
+                    obj.velocity = data.velocity;
+                    obj.heading = data.heading;
+                    obj.velocityKmH = data.velocity * 3.6;
+                    
+                    // SNAP! Reset the extrapolation clock. Cesium's CallbackProperty will effortlessly
+                    // sweep from this exact coordinate forwarding using the new live velocity!
+                    obj.fetchTime = performance.now();
+                    
+                    // Recalculate 3D Nose Coordinate Alignment
+                    const lngRad = Cesium.Math.toRadians(obj.lng);
+                    const latRad = Cesium.Math.toRadians(obj.lat);
+                    const headingRad = Cesium.Math.toRadians(obj.heading);
+                    const cosLat = Math.cos(latRad), sinLat = Math.sin(latRad);
+                    const cosLng = Math.cos(lngRad), sinLng = Math.sin(lngRad);
+                    const eastX = -sinLng, eastY = cosLng, eastZ = 0;
+                    const northX = -sinLat * cosLng, northY = -sinLat * sinLng, northZ = cosLat;
+                    const cosH = Math.cos(headingRad), sinH = Math.sin(headingRad);
+                    obj.alignedAxis = new Cesium.Cartesian3(
+                        northX * cosH + eastX * sinH,
+                        northY * cosH + eastY * sinH,
+                        northZ * cosH + eastZ * sinH
+                    );
+                } else {
+                    liveFlightFailCount++;
+                    if (liveFlightFailCount >= MAX_LIVE_FAILURES) {
+                        console.warn(`[Live Tracker] Signal lost for ${obj.id} after ${MAX_LIVE_FAILURES} attempts. Stopping poll.`);
+                        obj.signalLost = true;
+                        clearInterval(window.liveFlightInterval);
+                        window.liveFlightInterval = null;
+                        renderTargetDetails();
+                    }
+                }
+            } catch (e) {
+                console.warn("[Live Tracker] Proxy failed for specific flight:", e);
+                liveFlightFailCount++;
+                if (liveFlightFailCount >= MAX_LIVE_FAILURES) {
+                    obj.signalLost = true;
+                    clearInterval(window.liveFlightInterval);
+                    window.liveFlightInterval = null;
+                    renderTargetDetails();
+                }
+            }
+        }, 5000); // Check speed & trajectory every 5 seconds
+    }
+
+    const panel = document.getElementById('target-panel');
+    // On mobile: skip popup for flights UNLESS the user tapped the callsign label
+    // Desktop: always show. Non-flight types (CCTV, vessels, etc.): always show.
+    const isFlight = obj.type === 'flight' || obj.type === 'military';
+    const skipPanel = isMobile && isFlight && !forceShowPanel;
+    if (!skipPanel) {
+        panel.style.display = 'flex';
+        setTimeout(() => panel.style.transform = 'translateX(0)', 10);
+        renderTargetDetails();
+    }
+
+    // On mobile label click: popup is shown above, but skip camera fly — just show the popup
+    if (isMobile && isFlight && forceShowPanel) {
+        return;
+    }
     // Zoom Cesium camera
     let zoomRange = 500000;
     if (obj.type === 'cctv') zoomRange = 5000;
     else if (obj.type === 'vessel') zoomRange = 5000;
     else if (obj.type === 'traffic') zoomRange = 10000;
+    else if (obj.type === 'scanner') zoomRange = 8000;
+    else if (obj.type === 'police') zoomRange = 2500;
     else if (obj.alt > 0) zoomRange = obj.alt * 2 + 50000;
 
     let targetLat = obj.lat || 0;
@@ -1349,42 +2174,99 @@ function lockTarget(obj) {
         } catch(e) { console.warn("Could not calculate satellite target focus."); }
     }
 
-    viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(targetLng, targetLat, zoomRange),
-        duration: 1.5,
-        // Optional down-tilt for 3D effect
-        orientation: {
-            heading: 0.0,
-            pitch: -Cesium.Math.PI_OVER_TWO, // Look straight down
-            roll: 0.0
-        }
-    });
+    // Offset math is no longer needed because native tracking permanently centers the active entity beautifully.
+    let entityId = obj.mmsi || obj.id;
+    let liveEntity = null;
+    for (let i = 0; i < viewer.dataSources.length; i++) {
+        liveEntity = viewer.dataSources.get(i).entities.getById(entityId);
+        if (liveEntity) break;
+    }
 
-    // Provide a neat little offset to track the object
-    viewer.scene.preRender.addEventListener(function trackTarget() {
-        if (!state.target || state.target.id !== obj.id) {
-            viewer.scene.preRender.removeEventListener(trackTarget);
-            return;
+    if (liveEntity) {
+        // Fly camera to the entity's current position
+        const entityPos = liveEntity.position.getValue(viewer.clock.currentTime);
+        if (entityPos) {
+            const carto = Cesium.Cartographic.fromCartesian(entityPos);
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, zoomRange),
+                duration: 2.0,
+                orientation: {
+                    heading: 0.0,
+                    pitch: -Cesium.Math.PI_OVER_TWO,
+                    roll: 0.0
+                },
+                complete: () => {
+                    // Start a lightweight camera follow (no trackedEntity)
+                    if (window._followListener) {
+                        viewer.scene.preRender.removeEventListener(window._followListener);
+                    }
+                    let lastEntityPos = liveEntity.position.getValue(viewer.clock.currentTime);
+                    window._followEntity = liveEntity;
+                    window._followListener = function() {
+                        if (!state.target || !window._followEntity) {
+                            viewer.scene.preRender.removeEventListener(window._followListener);
+                            window._followListener = null;
+                            window._followEntity = null;
+                            return;
+                        }
+                        const currentPos = window._followEntity.position.getValue(viewer.clock.currentTime);
+                        if (currentPos && lastEntityPos) {
+                            // Move camera by the same delta the entity moved
+                            const delta = Cesium.Cartesian3.subtract(currentPos, lastEntityPos, new Cesium.Cartesian3());
+                            const camPos = viewer.camera.positionWC;
+                            viewer.camera.setView({
+                                destination: Cesium.Cartesian3.add(camPos, delta, new Cesium.Cartesian3()),
+                                orientation: {
+                                    heading: viewer.camera.heading,
+                                    pitch: viewer.camera.pitch,
+                                    roll: 0.0
+                                }
+                            });
+                        }
+                        lastEntityPos = currentPos;
+                    };
+                    viewer.scene.preRender.addEventListener(window._followListener);
+                }
+            });
         }
-        // If it's a moving object or we are close, you could optionally keep nudging the camera here,
-        // but for now, just initially flying to it is safer than viewer.flyTo() which bugs out.
-    });
+    } else {
+        // Fallback for statically declared locations (e.g., CCTV with no live moving DataSource object)
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(targetLng, targetLat, zoomRange),
+            duration: 2.0,
+            orientation: {
+                heading: 0.0,
+                pitch: -Cesium.Math.PI_OVER_TWO,
+                roll: 0.0
+            }
+        });
+    }
 }
 
+document.getElementById('close-target').textContent = 'Close';
 document.getElementById('close-target').addEventListener('click', () => {
     state.target = null;
     const panel = document.getElementById('target-panel');
     panel.style.transform = 'translateX(120%)';
     setTimeout(() => panel.style.display = 'none', 300);
 
+    // Stop live flight polling
+    if (window.liveFlightInterval) {
+        clearInterval(window.liveFlightInterval);
+        window.liveFlightInterval = null;
+    }
+
+    // Stop camera follow — just remove listener, zero camera movement
+    if (window._followListener) {
+        viewer.scene.preRender.removeEventListener(window._followListener);
+        window._followListener = null;
+        window._followEntity = null;
+    }
+
     // Clean up camera feeds
     clearInterval(_camRefreshInterval);
     _camRefreshInterval = null;
     if (window._hlsInstance) { window._hlsInstance.destroy(); window._hlsInstance = null; }
-    viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(-98.5, 39.8, 10000000),
-        duration: 1.5
-    });
 });
 
 // Global cam refresh interval — cleared when panel closes or a new target is selected
@@ -1399,18 +2281,32 @@ function renderTargetDetails() {
     const t = state.target;
     if (!t) return;
 
+    // Force button text (CMS overwrites HTML on page load)
+    const closeBtn = document.getElementById('close-target');
+    if (closeBtn) closeBtn.textContent = 'Close';
+
     const isFlight = t.type === 'flight';
     const isTraffic = t.type === 'traffic';
 
     const html = `
         <div style="margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : 'var(--hud-cyan)'))};">
-                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (isFlight ? 'fa-plane' : 'fa-satellite')))}"></i>
+            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : (t.type === 'earthquake' ? '#ffd32a' : (t.type === 'scanner' ? '#d32f2f' : 'var(--hud-cyan)'))))};">
+                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (t.type === 'earthquake' ? 'fa-house-crack' : (t.type === 'scanner' ? 'fa-walkie-talkie' : (isFlight ? 'fa-plane' : 'fa-satellite')))))}"></i>
             </div>
-            <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN')}</h3>
+            <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.type === 'earthquake' ? 'SEISMIC EVENT' : (t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN'))}</h3>
             <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px; text-transform: uppercase;">
-                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : 'UNKNOWN ORIGIN')}
+                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : (t.type === 'scanner' ? 'LIVE AUDIO FEED' : 'UNKNOWN ORIGIN')))}
             </div>
+            ${t.signalLost ? `
+            <div style="margin-top: 8px; padding: 4px 12px; display: inline-block; border-radius: 4px;
+                        background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.6);
+                        font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: #ff4757;
+                        font-weight: bold; letter-spacing: 1px; animation: signalLostPulse 1.5s ease-in-out infinite;">
+                ⚠ SIGNAL LOST
+            </div>
+            <style>
+                @keyframes signalLostPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+            </style>` : ''}
         </div>
         
         <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
@@ -1499,7 +2395,87 @@ function renderTargetDetails() {
             }
             return '';
         })() : ''}
-            ${t.type !== 'cctv' && t.type !== 'vessel' && !isTraffic ? `
+            ${t.type === 'earthquake' ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">MAGNITUDE</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: ${t.mag >= 6 ? '#ff4757' : (t.mag >= 4 ? '#ffa502' : '#7bed9f')}; font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; font-weight: bold;">${Number(t.mag).toFixed(1)}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">DEPTH</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${(t.depth || 0).toFixed(1)} <span style="font-size: 0.7rem;">km</span></td>
+            </tr>
+            ${t.time ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">TIME (UTC)</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${new Date(t.time).toLocaleString('en-US', {timeZone:'UTC', dateStyle:'short', timeStyle:'short'})}</td>
+            </tr>
+            ` : ''}
+            ${t.felt !== undefined && t.felt !== null ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">REPORTS FELT</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; color: #ffa502;">${Number(t.felt).toLocaleString()}</td>
+            </tr>
+            ` : ''}
+            ${t.tsunami ? `
+            <tr>
+                <td colspan="2" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; color: #ff4757; font-family: 'Share Tech Mono', monospace; font-weight: bold; background: rgba(255,71,87,0.1);">TSUNAMI WARNING ISSUED</td>
+            </tr>
+            ` : ''}
+            ` : ''}
+            ${t.type === 'scanner' ? `
+            ${state.dataSources.scanners === 'broadcastify' ? `
+            <tr>
+                <td colspan="2" style="padding: 6px 0; text-align: center;">
+                    <a href="https://www.broadcastify.com" target="_blank" rel="noopener"
+                       style="color: #ff4757; font-size: 0.82rem; font-weight: bold; font-family: 'Share Tech Mono', monospace;
+                              text-decoration: none; letter-spacing: 0.5px;
+                              animation: bcastFlash 1.2s ease-in-out infinite;">
+                        🔴 Create a FREE Broadcastify account to listen
+                    </a>
+                    <style>
+                        @keyframes bcastFlash {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.3; }
+                        }
+                    </style>
+                </td>
+            </tr>
+            ` : ''}
+            <tr>
+                <td colspan="2" style="padding: 10px 0 5px; text-align: center;">
+                    <iframe src="https://www.broadcastify.com/listen/feed/${t.feed_id || ''}" 
+                        style="width:100%; height:230px; border:1px solid rgba(211,47,47,0.4); border-radius:6px; background:#0a1018;"
+                        allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding:4px 0; text-align:center;">
+                    <a href="https://www.broadcastify.com/listen/feed/${t.feed_id || ''}" target="_blank" 
+                       style="color:#d32f2f; font-size:0.72rem; text-decoration:none;">
+                        ▶ Open in Broadcastify ↗
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">STATUS</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">
+                    <span style="padding:2px 8px; border-radius:4px; font-size:0.75rem; font-family:'Share Tech Mono',monospace; font-weight:bold;
+                        ${(t.status || 'online') === 'online' ? 'background:rgba(123,237,159,0.15); color:#7bed9f; border:1px solid rgba(123,237,159,0.5);' 
+                        : 'background:rgba(255,71,87,0.15); color:#ff4757; border:1px solid rgba(255,71,87,0.5);'}">
+                        ${(t.status || 'online') === 'online' ? '● ONLINE' : '● OFFLINE'}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">ACTIVE LISTENERS</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: #7bed9f; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: bold;">${t.listeners || 0}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">LOCATION</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem;">${t.city || ''}, ${t.state || ''}<br/><span style="opacity:0.6; font-size:0.75rem;">${t.country || ''}</span></td>
+            </tr>
+            ` : ''}
+            ${t.type !== 'cctv' && t.type !== 'vessel' && t.type !== 'earthquake' && t.type !== 'scanner' && !isTraffic ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">IDENTIFIER</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${isFlight ? (t.id || 'N/A') : (t.id ? t.id.toString().split('_')[1] : 'N/A')}</td>
@@ -1533,25 +2509,37 @@ function renderTargetDetails() {
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; color: #fff; letter-spacing: 2px;">${t.destination || 'UNKNOWN'}</td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'satellite' || t.type === 'vessel') && t.velocityKmH !== undefined ? `
+            ${isFlight && (t.velocityKmH !== undefined && t.velocityKmH !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">VELOCITY</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.velocityKmH).toLocaleString()} <span style="font-size: 0.7rem;">km/h</span></td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'satellite') && t.alt !== undefined ? `
+            ${(isFlight || t.type === 'satellite') && (t.alt !== undefined && t.alt !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">ALTITUDE</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.alt).toLocaleString()} <span style="font-size: 0.7rem;">m</span></td>
             </tr>
             ` : ''}
-            ${(isFlight || t.type === 'vessel') && t.heading !== undefined ? `
+            ${t.type === 'vessel' && (t.velocityKmH !== undefined && t.velocityKmH !== null) ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">SPEED</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: var(--hud-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.velocityKmH).toLocaleString()} <span style="font-size: 0.7rem;">km/h</span></td>
+            </tr>
+            ` : ''}
+            ${t.type === 'vessel' && t.vesselType ? `
+            <tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">VESSEL TYPE</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; letter-spacing: 1px;">${t.vesselType}</td>
+            </tr>
+            ` : ''}
+            ${(isFlight || t.type === 'vessel') && (t.heading !== undefined && t.heading !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">HEADING</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${Math.round(t.heading)}°</td>
             </tr>
             ` : ''}
-            ${t.lat !== undefined ? `
+            ${(t.lat !== undefined && t.lat !== null) ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">LATITUDE</td>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${t.lat.toFixed(4)}</td>
@@ -1737,7 +2725,7 @@ document.getElementById('target-search-btn').addEventListener('click', function 
 // Set up intervals independent of layers so data is fresh when toggled
 setInterval(fetchFlights, 900000); // Poll flights every 15 minutes to allow native extrapolation
 setInterval(fetchSatellites, 30000);
-setInterval(fetchTraffic, 10000); // Poll AIS vessels every 10 seconds
+setInterval(fetchTraffic, 30000); // Poll AIS vessels every 30 seconds
 setInterval(fetchEarthquakes, 60000);
 setInterval(fetchWeather, 300000);
 setInterval(fetchCCTVs, 120000); // Refresh cameras every 2 minutes
@@ -1780,8 +2768,6 @@ document.querySelectorAll('.hud-select').forEach(select => {
 
 // Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
 // This ensures the viewport filter stays accurate without running every animation frame.
-// Re-cull visible flights whenever the camera stops moving (pan, zoom, tilt).
-// This ensures the viewport filter stays accurate without running every animation frame.
 if (viewer && viewer.camera) {
     viewer.camera.moveEnd.addEventListener(() => {
         if (state.layers.flights || state.layers.military) {
@@ -1789,4 +2775,487 @@ if (viewer && viewer.camera) {
             updateHUDCounts();
         }
     });
+}
+
+// ==========================================
+// DEMO MODE AUTOPILOT LOGIC
+// ==========================================
+
+let isDemoModeActive = false;
+
+const demoBtn = document.getElementById('demo-mode-btn');
+if (demoBtn) {
+    demoBtn.addEventListener('click', () => {
+        isDemoModeActive = !isDemoModeActive;
+        if (isDemoModeActive) {
+            demoBtn.classList.add('active');
+            demoBtn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO ON';
+            const volSlider = document.getElementById('demo-volume-slider');
+            if (volSlider) volSlider.style.display = 'block';
+            runDemoCycle();
+        } else {
+            demoBtn.classList.remove('active');
+            demoBtn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+            const volSlider = document.getElementById('demo-volume-slider');
+            if (volSlider) volSlider.style.display = 'none';
+            
+            // Stop audio immediately when demo is turned off
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            
+            // Re-open layers panel if it was closed
+            const panel = document.getElementById('layers-panel');
+            if (panel && panel.classList.contains('collapsed')) {
+                toggleLayersPanel();
+            }
+            
+            // Only completely wipe the map clean if they explicitly pressed "DEMO OFF", 
+            // rather than clicking a specific datapoint to interrupt the demo and take over.
+            if (!window.isDemoInterruption) {
+                // Turn off all layers
+                for (const l of Object.keys(state.layers)) {
+                    if (state.layers[l]) toggleLayer(l);
+                }
+                
+                // Close target lock
+                const closeBtn = document.getElementById('close-target');
+                if (closeBtn) closeBtn.click();
+                
+                // Reset all dropdowns 
+                ['flight-speed', 'military-speed', 'quake-duration', 'satellite-country', 'traffic-type', 'weather-layer', 'cctv-mode', 'police-country-filter', 'scanner-country-filter'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                         el.selectedIndex = 0;
+                         el.dispatchEvent(new Event('change'));
+                    }
+                });
+                
+                // Fly camera back to default earth view
+                if (viewer && viewer.camera) {
+                    viewer.camera.flyTo({
+                        destination: Cesium.Cartesian3.fromDegrees(-95, 38, 15000000),
+                        duration: 1.5
+                    });
+                }
+            }
+            window.isDemoInterruption = false; // reset flag
+        }
+    });
+}
+
+// Utilities for async sleep & Text-to-Speech
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+const demoVoice = window.speechSynthesis;
+let currentDemoUtterance = null;
+
+let resolveCurrentSpeech = null;
+let isIntentionalCancel = false;
+let volUpdateTimer;
+
+const volSliderEl = document.getElementById('demo-volume-slider');
+if (volSliderEl) {
+    volSliderEl.addEventListener('input', (e) => {
+        const newVol = parseFloat(e.target.value);
+        if (currentDemoUtterance) {
+            currentDemoUtterance.volume = newVol;
+        }
+        
+        // If pulled to zero, cancel the current audio and let script advance
+        if (newVol === 0 && demoVoice && demoVoice.speaking) {
+            demoVoice.cancel();
+            return;
+        }
+
+        // Web Speech API ignores mid-utterance volume updates.
+        // We must re-spool the utterance to apply volume immediately.
+        clearTimeout(volUpdateTimer);
+        volUpdateTimer = setTimeout(() => {
+            if (demoVoice && demoVoice.speaking && currentDemoUtterance && newVol > 0) {
+                isIntentionalCancel = true;
+                demoVoice.cancel();
+                isIntentionalCancel = false;
+                
+                const fullText = currentDemoUtterance.fullText || currentDemoUtterance.text;
+                const newUtterance = new SpeechSynthesisUtterance(fullText);
+                newUtterance.voice = currentDemoUtterance.voice;
+                newUtterance.rate = currentDemoUtterance.rate;
+                newUtterance.pitch = currentDemoUtterance.pitch;
+                newUtterance.volume = newVol;
+                newUtterance.fullText = fullText;
+                
+                const fallbackTimer = setTimeout(() => {
+                    if (resolveCurrentSpeech) {
+                        resolveCurrentSpeech();
+                        resolveCurrentSpeech = null;
+                    }
+                }, fullText.length * 100 + 2000);
+
+                newUtterance.onend = () => {
+                    if (!isIntentionalCancel && resolveCurrentSpeech) {
+                        clearTimeout(fallbackTimer);
+                        resolveCurrentSpeech();
+                        resolveCurrentSpeech = null;
+                    }
+                };
+                newUtterance.onerror = () => {
+                    if (!isIntentionalCancel && resolveCurrentSpeech) {
+                        clearTimeout(fallbackTimer);
+                        resolveCurrentSpeech();
+                        resolveCurrentSpeech = null;
+                    }
+                };
+                
+                currentDemoUtterance = newUtterance;
+                demoVoice.speak(newUtterance);
+            }
+        }, 150);
+    });
+}
+
+function speakDemoText(text) {
+    if (!isDemoModeActive || !demoVoice) return Promise.resolve();
+    isIntentionalCancel = true;
+    demoVoice.cancel(); // Stop talking if already talking
+    isIntentionalCancel = false;
+    
+    return new Promise(resolve => {
+        resolveCurrentSpeech = resolve;
+        
+        currentDemoUtterance = new SpeechSynthesisUtterance(text);
+        currentDemoUtterance.fullText = text;
+        
+        // Attempt to find a clean, professional English voice
+        const voices = demoVoice.getVoices();
+        // Prioritize British Female (Google UK English Female / Microsoft Hazel)
+        let preferredVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
+        
+        // Fallback to en-US standard professional voices
+        if (!preferredVoice) {
+            preferredVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female')));
+        }
+        if (preferredVoice) currentDemoUtterance.voice = preferredVoice;
+        
+        currentDemoUtterance.rate = 1.15; // Increased to match Brand Monitor's energetic style
+        currentDemoUtterance.pitch = 1.0;
+        
+        if (volSliderEl) {
+            currentDemoUtterance.volume = parseFloat(volSliderEl.value);
+        }
+        
+        // Safety timeout in case speech synthesis engine gets stuck (calc duration approx)
+        const fallbackTimer = setTimeout(() => {
+            if (resolveCurrentSpeech) {
+                resolveCurrentSpeech();
+                resolveCurrentSpeech = null;
+            }
+        }, text.length * 100 + 2000);
+        
+        currentDemoUtterance.onend = () => {
+            if (!isIntentionalCancel && resolveCurrentSpeech) {
+                clearTimeout(fallbackTimer);
+                resolveCurrentSpeech();
+                resolveCurrentSpeech = null;
+            }
+        };
+        currentDemoUtterance.onerror = () => {
+            if (!isIntentionalCancel && resolveCurrentSpeech) {
+                clearTimeout(fallbackTimer);
+                resolveCurrentSpeech();
+                resolveCurrentSpeech = null;
+            }
+        };
+        
+        demoVoice.speak(currentDemoUtterance);
+    });
+}
+
+// Interruption Handler: Fight user friction by turning off demo mode if they click anywhere else manually
+window.isDemoInterruption = false;
+document.addEventListener('mousedown', (e) => {
+    const isSlider = e.target.id === 'demo-volume-slider';
+    if (isDemoModeActive && e.target.id !== 'demo-mode-btn' && !e.target.closest('#demo-mode-btn') && !isSlider) {
+        console.log("[Demo Mode] Manual interaction detected. Halting autopilot without wiping map.");
+        if (demoVoice) demoVoice.cancel();
+        window.isDemoInterruption = true;
+        if (demoBtn) demoBtn.click();
+    }
+}, true);
+
+function getFilterIdForLayer(layer) {
+    const filters = {
+        'flights': 'flight-speed',
+        'military': 'military-speed',
+        'earthquakes': 'quake-duration',
+        'satellites': 'satellite-country', // Shows off military constraints
+        'traffic': 'traffic-type',
+        'weather': 'weather-layer',
+        'cctv': 'cctv-mode',
+        'police': 'police-country-filter',
+        'scanners': 'scanner-country-filter'
+    };
+    return filters[layer];
+}
+
+function getRandomDemoEntity(layer) {
+    let list = [];
+    if (layer === 'flights') list = (state.flights || []).map(f => ({...f, type: 'flight'}));
+    if (layer === 'military') list = (state.military || []).map(f => ({...f, type: 'flight', isMilitary: true}));
+    if (layer === 'earthquakes') list = (state.earthquakes || []).map(q => ({
+        type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
+        lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2],
+        mag: q.properties?.mag || 1, time: q.properties?.time, 
+        felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region
+    }));
+    if (layer === 'satellites') list = state.satellites || [];
+    if (layer === 'traffic') list = (state.traffic || []).map(t => ({...t, type: 'vessel'}));
+    if (layer === 'weather') return null; // Weather isn't targetable
+    if (layer === 'cctv') list = (state.cctv_cameras || []).map(c => ({...c, type: 'cctv'}));
+    if (layer === 'police') list = (typeof getFilteredPolice === 'function') ? getFilteredPolice() : state.police_data;
+    if (layer === 'scanners') list = (typeof getFilteredScanners === 'function') ? getFilteredScanners() : state.scanners;
+
+    if (!list || list.length === 0) return null;
+    
+    // Pick a random target
+    const target = list[Math.floor(Math.random() * list.length)];
+    
+    // Format appropriately for TargetLock
+    if (layer === 'police' && !target.customData) {
+        return {
+            type: 'police', id: target.id, title: target.name || 'Police Station',
+            lat: target.lat, lng: target.lng, address: target.address || '', phone: target.phone || '',
+            country: target.country, state: target.state, city: target.city
+        };
+    }
+    if (layer === 'scanners' && !target.customData) {
+        return {
+            type: 'scanner', id: target.id, title: target.title || 'Scanner Feed',
+            lat: target.lat, lng: target.lng, listeners: target.listeners || 0,
+            genre: target.genre || '', bitrate: target.bitrate || 0,
+            url: target.url || ''
+        };
+    }
+    if (layer === 'satellites') {
+        return {
+            type: 'satellite', id: target.id, name: target.name,
+            satrec: target.satrec, 
+            lat: 0, lng: 0, alt: 0 
+        }; // Math interpolator will compute lat/lng in renderTargetDetails natively.
+    }
+    return target;
+}
+
+/**
+ * ============================================================
+ * VIRTUAL MOUSE & GUIDED DEMO HELPERS
+ * ============================================================
+ */
+let virtualCursor = null;
+
+function initVirtualCursor() {
+    if (virtualCursor) return;
+    virtualCursor = document.createElement('div');
+    virtualCursor.id = 'virtual-cursor';
+    document.body.appendChild(virtualCursor);
+}
+
+function removeVirtualCursor() {
+    if (virtualCursor) {
+        virtualCursor.remove();
+        virtualCursor = null;
+    }
+}
+
+async function moveVirtualMouse(targetX, targetY, duration = 1000, click = false) {
+    if (!virtualCursor || !isDemoModeActive) return;
+    
+    virtualCursor.style.display = 'block';
+    
+    return new Promise(resolve => {
+        const startX = parseFloat(virtualCursor.style.left) || window.innerWidth / 2;
+        const startY = parseFloat(virtualCursor.style.top) || window.innerHeight / 2;
+        const startTime = performance.now();
+        
+        function animate(now) {
+            if (!isDemoModeActive) {
+                virtualCursor.style.display = 'none';
+                return resolve();
+            }
+            
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Cubic easing
+            const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+            const curX = startX + (targetX - startX) * ease;
+            const curY = startY + (targetY - startY) * ease;
+            
+            virtualCursor.style.left = `${curX}px`;
+            virtualCursor.style.top = `${curY}px`;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                if (click) {
+                    virtualCursor.classList.add('clicking');
+                    setTimeout(() => {
+                        virtualCursor.classList.remove('clicking');
+                        resolve();
+                    }, 200);
+                } else {
+                    resolve();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    });
+}
+
+function getEntityScreenCoords(entity) {
+    if (!viewer || !entity) return null;
+    
+    let position;
+    if (entity.lat !== undefined && entity.lng !== undefined) {
+        position = Cesium.Cartesian3.fromDegrees(entity.lng, entity.lat, entity.alt || 0);
+    } else if (entity.satrec) {
+        // For satellites, we need to compute their current position since they move
+        const now = Cesium.JulianDate.now();
+        const pos = entity.satrec ? getSatellitePosition(entity.satrec, now) : null;
+        if (pos) position = pos;
+    }
+    
+    if (!position) return null;
+    
+    const canvasCoords = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, position);
+    if (!canvasCoords) return null;
+    
+    return { x: canvasCoords.x, y: canvasCoords.y };
+}
+
+function getNarrationForLayer(layer) {
+    const scripts = {
+        'flights': "We analyze global commercial aviation utilizing crowdsourced ADS-B receivers. We track thousands of transponders simultaneously.",
+        'military': "Military flight data is filtered to identify tactical aviation assets worldwide.",
+        'earthquakes': "Geological sensors stream real-time earthquake data from the USGS API, mapped immediately onto the globe.",
+        'satellites': "We track orbiting infrastructure. Our database plots thousands of active satellites using NORAD tracking telemetry.",
+        'traffic': "Global maritime shipping traffic is ingested via AIS transceivers to identify cargo routes and vessel metadata.",
+        'weather': "Near real-time precipation mapping gives situational awareness for global weather events.",
+        'cctv': "We tap into an aggregated network of thousands of localized IP cameras to provide street-level operational visuals.",
+        'police': "Public safety and emergency services infrastructure is mapped for rapid intelligence gathering.",
+        'scanners': "Lyve police and emergency radio scanner feeds give you ears on the ground during critical incidents."
+    };
+    return scripts[layer] || `Displaying the ${layer} data layer.`;
+}
+
+async function runDemoCycle() {
+    const demoLayers = ['flights', 'military', 'satellites', 'earthquakes', 'cctv', 'traffic', 'weather', 'police', 'scanners'];
+    let layerIndex = 0;
+
+    initVirtualCursor();
+
+    // Ensure camera is pointing at Earth from a good starting height
+    if (viewer && viewer.camera) {
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-95, 38, 15000000), // US centric view
+            duration: 2.0
+        });
+    }
+
+    // UI Management: Mobile devices get a collapsed panel to save space.
+    const panel = document.getElementById('layers-panel');
+    if (panel) {
+        if (isMobile && !panel.classList.contains('collapsed')) {
+            toggleLayersPanel();
+        } else if (!isMobile && panel.classList.contains('collapsed')) {
+            toggleLayersPanel();
+        }
+    }
+
+    await delay(1000);
+    if (!isDemoModeActive) return;
+
+    await speakDemoText("Welcome to Lyve Earth by Sherpa Solutions. This platform aggregates real-time, global O S INT data feeds into a unified 3D geospatial dashboard. Let's take a look at the capabilities.");
+    await delay(1000); 
+
+    while (isDemoModeActive) {
+        // 1. Wipe all layers clean
+        for (const l of Object.keys(state.layers)) {
+            if (state.layers[l]) toggleLayer(l);
+        }
+        
+        // --- NEW: Force Zoom Out to Whole Earth for each layer ---
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-95, 38, 18000000), 
+            duration: 2.5
+        });
+        
+        await delay(1500); 
+        if (!isDemoModeActive) break;
+
+        // 2. Turn on current layer & Speak
+        const currentLayer = demoLayers[layerIndex];
+        console.log(`[Demo] Activating layer: ${currentLayer}`);
+        
+        toggleLayer(currentLayer); 
+        await speakDemoText(getNarrationForLayer(currentLayer));
+        
+        await delay(1000); 
+        if (!isDemoModeActive) break;
+
+        // 3. Find Entity & Select with Virtual Mouse
+        const entity = getRandomDemoEntity(currentLayer);
+        if (entity) {
+            console.log(`[Demo] Targeting entity:`, entity.id || entity.name);
+            
+            // Move mouse to entity while still zoomed out
+            const coords = getEntityScreenCoords(entity);
+            if (coords) {
+                await moveVirtualMouse(coords.x, coords.y, 1500, true);
+            }
+            
+            if (!isDemoModeActive) break;
+
+            // Zoom in medium speed via lockTarget
+            lockTarget(entity);
+            
+            // Wait for flyTo duration (2.0s in lockTarget + buffer)
+            await delay(3000); 
+            if (!isDemoModeActive) break;
+
+            // 4. Move Mouse to Identifier in the HUD
+            const targetHudTitle = document.querySelector('#target-panel h3');
+            if (targetHudTitle) {
+                const rect = targetHudTitle.getBoundingClientRect();
+                await moveVirtualMouse(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+            }
+            
+            // Hold for 4 seconds as requested
+            await delay(4000);
+            if (!isDemoModeActive) break;
+
+            // 5. Move Mouse to Close button and click
+            const closeBtn = document.getElementById('close-target');
+            if (closeBtn) {
+                const rect = closeBtn.getBoundingClientRect();
+                await moveVirtualMouse(rect.left + rect.width / 2, rect.top + rect.height / 2, 800, true);
+                closeBtn.click();
+            }
+            
+            await delay(1000);
+        } else {
+            console.log(`[Demo] No entities found for ${currentLayer}. Skipping...`);
+            await delay(3000);
+        }
+
+        if (!isDemoModeActive) break;
+
+        layerIndex++;
+        if (layerIndex >= demoLayers.length) {
+            await speakDemoText("This concludes the Lyve Earth demonstration. You now have the conn.");
+            await delay(4000); 
+            removeVirtualCursor();
+            if (demoBtn) demoBtn.click(); 
+            break;
+        }
+    }
 }

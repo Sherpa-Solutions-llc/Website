@@ -1,0 +1,60 @@
+--- SITE MAINTENANCE AUDIT ---
+
+1. LARGE ASSETS (>500KB)
+  [OK] No assets over 500KB found.
+
+2. HTML STRUCTURE & BROKEN LINKS
+  [DUPLICATE IDs] backpack_nomatic_bag.html: theme-toggle
+  [BROKEN LINK] backpack_nomatic_bag.html: -> static/thumb_pro_nbag.png
+  [BROKEN LINK] backpack_nomatic_bag.html: -> static/thumb_pro_nbag.png
+  [BROKEN LINK] backpack_nomatic_bag.html: -> static/bp_nomatic_bag_4.png
+  [BROKEN LINK] backpack_nomatic_bag.html: -> static/bp_nomatic_bag_5.png
+  [BROKEN LINK] backpack_nomatic_bag.html: -> static/bp_nomatic_bag_6.png
+  [DUPLICATE IDs] backpack_nomatic_pack.html: theme-toggle
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_1_user.jpg
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_1_user.jpg
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_2.png
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_3.png
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_4.png
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_5_user.jpg
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/bp_nomatic_pack_6.png
+  [DUPLICATE IDs] backpack_pd_30l.html: theme-toggle
+  [BROKEN LINK] backpack_pd_30l.html: -> static/thumb_pro_pd30.jpg
+  [BROKEN LINK] backpack_pd_30l.html: -> static/thumb_pro_pd30.jpg
+  [BROKEN LINK] backpack_pd_30l.html: -> static/bp_pd_30l_5.jpg
+  [BROKEN LINK] backpack_pd_30l.html: -> static/bp_pd_30l_6.jpg
+  [DUPLICATE IDs] backpack_pd_45l.html: theme-toggle
+  [BROKEN LINK] backpack_pd_45l.html: -> static/thumb_pro_pd45.jpg
+  [BROKEN LINK] backpack_pd_45l.html: -> static/thumb_pro_pd45.jpg
+  [BROKEN LINK] backpack_pd_45l.html: -> static/bp_pd_45l_6.jpg
+  [BROKEN LINK] merchandise.html: -> static/merch_shirt_button_user.png
+  [BROKEN LINK] merch_backpacks.html: -> static/thumb_pro_pd45.jpg
+  [BROKEN LINK] merch_backpacks.html: -> static/thumb_pro_pd30.jpg
+  [BROKEN LINK] merch_backpacks.html: -> static/bp_nomatic_pack_1_user.jpg
+  [BROKEN LINK] merch_backpacks.html: -> static/thumb_pro_nbag.png
+  [BROKEN LINK] merch_shirts.html: -> static/merch_shirt_button_user.png
+  [BROKEN LINK] merch_shirts.html: -> /static/merch_shirt_button_blue.png
+  [BROKEN LINK] merch_shirts.html: -> /static/merch_shirt_button_user.png
+  [BROKEN LINK] merch_shirts.html: -> /static/merch_pullover_black.png
+  [BROKEN LINK] merch_shirts.html: -> /static/merch_pullover_pro.png
+  [BROKEN LINK] services_backup.html: -> static/cloud_strategy.png
+  [BROKEN LINK] services_backup.html: -> static/digital_transformation.png
+  [BROKEN LINK] services_backup.html: -> static/cybersecurity.png
+  [BROKEN LINK] services_backup.html: -> static/ai_automation.png
+  [BROKEN LINK] services_backup.html: -> static/it_project_management.png
+  [BROKEN LINK] services_backup.html: -> static/program_recovery.png
+  [BROKEN LINK] services_backup.html: -> static/strategic_ascent.png
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_2.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_3.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_4.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_5.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_2.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_3.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_4.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_nomatic_bag_2.webp'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_nomatic_bag_3.webp'>
+
+3. UNUSED ASSETS
+  [OK] No obviously unused static images found.
+
+4. ROOT DIRECTORY CLUTTER

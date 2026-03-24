@@ -41,6 +41,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 5%;
+    padding-top: calc(1.5rem + env(safe-area-inset-top, 0)); /* Notch support */
     background: rgba(253, 251, 247, 0.95);
     backdrop-filter: blur(10px);
     position: fixed;

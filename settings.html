@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sherpa Solutions LLC | Settings</title>
@@ -11,48 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css">
     <style>
-        /* ============================================================
-           SETTINGS PAGE THEME LOCK — always light regardless of
-           global data-theme attribute set by theme.js / styles.css
-           ============================================================ */
-        .admin-layout {
-            --primary: #2D3F2E;
-            --secondary: #6b8a6b;
-            --accent: #D28052;
-            --surface-color: #ffffff;
-            --bg-color: #f4f6f4;
-            --text-dark: #1a2e1a;
-            --text-light: #ffffff;
-            --border-color: rgba(45, 63, 46, 0.2);
-        }
-
-        /* Hard-reset any global dark-mode text rules */
-        .admin-content h2,
-        .admin-content h3,
-        .admin-content h4 {
-            color: #1a2e1a !important;
-        }
-
-        .admin-content p {
-            color: #4a5c4a !important;
-        }
-
-        .admin-panel {
-            background: #ffffff !important;
-            color: #1a2e1a !important;
-        }
-
-        .user-table th,
-        .user-table td {
-            color: #1a2e1a !important;
-        }
-
-        .sidebar-menu a span,
-        .sidebar-menu a i {
-            color: inherit !important;
-            /* inherit from <a> which we control */
-        }
-
+        /* Removed hardcoded Light Mode overrides so standard theme variables inherited from styles.css apply correctly */
         .admin-layout {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -60,8 +20,8 @@
         }
 
         .sidebar {
-            background: #ffffff;
-            color: #1a2e1a;
+            background: var(--surface-color);
+            color: var(--text-dark);
             padding: 2rem;
             display: flex;
             flex-direction: column;
@@ -89,7 +49,7 @@
         }
 
         .sidebar-menu a {
-            color: #1a2e1a;
+            color: var(--text-dark);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -100,29 +60,29 @@
             transition: all 0.2s;
             font-weight: 600;
             font-size: 0.95rem;
-            border: 1.5px solid #c0ccc0;
+            border-color: var(--border-color);
             margin-bottom: 6px;
-            background: #f8faf8;
+            background: rgba(122, 142, 99, 0.1);
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background: #1a2e1a;
-            color: #ffffff;
-            border-color: #1a2e1a;
+            background: var(--accent);
+            color: var(--text-light);
+            border-color: var(--accent);
         }
 
         .admin-content {
             padding: 3rem;
-            background: #f4f6f4;
-            /* Light content area for forms/settings readability */
+            background: var(--bg-color);
+            /* Standard background area for forms/settings readability */
         }
 
         .admin-panel {
-            background: white;
+            background: var(--surface-color);
             padding: 2.5rem;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             margin-bottom: 2rem;
             display: none;
         }
@@ -131,11 +91,9 @@
         .cms-tab {
             padding: 0.45rem 1rem;
             border-radius: 8px;
-            border: 1.5px solid #c0ccc0;
-            background: #f8faf8;
-            /* light sage — matches sidebar pills */
-            color: #1a2e1a;
-            /* dark forest green text */
+            border: 1.5px solid var(--border-color);
+            background: rgba(122, 142, 99, 0.1);
+            color: var(--text-dark);
             font-size: 0.88rem;
             font-weight: 600;
             cursor: pointer;
@@ -144,9 +102,9 @@
         }
 
         .cms-tab:hover {
-            background: #eef2ee;
-            border-color: #1a2e1a;
-            color: #1a2e1a;
+            background: rgba(122, 142, 99, 0.2);
+            border-color: var(--primary);
+            color: var(--text-dark);
         }
 
         .cms-tab.active {
@@ -170,7 +128,7 @@
         .user-table td {
             text-align: left;
             padding: 1.2rem 1rem;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .btn-danger {
@@ -253,12 +211,12 @@
         }
 
         .modal-content {
-            background: #fff;
+            background: var(--surface-color);
             padding: 2.5rem;
             border-radius: 16px;
             width: 90%;
             max-width: 450px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
 
@@ -337,11 +295,9 @@
                 padding: 8px 14px;
                 font-size: 0.85rem;
                 gap: 6px;
-                background: #f0f4f0;
-                /* light sage pill */
-                color: #1a2e1a !important;
-                /* always dark text */
-                border: 1.5px solid #c0ccc0;
+                background: rgba(122, 142, 99, 0.1);
+                color: var(--text-dark) !important;
+                border: 1.5px solid var(--border-color);
                 border-radius: 8px;
                 font-weight: 600;
                 white-space: nowrap;
@@ -349,18 +305,18 @@
 
             .sidebar-menu a span {
                 display: inline !important;
-                color: #1a2e1a !important;
+                color: var(--text-dark) !important;
             }
 
             .sidebar-menu a i {
-                color: #1a2e1a !important;
+                color: var(--text-dark) !important;
             }
 
             .sidebar-menu a:hover,
             .sidebar-menu a.active {
-                background: #1a2e1a !important;
-                color: #ffffff !important;
-                border-color: #1a2e1a !important;
+                background: var(--accent) !important;
+                color: var(--text-light) !important;
+                border-color: var(--accent) !important;
             }
 
             .sidebar-menu a:hover span,
@@ -413,6 +369,17 @@
         }
     </style>
     <script src="static/theme.js"></script>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 
 <body>
@@ -433,8 +400,6 @@
                 <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
                             class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
             </ul>
-            <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i
-                        class="fa-solid fa-sun"></i></button></div>
             <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
         </aside>
 
@@ -465,7 +430,7 @@
                         <div style="position: relative; flex: 1; display: flex;">
                             <input type="password" id="new-password" placeholder="Secure Password" required
                                 autocomplete="new-password" style="flex: 1; padding-right: 40px;">
-                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;">
+                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
                                 <i class="fa-solid fa-eye" id="new-password-eye"></i>
                             </button>
                         </div>
@@ -481,9 +446,12 @@
                     style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
                     <div>
                         <h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
-                        <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
-                                style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
-                            inline.</p>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
+                                    style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
+                                inline.</p>
+                            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border-color)';"><i class="fa-solid fa-moon"></i></button>
+                        </div>
                     </div>
                     <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
                         <button id="cms-save-btn" class="btn btn-primary" onclick="saveEditorChanges()" disabled
@@ -491,15 +459,55 @@
                             <i class="fa-solid fa-floppy-disk"></i> Save Changes
                         </button>
                         <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
-                            style="white-space:nowrap; background:var(--primary); box-shadow:0 4px 15px rgba(45,63,46,0.2);">
+                            style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
                         </button>
                     </div>
                 </div>
 
+                <!-- Global Theme Editor -->
+                <div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-palette"></i> Global Theme Colors
+                        </div>
+                        <button onclick="saveThemeColors()" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
+                            <input type="color" id="theme-color-primary" value="#2D3F2E" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
+                            <input type="color" id="theme-color-secondary" value="#7A8E63" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
+                            <input type="color" id="theme-color-accent" value="#C06C3B" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
+                            <input type="color" id="theme-color-bg" value="#FDFBF7" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
+                            <input type="color" id="theme-color-surface" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
+                            <input type="color" id="theme-color-textdark" value="#1A241A" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
+                            <input type="color" id="theme-color-textlight" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- GitHub progress meter -->
                 <div id="sync-progress-container"
-                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid #c0ccc0; border-radius:8px; padding:12px; background:#f9fcf9;">
+                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color);">
                     
                     <!-- GitHub Row -->
                     <div>
@@ -507,38 +515,60 @@
                             <span><i class="fa-brands fa-github"></i> Deploy to GitHub</span>
                             <span id="sync-progress-percent">0%</span>
                         </div>
-                        <div style="width:100%; background:#dce6dc; height:8px; border-radius:4px; overflow:hidden;">
+                        <div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
                             <div id="sync-progress-bar"
-                                style="width:0%; height:100%; background:#1a2e1a; transition:width 0.3s ease, background 0.3s ease;">
+                                style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;">
                             </div>
                         </div>
                         <div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
                     </div>
 
                     <!-- Railway Row -->
-                    <div style="border-top:1px solid #dce6dc; padding-top:8px; margin-top:4px;">
+                    <div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
                         <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
                             <span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
-                            <span id="railway-progress-status" style="color:#f39c12; font-weight:600;">Not Needed</span>
+                            <span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Page selector tabs -->
-                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0;" id="cms-page-tabs">
-                    <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
-                    <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
-                    <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️
-                        Services</button>
-                    <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
-                    <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
-                    <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒
-                        Store</button>
+                <!-- Page selector sitemap -->
+                <div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
+                    
+                    <!-- Root -->
+                    <div style="margin-bottom: 0.75rem;">
+                        <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
+                    </div>
+
+                    <!-- Main Navigation Branch -->
+                    <div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
+                            <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️ Services</button>
+                            <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒 Store</button>
+                            <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
+                        </div>
+
+                        <!-- Projects Sub-branch -->
+                        <div>
+                            <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
+                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="loadEditorPage('live_earth')" class="cms-tab" data-page="live_earth">🌍 Live Earth</button>
+                                <button onclick="loadEditorPage('skip_tracer')" class="cms-tab" data-page="skip_tracer">🔍 Traku</button>
+                                <button onclick="loadEditorPage('stock_agent')" class="cms-tab" data-page="stock_agent">📈 Stock Monitor</button>
+                                <button onclick="loadEditorPage('productivity_agent')" class="cms-tab" data-page="productivity_agent">🤖 Productivity</button>
+                                <button onclick="loadEditorPage('osint_api')" class="cms-tab" data-page="osint_api">🛰️ OSINT API</button>
+                                <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Status bar -->
                 <div id="cms-status-bar"
-                    style="background:#f0f6f0; border:1.5px solid #c0ccc0; border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:#4a5c4a; display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+                    style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
                     <span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
                         fields. Click to start editing.</span>
                     <span id="cms-unsaved-badge"
@@ -546,9 +576,8 @@
                         Unsaved</span>
                 </div>
 
-                <!-- The full-page iframe editor -->
                 <iframe id="cms-iframe" src="/api/edit-page/index"
-                    style="width:100%; height:78vh; border:1.5px solid #c0ccc0; border-radius:0 0 8px 8px; display:block;"
+                    style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;"
                     sandbox="allow-scripts allow-same-origin">
                 </iframe>
             </div>
@@ -577,7 +606,7 @@
             </p>
             <div style="position: relative; margin-bottom: 1.5rem;">
                 <input type="password" id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;">
-                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;">
+                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
                     <i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
                 </button>
             </div>
@@ -848,7 +877,52 @@
         }
 
 
+        async function saveThemeColors() {
+            const primary = document.getElementById('theme-color-primary').value;
+            const secondary = document.getElementById('theme-color-secondary').value;
+            const accent = document.getElementById('theme-color-accent').value;
+            const bg = document.getElementById('theme-color-bg').value;
+            const surface = document.getElementById('theme-color-surface').value;
+            const textdark = document.getElementById('theme-color-textdark').value;
+            const textlight = document.getElementById('theme-color-textlight').value;
 
+            // Generate CSS override block globally forcing light mode variables ONLY
+            const cssPayload = `
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: ${primary} !important;
+    --secondary: ${secondary} !important;
+    --accent: ${accent} !important;
+    --bg-color: ${bg} !important;
+    --surface-color: ${surface} !important;
+    --text-dark: ${textdark} !important;
+    --text-light: ${textlight} !important;
+}
+`;
+            
+            // Save to CMS so it propagates to all <style data-cms="custom-theme-colors"> elements site-wide
+            const res = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ element_id: 'custom-theme-colors', html_content: cssPayload })
+            });
+            
+            if (res.ok) {
+                // Apply locally immediately instantly
+                let existingStyle = document.querySelector('style[data-cms="custom-theme-colors"]');
+                if (existingStyle) { existingStyle.innerHTML = cssPayload; }
+                
+                // Inject into iframe natively
+                const cmsIframe = document.getElementById('cms-iframe');
+                if (cmsIframe && cmsIframe.contentWindow && cmsIframe.contentWindow.document) {
+                    let iframeStyle = cmsIframe.contentWindow.document.querySelector('style[data-cms="custom-theme-colors"]');
+                    if (iframeStyle) { iframeStyle.innerHTML = cssPayload; }
+                }
+                
+                alert('Theme colors saved globally! The CMS and Live Site will now use these colors.');
+            } else {
+                alert('Error saving theme colors.');
+            }
+        }
 
         async function syncToGitHub() {
             const btn = document.getElementById('btn-sync-github');
@@ -857,6 +931,13 @@
             const progressPercent = document.getElementById('sync-progress-percent');
             const progressBar = document.getElementById('sync-progress-bar');
             const originalText = btn.innerHTML;
+
+            // Auto-save any unsaved CMS changes before deploying
+            if (cmsHasChanges) {
+                saveEditorChanges();
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Draft...';
+                await new Promise(r => setTimeout(r, 800)); // wait for iframe postMessage to process
+            }
 
             // Use custom confirmation modal instead of native confirm()
             document.getElementById('confirm-modal-text').innerText = "This will check all local files and upload only changed ones to GitHub. Unchanged files are skipped to save time. Proceed?";
@@ -876,19 +957,20 @@
                 // Reset and show progress UI
                 progressContainer.style.display = 'flex';
                 progressBar.style.width = '0%';
-                progressBar.style.background = 'var(--primary)';
-                progressText.innerText = 'Checking files...';
+                progressBar.style.background = 'var(--accent)';
+                progressText.innerText = 'Ready...';
                 progressText.style.color = 'var(--secondary)';
                 progressPercent.innerText = '0%';
                 progressPercent.style.color = 'var(--secondary)';
                 
                 // Railway Status Reset
                 const railwayStatus = document.getElementById('railway-progress-status');
-                railwayStatus.innerText = 'Checking...';
+                railwayStatus.innerText = 'Ready';
                 railwayStatus.style.color = 'var(--secondary)';
 
                 // Step 1: Kick off the background deploy — this returns immediately
                 try {
+                    progressText.innerText = 'Committing changes...';
                     const res = await fetch('/api/sync-github', { method: 'POST' });
                     if (!res.ok) {
                         const data = await res.json();
@@ -933,25 +1015,31 @@
                             clearInterval(pollInterval);
                             progressBar.style.width = '100%';
                             progressBar.style.background = '#2ecc71';
-                            progressText.innerText = `✓ ${p.message || 'Deployment complete'}`;
+                            progressText.innerText = `✓ Deployed to GitHub`;
                             progressText.style.color = '#2ecc71';
                             progressPercent.innerText = '100%';
                             progressPercent.style.color = '#2ecc71';
                             btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
                             
                             // If files were actually modified/uploaded, Railway will rebuild
-                            if (p.current > 0) {
-                                railwayStatus.innerText = 'Completed';
-                                railwayStatus.style.color = '#2ecc71';
+                            if (p.current > 0 || p.message.includes('uploaded')) {
+                                railwayStatus.innerText = 'Deploying...';
+                                railwayStatus.style.color = '#3498db';
+                                
+                                // Show "Deployed" on Railway after a reasonable wait (matching the alert timer)
+                                setTimeout(() => {
+                                    railwayStatus.innerText = 'Deployed';
+                                    railwayStatus.style.color = '#2ecc71';
+                                }, 60000); // Show Deployed after 60s
                             } else {
-                                railwayStatus.innerText = 'Not Needed';
+                                railwayStatus.innerText = 'No Changes';
                                 railwayStatus.style.color = '#f39c12';
                             }
 
                             setTimeout(() => {
                                 progressContainer.style.display = 'none';
                                 alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates shortly.');
-                            }, 90000); // Changed from 1200ms to 90 seconds
+                            }, 90000); 
                         }
                     } catch (e) { console.error('Polling error:', e); }
                 }, 600);

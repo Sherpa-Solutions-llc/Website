@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Monitor | Command Center</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/static/theme.js?v=3"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #0e1117; }
+        iframe { width: 100%; height: calc(100vh - 180px); border: none; margin-top: 180px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="index.html"><img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/></a>
+        </div>
+        <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Our Services</a></li>
+            <li><a class="active" href="projects.html">Projects</a></li>
+            <li><a href="merchandise.html">Merchandise</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="header-actions">
+            <span id="env-indicator" style="display:inline-flex; align-items:center; gap:8px; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);"></span>
+            <button id="btn-demo-toggle" class="demo-btn" style="margin-right: 15px;" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+            <button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+            <a class="btn btn-primary nav-cta" href="projects.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back</a>
+        </div>
+    </header>
+
+    <iframe data-path="/brand_monitor" id="sherpa-frame"></iframe>
+    <audio id="demo-audio" src="/static/audio/brand_demo.mp3"></audio>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+            const flag = isLocal ? 'live' : 'sim';
+            const host = isLocal ? 'http://localhost:8501' : 'https://sherpa-dashboards.streamlit.app';
+            
+            const ind = document.getElementById('env-indicator');
+            if(isLocal) {
+                ind.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#00ff00;"></i> LIVE SYSTEM';
+                ind.style.borderColor = 'rgba(0,255,0,0.3)';
+            } else {
+                ind.innerHTML = '<i class="fa-solid fa-flask" style="color:#ff6600;"></i> SIMULATION';
+                ind.style.borderColor = 'rgba(255,102,0,0.3)';
+            }
+            const iframe = document.getElementById('sherpa-frame');
+            iframe.src = host + iframe.getAttribute('data-path') + '?embed=true&theme=' + (document.documentElement.getAttribute('data-theme') || 'dark') + '&env=' + flag;
+        });
+
+        function toggleDemo() {
+            var btn = document.getElementById('btn-demo-toggle');
+            var audio = document.getElementById('demo-audio');
+            var iframe = document.querySelector('iframe');
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+                audio.pause();
+                audio.currentTime = 0;
+            } else {
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO RUNNING';
+                audio.playbackRate = 1.25;
+                audio.play();
+
+                // Streamlit Macro Injections (Scaled 1.25x for audio speed, mapping "Sherpa Solutions LLC")
+                setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'FILL', index: 0, value: 'Sherpa Solutions LLC'}, '*'); }, 2400);
+                setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'CLICK', text: 'Add'}, '*'); }, 4000);
+                setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'CLICK', text: 'Execute'}, '*'); }, 6800);
+
+                audio.onended = function() {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+                };
+            }
+        }
+    </script>
+</body>
+</html>

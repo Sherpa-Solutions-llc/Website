@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Checkout (Mock)</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f7f9fc; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .checkout-box { background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; padding: 2rem; box-sizing: border-box; }
+        h1 { font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem; color: #1a1f36; }
+        .price { font-size: 2rem; font-weight: 600; color: #1a1f36; margin-bottom: 1.5rem; }
+        .price span { font-size: 1rem; color: #697386; font-weight: normal; }
+        .user-email { background: #f7f9fc; padding: 0.75rem; border-radius: 4px; color: #3c4257; font-size: 0.9rem; margin-bottom: 1.5rem; border: 1px solid #e3e8ee; }
+        .badge-test { background: #e3e8ee; color: #3c4257; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block; margin-bottom: 1rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        button { background: #5469d4; color: white; border: none; border-radius: 4px; padding: 0.75rem 1rem; font-size: 1rem; font-weight: 600; width: 100%; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button:hover { background: #4554b2; }
+        button:disabled { background: #aab7c4; cursor: not-allowed; }
+        .footer { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #8792a2; }
+        
+        /* Success state */
+        .success-box { text-align: center; display: none; }
+        .success-icon { color: #2ea043; font-size: 3rem; margin-bottom: 1rem; }
+        .success-box h2 { color: #1a1f36; margin-bottom: 0.5rem; }
+        .success-box p { color: #697386; margin-bottom: 1.5rem; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="checkout-box" id="checkout-container">
+    <div class="badge-test">Test Mode</div>
+    <h1>Sherpa Pro Subscription</h1>
+    <div class="price">$29.00<span> / month</span></div>
+    
+    <div class="user-email" id="email-display">
+        <!-- Email injected here -->
+    </div>
+    
+    <button id="pay-button" onclick="simulatePayment()">
+        Pay $29.00 (Mock)
+    </button>
+    <div id="error-msg" style="color: #ff4444; font-size: 0.85rem; margin-top: 1rem; display: none; text-align: center;"></div>
+    
+    <div class="footer">
+        <i class="fa-solid fa-lock"></i> Mocked Stripe Payments
+    </div>
+</div>
+
+<div class="checkout-box success-box" id="success-container">
+    <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+    <h2>Payment Successful</h2>
+    <p>Your account has been upgraded to Sherpa Pro.</p>
+    <button onclick="window.history.back()">Return to Application</button>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    
+    if (email) {
+        document.getElementById('email-display').innerHTML = `<i class="fa-solid fa-envelope" style="margin-right: 8px; color: #8792a2;"></i>${email}`;
+    } else {
+        document.getElementById('email-display').textContent = "No email provided.";
+        document.getElementById('pay-button').disabled = true;
+    }
+
+    async function simulatePayment() {
+        const btn = document.getElementById('pay-button');
+        const err = document.getElementById('error-msg');
+        
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+        err.style.display = 'none';
+
+        try {
+            // Call our webhook mock to securely upgrade the user in the backend DB
+            const response = await fetch('/api/billing/webhook-mock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            
+            if (response.ok) {
+                // Wait a tiny bit to make it feel "real"
+                setTimeout(() => {
+                    document.getElementById('checkout-container').style.display = 'none';
+                    document.getElementById('success-container').style.display = 'block';
+                }, 800);
+            } else {
+                throw new Error("Backend upgrade failed");
+            }
+        } catch (e) {
+            err.textContent = "Mock payment failed. Ensure the server is running.";
+            err.style.display = 'block';
+            btn.innerHTML = 'Pay $29.00 (Mock)';
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

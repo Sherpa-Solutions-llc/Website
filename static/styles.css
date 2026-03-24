@@ -170,6 +170,67 @@ header {
     color: var(--text-light);
 }
 
+/* Global Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 28px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #8b949e;
+    transition: .4s;
+    border-radius: 28px;
+    border: 1px solid var(--border-color);
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    z-index: 2;
+}
+.slider:after {
+    content: 'OFF';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    transition: .4s;
+    z-index: 1;
+}
+input:checked + .slider {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+input:checked + .slider:before {
+    transform: translateX(30px);
+}
+input:checked + .slider:after {
+    content: 'ON';
+    left: 8px;
+    right: auto;
+}
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -2950,4 +3011,33 @@ header {
 select, select option {
     color: #1a1a1a !important;
     background-color: #ffffff !important;
+}
+
+/* Demo Toggle Button */
+.demo-btn {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+.demo-btn:hover:not(.active) {
+    background: rgba(210, 128, 82, 0.1);
+}
+.demo-btn.active {
+    background: var(--accent);
+    color: white;
+    animation: demoPulse 2s infinite;
+}
+@keyframes demoPulse {
+    0% { box-shadow: 0 0 0 0 rgba(210, 128, 82, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(210, 128, 82, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(210, 128, 82, 0); }
 }

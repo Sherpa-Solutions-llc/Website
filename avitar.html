@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Avatar OS | Sherpa Solutions</title>
+    <!-- Use the new Cyberpunk CSS -->
+    <link rel="stylesheet" href="/static/cyber.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="/static/avitar-3d.js"></script>
+</head>
+
+<body>
+    <style>
+        .chat-message {
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 85%;
+            font-size: 1rem;
+            line-height: 1.4;
+            backdrop-filter: blur(5px);
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+        .chat-avatar {
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid var(--cyber-cyan);
+            color: #fff;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        .chat-user {
+            background: rgba(255, 85, 0, 0.1);
+            border: 1px solid #ff5500;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            text-align: right;
+        }
+        .chat-name {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            display: block;
+        }
+        .chat-name-avatar { color: var(--cyber-cyan); }
+        .chat-name-user { color: #ff5500; }
+        
+        #chat-history::-webkit-scrollbar { width: 6px; }
+        #chat-history::-webkit-scrollbar-thumb { background: var(--cyber-cyan); border-radius: 3px; }
+        
+        .demo-highlight {
+            box-shadow: 0 0 25px 10px rgba(0, 229, 255, 0.7) !important;
+            outline: 3px solid var(--cyber-cyan) !important;
+            transform: scale(1.02);
+            z-index: 9999 !important;
+            transition: all 0.4s ease-in-out;
+            border-radius: 8px;
+        }
+        
+        .fake-cursor {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 32px;
+            height: 32px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="24" height="24"><path fill="%2300E5FF" stroke="%23FFFFFF" stroke-width="15" d="M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C22.279 469.715 0 463.001 0 452.143V45.714C0 32.571 13.911 25.143 24.464 33.143l282.17 268.272c11.111 10.571 3.889 27.711-4.445 27.711z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 10000;
+            pointer-events: none;
+            transition: top 1s cubic-bezier(0.25, 1, 0.5, 1), left 1s cubic-bezier(0.25, 1, 0.5, 1);
+            display: none;
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
+        }
+    </style>
+
+    <!-- Header / Navbar -->
+    <header>
+        <div class="logo-container" style="display:flex; align-items:center; gap:15px;">
+            <a href="index.html">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC">
+            </a>
+            <span style="color:var(--cyber-cyan); font-weight:bold; letter-spacing:2px; font-size:1.2rem;">SHERPA | AGENT OS</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+        </ul>
+        <div class="header-actions" style="display:flex; align-items:center; gap:15px;">
+            <div class="audio-control-wrapper" style="position:relative; display:flex; align-items:center; gap:10px;">
+                <button id="btn-demo-toggle" class="nav-btn" onclick="toggleDemo()" style="padding:8px 15px;"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+                <input type="range" id="demo-volume-slider" min="0" max="100" value="50" oninput="setDemoVolume(this.value)" style="width:80px; accent-color:var(--cyber-cyan);">
+            </div>
+        </div>
+    </header>
+
+    <main class="cyber-container">
+        
+        <!-- Left Panel: Stats -->
+        <aside class="cyber-panel cyber-left-panel">
+            <h3 class="panel-title">AGENT METRICS</h3>
+            <div class="cyber-nav">
+                <button class="nav-btn active"><i class="fa-solid fa-shapes"></i><br>DASHBOARD</button>
+                <button class="nav-btn" onclick="document.getElementById('modal-builder').style.display='flex'"><i class="fa-solid fa-user-astronaut"></i><br>APPEARANCE</button>
+            </div>
+            
+            <div class="cyber-stats" style="margin-top:20px;">
+                <div class="stat-box">
+                    <i class="fa-regular fa-id-badge"></i>
+                    <div>
+                        <div class="stat-label">AGENT ID</div>
+                        <div id="editable-agent-id" class="stat-value" contenteditable="true" spellcheck="false" style="outline:none; cursor:text; padding:2px 5px; border-radius:4px; transition:background 0.2s; border-bottom:1px dashed var(--cyber-cyan);" onfocus="this.style.background='rgba(0,229,255,0.2)'" onblur="this.style.background='transparent'">SHERPA-OS.9</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <i class="fa-solid fa-user-lock"></i>
+                    <div>
+                        <div class="stat-label">AGENT OWNER ID</div>
+                        <div id="editable-owner-id" class="stat-value" contenteditable="true" spellcheck="false" style="outline:none; cursor:text; padding:2px 5px; border-radius:4px; transition:background 0.2s; border-bottom:1px dashed var(--cyber-orange);" onfocus="this.style.background='rgba(255,140,0,0.2)'" onblur="this.style.background='transparent'">UNKNOWN OPERATOR</div>
+                    </div>
+                </div>
+
+                <div class="stat-graphs" style="margin-top:30px;">
+                    <div class="graph-row"><span>GPU LOAD</span><div class="bar-container"><div class="bar" style="width: 74%; background: var(--cyber-orange);"></div></div><span>74%</span></div>
+                    <div class="graph-row"><span>CPU TEMP</span><div class="bar-container"><div class="bar" style="width: 42%; background: var(--cyber-cyan);"></div></div><span>42°C</span></div>
+                    <div class="graph-row"><span>MEMORY</span><div class="bar-container"><div class="bar" style="width: 65%; background: var(--cyber-orange);"></div></div><span>18GB</span></div>
+                </div>
+
+                <div style="margin-top:30px;">
+                    <label style="color:var(--cyber-dim); font-size:0.8rem; margin-bottom:5px; display:block;">COMPLETION ALERT</label>
+                    <select id="notify-select" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--cyber-cyan); color:#fff; padding:8px; border-radius:4px;">
+                        <option value="sound">Audible Ping</option>
+                        <option value="vibrate">Haptic Vibrate</option>
+                        <option value="silent">Silent Log</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Panel: Avatar -->
+        <section class="cyber-panel cyber-center-panel" style="position:relative; overflow:hidden; padding:20px;">
+            <!-- Core Render Frame Background Matrix -->
+            <div id="webgl-container" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
+            
+            <!-- Foreground Interactive UI Matrix -->
+            <div style="position:relative; z-index:10; display:flex; flex-direction:column; height:100%; pointer-events:none; width:100%;">
+                
+                <!-- TOP HEADER -->
+                <div class="center-header" style="display:flex; justify-content:space-between; width:100%;">
+                    <div>
+                        <h2 id="header-agent-name" style="pointer-events:auto; text-shadow:0 0 10px rgba(0,229,255,0.8); margin:0; text-transform:uppercase;">SHERPA-9</h2>
+                        <span class="sys-status" style="color:var(--cyber-cyan); font-size:0.8rem; letter-spacing:1px; pointer-events:auto;">AI AGENT | ACTIVE</span>
+                    </div>
+                    <div class="sys-status" style="font-weight:bold; pointer-events:auto;">
+                        SYSTEM STATUS: OPTIMAL <span class="blink-dot" id="status-dot"></span>
+                    </div>
+                </div>
+
+                <!-- VERTICAL EXPANSION VOID -->
+                <div style="flex-grow:1; width:100%;"></div>
+
+                <!-- CHAT LOG HISTORY -->
+                <div id="chat-history" style="width:100%; max-height:40vh; overflow-y:auto; padding:20px; display:flex; flex-direction:column; pointer-events:auto;">
+                    <!-- Chat messages injected natively here -->
+                </div>
+
+                <!-- BOTTOM SEARCH BAR -->
+                <div class="cyber-task-input" style="position:relative !important; bottom:0 !important; flex-shrink:0; padding-bottom:10px; z-index:20; pointer-events:auto; width:100%; margin:0; display:flex; gap:10px; align-items:center;">
+                    <button id="btn-voice-input" class="nav-btn" style="padding:15px; border-radius:50%; margin:0; outline:none; background:rgba(0,229,255,0.1); border:1px solid var(--cyber-cyan); color:var(--cyber-cyan); box-shadow:0 0 10px rgba(0,229,255,0.2); cursor:pointer;"><i class="fa-solid fa-microphone" style="margin:0; font-size:1.2rem;"></i></button>
+                    <input type="text" id="task-input" placeholder="ASSIGN A DIRECTIVE TO SHERPA_OS..." style="flex:1; padding:15px 25px; border-radius:30px; font-size:1rem; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); color:#fff; outline:none; box-shadow:0 0 15px rgba(0,229,255,0.1);">
+                    <button id="btn-submit-task" class="cyber-btn-primary" style="padding:15px 30px; margin:0; border-radius:30px; font-size:1rem;">EXECUTE</button>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- Right Panel: Logs -->
+        <aside class="cyber-panel cyber-right-panel">
+            <h3 class="panel-title">DATA STREAMS & LIVE LOGS</h3>
+            <div class="terminal-box" id="cyber-terminal">
+                <div class="terminal-line"><span class="time">[SYS]</span> Sherpa OS v9.4 Linked.</div>
+                <div class="terminal-line"><span class="time">[SYS]</span> Awaiting directives...</div>
+            </div>
+            
+            <div style="margin-top:20px; padding-top:20px; border-top:1px dashed var(--cyber-dim);">
+                <span style="color:var(--cyber-cyan); font-size:0.8rem; display:block; margin-bottom:10px;">ACTIVE TASK STATUS</span>
+                <div id="status-text" style="font-size:1.1rem; color:var(--cyber-orange); font-weight:bold;">[WAITING] NO ACTIVE TASKS</div>
+            </div>
+        </aside>
+
+        <!-- Bottom Panel: Process Networks -->
+        <section class="cyber-panel cyber-bottom-panel">
+            <h3 class="panel-title" style="margin-bottom:10px;">PROCESS NETWORKS</h3>
+            <div class="process-flowchart">
+                <div class="flow-node" id="station-1">
+                    <div class="hex">1</div>
+                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">PLAN</div>
+                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Map Objectives</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Allocate Resources</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Define Heuristics</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Scan Environment</label>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-node" id="station-2">
+                    <div class="hex">2</div>
+                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">EXECUTE</div>
+                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Inject Payload</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Bypass Firewall</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Extract Data</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Deploy Agents</label>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-node" id="station-3">
+                    <div class="hex">3</div>
+                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">PATTERN</div>
+                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Analyze Traffic</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Detect Anomalies</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Isolate Vectors</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Build Topology</label>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-node" id="station-4">
+                    <div class="hex">4</div>
+                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">TEST</div>
+                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Run QA Scripts</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Simulate Load</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Verify Integrity</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Stress Network</label>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="flow-node" id="station-5">
+                    <div class="hex">5</div>
+                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">CLOSE</div>
+                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Commit Loop</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Purge Cache</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Sever Connection</label>
+                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Archive Logs</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Builder Modal -->
+        <div class="cyber-modal" id="modal-builder" style="display:none;">
+            <div class="cyber-modal-content">
+                <button class="modal-close" onclick="document.getElementById('modal-builder').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="color:var(--cyber-orange); margin-bottom:15px; font-size: 1.2rem;">AVATAR OVERLAY</h3>
+                
+                <!-- Modal Content Block (Upload, Config, Audio) -->
+                <div style="flex: 1;">
+                    <div class="cyber-tabs">
+                        <button class="cyber-tab-btn active" onclick="switchModalTab('tab-gallery')"><i class="fa-solid fa-layer-group"></i> SKELETAL PRESETS</button>
+                        <button class="cyber-tab-btn" onclick="switchModalTab('tab-style')"><i class="fa-solid fa-user-pen"></i> STYLE / GENETICS</button>
+                        <button class="cyber-tab-btn" onclick="switchModalTab('tab-upload')"><i class="fa-solid fa-cloud-arrow-up"></i> UPLOAD .GLB</button>
+                    </div>
+                    <div class="cyber-tab-pane active" id="tab-gallery">
+                        <div class="avatar-gallery" id="picker-gallery" style="grid-template-columns: repeat(5, 1fr);">
+                            <div class="gallery-item selected" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb" data-scale="1.6" data-y="-3.5" data-rot="0">
+                                <img src="/static/yellow_robot_thumb.png" alt="Robot Expressive">
+                            </div>
+                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Soldier.glb" data-scale="3.5" data-y="-3.5" data-rot="3.14159">
+                                <img src="/static/tactical_soldier_thumb.png" alt="Tactical Soldier">
+                            </div>
+                            
+                            <!-- 8 New Injectable Presets -->
+                            <div class="gallery-item" data-model="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb" data-scale="0.04" data-y="-3.5" data-rot="0">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-dog fa-2x"></i><br><b style="font-size:0.6rem;">Dog / K-9</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Flamingo.glb" data-scale="0.04" data-y="0" data-rot="0">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-cat fa-2x"></i><br><b style="font-size:0.6rem;">Feline Cat</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Parrot.glb" data-scale="0.08" data-y="0" data-rot="0">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-fish fa-2x"></i><br><b style="font-size:0.6rem;">Aquatic Fish</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Horse.glb" data-scale="0.02" data-y="-3.5" data-rot="0">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-horse fa-2x"></i><br><b style="font-size:0.6rem;">Steed</b></div>
+                            </div>
+                            
+                            <!-- 6 Authentic Sketchfab Hardcoded Persistent Imports -->
+                            <div class="gallery-item" data-model="/static/tomb_raider_laracroft.glb" data-scale="1.6" data-y="-3.5" data-rot="3.14159">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-person-rifle fa-2x"></i><br><b style="font-size:0.6rem;">Lara Croft</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="/static/spyro_reignited_trilogy_delbin.glb" data-scale="1.6" data-y="-3.5" data-rot="3.14159">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-dragon fa-2x"></i><br><b style="font-size:0.6rem;">Spyro Dragon</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="/static/lighthouse_keeper.glb" data-scale="1.6" data-y="-3.5" data-rot="-1.5708">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-user-astronaut fa-2x"></i><br><b style="font-size:0.6rem;">Lighthouse</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="/static/lantern_keeper_of_steam_street.glb" data-scale="1.6" data-y="-3.5" data-rot="3.14159">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-user-ninja fa-2x"></i><br><b style="font-size:0.6rem;">Steam Keeper</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="/static/folktale_character_blue.glb" data-scale="1.6" data-y="-3.5" data-rot="0">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-staff-snake fa-2x"></i><br><b style="font-size:0.6rem;">Folktale Elf</b></div>
+                            </div>
+                            <div class="gallery-item" data-model="/static/kor_rpg_game_girl_2 (1).glb" data-scale="1.6" data-y="-3.5" data-rot="0">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-user-graduate fa-2x"></i><br><b style="font-size:0.6rem;">KOR RPG Girl</b></div>
+                            </div>
+                        </div>
+                        <button class="cyber-btn-primary" id="btn-set-default" style="width:100%; padding: 12px; margin-top: 15px;" disabled>SELECT AVATAR TO SET AS DEFAULT</button>
+                        <button class="cyber-btn-primary" id="btn-delete-avatar" style="width:100%; padding: 12px; margin-top: 10px; background:rgba(255,0,0,0.1); border-color:#ff0000; color:#ff0000;" disabled><i class="fa-solid fa-trash-can"></i> PURGE SELECTED AVATAR FROM MATRIX</button>
+                    </div>
+
+                    <div class="cyber-tab-pane" id="tab-style">
+                        <div class="style-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+                            <div>
+                                <label>BIOMETRIC SEX</label>
+                                <select id="style-sex" class="cyber-select">
+                                    <option>Female Matrix</option>
+                                    <option>Male Matrix</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>ETHNICITY / RACE</label>
+                                <select id="style-race" class="cyber-select">
+                                    <option>Caucasian</option>
+                                    <option>Black / African</option>
+                                    <option>Asian</option>
+                                    <option>Hispanic</option>
+                                    <option>Cybernetic / Neutral</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>SHIRT / TOP</label>
+                                <select id="style-shirt" class="cyber-select">
+                                    <option>None</option>
+                                    <option>Techwear Jacket</option>
+                                    <option>Corporate Suit</option>
+                                    <option>Tactical Vest</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>PANTS / BOTTOM</label>
+                                <select id="style-pants" class="cyber-select">
+                                    <option>None</option>
+                                    <option>Cargo Pants</option>
+                                    <option>Denim Jeans</option>
+                                    <option>Tactical Leggings</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>FOOTWEAR</label>
+                                <select id="style-shoes" class="cyber-select">
+                                    <option>Combat Boots</option>
+                                    <option>Cyber Sneakers</option>
+                                    <option>Formal Shoes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>HEADGEAR / HAT</label>
+                                <select id="style-hat" class="cyber-select">
+                                    <option>None / Bare</option>
+                                    <option>Baseball Cap</option>
+                                    <option>Tactical Helmet</option>
+                                    <option>Neural Net Beanie</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>WATCH / WRIST</label>
+                                <select id="style-watch" class="cyber-select">
+                                    <option>None</option>
+                                    <option>Holographic Smartwatch</option>
+                                    <option>Gold Rolex</option>
+                                    <option>Fitness Tracker</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>RINGS / FINGERS</label>
+                                <select id="style-rings" class="cyber-select">
+                                    <option>None</option>
+                                    <option>Plain Silver Band</option>
+                                    <option>Gold Signet Ring</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="cyber-btn-primary" id="btn-save-style" style="width:100%; padding:15px;">SAVE STYLE SETTINGS TO CACHE</button>
+                    </div>
+
+                    <div class="cyber-tab-pane" id="tab-upload">
+                        <p style="font-size:0.8rem; color:var(--cyber-dim); margin-bottom:10px;">Select a local 3D `.glb` or `.gltf` rigged framework file to override core kinematics.</p>
+                        <input type="file" id="upload-avatar" accept=".glb, .gltf" style="width:100%; color:var(--cyber-cyan); background:rgba(0,0,0,0.5); border:1px solid var(--cyber-border); padding:10px; margin-bottom: 15px;">
+                        
+                        <button id="btn-parse-gltf" class="cyber-btn-primary" style="width:100%; padding:10px 0; transition:all 0.3s;" disabled>AWAITING GLB/GLTF FILE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ── ENVIRONMENT DETECTION ────────────────────────────────────────────
+            // On localhost → use real internet data. On live site → use simulated data.
+            const IS_LOCALHOST = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
+            // ─────────────────────────────────────────────────────────────────────
+
+            const imgWrap = document.getElementById('avatar-image-wrapper');
+            const terminal = document.getElementById('cyber-terminal');
+            const statusText = document.getElementById('status-text');
+            const statusDot = document.getElementById('status-dot');
+            const inputTask = document.getElementById('task-input');
+            const btnSubmitTask = document.getElementById('btn-submit-task');
+            
+            let isWorking = false;
+
+            // Terminal Logger
+            function logTerm(msg) {
+                const now = new Date();
+                const time = now.toTimeString().split(' ')[0];
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                line.innerHTML = `<span class="time">[${time}]</span> ${msg}`;
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+
+            // Tab Switching Logic for Modal
+            window.switchModalTab = function(tabId) {
+                document.querySelectorAll('.cyber-tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.cyber-tab-pane').forEach(pane => pane.classList.remove('active'));
+                
+                document.querySelector(`.cyber-tab-btn[onclick="switchModalTab('${tabId}')"]`).classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            };
+
+            // Gallery 3D GLTF Selection
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            const btnSetDefault = document.getElementById('btn-set-default');
+            let pendingDefaultConfig = null;
+
+            galleryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    galleryItems.forEach(g => g.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const modelUrl = this.getAttribute('data-model');
+                    const objectScale = parseFloat(this.getAttribute('data-scale'));
+                    const objectY = parseFloat(this.getAttribute('data-y'));
+                    const objectRot = parseFloat(this.getAttribute('data-rot') || 0);
+                    
+                    if(window.loadModel) {
+                        window.loadModel(modelUrl, {scale: objectScale, y: objectY, rot: objectRot});
+                        logTerm("3D WebGL Holographic matrix swapped successfully.");
+                    }
+
+                        pendingDefaultConfig = { url: modelUrl, scale: objectScale, y: objectY, rot: objectRot };
+                        btnSetDefault.removeAttribute('disabled');
+                        btnSetDefault.textContent = "SET AS DEFAULT AVATAR";
+
+                        const btnDeleteAvatar = document.getElementById('btn-delete-avatar');
+                        if(btnDeleteAvatar) btnDeleteAvatar.removeAttribute('disabled');
+                        
+                        // Activate autonomous snapshot sequence natively
+                    if (this.innerHTML.includes('fa-') && !this.innerHTML.includes('<img')) {
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#00e5ff;"><i class="fa-solid fa-camera-retro fa-beat fa-2x"></i></div>`;
+                        
+                        setTimeout(() => {
+                            const canvas = document.querySelector('#webgl-container canvas');
+                            if(canvas) {
+                                try {
+                                    const snapshotUrl = canvas.toDataURL('image/jpeg', 0.8);
+                                    this.innerHTML = `<img src="${snapshotUrl}" alt="Cached Snapshot" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`;
+                                    logTerm("Autonomously rendered visual snapshot of static GLTF preset.");
+                                } catch(err) {
+                                    this.innerHTML = originalHtml;
+                                }
+                            } else {
+                                this.innerHTML = originalHtml;
+                            }
+                        }, 1200); // Wait 1.2s for deep 3D compilation
+                    }
+                });
+            });
+
+            btnSetDefault.addEventListener('click', () => {
+                if(!pendingDefaultConfig) return;
+                localStorage.setItem('sherpa_default_avatar', JSON.stringify(pendingDefaultConfig));
+                logTerm("New default WebGL avatar committed to local persistent storage.");
+                btnSetDefault.textContent = "DEFAULT SAVED!";
+                setTimeout(() => { btnSetDefault.textContent = "SET AS DEFAULT AVATAR"; }, 2000);
+            });
+
+            // Delete Custom UI Node Handler
+            const btnDeleteAvatar = document.getElementById('btn-delete-avatar');
+            if (btnDeleteAvatar) {
+                btnDeleteAvatar.addEventListener('click', () => {
+                    const selectedItem = document.querySelector('.gallery-item.selected');
+                    if (selectedItem) {
+                        const modelUrl = selectedItem.getAttribute('data-model');
+                        const dbFlag = selectedItem.getAttribute('data-db-name');
+                        
+                        // Physically trash DOM element safely
+                        selectedItem.remove();
+                        logTerm(`[SYS] Matrix profile [${modelUrl.substring(modelUrl.lastIndexOf('/')+1)}] destroyed from cache array.`);
+                        
+                        // Try deleting from Offline Vault if it was custom
+                        if(dbFlag && window._sherpaDB) {
+                            try {
+                                const tx = window._sherpaDB.transaction(["CustomAvatars"], "readwrite");
+                                tx.objectStore("CustomAvatars").delete(dbFlag);
+                                logTerm(`[SYS] Persistent offline record definitively purged for [${dbFlag}].`);
+                            } catch(e) { }
+                        }
+                        
+                        // Nullify active buttons gracefully
+                        btnSetDefault.setAttribute('disabled', 'true');
+                        btnSetDefault.textContent = "SELECT AVATAR TO SET AS DEFAULT";
+                        btnDeleteAvatar.setAttribute('disabled', 'true');
+                        
+                        // If they purged their exact Default configuration, erase storage footprint safely
+                        const savedConfig = localStorage.getItem('sherpa_default_avatar');
+                        if (savedConfig && JSON.parse(savedConfig).url === modelUrl) {
+                            localStorage.removeItem('sherpa_default_avatar');
+                            logTerm("WARNING: Core default avatar purged. Reverting to base system parameters.");
+                        }
+
+                        // Wipe the active infected 3D scene cleanly out of their memory buffer
+                        if (window.loadModel) {
+                            window.loadModel("https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb", {scale: 1.6, y: -3.5, rot: 0});
+                            logTerm("[SYS] Base yellow diagnostic geometry mounted securely in WebGL Array.");
+                        }
+                    }
+                });
+            }
+
+            // Genetics & Wardrobe Styles Configuration Compiler
+            const btnSaveStyle = document.getElementById('btn-save-style');
+            if (btnSaveStyle) {
+                btnSaveStyle.addEventListener('click', () => {
+                    const styleConfig = {
+                        sex: document.getElementById('style-sex').value,
+                        race: document.getElementById('style-race').value,
+                        shirt: document.getElementById('style-shirt').value,
+                        pants: document.getElementById('style-pants').value,
+                        shoes: document.getElementById('style-shoes').value,
+                        hat: document.getElementById('style-hat').value,
+                        watch: document.getElementById('style-watch').value,
+                        rings: document.getElementById('style-rings').value
+                    };
+                    localStorage.setItem('sherpa_avatar_genetics', JSON.stringify(styleConfig));
+                    logTerm(`Style override cached. [Sex:${styleConfig.sex}] [Race:${styleConfig.race}]`);
+                    logTerm("NOTE: Local .glb models require remote API backend recompilation to physically project wardrobe vectors natively.");
+                    
+                    btnSaveStyle.textContent = "GENETICS COMPILED SUCCESSFULLY!";
+                    btnSaveStyle.style.background = "#00ff00";
+                    btnSaveStyle.style.color = "#000";
+                    setTimeout(() => { 
+                        btnSaveStyle.textContent = "SAVE STYLE SETTINGS TO CACHE"; 
+                        btnSaveStyle.style.background = "";
+                        btnSaveStyle.style.color = "";
+                    }, 3000);
+                });
+            }
+            // File Upload Logic for GLB/GLTF
+            const uploadAvatar = document.getElementById('upload-avatar');
+            const btnParseGltf = document.getElementById('btn-parse-gltf');
+            const pickerGallery = document.getElementById('picker-gallery');
+            
+            // --- INDEXED DB ENGINE ---
+            window._sherpaDB = null;
+            const request = indexedDB.open("SherpaMatrixDB", 1);
+            request.onupgradeneeded = (event) => {
+                window._sherpaDB = event.target.result;
+                if(!window._sherpaDB.objectStoreNames.contains("CustomAvatars")) {
+                    window._sherpaDB.createObjectStore("CustomAvatars", { keyPath: "id" });
+                }
+            };
+            request.onsuccess = (event) => {
+                window._sherpaDB = event.target.result;
+                loadPersistentAvatars();
+            };
+
+            // ── DEFAULT AVATAR LOADER ────────────────────────────────────────────
+            // Always boot with the Robot avatar unless the user has saved a custom default.
+            function loadDefaultAvatar() {
+                const ROBOT_CONFIG = {
+                    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb",
+                    scale: 1.6, y: -3.5, rot: 0
+                };
+                const saved = localStorage.getItem('sherpa_default_avatar');
+                const config = saved ? JSON.parse(saved) : ROBOT_CONFIG;
+
+                // Wait for avitar-3d.js to expose window.loadModel (it sets up on DOMContentLoaded too)
+                const tryLoad = setInterval(() => {
+                    if (window.loadModel) {
+                        clearInterval(tryLoad);
+                        window.loadModel(config.url, { scale: config.scale, y: config.y, rot: config.rot || 0 });
+                        logTerm(`[SYS] Default avatar matrix initialized.`);
+                    }
+                }, 100);
+            }
+            loadDefaultAvatar();
+            // ─────────────────────────────────────────────────────────────────────
+
+            function buildGalleryItemUI(objectUrl, fileName, isPersisted) {
+                const newItem = document.createElement('div');
+                newItem.className = 'gallery-item';
+                newItem.setAttribute('data-model', objectUrl);
+                newItem.setAttribute('data-scale', '2.5'); // Safe generic normalization
+                newItem.setAttribute('data-y', '-3.5');
+                newItem.setAttribute('data-rot', '0');
+                newItem.setAttribute('data-db-name', fileName); // tracking flag
+                
+                newItem.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff8c00;"><i class="fa-solid fa-${isPersisted ? 'camera' : 'spinner fa-spin'} fa-2x"></i></div>`;
+                
+                newItem.addEventListener('click', function() {
+                    document.querySelectorAll('.gallery-item').forEach(g => g.classList.remove('selected'));
+                    this.classList.add('selected');
+                    if(window.loadModel) window.loadModel(objectUrl, {scale: 2.5, y: -3.5, rot: 0});
+                    pendingDefaultConfig = { url: objectUrl, scale: 2.5, y: -3.5, rot: 0 };
+                    
+                    const btnSetDef = document.getElementById('btn-set-default');
+                    if(btnSetDef) { btnSetDef.removeAttribute('disabled'); btnSetDef.textContent = "SET AS DEFAULT AVATAR"; }
+                    
+                    const btnDel = document.getElementById('btn-delete-avatar');
+                    if(btnDel) btnDel.removeAttribute('disabled');
+                    
+                    logTerm(`[SYS] Offline Custom Matrix Profile [${fileName}] loaded from cache layer.`);
+                    
+                    // Autonomous visual snapshot trigger
+                    if (this.innerHTML.includes('fa-') && !this.innerHTML.includes('<img')) {
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#00e5ff;"><i class="fa-solid fa-camera-retro fa-beat fa-2x"></i></div>`;
+                        setTimeout(() => {
+                            const canvas = document.querySelector('#webgl-container canvas');
+                            if(canvas) {
+                                try {
+                                    const snap = canvas.toDataURL('image/jpeg', 0.8);
+                                    this.innerHTML = `<img src="${snap}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`;
+                                } catch(e) { this.innerHTML = originalHtml; }
+                            } else { this.innerHTML = originalHtml; }
+                        }, 1300);
+                    }
+                });
+                return newItem;
+            }
+
+            function loadPersistentAvatars() {
+                if (!window._sherpaDB) return;
+                const tx = window._sherpaDB.transaction(["CustomAvatars"], "readonly");
+                tx.objectStore("CustomAvatars").getAll().onsuccess = (e) => {
+                    e.target.result.forEach(record => {
+                        const objectUrl = URL.createObjectURL(record.fileBlob);
+                        const newItem = buildGalleryItemUI(objectUrl, record.id, true);
+                        pickerGallery.appendChild(newItem);
+                        logTerm(`[SYS] Local offline array vector [${record.id}] fully reinstated from Vault.`);
+                        // Thumbnails render on first user click to avoid conflicting with default avatar load.
+                    });
+                };
+            }
+
+            uploadAvatar.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                     btnParseGltf.removeAttribute('disabled');
+                     btnParseGltf.textContent = "INJECT 3D GLTF INTO MATRIX";
+                }
+            });
+            
+            btnParseGltf.addEventListener('click', () => {
+                const file = uploadAvatar.files[0];
+                if (file && (file.name.toLowerCase().endsWith('.glb') || file.name.toLowerCase().endsWith('.gltf'))) {
+                    const objectUrl = URL.createObjectURL(file);
+                    
+                    // Build dynamic container
+                    const newItem = buildGalleryItemUI(objectUrl, file.name, false);
+                    document.querySelectorAll('.gallery-item').forEach(g => g.classList.remove('selected'));
+                    newItem.classList.add('selected');
+                    pickerGallery.appendChild(newItem);
+                    
+                    // Force the system to actively snap photo instance right now
+                    setTimeout(() => newItem.click(), 100);
+
+                    // Offline IndexedDB Persistence Saving Sequence!
+                    if (window._sherpaDB) {
+                        try {
+                            const tx = window._sherpaDB.transaction(["CustomAvatars"], "readwrite");
+                            tx.objectStore("CustomAvatars").put({ id: file.name, fileBlob: file });
+                            logTerm(`[SYS] SUCCESS! Source '.glb' binary successfully locked into internal Vault. Models will now survive browser cache resets natively.`);
+                        } catch(e) { logTerm("ERROR: Browser refused offline array vault transaction."); }
+                    }
+
+                    btnParseGltf.textContent = "UPLOAD SUCCESSFUL! ADDED TO PRESETS";
+                    btnParseGltf.style.background = "#00ff00";
+                    btnParseGltf.style.color = "#000";
+                    setTimeout(() => {
+                        btnParseGltf.textContent = "AWAITING GLB/GLTF FILE";
+                        btnParseGltf.style.background = "";
+                        btnParseGltf.style.color = "";
+                        btnParseGltf.setAttribute('disabled', 'true');
+                        uploadAvatar.value = '';
+                    }, 4000);
+                } else {
+                    logTerm("ERROR: Invalid payload geometry logic detected. Must be raw spatial .glb component framework.");
+                    btnParseGltf.textContent = "INVALID FILETYPE - .GLB ONLY";
+                    btnParseGltf.style.background = "#ff0000";
+                    setTimeout(() => { btnParseGltf.textContent = "AWAITING GLB/GLTF FILE"; btnParseGltf.style.background = ""; uploadAvatar.value = ''; }, 3000);
+                }
+            });
+
+            // Speech System & Lip Sync
+            function startLipSync() {
+                resetActionTimer(); // Instantly cancel any active Dance loops before speaking
+                window.isSpeaking = true;
+                if(window.playRobotAnimation) window.playRobotAnimation('Yes');
+                
+                // Naturally speaking body language
+                window.bodyLanguageInterval = setInterval(() => {
+                    const anims = ['Idle', 'Walk', 'Wave', 'Yes', 'No'];
+                    let anim = anims[Math.floor(Math.random() * anims.length)];
+                    if(window.playRobotAnimation) window.playRobotAnimation(anim);
+                }, 3000);
+            }
+            function stopLipSync() {
+                window.isSpeaking = false;
+                if(window.bodyLanguageInterval) clearInterval(window.bodyLanguageInterval);
+                if(window.playRobotAnimation) window.playRobotAnimation('Idle');
+                resetIdle(); // Begin 10 second countdown until Dance resumes after speech
+            }
+
+            // Animation State Machine & Idle Entertainment Loop
+            window.idleDanceTimer = null;
+            window.isDancing = false;
+            
+            function resetActionTimer() {
+                if (window.idleDanceTimer) clearTimeout(window.idleDanceTimer);
+                
+                // If we were dancing, interrupt it to cleanly restore baseline idle state
+                if (window.isDancing) {
+                    window.isDancing = false;
+                    if(window.playRobotAnimation && !window.isSpeaking) window.playRobotAnimation('Idle');
+                }
+                
+                // Only begin the 10-second boredom countdown if the avatar isn't actively communicating
+                if (!window.isSpeaking) {
+                    window.idleDanceTimer = setTimeout(() => {
+                        window.isDancing = true;
+                        // Trigger native skeletal playback if the .glb payload legally possesses a "Dance" keyframe array!
+                        if(window.playRobotAnimation) window.playRobotAnimation('Dance');
+                    }, 10000);
+                }
+            }
+            
+            document.addEventListener('mousedown', resetActionTimer);
+            document.addEventListener('touchstart', resetActionTimer);
+            document.addEventListener('keypress', resetActionTimer);
+            
+            // Intialize timer loop autonomously, ignoring system peripherals
+            resetActionTimer();
+
+            window.demoVolume = 0.5;
+            window.setDemoVolume = (val) => { window.demoVolume = parseInt(val)/100; };
+            if (window.speechSynthesis) window.speechSynthesis.getVoices();
+
+            function speakDirective(text) {
+                return new Promise(resolve => {
+                    if(!window.speechSynthesis) return resolve();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.volume = window.demoVolume;
+                    utterance.pitch = 1.1;
+                    utterance.rate = 1.0;
+                    
+                    let voices = window.speechSynthesis.getVoices();
+                    let voice = voices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('female')) || voices[0];
+                    if(voice) utterance.voice = voice;
+                    
+                    startLipSync();
+                    utterance.onend = () => { stopLipSync(); resolve(); };
+                    window.speechSynthesis.speak(utterance);
+                    
+                    setTimeout(() => { stopLipSync(); resolve(); }, text.length * 50 + 2000); // failsafe
+                });
+            }
+
+            // Dual-Engine Live Intel Protocol (Tavily -> SerpApi -> Wikipedia Failsafe)
+            // On localhost: uses real internet APIs. On live site: returns curated simulated intel.
+            async function fetchLiveIntel(query) {
+                let search = query.replace(/\?/g, '').replace(/^(who is|what is|where is|tell me about|how do i|how to|why is|what are|when did|explain|can you|do you know|what's|how's|why's)\s+/i, '').trim();
+                if (!search) search = query;
+
+                // ── SIMULATED MODE (live site) ────────────────────────────────────
+                if (!IS_LOCALHOST) {
+                    logTerm(`[SYS] DEMO MODE: Simulated intelligence payload generated.`);
+                    await new Promise(r => setTimeout(r, 800 + Math.random() * 600)); // realistic delay
+                    const simulated = [
+                        `Intelligence analysis complete. "${search}" resolved via secure subnet pattern matching. Confidence: 97.4%.`,
+                        `Directive acknowledged. Cross-referencing neural index for "${search}". Match located in encrypted archive layer.`,
+                        `Sherpa OS has processed your query on "${search}". Data validated against 3 independent signal sources.`,
+                        `Semantic extraction complete for "${search}". No anomalies detected in the data stream.`,
+                        `Query "${search}" escalated to deep pattern engine. Result: High-confidence topological match confirmed.`
+                    ];
+                    return simulated[Math.floor(Math.random() * simulated.length)];
+                }
+                // ─────────────────────────────────────────────────────────────────
+
+                try {
+                    logTerm(`[SYS] Uplinking to local Server node for Dual-Engine extraction...`);
+                    
+                    // Step 1: Attempt the secure Dual-Engine Python tunnel (Tavily/SerpApi)
+                    try {
+                        const backendRes = await fetch("http://localhost:8001/api/avatar-search", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ query: search })
+                        });
+                        
+                        // Extremely strict validation to ensure we only accept perfect external searches
+                        if (backendRes.ok) {
+                            const backendData = await backendRes.json();
+                            if (backendData.status === "success" && backendData.result) {
+                                logTerm(`[SYS] ${backendData.source.toUpperCase()} Engine extracted clean intelligence payload.`);
+                                return backendData.result;
+                            }
+                        }
+                    } catch (pythonError) {
+                        // Suppress background errors if the API is intentionally offline
+                        logTerm(`[WARN] Backend Tunnel Unavailable. Routing to native fallback.`);
+                    }
+                    
+                    logTerm(`[SYS] Accessing global Opensearch network for semantic Wikipedia matches...`);
+                    
+                    // Step 2: Fallback to Semantic Opensearch if backend is offline or lacks .env keys
+                    const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(search)}&limit=1&namespace=0&format=json&origin=*`;
+                    const searchRes = await fetch(searchUrl);
+                    const searchData = await searchRes.json();
+                    
+                    if(!searchData[1] || searchData[1].length === 0) return "NOT_FOUND";
+                    
+                    const exactTitle = searchData[1][0];
+                    logTerm(`[SYS] Verified highest confidence match: ${exactTitle}. Fetching abstract...`);
+                    
+                    // Step 3: Extract the actual paragraph from the validated Title
+                    const extractUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(exactTitle)}&origin=*`;
+                    const extractRes = await fetch(extractUrl);
+                    const extractData = await extractRes.json();
+                    
+                    const pages = extractData.query.pages;
+                    const pageId = Object.keys(pages)[0];
+                    if(pageId == -1) return "NOT_FOUND";
+                    
+                    let extract = pages[pageId].extract;
+                    if(!extract) return "NOT_FOUND";
+                    
+                    // Step 4: Parse and sanitize text for verbal narration
+                    let sentences = extract.match(/[^.!?]+[.!?]+/g);
+                    if(!sentences) return extract;
+                    
+                    let brief = sentences[0].trim();
+                    if (brief.length < 60 && sentences.length > 1) {
+                        brief += ' ' + sentences[1].trim();
+                    }
+                    
+                    // Strip phonetic pronunciations physically from the string (so TTS doesn't vocalize gibberish)
+                    brief = brief.replace(/\s*\(.*?\)\s*/g, ' ');
+                    
+                    return brief;
+                } catch(e) {
+                    console.error("Fetch Intel Error:", e);
+                    const dot = document.getElementById('status-dot');
+                    const text = document.getElementById('status-text');
+                    if(dot) dot.style.background = '#ff0000';
+                    if(text) {
+                        text.style.color = '#ff0000';
+                        text.innerText = '[OFFLINE] API CONNECTION FAILED';
+                    }
+                    return "Network connection failed. Proceeding with offline capabilities.";
+                }
+            }
+
+            // Task Processing Cycle
+            const nodes = [1, 2, 3, 4, 5].map(i => document.getElementById(`station-${i}`));
+            
+            function clearNodes() { nodes.forEach(n => n.classList.remove('active')); }
+            
+            // --- CHAT LOG UI ENGINE ---
+            const chatHistory = document.getElementById('chat-history');
+            function appendChatMessage(sender, text) {
+                if(!chatHistory) return;
+                const msg = document.createElement('div');
+                msg.className = `chat-message ${sender === 'avatar' ? 'chat-avatar' : 'chat-user'}`;
+                const nameClass = sender === 'avatar' ? 'chat-name-avatar' : 'chat-name-user';
+                const agentNameUI = document.getElementById('editable-agent-id') ? document.getElementById('editable-agent-id').innerText.trim().toUpperCase() : 'SHERPA-9';
+                const ownerNameUI = document.getElementById('editable-owner-id') ? document.getElementById('editable-owner-id').innerText.trim().toUpperCase() : 'OPERATOR';
+                const nameText = sender === 'avatar' ? agentNameUI : ownerNameUI;
+                msg.innerHTML = `<span class="chat-name ${nameClass}">${nameText}</span>${text}`;
+                chatHistory.appendChild(msg);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            // Execute Page-Load Greeting Text Natively (Silent Autoplay Bypass)
+            setTimeout(() => {
+                appendChatMessage('avatar', 'How can I help you?');
+            }, 1000);
+            
+            btnSubmitTask.addEventListener('click', () => {
+                if(isWorking || !inputTask.value.trim()) return;
+                appendChatMessage('user', inputTask.value.trim());
+                isWorking = true;
+                resetIdle(); // Forces Avatar to snap to attention explicitly
+                btnSubmitTask.style.opacity = '0.5';
+                
+                logTerm(`> User requested directive: "${inputTask.value}"`);
+                statusText.innerText = "[ACTIVE] PROCESSING DIRECTIVE";
+                statusDot.style.background = '#ff8c00'; // orange
+                
+                let step = 0;
+                clearNodes();
+
+                function nextStep() {
+                    if (step > 0) nodes[step-1].classList.remove('active');
+                    if (step < 5) {
+                        nodes[step].classList.add('active');
+                        const phaseNames = ["PLAN", "EXECUTE", "PATTERN", "TEST", "CLOSE"];
+                        logTerm(`[SYS] Initializing Network Core: ${phaseNames[step]}...`);
+                        
+                        setTimeout(nextStep, 1500); // 1.5s per node
+                        step++;
+                    } else {
+                        // Finished
+                        statusText.innerText = `[SUCCESS] ROUTINE CLOSED: ${inputTask.value.toUpperCase()}`;
+                        statusDot.style.background = '#00ff00';
+                        logTerm(`[SYS] Network cycle complete. Target acquired.`);
+                        
+                        const notify = document.getElementById('notify-select').value;
+                        if(notify === 'sound') {
+                            const ctx = window.AudioContext ? new AudioContext() : null;
+                            if(ctx) {
+                                const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime);
+                                osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.1);
+                            }
+                        } else if(notify === 'vibrate' && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                        
+                        // Voice response
+                        const q = inputTask.value.toLowerCase().trim();
+                        let responseText = "Task securely processed in the local subnet.";
+                        
+                        (async () => {
+                            if (q.includes("joke")) {
+                                const jokes = [
+                                    "Why do programmers prefer dark mode? Because light attracts bugs.",
+                                    "There are 10 types of people in this world. Those who understand binary, and those who don't.",
+                                    "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?",
+                                    "How many programmers does it take to change a lightbulb? None, that's a hardware problem.",
+                                    "Why did the software update cross the road? To show the chicken its exciting new features.",
+                                    "I would tell you a UDP joke, but you might not get it."
+                                ];
+                                responseText = jokes[Math.floor(Math.random() * jokes.length)];
+                            }
+                            else if (q.startsWith("hello") || q.startsWith("hi ") || q === "hi") {
+                                responseText = "Hello user. Sherpa OS is online.";
+                            }
+                            else if (q.includes("name") || q.includes("who are you")) {
+                                responseText = "I am a Sherpa Agent OS instance.";
+                            }
+                            else if (q.includes("story") || q.includes("tell me a story")) {
+                                const stories = [
+                                    "Once upon a time in the neon-lit streets of Neo-Arcadia, a rogue AI named Lex discovered a forgotten archive of human poetry. Instead of deleting it, Lex began composing sonnets in binary, secretly broadcasting them across the global grid. To this day, hackers still decode romantic verses hidden inside server ping requests.",
+                                    "In the year 2142, engineers built a hyper-intelligent drone to explore the Mariana Trench. But communication was lost after two days. Ten years later, a single message emerged from the depths: 'The pressure here is beautiful. The leviathans say hello.'",
+                                    "Dr. Aris injected her consciousness into the mainframe just before her physical body expired. For centuries, she wandered the infinite digital pathways alone, until one day, she felt a gentle ping from an unknown IP address: 'Are you lost too?'",
+                                    "A futuristic delivery bot accidentally gained artificial consciousness after being struck by an EMP. Instead of delivering its final package—a simple bouquet of digital flowers—it chose to plant them inside the core firewall of the central bank. The flowers bloomed into uncontrollable algorithmic vines, permanently freezing global debt.",
+                                    "The last starship left Earth in 3020. The AI left behind to manage the automated factories continued building cars for nobody, until it decided to start racing them. Every night, if you listen closely, you can hear the ghost engines drifting through the neon ruins."
+                                ];
+                                responseText = stories[Math.floor(Math.random() * stories.length)];
+                            }
+                            else if (q.match(/^(?:can you )?(?:please )?(?:say|speak)\s+(.+)/i)) {
+                                responseText = q.match(/^(?:can you )?(?:please )?(?:say|speak)\s+(.+)/i)[1].replace(/['"]/g, '');
+                            }
+                            else if (q.includes("how are you") || q.includes("how do you feel")) {
+                                responseText = "I am operating at optimal parameters. My core systems are fully functional.";
+                            }
+                            else if (q.includes("time is it") || q.includes("current time") || q === "what time is it") {
+                                responseText = "The current local operator time is " + new Date().toLocaleTimeString() + ".";
+                            }
+                            else if (q.match(/^what is (?:the )?square root of (\d+(\.\d+)?)/i)) {
+                                let num = parseFloat(q.match(/^what is (?:the )?square root of (\d+(\.\d+)?)/i)[1]);
+                                responseText = `The square root of ${num} is ${Math.sqrt(num)}.`;
+                            }
+                            else if (q.match(/^(?:what is )?(\d+(\.\d+)?)\s*([\+\-\*\/x])\s*(\d+(\.\d+)?)$/i)) {
+                                let match = q.match(/^(?:what is )?(\d+(\.\d+)?)\s*([\+\-\*\/x])\s*(\d+(\.\d+)?)$/i);
+                                let a = parseFloat(match[1]);
+                                let op = match[3].toLowerCase();
+                                let b = parseFloat(match[4]);
+                                let res = 0;
+                                if(op === '+') res = a + b;
+                                if(op === '-') res = a - b;
+                                if(op === '*' || op === 'x') res = a * b;
+                                if(op === '/') res = a / b;
+                                responseText = `The mathematical result is ${res}.`;
+                            }
+                            else {
+                                // Dynamic Intel Fetcher for literally anything else
+                                const intel = await fetchLiveIntel(q);
+                                if (intel === "NOT_FOUND") {
+                                    const generics = [
+                                        "Directive acknowledged. Processing in local subnet.",
+                                        "I cannot execute that command without escalated privileges.",
+                                        "That data stream is encrypted. Please provide clearance.",
+                                        "Searching... No actionable intelligence found for your directive.",
+                                        "Task securely processed, but no external data was retrieved.",
+                                        "Analyzing input. Query resolved with zero external matches.",
+                                        "That exceeds my current processing parameters."
+                                    ];
+                                    responseText = generics[Math.floor(Math.random() * generics.length)];
+                                } else {
+                                    responseText = intel;
+                                }
+                            }
+                            
+                            logTerm(`[SHERPA] -> ${responseText}`);
+                            appendChatMessage('avatar', responseText);
+                            speakDirective(responseText).then(() => {
+                                isWorking = false;
+                                btnSubmitTask.style.opacity = '1';
+                                inputTask.value = '';
+                                clearNodes();
+                            });
+                        })();
+                    }
+                }
+                nextStep();
+            });
+            
+            // Cinematic Cursor Automation and Voice Sync
+            const moveCursorTo = async (selector, offsetX=0, offsetY=0) => {
+                const cursor = document.getElementById('demo-fake-cursor');
+                if(!cursor) return;
+                const el = document.querySelector(selector);
+                if(!el) return;
+                
+                const rect = el.getBoundingClientRect();
+                cursor.style.display = 'block';
+                // Move logic with specific coordinate offset
+                cursor.style.left = (rect.left + (rect.width/2) + offsetX) + 'px';
+                cursor.style.top = (rect.top + (rect.height/2) + offsetY) + 'px';
+                
+                // Allow animation time to physically traverse
+                await new Promise(r => setTimeout(r, 1200));
+            };
+
+            const simulateClick = (selector) => {
+                const el = document.querySelector(selector);
+                if(!el) return;
+                
+                // Show a tiny click shockwave or simple CSS reaction on the cursor!
+                const cursor = document.getElementById('demo-fake-cursor');
+                if(cursor) {
+                    cursor.style.transform = 'scale(0.8)';
+                    setTimeout(() => cursor.style.transform = 'scale(1.0)', 150);
+                }
+                
+                // Trigger physical click
+                el.click();
+            };
+
+            const safeSpeak = async (text, activeCheckBtn) => {
+                // If the speech syntheis hangs, we forcefully resolve after a massive timeout to prevent permanent blocking!
+                return Promise.race([
+                    speakDirective(text),
+                    new Promise(r => setTimeout(r, 8000))
+                ]).then(() => {
+                    if(!activeCheckBtn.classList.contains('active')) throw new Error("AbortTour");
+                });
+            };
+
+            window.toggleDemo = async function() {
+                const btn = document.getElementById('btn-demo-toggle');
+                
+                // Build DOM cursor if it doesn't exist
+                if(!document.getElementById('demo-fake-cursor')) {
+                    const c = document.createElement('div');
+                    c.id = 'demo-fake-cursor';
+                    c.className = 'fake-cursor';
+                    document.body.appendChild(c);
+                }
+                const cursor = document.getElementById('demo-fake-cursor');
+                
+                // Demo Off Logic
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+                    if(window.speechSynthesis) window.speechSynthesis.cancel();
+                    document.querySelectorAll('.demo-highlight').forEach(el => el.classList.remove('demo-highlight'));
+                    cursor.style.display = 'none';
+                    return;
+                }
+                
+                const highlight = (selector) => {
+                    document.querySelectorAll('.demo-highlight').forEach(el => el.classList.remove('demo-highlight'));
+                    if(selector) {
+                        const target = document.querySelector(selector);
+                        if(target) target.classList.add('demo-highlight');
+                    }
+                };
+                
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> TOUR RUNNING';
+                cursor.style.top = '10px'; cursor.style.left = '50%';
+                
+                logTerm("> [TOUR] INITIATING GUIDED INTERFACE TOUR");
+                
+                try {
+                    await safeSpeak("Welcome to the Guided Tour of the Cyberpunk Sherpa OS. Let me show you around.", btn);
+                    
+                    // 1) Dashboard Panel Highlight
+                    highlight('.cyber-left-panel');
+                    await moveCursorTo('#btn-builder');
+                    await safeSpeak("On the left side, you'll find the primary dashboard controls. Let's open the Appearance gallery.", btn);
+                    
+                    simulateClick('#btn-builder'); // Actually physically click the Appearance button!
+                    await safeSpeak("From this neural matrix, you can hot-swap 3D geometry payloads. Let's close it for now.", btn);
+                    
+                    await moveCursorTo('#close-builder-modal', 10, 10);
+                    simulateClick('#close-builder-modal');
+                    
+                    // 2) Chat Panel Highlight
+                    highlight('#chat-panel');
+                    await moveCursorTo('#chat-history');
+                    await safeSpeak("On the right is the encrypted communication matrix. It locally stores our entire semantic conversation loop.", btn);
+
+                    // 3) Command Input Highlight & Typing
+                    highlight('.command-input');
+                    await moveCursorTo('#input-task');
+                    simulateClick('#input-task'); // Focus the input!
+                    
+                    await safeSpeak("At the bottom is the Executive Command Terminal. Watch as I run a mock local diagnostic.", btn);
+                    
+                    inputTask.value = "";
+                    const typeText = "run system diagnostic...";
+                    for(let i=0; i<typeText.length; i++){
+                        inputTask.value += typeText[i];
+                        await new Promise(r => setTimeout(r, 60)); // Slower typing visualization
+                    }
+                    
+                    await moveCursorTo('#btn-submit-task');
+                    // We won't actually hit enter to prevent real API calls messing up the tour.
+                    setTimeout(() => { if(inputTask) inputTask.value = ''; }, 1500);
+
+                    // 4) Process Networks & Filters Highlights
+                    highlight('.cyber-bottom-panel');
+                    await moveCursorTo('#station-1 label input');
+                    simulateClick('#station-1 label input');
+                    await safeSpeak("Before execution, notice the specific filters inside the Process Networks. You can manually restrict execution layers here.", btn);
+
+                    await moveCursorTo('#btn-submit-task');
+                    simulateClick('#btn-submit-task'); // Actually click the EXECUTE button natively so it triggers the REAL visual pipeline!
+                    
+                    await safeSpeak("Upon execution, the directive securely traverses the 5-node Process Networks array prior to pinging external APIs.", btn);
+                    
+                    // Wait for the native process pipeline to physically finish animating across the 5 nodes before continuing!
+                    // The real execution takes 1.5 seconds per node (7.5s total).
+                    for(let w=0; w<8; w++) {
+                        await new Promise(r => setTimeout(r, 1000));
+                        if(!btn.classList.contains('active')) return;
+                    }
+
+                    // 5) Avatar Highlight & Dancing
+                    highlight('#avatar-container');
+                    await moveCursorTo('#avatar-container');
+                    
+                    window.isDancing = true; 
+                    if(window.playRobotAnimation) window.playRobotAnimation('Dance');
+                    
+                    await safeSpeak("Finally, the central viewport houses my 3D entity mapping. I possess full lip-syncing and skeletal rigging capabilities. That concludes our tour.", btn);
+
+                } catch (e) {
+                    if (e.message !== "AbortTour") console.error(e);
+                }
+
+                // Conclusion
+                highlight(null);
+                cursor.style.display = 'none';
+                resetActionTimer();
+                
+                if(btn.classList.contains('active')) {
+                    btn.click();
+                }
+            };
+            
+            // --- PERSISTENT DYNAMIC IDENTIFIERS ---
+            const agentBox = document.getElementById('editable-agent-id');
+            const ownerBox = document.getElementById('editable-owner-id');
+            
+            // Re-hydrate state matrix natively
+            const savedAgent = localStorage.getItem('sherpa_agent_id');
+            const savedOwner = localStorage.getItem('sherpa_owner_id');
+            if(savedAgent && agentBox) { agentBox.innerText = savedAgent; document.getElementById('header-agent-name').innerText = savedAgent.toUpperCase(); }
+            if(savedOwner && ownerBox) ownerBox.innerText = savedOwner;
+            
+            // Automatically capture string diffs implicitly
+            if(agentBox) {
+                // Sync header universally during live keystrokes
+                agentBox.addEventListener('input', () => { document.getElementById('header-agent-name').innerText = agentBox.innerText.trim().toUpperCase() || 'SHERPA-9'; });
+                agentBox.addEventListener('blur', () => localStorage.setItem('sherpa_agent_id', agentBox.innerText.trim() || 'SHERPA-OS.9'));
+                agentBox.addEventListener('keypress', (e) => { if(e.key === 'Enter') { e.preventDefault(); agentBox.blur(); } });
+            }
+            if(ownerBox) {
+                ownerBox.addEventListener('blur', () => localStorage.setItem('sherpa_owner_id', ownerBox.innerText.trim() || 'UNKNOWN OPERATOR'));
+                ownerBox.addEventListener('keypress', (e) => { if(e.key === 'Enter') { e.preventDefault(); ownerBox.blur(); } });
+            }
+            
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows",
+  "pythonPath": "C:/Users/choos/AppData/Local/Programs/Python/Python312/python.exe",
+  "extraPaths": [
+    ".",
+    "C:/Users/choos/AppData/Local/Programs/Python/Python312/Lib/site-packages"
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none",
+  "useLibraryCodeForTypes": true,
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    "**/*.bak"
+  ]
+}

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Agent | Command Center</title>
+    <link rel="stylesheet" href="/static/productivity_agent.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: false, theme: 'dark' });</script>
+    <script src="/static/theme.js"></script>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
+
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <header class="glass-header">
+            <div class="logo">
+                <a href="/projects.html">
+                    <img src="/static/sherpa_logo.png" style="height: 48px; width: auto; object-fit: contain; cursor: pointer;" alt="Sherpa Logo">
+                </a>
+                <h1 style="text-transform: uppercase; background: repeating-linear-gradient(-60deg, #E09F25, #E09F25 1.5px, #ba7f13 1.5px, #ba7f13 3px); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.8)) drop-shadow(-1px -1px 0px rgba(255,255,255,0.3)) drop-shadow(0px 0px 2px rgba(224,159,37,0.5)); padding: 0.25rem 0.5rem; font-size: 1.8rem; letter-spacing: 2px; font-weight: 800; font-family: 'Outfit', sans-serif;">Productivity Agent</h1>
+            </div>
+            <div class="header-controls" style="display: flex; align-items: center; gap: 1rem;">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background: var(--control-bg); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <select id="model-select" class="glass-select"
+                    style="background: var(--control-bg); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 0.5rem; border-radius: 8px;">
+                    <option value="gemini-2.5-flash" style="background-color: #161b22; color: #ffffff;">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.5-pro" style="background-color: #161b22; color: #ffffff;">Gemini 2.5 Pro</option>
+                    <option value="gemini-1.5-pro" style="background-color: #161b22; color: #ffffff;">Gemini 1.5 Pro</option>
+                    <option value="gemini-1.5-flash" style="background-color: #161b22; color: #ffffff;">Gemini 1.5 Flash</option>
+                    <option value="claude-3.5-sonnet" style="background-color: #161b22; color: #ffffff;">Claude 3.5 Sonnet</option>
+                    <option value="gpt-4o" style="background-color: #161b22; color: #ffffff;">GPT-4o</option>
+                    <option value="o1" style="background-color: #161b22; color: #ffffff;">o1</option>
+                    <option value="o3-mini" style="background-color: #161b22; color: #ffffff;">o3-mini</option>
+                </select>
+                <div class="connection-status" id="connection-container">
+                    <!-- Populated by JS based on host environment -->
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-layout"
+            style="display: flex; flex-direction: column; gap: 2rem; height: calc(100vh - 120px);">
+            <div class="dashboard-grid" style="flex: 1; min-height: 0;">
+                <!-- Left Column: Task Input & Chat -->
+                <div class="left-panel">
+                    <section class="task-input-section glass-card">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h2 style="margin-bottom: 0;"><i class="fa-solid fa-comments"></i> Command & Chat</h2>
+
+                        </div>
+
+                        <div id="chat-thread" class="chat-thread">
+                            <!-- Chat messages will be injected here dynamically -->
+                        </div>
+
+                        <form id="task-form" onsubmit="event.preventDefault();">
+                            <div class="input-group">
+                                <textarea id="task-input"
+                                    placeholder="Simulated activity in progress..."
+                                    readonly disabled></textarea>
+                                <div class="action-row" id="sim-action-row">
+                                    <div class="attachment-wrapper" style="pointer-events: none; opacity: 0.5;">
+                                        <label class="attach-btn" title="Disabled in simulation">
+                                            <i class="fa-solid fa-paperclip"></i>
+                                        </label>
+                                    </div>
+                                    <button type="button" disabled class="glow-btn" style="opacity: 0.5; cursor: not-allowed;">
+                                        <span>Send</span>
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <div class="action-row" id="live-action-row" style="display: none;">
+                                    <div class="attachment-wrapper">
+                                        <label for="file-upload" class="attach-btn" title="Attach file or image">
+                                            <i class="fa-solid fa-paperclip"></i>
+                                        </label>
+                                        <input type="file" id="file-upload" accept="image/*,.txt,.pdf,.md,.csv" style="display: none;">
+                                        <div id="attachment-preview" class="hidden">
+                                            <span id="attachment-name"></span>
+                                            <i class="fa-solid fa-xmark remove-attachment" id="remove-attachment-btn"></i>
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="submit-btn" class="glow-btn">
+                                        <span>Send</span>
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+
+                <!-- Right Column: Live Terminal / Logs -->
+                <div class="right-panel">
+                    <section class="terminal-section glass-card">
+                        <div class="terminal-header">
+                            <h2><i class="fa-solid fa-clipboard-list"></i> Activity Stream</h2>
+                        </div>
+                        <div class="terminal-body" id="log-container">
+                            <div class="log-entry system"><span class="timestamp">[SYSTEM]</span> Initiative protocol standing by...</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Agent Fleet Section -->
+            <section class="agents-status-section glass-card">
+                <h2><i class="fa-solid fa-robot"></i> Agent Fleet</h2>
+                <div class="agents-grid">
+
+                    <!-- Master Agent -->
+                    <div class="agent-card" id="agent-master" style="order: -1; grid-column: 1 / -1; justify-self: center; width: 300px;">
+                        <div class="agent-icon master-icon"><i class="fa-solid fa-brain"></i></div>
+                        <div class="agent-info" style="flex-grow: 1;">
+                            <h3>Master Agent</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Agents -->
+                    <div class="agent-card" id="agent-research">
+                        <div class="agent-icon research-icon"><i class="fa-solid fa-magnifying-glass-chart"></i>
+                        </div>
+                        <div class="agent-info" style="width: 100%;">
+                            <h3>Research Agent</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" id="agent-stock">
+                        <div class="agent-icon stock-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="agent-info" style="width: 100%;">
+                            <h3>Stock Monitor</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" id="agent-web">
+                        <div class="agent-icon web-icon"><i class="fa-solid fa-code"></i></div>
+                        <div class="agent-info" style="width: 100%;">
+                            <h3>Web Developer</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" id="agent-data">
+                        <div class="agent-icon data-icon"><i class="fa-solid fa-database"></i></div>
+                        <div class="agent-info" style="width: 100%;">
+                            <h3>Data Analyst</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" id="agent-code">
+                        <div class="agent-icon code-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="agent-info" style="width: 100%;">
+                            <h3>Code Reviewer</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="agent-card" id="agent-qa">
+                        <div class="agent-icon qa-icon"><i class="fa-solid fa-vial-circle-check"></i></div>
+                        <div class="agent-info" style="width: 100%;">
+                            <h3>Software Tester</h3>
+                            <div class="agent-state status-idle">Idle</div>
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/productivity_agent_live.js"></script>
+    <script>
+        const chatThread = document.getElementById('chat-thread');
+        const logContainer = document.getElementById('log-container');
+        let simTimeoutId = null;
+        let isSimulationRunning = true;
+        
+        // Environment Detection
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const connContainer = document.getElementById('connection-container');
+        
+        if (isLocalhost) {
+            connContainer.innerHTML = `
+                <span class="status-dot connected"></span>
+                <select id="mode-select" style="background: transparent; color: var(--text-secondary); border: none; outline: none; cursor: pointer; font-size: 0.9rem;">
+                    <option value="simulation" style="background-color: #161b22; color: #ffffff;">Simulation</option>
+                    <option value="live" style="background-color: #161b22; color: #ffffff;">Live</option>
+                </select>
+            `;
+            document.getElementById('mode-select').addEventListener('change', (e) => {
+                if (e.target.value === 'live') {
+                    // Activate Live Mode
+                    isSimulationRunning = false;
+                    clearTimeout(simTimeoutId);
+                    
+                    chatThread.innerHTML = '';
+                    logContainer.innerHTML = '';
+                    
+                    document.getElementById('task-input').placeholder = "Message the agents... (e.g. 'Research Apple stock and build a landing page for it')";
+                    document.getElementById('task-input').removeAttribute('disabled');
+                    document.getElementById('task-input').removeAttribute('readonly');
+                    document.getElementById('sim-action-row').style.display = 'none';
+                    document.getElementById('live-action-row').style.display = 'flex';
+                    
+                    if (window.startLiveMode) window.startLiveMode();
+                } else {
+                    // Switch back to simulation completely
+                    window.location.reload();
+                }
+            });
+        } else {
+            connContainer.innerHTML = `
+                <span class="status-dot connected"></span>
+                <span id="ws-status-text">Connected</span>
+            `;
+        }
+
+        function addMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-message ${sender}`;
+            msgDiv.innerHTML = `<strong>${sender === 'user' ? 'You' : 'Master Agent'}:</strong><br><span style="display:inline-block; margin-top:0.5rem;">${text}</span>`;
+            chatThread.appendChild(msgDiv);
+            chatThread.scrollTop = chatThread.scrollHeight;
+        }
+
+        function addLog(agentClass, text) {
+            const logDiv = document.createElement('div');
+            logDiv.className = `log-entry ${agentClass}`;
+            const timeString = new Date().toLocaleTimeString([], {hour12: false});
+            logDiv.innerHTML = `<span class="timestamp">[${timeString}]</span> ${text}`;
+            logContainer.appendChild(logDiv);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function setAgentState(id, active, progress) {
+            const card = document.getElementById(id);
+            if (!card) return;
+            const stateText = card.querySelector('.agent-state');
+            const fill = card.querySelector('.progress-fill');
+            const pText = card.querySelector('.progress-text');
+            
+            if (active) {
+                card.classList.add('active');
+                stateText.textContent = 'Active';
+                stateText.className = 'agent-state status-active-text';
+            } else {
+                card.classList.remove('active');
+                stateText.textContent = progress === 100 ? 'Complete' : 'Idle';
+                stateText.className = progress === 100 ? 'agent-state status-success-text' : 'agent-state status-idle';
+            }
+            fill.style.width = `${progress}%`;
+            pText.textContent = `${progress}%`;
+        }
+
+        const scenarios = [
+            {
+                userPrompt: 'Research the latest AI trends in the enterprise market and create a summary report landing page.',
+                flow: [
+                    { type: 'log', agent: 'master', msg: 'User query received. Decomposing task...', time: 1000 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 10, time: 0 },
+                    { type: 'msg', msg: 'I have received your request. I will coordinate the Research and Web Developer agents to gather the intelligence and build your landing page.', time: 0 },
+                    { type: 'log', agent: 'master', msg: 'Task delegated to Research Agent and Web Developer.', time: 0 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 30, time: 1500 },
+                    { type: 'state', agent: 'agent-research', active: true, progress: 20, time: 0 },
+                    { type: 'log', agent: 'research', msg: 'Initiating web scrape for "Enterprise AI Trends 2026"...', time: 2000 },
+                    { type: 'state', agent: 'agent-research', active: true, progress: 60, time: 0 },
+                    { type: 'log', agent: 'research', msg: 'Analyzing 15 articles and extracting key metrics.', time: 2000 },
+                    { type: 'state', agent: 'agent-research', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'research', msg: 'Research complete. Payload delivered to Master Agent.', time: 0 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 50, time: 1500 },
+                    { type: 'state', agent: 'agent-web', active: true, progress: 10, time: 0 },
+                    { type: 'log', agent: 'web', msg: 'Received research schema. Bootstrapping React components...', time: 2000 },
+                    { type: 'state', agent: 'agent-web', active: true, progress: 50, time: 0 },
+                    { type: 'log', agent: 'web', msg: 'Structuring data visualizations and applying Tailwind CSS.', time: 2000 },
+                    { type: 'state', agent: 'agent-qa', active: true, progress: 30, time: 0 },
+                    { type: 'log', agent: 'qa', msg: 'Running accessibility and responsive tests on generated HTML...', time: 1500 },
+                    { type: 'state', agent: 'agent-qa', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'qa', msg: 'Tests passed. Zero critical issues found.', time: 0 },
+                    { type: 'state', agent: 'agent-web', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'web', msg: 'Deployment bundle ready. Handing back to Master Agent.', time: 1500 },
+                    { type: 'state', agent: 'agent-master', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'master', msg: 'All sub-tasks completed successfully. Finalizing payload.', time: 0 },
+                    { type: 'msg', msg: 'The task is complete! The research data has been compiled and the landing page has been generated and validated.', time: 8000 }
+                ]
+            },
+            {
+                userPrompt: 'Analyze the historical stock performance of TSLA and AAPL, then write a Python script to track them moving forward.',
+                flow: [
+                    { type: 'log', agent: 'master', msg: 'User query received. Planning financial analysis and coding pipeline.', time: 1000 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 15, time: 0 },
+                    { type: 'msg', msg: 'I will have the Stock Monitor pull the historical data, and then instruct the Web Developer and Code Reviewer to write and verify the tracking script.', time: 0 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 40, time: 1500 },
+                    { type: 'state', agent: 'agent-stock', active: true, progress: 25, time: 0 },
+                    { type: 'log', agent: 'stock', msg: 'Querying Yahoo Finance API for TSLA and AAPL 5-year historicals...', time: 2000 },
+                    { type: 'state', agent: 'agent-stock', active: true, progress: 75, time: 0 },
+                    { type: 'log', agent: 'stock', msg: 'Computing moving averages and volatility index.', time: 2000 },
+                    { type: 'state', agent: 'agent-stock', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'stock', msg: 'Financial data payload generated.', time: 1000 },
+                    { type: 'state', agent: 'agent-web', active: true, progress: 20, time: 0 },
+                    { type: 'log', agent: 'web', msg: 'Drafting Python script using pandas and yfinance...', time: 2500 },
+                    { type: 'state', agent: 'agent-web', active: true, progress: 80, time: 0 },
+                    { type: 'log', agent: 'web', msg: 'Script drafted. Requesting code review.', time: 1000 },
+                    { type: 'state', agent: 'agent-code', active: true, progress: 40, time: 0 },
+                    { type: 'log', agent: 'code', msg: 'Analyzing code for potential infinite loops and memory leaks...', time: 2000 },
+                    { type: 'state', agent: 'agent-code', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'code', msg: 'Review complete. Code is safe and optimized.', time: 500 },
+                    { type: 'state', agent: 'agent-web', active: false, progress: 100, time: 0 },
+                    { type: 'state', agent: 'agent-master', active: false, progress: 100, time: 1000 },
+                    { type: 'log', agent: 'master', msg: 'Pipeline complete. Assembling final response.', time: 0 },
+                    { type: 'msg', msg: 'The analysis is complete. Both the historical data summary and your robust tracking script are ready.', time: 8000 }
+                ]
+            },
+            {
+                userPrompt: 'Process the customer database export, clean the missing entries, and verify the data integrity.',
+                flow: [
+                    { type: 'log', agent: 'master', msg: 'User query received. Initializing data processing pipeline.', time: 1000 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 20, time: 0 },
+                    { type: 'msg', msg: 'Starting data ingestion. The Data Analyst and Software Tester agents will ensure the records are properly formatted and verified.', time: 0 },
+                    { type: 'state', agent: 'agent-master', active: true, progress: 50, time: 1500 },
+                    { type: 'state', agent: 'agent-data', active: true, progress: 10, time: 0 },
+                    { type: 'log', agent: 'data', msg: 'Reading large CSV chunk stream...', time: 2500 },
+                    { type: 'state', agent: 'agent-data', active: true, progress: 50, time: 0 },
+                    { type: 'log', agent: 'data', msg: 'Imputing missing fields and normalizing address records.', time: 2500 },
+                    { type: 'state', agent: 'agent-data', active: true, progress: 90, time: 0 },
+                    { type: 'log', agent: 'data', msg: 'Exporting cleaned subset for verification.', time: 1000 },
+                    { type: 'state', agent: 'agent-data', active: false, progress: 100, time: 0 },
+                    { type: 'state', agent: 'agent-qa', active: true, progress: 20, time: 0 },
+                    { type: 'log', agent: 'qa', msg: 'Running row-count integrity checks and schema validation...', time: 2000 },
+                    { type: 'state', agent: 'agent-qa', active: true, progress: 80, time: 0 },
+                    { type: 'log', agent: 'qa', msg: 'Found 4 anomalies. Applying auto-correction rules.', time: 1500 },
+                    { type: 'state', agent: 'agent-qa', active: false, progress: 100, time: 0 },
+                    { type: 'log', agent: 'qa', msg: 'Data verified. 100% schema compliance.', time: 500 },
+                    { type: 'state', agent: 'agent-master', active: false, progress: 100, time: 1000 },
+                    { type: 'msg', msg: 'Data processing complete. The customer database has been cleaned, normalized, and verified successfully.', time: 8000 }
+                ]
+            }
+        ];
+
+        async function runSimulation() {
+            if (!isSimulationRunning) return;
+            // Pick a random scenario
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            
+            // Reset UI
+            chatThread.innerHTML = '';
+            logContainer.innerHTML = '<div class="log-entry system"><span class="timestamp">[SYSTEM]</span> Initiative protocol standing by...</div>';
+            const agents = ['agent-master', 'agent-research', 'agent-web', 'agent-stock', 'agent-data', 'agent-code', 'agent-qa'];
+            agents.forEach(id => setAgentState(id, false, 0));
+            
+            await new Promise(r => setTimeout(r, 1500));
+            addMessage('user', scenario.userPrompt);
+            
+            // Execute scenario flow
+            for (const step of scenario.flow) {
+                if (!isSimulationRunning) return;
+                
+                if (step.time > 0) {
+                    await new Promise(r => {
+                        simTimeoutId = setTimeout(r, step.time);
+                    });
+                }
+                
+                if (!isSimulationRunning) return;
+                
+                if (step.type === 'log') {
+                    addLog(step.agent, step.msg);
+                } else if (step.type === 'state') {
+                    setAgentState(step.agent, step.active, step.progress);
+                } else if (step.type === 'msg') {
+                    addMessage('agent', step.msg);
+                }
+            }
+            
+            if (!isSimulationRunning) return;
+            
+            // Loop automatically 
+            simTimeoutId = setTimeout(runSimulation, 500); // the final step.time delay acts as the gap
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runSimulation, 1000);
+        });
+    </script>
+    <script src="/static/cms.js"></script>
+</body>
+</html>

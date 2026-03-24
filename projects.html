@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 
 <head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Explore Sherpa Solutions LLC's portfolio of successful enterprise IT and operational consulting projects.">
     <meta name="keywords"
         content="IT Project Portfolio, Consulting Case Studies, Digital Transformation Projects, IT Success Stories">
+        
+    <!-- Open Graph / Link Preview Metadata -->
+    <meta property="og:title" content="Sherpa Solutions LLC">
+    <meta property="og:description" content="Guiding your success with expert IT & Operational Consulting.">
+    <meta property="og:image" content="https://sherpa-solutions-llc.com/static/sherpa_logo.png">
+    <meta property="og:url" content="https://sherpa-solutions-llc.com/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://sherpa-solutions-llc.com/static/sherpa_logo.png">
+    
     <title>Our Projects | Sherpa Solutions</title>
     <!-- Modern Fonts -->
     <link
@@ -16,6 +26,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css?v=1.4">
     <script src="static/theme.js"></script>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 
 <body class="">
@@ -60,13 +81,11 @@
             <div class="store-grid" style="margin-top: 4rem;">
                 <a href="/live_earth.html" class="product-card" style="text-decoration: none;">
                     <div class="product-img" style="height: 240px; background: #000; padding: 0;">
-                        <!-- Temporary Image Path, will upload or move the generated one later -->
-                        <img src="/static/live_earth_thumbnail.png" alt="Live Earth CCTV Integration"
+                        <img src="/static/live_earth_thumb.png" alt="Live Earth CCTV Integration"
                             style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                     <div class="product-info">
-                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);">Live Earth Feed
-                            Integration</h3>
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-title-fixed-1">Live Earth</h3>
                         <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
                             Real-time global public CCTV feeds integration, bringing live situational awareness into a
                             unified geographical interface.
@@ -74,6 +93,160 @@
                         <div class="product-btn" style="margin-top: auto;">
                             <span class="btn btn-outline" style="width: 100%;" data-cms="projects-view-btn-1">View
                                 Project <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/productivity_agent.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/productivity_agent_thumbnail.png" alt="Productivity Agent Multi-Agent System"
+                            style="object-fit: cover; width: 100%; height: 100%; object-position: top;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-title-fixed-2">Productivity Agent</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                            AI-powered multi-agent system that orchestrates specialized sub-agents for enterprise research, coding, QA, and data analysis tasks.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;">Run Simulation <i class="fa-solid fa-play" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/osint_api.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/osint_api_thumbnail.png" alt="Sherpa OSINT API"
+                            style="object-fit: cover; width: 100%; height: 100%; object-position: center;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-title-fixed-3">OSINT API</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                            Monetized REST API exposing live commercial aviation, military flight tracks, active satellites, global CCTV, and seismic events to enterprise subscribers.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;">View Documentation <i class="fa-solid fa-terminal" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/skip_tracer" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/traku_thumb.png" alt="Traku Skip Tracer" style="object-fit: cover; width: 100%; height: 100%; object-position: center;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-title-fixed-4">Traku (Skip Tracer)</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;" data-cms="project-card-desc-fixed-4">
+                            Enterprise-grade OSINT personnel intelligence and location tracking module utilizing multiple aggregate data streams.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;" data-cms="project-card-btn-fixed-4">Initialize Trace <i class="fa-solid fa-radar-target" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/stock_agent" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/stock_monitor_thumb.png" alt="Stock Monitor Pro" style="object-fit: cover; width: 100%; height: 100%; object-position: center;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-title-fixed-5">Stock Monitor Pro</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;" data-cms="project-card-desc-fixed-5">
+                            Real-time algorithmic market scanning and trend analysis engine. Monitor thousands of equities simultaneously against customizable criteria.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;" data-cms="project-card-btn-fixed-5">Launch Terminal <i class="fa-solid fa-terminal" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/freeme.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="static/freeme_thumbnail.png" alt="FreeMe - AI Personal Data Removal"
+                            style="object-fit: cover; width: 100%; height: 100%;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-title-fixed-6">FreeMe</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;" data-cms="project-card-desc-fixed-6">
+                            AI-powered personal data removal platform using autonomous web agents to scrub your digital footprint from data brokers — no static scrapers, zero data leakage.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;" data-cms="project-card-btn-fixed-6">Explore Project <i class="fa-solid fa-shield-halved" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/avitar.html" class="product-card" style="text-decoration: none;" data-cms="project-card-avatar-link">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/avatar_thumbnail.webp" alt="AI Avatar Agent" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-avatar-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-avatar-title">AI Avatar Agent</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;" data-cms="project-card-avatar-desc">
+                            Your digital sherpa in the workspace. A fully customisable AI agent avatar that moves, works, and notifies you—all in a simulated digital environment.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;" data-cms="project-card-avatar-btn">Access Tool <i class="fa-solid fa-user-astronaut" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- SerpApi Projects -->
+                <a href="/b2b_leads.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/b2b_leads_thumb.png" alt="B2B Lead Generation" style="object-fit: cover; width: 100%; height: 100%;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);">B2B Lead Gen</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                            Hyper-targeted Google Maps intelligence. Extract and automatically collate high-value local business data into clean localized CRM exports.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;">View Dashboard <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/seo_sniper.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/seo_sniper_thumb.png" alt="SEO Sniper" style="object-fit: cover; width: 100%; height: 100%;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);">SEO Sniper</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                            Deconstruct organic indexing to identify exact competitors seizing Position Zero featured snippets and top PPC slots.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;">Run Audit <i class="fa-solid fa-crosshairs" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/arbitrage.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/arbitrage_thumb.png" alt="Arbitrage Monitor" style="object-fit: cover; width: 100%; height: 100%;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);">Arbitrage Monitor</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                            Temporal anomaly detection on specialized marketplaces. Hunt down newly-indexed listings for high-ticket assets before they hit mainstream.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;">Access Tool <i class="fa-solid fa-scale-unbalanced" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/brand_monitor.html" class="product-card" style="text-decoration: none;">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="/static/brand_monitor_thumb.png" alt="Brand Monitor" style="object-fit: cover; width: 100%; height: 100%;">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);">Brand Monitor</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                            A daily automated micro-SaaS pulling raw Twitter sentiment and Google News aggregation to track client brand health globally.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-outline" style="width: 100%;">Launch Portal <i class="fa-solid fa-satellite-dish" style="margin-left: 0.5rem;"></i></span>
                         </div>
                     </div>
                 </a>

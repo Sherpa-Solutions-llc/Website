@@ -144,6 +144,60 @@ html {
     text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
 }
 
+/* Demo Toggle Button */
+.demo-btn {
+    margin-left: 10px;
+    padding: 6px 14px;
+    background: rgba(255, 71, 87, 0.15);
+    border: 1px solid var(--hud-pink);
+    color: var(--hud-pink);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.2);
+}
+
+.demo-btn:hover:not(.active) {
+    background: rgba(255, 71, 87, 0.3);
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+}
+
+.demo-btn.active {
+    background: rgba(46, 213, 115, 0.15);
+    border-color: #2ed573;
+    color: #2ed573;
+    text-shadow: 0 0 5px rgba(46, 213, 115, 0.5);
+    box-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+    animation: demoPulse 2s infinite;
+}
+
+@keyframes demoPulse {
+    0% {
+        box-shadow: 0 0 5px rgba(46, 213, 115, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(46, 213, 115, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(46, 213, 115, 0.2);
+    }
+}
+
+.demo-volume-slider {
+    width: 80px;
+    margin-left: 10px;
+    accent-color: var(--hud-cyan);
+    cursor: pointer;
+    display: none; /* Hidden until Demo is ON */
+}
+
 .hud-status {
     display: flex;
     align-items: center;
@@ -210,10 +264,24 @@ html {
 .panel-left {
     left: 20px;
     max-height: calc(100vh - 100px);
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-left.collapsed {
+    max-height: 48px; /* Height of the title bar to hide content */
+}
+
+/* Ensure the title bar doesn't shrink during collapse */
+.panel-left .panel-title {
+    flex-shrink: 0;
 }
 
 .panel-right {
     right: 20px;
+    width: 280px;
 }
 
 .panel-title {
@@ -230,23 +298,35 @@ html {
 }
 
 .panel-content {
-    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Layer Toggle Items */
+.layer-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
 .layer-item {
     position: relative;
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
+    flex-direction: column;
+    padding: 0;
     background: rgba(10, 25, 30, 0.6);
     border-radius: 8px;
-    margin-bottom: 8px;
     cursor: pointer;
     border: 1px solid rgba(0, 210, 255, 0.15);
     transition: all 0.2s;
+    flex-grow: 1;
 }
 
 .layer-item:hover {
@@ -258,6 +338,73 @@ html {
     background: rgba(10, 35, 45, 0.9);
 }
 
+.layer-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    gap: 10px;
+}
+
+.layer-options-container {
+    padding: 0 10px 10px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    display: none;
+}
+
+.layer-item.expanded .layer-options-container {
+    display: flex;
+}
+
+.layer-chevron {
+    color: var(--hud-cyan);
+    font-size: 1rem;
+    transition: transform 0.3s;
+    opacity: 0.7;
+    margin-left: auto;
+    padding-left: 5px;
+}
+
+.layer-item.expanded .layer-chevron {
+    transform: rotate(180deg);
+}
+
+.layer-toggle-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    background: rgba(10, 25, 30, 0.6);
+    border: 1px solid rgba(0, 210, 255, 0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.layer-toggle-btn:hover {
+    background: rgba(0, 210, 255, 0.1);
+}
+
+.layer-toggle-btn.active {
+    background: rgba(10, 35, 45, 0.9);
+    border-color: rgba(0, 210, 255, 0.6);
+}
+
+.layer-toggle-btn i {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.2);
+    transition: color 0.2s, filter 0.2s;
+}
+
+.layer-toggle-btn.active i {
+    color: var(--hud-cyan);
+    filter: drop-shadow(0 0 5px rgba(0, 210, 255, 0.5));
+}
+
 /* Modals */
 #settings-modal {
     width: 380px !important;
@@ -265,6 +412,9 @@ html {
 
 #settings-modal .layer-item {
     margin-bottom: 5px;
+    padding: 10px;
+    flex-direction: row;
+    align-items: center;
 }
 
 #settings-modal .hud-select {
@@ -303,7 +453,10 @@ html {
 
 .layer-info {
     flex-grow: 1;
-    padding-right: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 0;
 }
 
 .layer-info h3 {
@@ -331,9 +484,6 @@ html {
 }
 
 .layer-count {
-    position: absolute;
-    right: 10px;
-    top: 10px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 1rem;
     color: #fff;
@@ -341,6 +491,7 @@ html {
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
+/* Legacy toggle fallback for any untouched items */
 .layer-toggle {
     position: absolute;
     right: 10px;
@@ -465,7 +616,9 @@ html {
     /* Header: tighten up, hide clock */
     .hud-header {
         padding: 0 1rem;
-        height: 50px;
+        padding-top: env(safe-area-inset-top, 0); /* Notch support */
+        height: auto;
+        min-height: 50px;
     }
 
     .hud-logo {
@@ -478,14 +631,20 @@ html {
         display: none;
     }
 
-    /* Move search to be icon-only hint */
+    /* Search bar: compact GO button fits inside on mobile */
     .hud-search {
-        width: 160px;
+        width: 200px;
     }
 
     .hud-search input {
         font-size: 0.75rem;
-        padding: 6px 10px 6px 28px;
+        padding: 6px 38px 6px 28px;
+    }
+
+    .hud-search .search-btn {
+        padding: 2px 6px;
+        font-size: 0.6rem;
+        right: 3px;
     }
 
     /* Hide the status text on very narrow screens */
@@ -500,31 +659,40 @@ html {
 
     /* Left data-layer panel: anchor to BOTTOM instead of left side */
     .panel-left {
-        left: 0;
-        right: 0;
+        left: 2%;
+        right: 2%;
         top: auto;
         bottom: 0;
-        width: 100%;
-        max-height: 45vh;
+        width: 96%; /* Widen for 19.5:9 / 20:9 screens */
+        max-height: 38vh;
+        padding-bottom: env(safe-area-inset-bottom, 15px); /* Home indicator support */
         border-radius: 12px 12px 0 0;
         border-bottom: none;
         transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .panel-left .panel-title {
+        flex-shrink: 0;             /* title bar never shrinks */
     }
 
     .panel-left.collapsed {
-        max-height: 48px; /* Height of just the title bar */
-        overflow: hidden;
+        max-height: 48px;           /* Height of just the title bar */
     }
 
     /* Scroll layer items vertically */
     .panel-content {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 10px;
+        padding: 6px;
         -webkit-overflow-scrolling: touch;
+        flex: 1;
+        min-height: 0;
     }
 
     /* Show scrollbar to indicate more items below */
@@ -533,38 +701,156 @@ html {
         width: 6px;
     }
 
-    /* Each layer card: full width */
     .layer-item {
         width: 100%;
         flex: none;
         margin-bottom: 0;
-        padding: 12px;
+        padding: 8px;
+        padding-right: 50px;
+        overflow: visible;
     }
+
+    /* Hide chevron on mobile — toggle button serves the same purpose */
+    .layer-chevron {
+        display: none;
+    }
+
+    /* Prevent layer name from overlapping count */
+    .layer-row .layer-name,
+    .layer-row .layer-info h3 {
+        min-width: 0;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 1;
+    }
+
+    .layer-row .layer-count {
+        flex-shrink: 0;
+        margin-left: 4px;
+    }
+
+    /* Layer row: relative so toggle button can position inside */
+    .layer-row {
+        position: relative !important;
+        overflow: visible !important;
+    }
+
+    /* Toggle button: absolute position inside the layer card */
+    .panel-left .layer-toggle-btn {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 36px !important;
+        height: 36px !important;
+        z-index: 5;
+        background: rgba(0, 20, 30, 0.8) !important;
+        border-radius: 6px;
+    }
+
+    .panel-left .layer-toggle-btn i {
+        font-size: 1.2rem;
+    }
+
 
     /* Layer options (dropdowns): show on mobile so user can toggle specific sub-items */
     .layer-options {
         display: flex;
     }
 
-    /* Counts: smaller font */
-    .layer-count {
-        font-size: 0.8rem;
+    /* Move filter dropdowns to the far left */
+    .layer-options-container {
+        padding-left: 8px !important;
     }
 
-    /* Target lock panel: full width at top */
+    /* Counts: smaller font */
+    .layer-count {
+        font-size: 0.7rem;
+    }
+
+    /* Target lock panel: scaled down heavily for mobile to not consume screen space */
     .panel-right {
+        right: 2%;
+        left: auto;
+        top: calc(70px + env(safe-area-inset-top, 0)); /* Clear header + Notch */
+        width: 45%; /* Slightly wider for legible text */
+        max-height: 45vh; /* Allow a bit more room for target details */
+        border-radius: 8px;
+        overflow-y: visible;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        padding-bottom: 5px;
+    }
+
+    /* Reduce the header section (icon + callsign + country) by 20% */
+    .panel-right #target-details > div:first-child {
+        margin-bottom: 10px !important;
+    }
+    .panel-right #target-details > div:first-child > div:first-child {
+        font-size: 1.6rem !important; /* down from 2rem */
+    }
+    .panel-right #target-details > div:first-child h3 {
+        font-size: 1.2rem !important; /* down from 1.5rem */
+    }
+    .panel-right #target-details > div:first-child > div:last-of-type {
+        font-size: 0.64rem !important; /* down from 0.8rem */
+        margin-top: 3px !important;
+    }
+
+    /* Override the JS inline table styles dynamically injected from live_earth.js */
+    .panel-right .panel-title {
+        font-size: 0.75rem !important; /* Smaller header */
+        padding: 4px 8px !important;
+        margin-bottom: 0px !important; /* Pack tighter */
+    }
+
+    .panel-right td {
+        padding: 2px 0 !important; /* Ultra tight rows */
+        font-size: 0.65rem !important;
+        line-height: 1.1 !important;
+    }
+
+    .panel-right td span {
+        font-size: 0.55rem !important;
+    }
+    
+    .panel-right #close-target {
+        padding: 4px !important;
+        margin-top: 5px !important;
+        font-size: 0.65rem !important;
+    }
+
+    /* Video iframes & CCTV feeds in panel: much shorter on mobile */
+    .panel-right iframe, .panel-right img, .panel-right video {
+        height: 110px !important;
+        min-height: 110px !important;
+    }
+
+    /* Settings Modal: full width, constrained height, scrollable */
+    #settings-modal {
+        width: 100% !important;
         right: 0;
         left: 0;
         top: 55px;
-        width: 100%;
-        max-height: 60vh;
+        max-height: calc(100vh - 55px);
         border-radius: 0 0 8px 8px;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 20;
     }
 
-    /* Video iframes in CCTV panel: shorter on mobile */
-    .panel-right iframe {
-        height: 140px !important;
+    #settings-modal .panel-title {
+        flex-shrink: 0;
+    }
+
+    #settings-modal .panel-content {
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 20px;
     }
 }
 
@@ -578,3 +864,37 @@ html {
         max-height: 38vh;
     }
 }
+
+/* ============================================================
+   VIRTUAL CURSOR (DEMO MODE)
+   ============================================================ */
+#virtual-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    z-index: 10000; /* Above all HUD elements */
+    pointer-events: none; /* Don't block actual clicks */
+    transition: transform 0.15s ease-out;
+    display: none;
+    filter: drop-shadow(0 0 5px rgba(0, 210, 255, 0.8));
+}
+
+#virtual-cursor::after {
+    content: '\f245'; /* fa-mouse-pointer */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 24px;
+    color: #fff;
+    -webkit-text-stroke: 1px #000;
+    display: block;
+}
+
+#virtual-cursor.clicking {
+    transform: scale(0.7);
+}
+
+#virtual-cursor.clicking::after {
+    color: var(--hud-cyan);
+}

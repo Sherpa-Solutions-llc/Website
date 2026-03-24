@@ -1,0 +1,214 @@
+﻿--- SITE MAINTENANCE AUDIT ---
+
+1. LARGE ASSETS (>500KB)
+  [WARNING] bp_nomatic_bag_1.png: 732.9 KB
+  [WARNING] bp_nomatic_bag_2.png: 639.9 KB
+  [WARNING] bp_nomatic_bag_3.png: 579.9 KB
+  [WARNING] bp_nomatic_bag_4.png: 858.5 KB
+  [WARNING] bp_nomatic_bag_5.png: 743.4 KB
+  [WARNING] bp_nomatic_pack_1.png: 626.4 KB
+  [WARNING] bp_nomatic_pack_2.png: 579.3 KB
+  [WARNING] bp_nomatic_pack_3.png: 1062.9 KB
+  [WARNING] bp_nomatic_pack_4.png: 784.6 KB
+  [WARNING] bp_nomatic_pack_5.png: 545.8 KB
+  [WARNING] bp_nomatic_pack_6.png: 566.4 KB
+  [WARNING] merch_backpack.png: 1104.7 KB
+  [WARNING] merch_nomatic_bag_alt_2.png: 639.9 KB
+  [WARNING] merch_nomatic_pack.png: 610.3 KB
+  [WARNING] merch_nomatic_pack_alt_1.png: 545.8 KB
+  [WARNING] merch_nomatic_pack_alt_3.png: 1105.6 KB
+  [WARNING] merch_pd_30l.png: 1614.0 KB
+  [WARNING] merch_pd_45l.png: 1614.0 KB
+  [WARNING] merch_pullover.png: 514.3 KB
+  [WARNING] merch_pullover_pro.png: 511.7 KB
+  [WARNING] merch_shirt_button_blue.png: 661.2 KB
+  [WARNING] merch_shirt_button_user.png: 625.6 KB
+  [WARNING] merch_shirt_polo_user.png: 642.5 KB
+  [WARNING] merch_socks.png: 641.1 KB
+  [WARNING] merch_socks_pro.png: 576.3 KB
+  [WARNING] pristine_bag.png: 639.9 KB
+  [WARNING] pristine_nbag.png: 641.4 KB
+  [WARNING] pure_nbag.png: 641.4 KB
+  [WARNING] sherpa_logo_source_clean.png: 526.0 KB
+  [WARNING] test_nomatic_pack_1.png: 576.4 KB
+  [WARNING] thumb_nomatic_bag.png: 834.6 KB
+  [WARNING] thumb_pro_nbag.png: 806.0 KB
+  [WARNING] static\bp_nomatic_bag_1.png: 732.9 KB
+  [WARNING] static\bp_nomatic_bag_2.png: 639.9 KB
+  [WARNING] static\bp_nomatic_bag_3.png: 579.9 KB
+  [WARNING] static\bp_nomatic_bag_4.png: 858.5 KB
+  [WARNING] static\bp_nomatic_bag_5.png: 743.4 KB
+  [WARNING] static\bp_nomatic_pack_1.png: 626.4 KB
+  [WARNING] static\bp_nomatic_pack_2.png: 579.3 KB
+  [WARNING] static\bp_nomatic_pack_3.png: 1062.9 KB
+  [WARNING] static\bp_nomatic_pack_4.png: 784.6 KB
+  [WARNING] static\bp_nomatic_pack_5.png: 545.8 KB
+  [WARNING] static\bp_nomatic_pack_6.png: 566.4 KB
+  [WARNING] static\live_earth_thumbnail.png: 2528.3 KB
+  [WARNING] static\merch_nomatic_bag_alt_2.png: 639.9 KB
+  [WARNING] static\merch_nomatic_pack.png: 610.3 KB
+  [WARNING] static\merch_nomatic_pack_alt_1.png: 545.8 KB
+  [WARNING] static\merch_nomatic_pack_alt_3.png: 1105.6 KB
+  [WARNING] static\merch_pd_30l.png: 1614.0 KB
+  [WARNING] static\merch_pd_45l.png: 1614.0 KB
+  [WARNING] static\merch_pullover_pro.png: 511.7 KB
+  [WARNING] static\merch_shirt_button_blue.png: 518.2 KB
+  [WARNING] static\merch_socks.png: 578.0 KB
+  [WARNING] static\merch_socks_pro.png: 576.3 KB
+  [WARNING] static\sherpa_logo.png: 606.2 KB
+  [WARNING] static\thumb_pro_nbag.png: 806.0 KB
+
+2. HTML STRUCTURE & BROKEN LINKS
+  [DUPLICATE IDs] backpack_nomatic_bag.html: theme-toggle
+  [DUPLICATE IDs] backpack_nomatic_pack.html: theme-toggle
+  [DUPLICATE IDs] backpack_pd_30l.html: theme-toggle
+  [DUPLICATE IDs] backpack_pd_45l.html: theme-toggle
+  [BROKEN LINK] services_backup.html: -> static/cloud_strategy.png
+  [BROKEN LINK] services_backup.html: -> static/digital_transformation.png
+  [BROKEN LINK] services_backup.html: -> static/cybersecurity.png
+  [BROKEN LINK] services_backup.html: -> static/ai_automation.png
+  [BROKEN LINK] services_backup.html: -> static/it_project_management.png
+  [BROKEN LINK] services_backup.html: -> static/program_recovery.png
+  [BROKEN LINK] services_backup.html: -> static/strategic_ascent.png
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_2.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_3.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_4.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_5.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_2.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_3.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_4.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_nomatic_bag_2.png'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_nomatic_bag_3.png'>
+
+3. UNUSED ASSETS
+  [UNUSED] bp_nomatic_bag_1.jpg
+  [UNUSED] bp_nomatic_bag_1.png
+  [UNUSED] bp_nomatic_bag_2.jpg
+  [UNUSED] bp_nomatic_bag_3.jpg
+  [UNUSED] bp_nomatic_bag_4.jpg
+  [UNUSED] bp_nomatic_bag_4.png
+  [UNUSED] bp_nomatic_bag_5.png
+  [UNUSED] bp_nomatic_bag_6.png
+  [UNUSED] bp_nomatic_pack_1.png
+  [UNUSED] bp_nomatic_pack_1_user.jpg
+  [UNUSED] bp_nomatic_pack_2.jpg
+  [UNUSED] bp_nomatic_pack_2.png
+  [UNUSED] bp_nomatic_pack_3.png
+  [UNUSED] bp_nomatic_pack_4.png
+  [UNUSED] bp_nomatic_pack_5.jpg
+  [UNUSED] bp_nomatic_pack_5.png
+  [UNUSED] bp_nomatic_pack_5_user.jpg
+  [UNUSED] bp_nomatic_pack_6.png
+  [UNUSED] bp_pd_30l_1.jpg
+  [UNUSED] bp_pd_30l_5.jpg
+  [UNUSED] bp_pd_30l_6.jpg
+  [UNUSED] bp_pd_45l_1.jpg
+  [UNUSED] bp_pd_45l_6.jpg
+  [UNUSED] grid_bp_nomatic_bag.jpg
+  [UNUSED] grid_bp_nomatic_pack.jpg
+  [UNUSED] grid_bp_pd_30l.jpg
+  [UNUSED] merch_nomatic_bag.png
+  [UNUSED] merch_nomatic_bag_alt_1.png
+  [UNUSED] merch_nomatic_bag_alt_2.png
+  [UNUSED] merch_nomatic_bag_alt_3.png
+  [UNUSED] merch_nomatic_pack.png
+  [UNUSED] merch_nomatic_pack_alt_1.png
+  [UNUSED] merch_nomatic_pack_alt_2.png
+  [UNUSED] merch_nomatic_pack_alt_3.png
+  [UNUSED] merch_pd_30l.png
+  [UNUSED] merch_pd_45l.png
+  [UNUSED] merch_powerbank_pro.png
+  [UNUSED] merch_pullover_black.png
+  [UNUSED] merch_pullover_pro.png
+  [UNUSED] merch_shirt.png
+  [UNUSED] merch_shirt_button_blue.png
+  [UNUSED] merch_shirt_button_user.png
+  [UNUSED] merch_shirt_polo_user.png
+  [UNUSED] merch_shirt_pro.jpg
+  [UNUSED] merch_shirt_pro.png
+  [UNUSED] merch_socks_pro.png
+  [UNUSED] pristine_30l.jpg
+  [UNUSED] pristine_45l.jpg
+  [UNUSED] pristine_bag.png
+  [UNUSED] pristine_nbag.png
+  [UNUSED] pristine_pd30.jpg
+  [UNUSED] pristine_pd45.jpg
+  [UNUSED] pure_nbag.png
+  [UNUSED] pure_pd30.jpg
+  [UNUSED] pure_pd45.jpg
+  [UNUSED] raw_shirt.jpg
+  [UNUSED] sherpa_logo_clean.png
+  [UNUSED] sherpa_logo_new.jpg
+  [UNUSED] sherpa_logo_new_clean.png
+  [UNUSED] sherpa_logo_source.jpg
+  [UNUSED] sherpa_logo_source_clean.png
+  [UNUSED] sherpa_logo_true_color.png
+  [UNUSED] test_nomatic_pack_1.png
+  [UNUSED] thumb_nomatic_bag.png
+  [UNUSED] thumb_pd_30l.jpg
+  [UNUSED] thumb_pd_45l.jpg
+  [UNUSED] thumb_pro_nbag.png
+  [UNUSED] thumb_pro_pd30.jpg
+  [UNUSED] thumb_pro_pd45.jpg
+  [UNUSED] static\bp_nomatic_bag_1.jpg
+  [UNUSED] static\bp_nomatic_bag_1.png
+  [UNUSED] static\bp_nomatic_bag_2.jpg
+  [UNUSED] static\bp_nomatic_bag_3.jpg
+  [UNUSED] static\bp_nomatic_bag_4.jpg
+  [UNUSED] static\bp_nomatic_bag_4.png
+  [UNUSED] static\bp_nomatic_bag_5.png
+  [UNUSED] static\bp_nomatic_bag_6.png
+  [UNUSED] static\bp_nomatic_pack_1.png
+  [UNUSED] static\bp_nomatic_pack_1_user.jpg
+  [UNUSED] static\bp_nomatic_pack_2.jpg
+  [UNUSED] static\bp_nomatic_pack_2.png
+  [UNUSED] static\bp_nomatic_pack_3.png
+  [UNUSED] static\bp_nomatic_pack_4.png
+  [UNUSED] static\bp_nomatic_pack_5.jpg
+  [UNUSED] static\bp_nomatic_pack_5.png
+  [UNUSED] static\bp_nomatic_pack_5_user.jpg
+  [UNUSED] static\bp_nomatic_pack_6.png
+  [UNUSED] static\bp_pd_30l_1.jpg
+  [UNUSED] static\bp_pd_30l_5.jpg
+  [UNUSED] static\bp_pd_30l_6.jpg
+  [UNUSED] static\bp_pd_45l_1.jpg
+  [UNUSED] static\bp_pd_45l_6.jpg
+  [UNUSED] static\grid_bp_nomatic_bag.jpg
+  [UNUSED] static\grid_bp_nomatic_pack.jpg
+  [UNUSED] static\grid_bp_pd_30l.jpg
+  [UNUSED] static\merch_nomatic_bag.png
+  [UNUSED] static\merch_nomatic_bag_alt_1.png
+  [UNUSED] static\merch_nomatic_bag_alt_2.png
+  [UNUSED] static\merch_nomatic_bag_alt_3.png
+  [UNUSED] static\merch_nomatic_pack.png
+  [UNUSED] static\merch_nomatic_pack_alt_1.png
+  [UNUSED] static\merch_nomatic_pack_alt_2.png
+  [UNUSED] static\merch_nomatic_pack_alt_3.png
+  [UNUSED] static\merch_pd_30l.png
+  [UNUSED] static\merch_pd_45l.png
+  [UNUSED] static\merch_powerbank_pro.png
+  [UNUSED] static\merch_pullover_black.png
+  [UNUSED] static\merch_pullover_pro.png
+  [UNUSED] static\merch_shirt.png
+  [UNUSED] static\merch_shirt_button_blue.png
+  [UNUSED] static\merch_shirt_button_user.png
+  [UNUSED] static\merch_shirt_polo_user.png
+  [UNUSED] static\merch_shirt_pro.jpg
+  [UNUSED] static\merch_shirt_pro.png
+  [UNUSED] static\merch_socks_pro.png
+  [UNUSED] static\satellite.png
+  [UNUSED] static\sherpa_logo_clean.png
+  [UNUSED] static\sherpa_logo_source.jpg
+  [UNUSED] static\sherpa_logo_true_color.png
+  [UNUSED] static\thumb_pro_nbag.png
+  [UNUSED] static\thumb_pro_pd30.jpg
+  [UNUSED] static\thumb_pro_pd45.jpg
+
+4. ROOT DIRECTORY CLUTTER
+  [WARNING] Found 86 image files in the root directory. Should be moved to /static/.
+    - bp_nomatic_bag_1.jpg
+    - bp_nomatic_bag_1.png
+    - bp_nomatic_bag_2.jpg
+    - bp_nomatic_bag_2.png
+    - bp_nomatic_bag_3.jpg
+    ... and 81 more.
