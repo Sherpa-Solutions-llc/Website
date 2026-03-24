@@ -48,18 +48,6 @@ logging.getLogger("uvicorn.access").addFilter(CDPLogFilter())
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/api/health")
-async def health_check():
-    return {"status": "ok"}
-
 WEATHER_DB = "weather.db"
 WEATHER_SOURCE_DB = "weather_source.db"
 POLICE_DB = "sherpa_police.db"
@@ -272,10 +260,6 @@ async def mock_webhook(req: MockWebhookRequest):
         return {"status": "success", "message": "Upgraded to Pro via Mock Payment"}
     raise HTTPException(status_code=400, detail="Missing email")
 
-@app.get("/api/health")
-async def health_check():
-    """Railway healthcheck endpoint"""
-    return {"status": "ok", "service": "sherpa-solutions-api"}
 
 @app.get("/history")
 async def get_history():
@@ -337,6 +321,11 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.on_event("startup")
 async def startup_event():
+    # Start Telegram Bot Bridge — uses raw httpx polling (no python-telegram-bot)
+    # to avoid event loop conflicts with uvicorn.
+    from telegram_bot import poll_telegram
+    asyncio.create_task(poll_telegram(master_agent, manager))
+
     await database.init_db()
     
     # Init Productivity Agent Database
@@ -506,6 +495,68 @@ async def arbitrage_page(request: Request):
 @app.get("/brand_monitor.html", response_class=HTMLResponse)
 async def brand_monitor_page(request: Request):
     return FileResponse(os.path.join(BASE_DIR, 'brand_monitor.html'))
+
+# --- Dual-Engine Intelligence Uplink (Tavily & SerpApi) ---
+import httpx
+
+class AvatarSearchRequest(BaseModel):
+    query: str
+
+@app.post("/api/avatar-search")
+async def avatar_search(req: AvatarSearchRequest):
+    query = req.query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Empty directive stream")
+        
+    tavily_key = os.environ.get("TAVILY_API_KEY")
+    serpapi_key = os.environ.get("SERPAPI_API_KEY")
+    
+    # Tier 1: Primary Intelligence Engine (Tavily AI)
+    if tavily_key:
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                res = await client.post("https://api.tavily.com/search", json={
+                    "api_key": tavily_key,
+                    "query": query,
+                    "search_depth": "basic",
+                    "include_answer": True
+                })
+                if res.status_code == 200:
+                    data = res.json()
+                    if data.get("answer"):
+                        return {"status": "success", "source": "tavily", "result": data["answer"]}
+                    elif data.get("results") and len(data["results"]) > 0:
+                        return {"status": "success", "source": "tavily", "result": data["results"][0].get("content")}
+        except Exception as e:
+            print(f"[Avatar Intel] Tavily Engine Failure: {e}")
+            
+    # Tier 2: Fallback Scraper Engine (SerpApi - Google)
+    if serpapi_key:
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                res = await client.get("https://serpapi.com/search", params={
+                    "q": query,
+                    "engine": "google",
+                    "api_key": serpapi_key,
+                    "num": 3
+                })
+                if res.status_code == 200:
+                    data = res.json()
+                    # Snatch Google's native 'Answer Box' immediately if possible
+                    if "answer_box" in data:
+                        if "snippet" in data["answer_box"]:
+                            return {"status": "success", "source": "serpapi", "result": data["answer_box"]["snippet"]}
+                        if "answer" in data["answer_box"]:
+                            return {"status": "success", "source": "serpapi", "result": data["answer_box"]["answer"]}
+                    # Default into standard organic snippet extraction
+                    organic = data.get("organic_results", [])
+                    if organic and "snippet" in organic[0]:
+                        return {"status": "success", "source": "serpapi", "result": organic[0]["snippet"]}
+        except Exception as e:
+            print(f"[Avatar Intel] SerpApi Engine Failure: {e}")
+            
+    # Tier 3: Zero Engines Functional / Online
+    raise HTTPException(status_code=404, detail="NOT_FOUND")
 
 async def init_scanners_db():
     async with aiosqlite.connect(SCANNERS_DB) as db:
@@ -1670,13 +1721,14 @@ async def handle_inbound_email(request: Request):
         # Sometimes 'data' itself contains a stringified JSON object, or is nested again.
         if isinstance(email_data, str):
             try:
-                email_data = json.loads(email_data)
+                decoded = json.loads(email_data)
+                if isinstance(decoded, dict):
+                    email_data = decoded
             except:
-                pass
+                email_data = {} # Fallback to empty dict if string isn't JSON
 
-        if 'html' not in email_data and 'text' not in email_data and 'data' in email_data:
-            # Check one level deeper just in case
-            email_data = email_data['data']
+        if not isinstance(email_data, dict):
+            email_data = {}
 
         sender = email_data.get('from', 'Unknown Sender')
         subject = email_data.get('subject', 'No Subject')
@@ -1687,14 +1739,19 @@ async def handle_inbound_email(request: Request):
         html_raw = email_data.get('html', text_body)
         html_body = json.dumps(html_raw, indent=2) if isinstance(html_raw, (dict, list)) else str(html_raw) if html_raw else ''
 
-        # Resend Inbound Webhooks strip the actual message body payload to save weight. We must fetch it!
-        # [forced deploy commit]
-        email_id = email_data.get('email_id', '')
+        # Resend inbound payload can be complex. We need the unique ID to fetch the full body.
+        # It's usually 'id' in the JSON, but occasionally wrapped in 'data'.
+        email_id = email_data.get('id') or email_data.get('email_id') or payload.get('id')
+        
+        print(f"[INBOUND EMAIL] Processing webhook for email ID: {email_id}")
+
         if email_id and not text_body and not html_body:
             import httpx
+            # Use environment variable if available, otherwise fallback to the provided key
             api_key = os.environ.get("RESEND_API_KEY", "re_ZL3eeRzg_CvoAJcMXMG1Fdix8JDV7kLtW")
             try:
                 async with httpx.AsyncClient() as client:
+                    # Inbound emails are fetched from /emails/inbound/{id}
                     email_resp = await client.get(
                         f"https://api.resend.com/emails/inbound/{email_id}",
                         headers={"Authorization": f"Bearer {api_key}"}
@@ -1703,34 +1760,34 @@ async def handle_inbound_email(request: Request):
                         fetched = email_resp.json()
                         t_raw = fetched.get('text', '')
                         h_raw = fetched.get('html', t_raw)
-                        text_body = json.dumps(t_raw, indent=2) if isinstance(t_raw, (dict, list)) else str(t_raw) if t_raw else ''
-                        html_body = json.dumps(h_raw, indent=2) if isinstance(h_raw, (dict, list)) else str(h_raw) if h_raw else ''
-                        print(f"[INBOUND EMAIL] Actively retrieved stripped email body for {email_id} from Resend API.")
+                        text_body = str(t_raw) if t_raw else ''
+                        html_body = str(h_raw) if h_raw else ''
+                        print(f"[INBOUND EMAIL] Successfully retrieved body for {email_id} from Resend API.")
                     else:
-                        print(f"[INBOUND EMAIL] Failed to fetch body. Resend HTTP {email_resp.status_code}")
+                        print(f"[INBOUND EMAIL] Failed to fetch body. Resend HTTP {email_resp.status_code}: {email_resp.text}")
             except Exception as e:
                 print(f"[INBOUND EMAIL] Error fetching body from Resend API: {e}")
 
-        # Fallback 2: Check for raw email payload inside standard SendGrid/Resend raw formats
+        # Fallback 2: Check for raw email payload in nested data
         if not text_body and not html_body:
-            t_fallback = email_data.get('text_body', '')
-            h_fallback = email_data.get('html_body', t_fallback)
-            text_body = json.dumps(t_fallback, indent=2) if isinstance(t_fallback, (dict, list)) else str(t_fallback) if t_fallback else ''
-            html_body = json.dumps(h_fallback, indent=2) if isinstance(h_fallback, (dict, list)) else str(h_fallback) if h_fallback else ''
+            t_fallback = email_data.get('text_body') or email_data.get('body')
+            h_fallback = email_data.get('html_body') or t_fallback
+            text_body = str(t_fallback) if t_fallback else ''
+            html_body = str(h_fallback) if h_fallback else ''
 
-        # If the email legitimately has no body (e.g. user just sent a subject), leave it blank instead of dumping JSON
+        # If the email legitimately has no body, provide debug info for troubleshooting
         if not text_body and not html_body:
             debug_info = {
-                "raw_root_payload": raw_payload_capture if 'raw_payload_capture' in locals() else {"error": "not json payload"},
-                "webhook_payload": email_data,
-                "api_key_used": api_key[:10] + "..." if 'api_key' in locals() else "None",
-                "api_fetch_status": email_resp.status_code if 'email_resp' in locals() else "Not Attempted",
-                "fetched_body": fetched if 'fetched' in locals() else {}
+                "email_id_found": email_id,
+                "payload_keys": list(payload.keys()),
+                "email_data_keys": list(email_data.keys()) if isinstance(email_data, dict) else "not a dict",
+                "api_key_configured": bool(os.environ.get("RESEND_API_KEY"))
             }
             debug_str = json.dumps(debug_info, indent=2)
-            text_body = f"[No Message Body Provided]\n\n--- DEBUG INFO ---\n{debug_str}"
-            html_body = f"<p>[No Message Body Provided]</p><pre>--- DEBUG INFO ---\n{debug_str}</pre>"
-        print(f"[INBOUND EMAIL] From: {sender}, Subject: {subject}")
+            text_body = f"[No Message Body Found]\n\n--- DEBUG INFO ---\n{debug_str}"
+            html_body = f"<p><i>[No Message Body Found]</i></p><pre>--- DEBUG INFO ---\n{debug_str}</pre>"
+        
+        print(f"[INBOUND EMAIL] Final body length: {len(text_body)} chars")
 
         # --- SPAM FILTER ---
         if "hello@notify.railway.app" in sender.lower():
