@@ -558,6 +558,115 @@ async def avatar_search(req: AvatarSearchRequest):
     # Tier 3: Zero Engines Functional / Online
     raise HTTPException(status_code=404, detail="NOT_FOUND")
 
+class SourcingRequest(BaseModel):
+    query: str
+    cp_key: str = ""
+    te_key: str = ""
+
+@app.post("/api/sourcing")
+async def get_sourcing(req: SourcingRequest):
+    """Multi-Tiered Sourcing Execution for HarvestTracker"""
+    query = req.query.strip().lower()
+    cp_key = req.cp_key.strip()
+    te_key = req.te_key.strip()
+    
+    live_price_string = None
+    mock_used = True
+    
+    # Tier 1: Primary API 
+    try:
+        if cp_key:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                # Based on standard CommodityPriceAPI schema
+                resPrimary = await client.get(
+                    f"https://api.commoditypriceapi.com/v1/latest?base={query}",
+                    params={"api_key": cp_key}
+                )
+                if resPrimary.status_code == 200:
+                    data = resPrimary.json()
+                    rates = data.get("data", {}).get("rates", {})
+                    # Grab USD value mapping or inverse if base 
+                    if "USD" in rates:
+                        live_price_string = f"${round(1/rates['USD'], 2)}/kg"
+                        mock_used = False
+                    else:
+                        raise Exception("API Structural Mismatch: USD rate missing")
+                else:
+                    raise Exception(f"Primary API Failed: HTTP {resPrimary.status_code}")
+        else:
+            raise Exception("No Primary API Key provided in execution payload.")
+    except Exception as e1:
+        # print(f"Tier 1 Check Failed: {e1}")
+        # Tier 2: Backup/Redundant API
+        try:
+            if te_key:
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    # TradingEconomics structural query (ClientKey:Secret)
+                    resBackup = await client.get(
+                        f"https://api.tradingeconomics.com/historical/country/all/commodity/{query}?c={te_key}&format=json"
+                    )
+                    if resBackup.status_code == 200:
+                        data = resBackup.json()
+                        if len(data) > 0 and "Close" in data[0]:
+                            live_price_string = f"${round(data[0]['Close'], 2)}/kg"
+                            mock_used = False
+                        else:
+                            raise Exception("API Structural Mismatch: Close price array missing")
+                    else:
+                        raise Exception(f"Backup API Failed: HTTP {resBackup.status_code}")
+            else:
+                raise Exception("No Backup API Key provided in execution payload.")
+        except Exception as e2:
+            pass # print(f"Tier 2 Check Failed: {e2}")
+
+    # Tier 3: Output Generator (Geometry & Logistics Math)
+    import random
+    
+    regions = [
+        {"name": "Veracruz Cooperative", "lat": 19.17, "lon": -96.13, "country": "Mexico"},
+        {"name": "Andean Harvest Ops", "lat": -12.04, "lon": -77.02, "country": "Peru"},
+        {"name": "Central Valley Growers", "lat": 36.77, "lon": -119.41, "country": "USA"},
+        {"name": "São Paulo Agro", "lat": -23.55, "lon": -46.63, "country": "Brazil"},
+        {"name": "Rift Valley Exports", "lat": -1.29, "lon": 36.82, "country": "Kenya"},
+        {"name": "Java Plantations", "lat": -7.25, "lon": 112.75, "country": "Indonesia"},
+        {"name": "Andalusia Estates", "lat": 37.38, "lon": -5.98, "country": "Spain"},
+        {"name": "Mekong Delta Farms", "lat": 10.04, "lon": 105.78, "country": "Vietnam"}
+    ]
+    
+    suppliers = []
+    for r in regions:
+        quality = random.randint(1, 5)
+        price_tier = random.choice(['low', 'medium', 'high'])
+        shipping_days = random.randint(2, 15)
+        
+        # Override Generative Math with the Live Spot Price if successful
+        if not mock_used and live_price_string:
+            base_val = float(live_price_string.replace('$', '').replace('/kg', ''))
+            # Random variance +/- 10% per supplier quality tier
+            val = round(base_val * random.uniform(0.9, 1.1), 2)
+            calculated_price = f"${val}/kg"
+        else:
+            calculated_price = f"${round(random.uniform(1.0, 6.0), 2)}/kg"
+        
+        suppliers.append({
+            "id": f"sup_{random.randint(1000, 9999)}",
+            "name": r["name"],
+            "lat": r["lat"],
+            "lon": r["lon"],
+            "country": r["country"],
+            "produce": query,
+            "quality": quality,
+            "priceTier": price_tier,
+            "price": calculated_price,
+            "shippingDays": shipping_days
+        })
+        
+    return {
+        "status": "success",
+        "mock_used": mock_used,
+        "data": suppliers
+    }
+
 async def init_scanners_db():
     async with aiosqlite.connect(SCANNERS_DB) as db:
         await db.execute('''
