@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarvestTracker | Sherpa Solutions</title>
+    <meta property="og:title" content="HarvestTracker | Sherpa Solutions">
+    <meta property="og:description" content="Real-time 3D geospatial dashboard for global agriculture and food supply chains.">
+    <meta property="og:image" content="https://sherpa-solutions-llc.com/static/sherpa_logo.png">
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/food_globe.css?v=1">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body class="organic-theme">
+
+    <!-- Mock Data Warning Banner -->
+    <div id="mock-data-warning" class="mock-warning hidden">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>MOCK DATA ACTIVE (API RATE LIMIT EXCEEDED)</span>
+    </div>
+
+    <!-- Top HUD Bar -->
+    <header class="hud-header">
+        <div class="hud-logo">
+            <a href="/projects.html" style="color: inherit; text-decoration: none;" title="Back to Projects">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 36px; vertical-align: middle; margin-right: 8px;"> 
+                <span class="logo-text">HARVEST TRACKER</span>
+            </a>
+        </div>
+
+        <div class="hud-search">
+            <i class="fa-solid fa-leaf"></i>
+            <input type="text" id="produce-search" placeholder="Search produce (e.g., Avocados, Coffee)...">
+            <button id="produce-search-btn" class="search-btn">LOCATE</button>
+        </div>
+
+        <div class="hud-status" style="display:flex; align-items:center;">
+            <div class="status-indicator">
+                <div class="pulse-dot"></div>
+                <span>SUPPLY CHAIN ONLINE</span>
+            </div>
+            <div id="clock-display" class="clock-display" style="margin-right:20px;"></div>
+            <button id="btn-demo-toggle" class="hud-btn-outline" style="width: auto; padding: 5px 12px; font-size: 0.9rem; border-color: rgba(0, 229, 255, 0.5); color: #00e5ff; display: flex; align-items: center; gap: 6px; margin-right: 15px;">
+                <i class="fa-solid fa-play"></i> DEMO OFF
+            </button>
+            <audio id="demo-audio" src="/static/audio/harvest_demo.mp3"></audio>
+            
+            <button id="settings-btn" class="hud-btn-outline" style="width: auto; padding: 5px 12px; font-size: 0.9rem; border-color: rgba(74,222,128,0.5); display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-gear" style="color:#4ade80;"></i> SETTINGS
+            </button>
+        </div>
+    </header>
+
+    <!-- 3D WebGL Globe Container -->
+    <div id="globe-container"></div>
+
+    <!-- Left Panel: Filters and Layers -->
+    <aside class="hud-panel panel-left" id="filters-panel">
+        <h2 class="panel-title">
+            <span><i class="fa-solid fa-sliders"></i> SOURCING FILTERS</span>
+        </h2>
+        <div class="panel-content">
+            
+            <div class="filter-group">
+                <label for="quality-filter"><i class="fa-solid fa-star"></i> Minimum Quality Rating</label>
+                <div class="slider-container">
+                    <input type="range" id="quality-filter" min="1" max="5" value="1" step="1">
+                    <div class="slider-labels">
+                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                    </div>
+                </div>
+                <div class="filter-value" id="quality-display">Any Quality</div>
+            </div>
+
+            <div class="filter-group">
+                <label for="price-filter"><i class="fa-solid fa-tags"></i> Max Price Constraint (Est.)</label>
+                <select id="price-filter" class="hud-select">
+                    <option value="any">Any Price Segment</option>
+                    <option value="low">Budget / Wholesale Volume</option>
+                    <option value="medium">Standard Market Rate</option>
+                    <option value="high">Premium / Organic Reserve</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label><i class="fa-solid fa-truck-fast"></i> Delivery SLA Tracking</label>
+                <div class="toggle-switch-container">
+                    <span>Highlight Express Shipping Only (< 5 Days)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="express-shipping-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <hr class="panel-divider">
+
+            <h3 class="sub-title"><i class="fa-solid fa-cloud-showers-heavy"></i> Live Visualization Layers</h3>
+            <div class="layer-toggle-container">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="layer-weather" checked>
+                    <span>Global Weather Radar (Open-Meteo)</span>
+                </label>
+            </div>
+            <div class="layer-toggle-container">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="layer-heatmap">
+                    <span style="color:#bbf7d0;">Global Sourcing Heatmap</span>
+                </label>
+            </div>
+            <div class="layer-toggle-container">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="layer-ships" checked>
+                    <span>Live Cargo Vessels (AISStream)</span>
+                </label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Right Panel: Sourcing Details (Hidden by default) -->
+    <aside class="hud-panel panel-right" id="target-panel" style="display: none; transform: translateX(120%);">
+        <h2 class="panel-title"><i class="fa-solid fa-map-location-dot"></i> SUPPLIER ACQUIRED</h2>
+        <div class="panel-content" id="target-details">
+            <div class="acquiring-msg">Analyzing logistics...</div>
+        </div>
+        <button id="close-target" class="hud-btn-outline">Close Sourcing Block</button>
+    </aside>
+
+    <!-- Vessel Telemetry Popup (Hidden by default) -->
+    <div id="vessel-popup" class="hud-panel hidden" style="position: absolute; right: 20px; bottom: 60px; width: 320px; z-index: 100;">
+        <h2 class="panel-title" style="margin-bottom: 5px;"><i class="fa-solid fa-ship"></i> VESSEL TELEMETRY</h2>
+        <div class="panel-content" id="vessel-details" style="font-family: 'Share Tech Mono'; line-height: 1.6; color:#e2e8f0; font-size: 0.95rem;">
+            <!-- Injected details go here -->
+        </div>
+        <button id="close-vessel-popup" class="hud-btn-outline" style="width: 100%; margin-top: 15px;">CLOSE TELEMETRY</button>
+    </div>
+
+    <!-- Overlay Loader -->
+    <div id="loading-overlay">
+        <i class="fa-solid fa-earth-americas fa-spin" style="font-size: 3rem; margin-bottom: 1rem; color: #4ade80;"></i>
+        <h2 style="font-family: 'Share Tech Mono'; letter-spacing: 2px;">INITIALIZING SUPPLY LOGISTICS</h2>
+        <p style="opacity: 0.8;">Loading global terrain and tracking datasets...</p>
+    </div>
+
+    <!-- Purchase Transaction Overlay (Hidden) -->
+    <div id="transaction-overlay" class="hidden">
+        <div class="transaction-modal">
+            <i id="tx-icon" class="fa-solid fa-file-signature" style="font-size: 3rem; color: #4ade80; margin-bottom: 1rem;"></i>
+            <h2 id="tx-title" style="font-family: 'Share Tech Mono'; letter-spacing: 2px;">EXECUTING SMART CONTRACT</h2>
+            <div class="tx-step-container">
+                <div class="tx-step active" id="tx-step-1"><i class="fa-solid fa-circle-notch fa-spin"></i> Securing Blockchain Node...</div>
+                <div class="tx-step" id="tx-step-2"><i class="fa-solid fa-clock"></i> Transmitting SWIFT Payment...</div>
+                <div class="tx-step" id="tx-step-3"><i class="fa-solid fa-clock"></i> Acquiring Target Cargo...</div>
+            </div>
+            <button id="tx-close" class="hud-btn-outline hidden">ACKNOWLEDGE</button>
+        </div>
+    </div>
+
+    <!-- Global News / Shock Alerts Ticker -->
+    <div id="news-ticker-container">
+        <div class="ticker-label"><i class="fa-solid fa-bolt"></i> SHOCK ALERTS</div>
+        <div class="ticker-marquee">
+            <div class="ticker-content" id="news-ticker-content">
+                Initializing global macroeconomic intelligence stream...
+            </div>
+        </div>
+    </div>
+
+    <!-- API Settings Modal Overlay (Hidden) -->
+    <div id="settings-overlay" class="hidden">
+        <div class="transaction-modal" style="width: 500px; text-align: left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid rgba(74,222,128,0.3); padding-bottom:10px;">
+                <h2 style="font-family: 'Share Tech Mono'; color:#4ade80;"><i class="fa-solid fa-key"></i> ARCHITECTURE CONFIGURATION</h2>
+                <i id="settings-close" class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.5rem; color:#ef4444;"></i>
+            </div>
+            <p style="opacity:0.8; font-size:0.9rem; margin-bottom: 20px;">
+                Inject your secure API tokens below to disable the Generative Mock Fallback and pipeline true live commodity logistics into the HarvestTracker.
+            </p>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom: 5px; color:#4ade80; font-family:'Share Tech Mono';">CommodityPriceAPI Key</label>
+                <input type="password" id="input-cp-key" placeholder="Enter Bearer Token..." class="hud-btn-outline" style="width:100%; text-align:left; background:rgba(0,0,0,0.5); border-color:var(--hud-border); color:#fff; cursor:text;">
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="display:block; margin-bottom: 5px; color:#4ade80; font-family:'Share Tech Mono';">TradingEconomics Key</label>
+                <input type="password" id="input-te-key" placeholder="ClientKey:ClientSecret" class="hud-btn-outline" style="width:100%; text-align:left; background:rgba(0,0,0,0.5); border-color:var(--hud-border); color:#fff; cursor:text;">
+            </div>
+
+            <button id="settings-save-btn" class="hud-btn-outline btn-execute" style="width:100%;">
+                <i class="fa-solid fa-floppy-disk"></i> SAVE CONFIGURATION & RELOAD
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script defer src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
+    <script defer src="/static/food_globe.js?v=1"></script>
+</body>
+</html>
