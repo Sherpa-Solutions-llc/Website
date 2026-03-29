@@ -589,107 +589,231 @@ input:checked + .slider:before {
     100% { left: -200%; }
 }
 
+/* --- Mobile Filters Toggle Button (injected by JS) --- */
+.mobile-filters-toggle {
+    display: none; /* Hidden on desktop */
+}
+
 /* --- MOBILE RESPONSIVE REFLOW --- */
 @media (max-width: 768px) {
-    /* 1. Global HUD Header Reflow */
+
+    /* ==============================
+       1. HEADER — Compact 2-Row Bar
+       ============================== */
     .hud-header {
         height: auto !important;
-        flex-direction: column !important;
-        padding: 10px 15px !important;
-        top: 35px !important;
-        gap: 12px;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        padding: 8px 12px !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        border-radius: 0 !important;
+        gap: 8px;
     }
-    
-    .hud-logo { align-self: flex-start; }
-    
+
+    .hud-logo {
+        order: 1;
+        flex-shrink: 0;
+    }
+
+    .hud-logo img { height: 28px !important; }
+    .logo-text { font-size: 0.95rem !important; }
+
     .hud-search {
+        order: 3;
         max-width: none !important;
         width: 100% !important;
         margin: 0 !important;
         box-sizing: border-box;
     }
-    
+
     .hud-status {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 8px;
+        order: 2;
+        margin-left: auto;
+        gap: 6px;
+        flex-shrink: 0;
     }
-    
-    #clock-display { display: none; } /* Hide clock to save narrow space */
-    
-    /* 2. Side Panel Adjustments */
+
+    /* Hide verbose items on mobile */
+    #clock-display,
+    .status-indicator span,
+    #demo-volume-slider {
+        display: none !important;
+    }
+
+    .status-indicator { gap: 0; }
+
+    /* Shrink header buttons */
+    .hud-status .hud-btn-outline {
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* ==============================
+       2. FLOATING FILTERS TOGGLE BTN
+       ============================== */
+    .mobile-filters-toggle {
+        display: flex !important;
+        position: fixed;
+        top: 90px;
+        left: 12px;
+        z-index: 50;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--hud-bg);
+        border: 2px solid var(--hud-border);
+        color: var(--hud-border);
+        font-size: 1.2rem;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+        backdrop-filter: blur(10px);
+        transition: all 0.25s ease;
+    }
+    .mobile-filters-toggle:hover,
+    .mobile-filters-toggle:active {
+        background: var(--hud-border);
+        color: #000;
+    }
+    .mobile-filters-toggle.panel-open {
+        background: var(--hud-border);
+        color: #000;
+    }
+
+    /* ==============================
+       3. SIDE PANELS — Slide-in Drawer
+       ============================== */
     .hud-panel {
-        width: calc(100vw - 30px) !important;
-        left: 15px !important;
-        right: 15px !important;
+        width: calc(100vw - 24px) !important;
+        left: 12px !important;
+        right: 12px !important;
+        box-sizing: border-box;
     }
-    
+
     .panel-left {
-        top: 185px !important; /* Push below the stacked header */
+        top: 90px !important;
+        max-height: calc(100vh - 160px);
+        overflow-y: auto;
+        transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    
+
+    /* Hidden by default — toggled by JS */
+    .panel-left.mobile-collapsed {
+        transform: translateX(-110%) !important;
+        opacity: 0;
+        pointer-events: none;
+    }
+
     .panel-right {
-        top: 185px !important;
+        top: 90px !important;
+        max-height: calc(100vh - 160px);
+        overflow-y: auto;
     }
-    
-    /* 3. Modal Overlays */
+
+    /* Custom scrollbar inside panels */
+    .panel-left::-webkit-scrollbar,
+    .panel-right::-webkit-scrollbar {
+        width: 4px;
+    }
+    .panel-left::-webkit-scrollbar-thumb,
+    .panel-right::-webkit-scrollbar-thumb {
+        background: rgba(74, 222, 128, 0.5);
+        border-radius: 4px;
+    }
+
+    /* ==============================
+       4. MODAL OVERLAYS
+       ============================== */
     .transaction-modal {
-        width: 90vw !important;
+        width: 92vw !important;
         min-width: 0 !important;
-        padding: 15px !important;
+        padding: 16px !important;
+        max-height: 85vh;
+        overflow-y: auto;
     }
-    
-    #settings-overlay > div, #transaction-overlay > div, #rfq-overlay > div {
-        width: 90vw !important;
+
+    #settings-overlay > div,
+    #transaction-overlay > div,
+    #rfq-overlay > div {
+        width: 92vw !important;
         min-width: 0 !important;
-        padding: 20px !important;
+        padding: 16px !important;
         box-sizing: border-box;
+        max-height: 85vh;
+        overflow-y: auto;
     }
-    
-    /* 4. Telemetry & Pricing Widgets */
+
+    /* ==============================
+       5. TELEMETRY & PRICING WIDGETS
+       ============================== */
     #vessel-popup {
-        width: calc(100vw - 30px) !important;
-        right: 15px !important;
-        bottom: 85px !important; /* Above the news ticker/pricing */
+        width: calc(100vw - 24px) !important;
+        right: 12px !important;
+        bottom: 80px !important;
         box-sizing: border-box;
+        max-height: 50vh;
+        overflow-y: auto;
     }
-    
+
     #pricing-ticker {
-        bottom: 32px !important; /* Directly atop the 32px news ticker */
+        bottom: 32px !important;
         left: 0 !important;
         width: 100vw !important;
         border-radius: 0 !important;
         border-right: none !important;
         border-left: none !important;
-        padding: 6px 10px !important;
+        padding: 5px 10px !important;
         display: flex !important;
-        justify-content: space-between !important;
         align-items: center !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
         box-sizing: border-box;
+        gap: 8px;
     }
-    
+
     #pricing-ticker > div:first-child {
-        margin-bottom: 4px !important;
-        margin-right: 10px !important;
-        font-size: 0.7rem !important;
+        margin-bottom: 0 !important;
+        font-size: 0.65rem !important;
+        white-space: nowrap;
     }
-    
+
     #live-spot-prices {
-        gap: 10px !important;
-        font-size: 0.8rem !important;
-        width: 100%;
-        justify-content: center;
+        gap: 8px !important;
+        font-size: 0.75rem !important;
     }
-    
+
     .ticker-label {
-        font-size: 0.8rem !important;
-        padding: 0 10px !important;
+        font-size: 0.75rem !important;
+        padding: 0 8px !important;
     }
-    
-    /* Base Font adjustments */
+
+    /* ==============================
+       6. WEATHER RISK ALERT
+       ============================== */
+    #weather-risk-alert {
+        top: 90px !important;
+        width: 90vw !important;
+        font-size: 0.85rem !important;
+        padding: 10px 15px !important;
+    }
+
+    /* ==============================
+       7. MOCK DATA WARNING BANNER
+       ============================== */
+    .mock-warning {
+        font-size: 11px !important;
+        padding: 4px 0 !important;
+        letter-spacing: 1px !important;
+    }
+
+    /* ==============================
+       8. TYPOGRAPHY & INPUTS
+       ============================== */
     #produce-search { font-size: 14px !important; }
-    .hud-btn-outline { font-size: 0.85rem !important; }
+    .hud-btn-outline { font-size: 0.8rem !important; }
+    .panel-title { font-size: 1rem !important; }
+    .filter-group label { font-size: 0.85rem !important; }
 }
 

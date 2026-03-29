@@ -87,7 +87,46 @@ window.onload = () => {
     setInterval(updateClock, 1000);
     initWeather();
     initVessels();
+    initMobileToggle();
 };
+
+// --- Mobile Panel Toggle ---
+function initMobileToggle() {
+    const filtersPanel = document.getElementById('filters-panel');
+    if (!filtersPanel) return;
+
+    // Inject floating toggle button into the DOM
+    const btn = document.createElement('button');
+    btn.className = 'mobile-filters-toggle';
+    btn.id = 'mobile-panel-btn';
+    btn.innerHTML = '<i class="fa-solid fa-sliders"></i>';
+    btn.title = 'Toggle Filters';
+    document.body.appendChild(btn);
+
+    // Start collapsed on mobile
+    const isMobile = () => window.innerWidth <= 768;
+    if (isMobile()) {
+        filtersPanel.classList.add('mobile-collapsed');
+    }
+
+    btn.addEventListener('click', () => {
+        const collapsed = filtersPanel.classList.toggle('mobile-collapsed');
+        btn.classList.toggle('panel-open', !collapsed);
+        btn.innerHTML = collapsed
+            ? '<i class="fa-solid fa-sliders"></i>'
+            : '<i class="fa-solid fa-xmark"></i>';
+    });
+
+    // Handle resize (e.g., rotating a phone): remove mobile class on desktop
+    window.addEventListener('resize', () => {
+        if (!isMobile()) {
+            filtersPanel.classList.remove('mobile-collapsed');
+            btn.classList.remove('panel-open');
+        } else if (!btn.classList.contains('panel-open')) {
+            filtersPanel.classList.add('mobile-collapsed');
+        }
+    });
+}
 
 function updateClock() {
     const now = new Date();
