@@ -183,6 +183,35 @@
         </div>
     </div>
 
+    <!-- RFQ Auction Modal (Hidden) -->
+    <div id="rfq-overlay" class="hidden">
+        <div class="transaction-modal" style="min-width:400px; border-color:#eab308; box-shadow:0 0 30px rgba(234, 179, 8, 0.3);">
+            <i class="fa-solid fa-satellite-dish fa-beat" style="font-size: 3rem; color: #eab308; margin-bottom: 1rem;"></i>
+            <h2 style="font-family: 'Share Tech Mono'; letter-spacing: 2px; color:#eab308;">BROADCASTING RFQ</h2>
+            
+            <div id="rfq-bids" style="text-align:left; margin:20px 0; display:flex; flex-direction:column; gap:8px;">
+                <div style="color:#e2e8f0; font-size:0.9rem; text-align:center; opacity:0.8;"><i class="fa-solid fa-circle-notch fa-spin"></i> Awaiting supplier counter-offers...</div>
+            </div>
+            
+            <button id="rfq-close-btn" class="hud-btn-outline hidden" style="width:100%; border-color:#4ade80; color:#4ade80;">PROCEED WITH LOWEST BID</button>
+        </div>
+    </div>
+
+    <!-- Live Commodity Pricing Ticker (Bottom Left) -->
+    <div id="pricing-ticker" style="position:absolute; bottom:20px; left:20px; background:rgba(0,10,20,0.85); border:1px solid #eab308; border-radius:4px; padding:10px 15px; color:#eab308; font-family:'Share Tech Mono'; font-size:1rem; z-index:50; backdrop-filter:blur(4px); box-shadow:0 0 10px rgba(234, 179, 8, 0.2); pointer-events:none;">
+        <div style="font-size:0.75rem; letter-spacing:1px; margin-bottom:4px; opacity:0.8;"><i class="fa-solid fa-chart-line"></i> GLOBAL SPOT PRICES</div>
+        <div id="live-spot-prices" style="font-weight:bold; letter-spacing:1px; display:flex; gap:15px;">
+            <span id="spot-avo">AVO: $2.14 <i class="fa-solid fa-caret-up" style="color:#4ade80;"></i></span>
+            <span id="spot-cof">COF: $1.85 <i class="fa-solid fa-caret-down" style="color:#ef4444;"></i></span>
+            <span id="spot-wht">WHT: $218 <i class="fa-solid fa-caret-up" style="color:#4ade80;"></i></span>
+        </div>
+    </div>
+
+    <!-- Top Center Alert Banner (Hidden) -->
+    <div id="weather-risk-alert" class="hidden" style="position:absolute; top:80px; left:50%; transform:translateX(-50%); background:rgba(239, 68, 68, 0.9); border:2px solid #ef4444; border-radius:6px; padding:15px 30px; color:#fff; font-family:'Share Tech Mono'; font-size:1.1rem; z-index:900; box-shadow:0 0 20px rgba(239, 68, 68, 0.5); font-weight:bold; text-align:center;">
+        <i class="fa-solid fa-triangle-exclamation"></i> <span id="weather-risk-text">YIELD DISRUPTION PREDICTED</span>
+    </div>
+
     <!-- Global News / Shock Alerts Ticker -->
     <div id="news-ticker-container">
         <div class="ticker-label"><i class="fa-solid fa-bolt"></i> SHOCK ALERTS</div>
