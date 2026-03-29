@@ -127,7 +127,10 @@
 
     <!-- Right Panel: Sourcing Details (Hidden by default) -->
     <aside class="hud-panel panel-right" id="target-panel" style="display: none; transform: translateX(120%);">
-        <h2 class="panel-title"><i class="fa-solid fa-map-location-dot"></i> SUPPLIER ACQUIRED</h2>
+        <h2 class="panel-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-map-location-dot"></i> SUPPLIER ACQUIRED</span>
+            <i id="close-target-x" class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.3rem; color:#ef4444; padding:4px 8px;" title="Close"></i>
+        </h2>
         <div class="panel-content" id="target-details">
             <div class="acquiring-msg">Analyzing logistics...</div>
         </div>

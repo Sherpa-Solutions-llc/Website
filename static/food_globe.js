@@ -276,6 +276,10 @@ document.getElementById('close-target').addEventListener('click', () => {
     targetPanel.style.transform = 'translateX(120%)';
     document.querySelectorAll('.supplier-card').forEach(c => c.style.borderColor = 'rgba(74, 222, 128, 0.3)');
 });
+document.getElementById('close-target-x').addEventListener('click', () => {
+    targetPanel.style.transform = 'translateX(120%)';
+    document.querySelectorAll('.supplier-card').forEach(c => c.style.borderColor = 'rgba(74, 222, 128, 0.3)');
+});
 
 // Interactive 3D Node Selection
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
