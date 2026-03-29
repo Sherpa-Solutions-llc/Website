@@ -708,26 +708,41 @@ input:checked + .slider:before {
     }
 
     .panel-right {
+        /* Use fixed positioning so it's relative to the actual viewport */
+        position: fixed !important;
         top: 90px !important;
-        max-height: calc(100vh - 160px);
+        bottom: 70px !important; /* Above pricing ticker + news bar */
+        max-height: none !important; /* Let top/bottom constrain it */
         display: flex !important;
         flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Fallback for browsers that support dvh (dynamic viewport height) */
+    @supports (height: 100dvh) {
+        .panel-right {
+            bottom: 70px !important;
+            max-height: calc(100dvh - 160px) !important;
+        }
     }
 
     .panel-right #target-details {
-        flex: 1 1 auto;
+        flex: 1 1 0;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        min-height: 0; /* Firefox flex scroll fix */
+        min-height: 0;
     }
 
     .panel-right #close-target {
         flex-shrink: 0;
-        position: sticky;
-        bottom: 0;
         margin-top: 10px;
         background: var(--hud-bg);
         z-index: 5;
+        /* Ensure it doesn't collapse or get clipped */
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* Custom scrollbar inside panels */
