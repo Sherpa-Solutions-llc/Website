@@ -1575,21 +1575,25 @@ function updateFlightsLayer() {
                     ds.entities.add({
                         id: f.id,
                         position: new Cesium.CallbackProperty((time) => {
-                            const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
-                            // Sync external data-fetch updates (performance.now) to the Cesium rendering clock 
-                            if (!f.fetchDateMs || f.lastFetchTime !== f.fetchTime) {
-                                f.fetchDateMs = frameTimeMs;
-                                f.lastFetchTime = f.fetchTime;
-                            }
-                            const dt = (frameTimeMs - f.fetchDateMs) / 1000;
-                            const dist = (f.velocity || 0) * dt;
-                            const bearing = f.heading || 0;
-                            const R = 6371000;
-                            const lat1 = Cesium.Math.toRadians(f.lat);
-                            const lon1 = Cesium.Math.toRadians(f.lng);
-                            const lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist / R) + Math.cos(lat1) * Math.sin(dist / R) * Math.cos(Cesium.Math.toRadians(bearing)));
-                            const lon2 = lon1 + Math.atan2(Math.sin(Cesium.Math.toRadians(bearing)) * Math.sin(dist / R) * Math.cos(lat1), Math.cos(dist / R) - Math.sin(lat1) * Math.sin(lat2));
-                            return Cesium.Cartesian3.fromRadians(lon2, lat2, f.alt || 10000);
+                            try {
+                                if (typeof f.lat !== 'number' || typeof f.lng !== 'number' || isNaN(f.lat) || isNaN(f.lng)) return Cesium.Cartesian3.fromDegrees(0, 0, 10000);
+                                const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
+                                // Sync external data-fetch updates (performance.now) to the Cesium rendering clock 
+                                if (!f.fetchDateMs || f.lastFetchTime !== f.fetchTime) {
+                                    f.fetchDateMs = frameTimeMs;
+                                    f.lastFetchTime = f.fetchTime;
+                                }
+                                const dt = (frameTimeMs - f.fetchDateMs) / 1000;
+                                const dist = (f.velocity || 0) * dt;
+                                const bearing = f.heading || 0;
+                                const R = 6371000;
+                                const lat1 = Cesium.Math.toRadians(f.lat);
+                                const lon1 = Cesium.Math.toRadians(f.lng);
+                                const lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist / R) + Math.cos(lat1) * Math.sin(dist / R) * Math.cos(Cesium.Math.toRadians(bearing)));
+                                const lon2 = lon1 + Math.atan2(Math.sin(Cesium.Math.toRadians(bearing)) * Math.sin(dist / R) * Math.cos(lat1), Math.cos(dist / R) - Math.sin(lat1) * Math.sin(lat2));
+                                if (isNaN(lat2) || isNaN(lon2)) return Cesium.Cartesian3.fromDegrees(f.lng, f.lat, f.alt || 10000);
+                                return Cesium.Cartesian3.fromRadians(lon2, lat2, f.alt || 10000);
+                            } catch(e) { return Cesium.Cartesian3.fromDegrees(0, 0, 10000); }
                         }, false),
                         billboard: {
                             image: f.isMilitary ? militaryAirplaneSvg : airplaneSvg,
@@ -1712,25 +1716,24 @@ function updateEarthquakesLayer() {
             earthquakesDataSource.entities.suspendEvents();
             earthquakesDataSource.entities.removeAll();
             (state.earthquakes || []).forEach(q => {
+                if (!q.geometry || !q.geometry.coordinates) return;
+                const coords = q.geometry.coordinates;
+                if (typeof coords[0] !== 'number' || typeof coords[1] !== 'number' || isNaN(coords[0]) || isNaN(coords[1])) return;
                 const mag = q.properties.mag || 1;
-                // Calculate varying lightness of yellow based on magnitude (range mostly 1.0 to 8.0)
-                // HSL for yellow is ~60 degrees (1/6 = ~0.16)
-                // Lightness: lower magnitude = lighter yellow (closer to white/pale), higher magnitude = pure bright yellow
-                // We'll vary the Lightness from 0.8 (pale) down to 0.5 (bright/saturated)
                 const clampedMag = Math.max(1, Math.min(8, mag));
-                const lightness = 0.8 - ((clampedMag - 1) / 7) * 0.3; 
+                const lightness = 0.8 - ((clampedMag - 1) / 7) * 0.3;
                 const quakeColor = Cesium.Color.fromHsl(0.16, 1.0, lightness, 0.9);
 
                 earthquakesDataSource.entities.add({
                     id: q.id,
-                    position: Cesium.Cartesian3.fromDegrees(q.geometry.coordinates[0], q.geometry.coordinates[1], q.geometry.coordinates[2] * 1000),
-                    point: { 
-                        pixelSize: mag * 4, 
+                    position: Cesium.Cartesian3.fromDegrees(coords[0], coords[1], (coords[2] || 0) * 1000),
+                    point: {
+                        pixelSize: mag * 4,
                         color: quakeColor,
-                        outlineColor: Cesium.Color.fromHsl(0.16, 1.0, lightness * 0.8, 1.0), // slightly darker yellow outline
+                        outlineColor: Cesium.Color.fromHsl(0.16, 1.0, lightness * 0.8, 1.0),
                         outlineWidth: 1.5
                     },
-                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2], mag: mag, time: q.properties?.time, felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region }
+                    customData: { type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', lat: coords[1], lng: coords[0], depth: coords[2], mag: mag, time: q.properties?.time, felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region }
                 });
             });
         } catch(e) { console.error('[Globe] Earthquakes fail:', e); }
@@ -1793,6 +1796,9 @@ function updateShippingLayer() {
                     id: 'vessel_' + t.id,
                     position: new Cesium.CallbackProperty((time, result) => {
                         try {
+                            const tLat = t.startLat != null ? t.startLat : t.lat;
+                            const tLng = t.startLng != null ? t.startLng : t.lng;
+                            if (typeof tLat !== 'number' || typeof tLng !== 'number' || isNaN(tLat) || isNaN(tLng)) return Cesium.Cartesian3.fromDegrees(0, 0, 0);
                             const frameTimeMs = Cesium.JulianDate.toDate(time).getTime();
                             if (!t.fetchDateMs || t.lastFetchTime !== t.fetchTime) {
                                 t.fetchDateMs = frameTimeMs;
@@ -1801,16 +1807,17 @@ function updateShippingLayer() {
                             const dt = (frameTimeMs - t.fetchDateMs) / 1000;
                             const dist = (t.computedVelocity || 0) * dt;
                             const angularDist = dist / earthRadius;
-                            const sLat = Cesium.Math.toRadians(t.startLat || t.lat);
-                            const sLng = Cesium.Math.toRadians(t.startLng || t.lng);
+                            const sLat = Cesium.Math.toRadians(tLat);
+                            const sLng = Cesium.Math.toRadians(tLng);
                             const head = t.computedHeading || 0;
                             const nLat = Math.asin(Math.sin(sLat) * Math.cos(angularDist) + Math.cos(sLat) * Math.sin(angularDist) * Math.cos(head));
                             const nLng = sLng + Math.atan2(Math.sin(head) * Math.sin(angularDist) * Math.cos(sLat), Math.cos(angularDist) - Math.sin(sLat) * Math.sin(nLat));
+                            if (isNaN(nLat) || isNaN(nLng)) return Cesium.Cartesian3.fromDegrees(tLng, tLat, 0);
                             t.lat = Cesium.Math.toDegrees(nLat);
                             t.lng = Cesium.Math.toDegrees(nLng);
                             return Cesium.Cartesian3.fromRadians(nLng, nLat, 0, viewer.scene.globe.ellipsoid, result);
                         } catch (cpErr) {
-                            return undefined;
+                            return Cesium.Cartesian3.fromDegrees(0, 0, 0);
                         }
                     }, false),
                     billboard: {
