@@ -710,7 +710,24 @@ input:checked + .slider:before {
     .panel-right {
         top: 90px !important;
         max-height: calc(100vh - 160px);
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .panel-right #target-details {
+        flex: 1 1 auto;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0; /* Firefox flex scroll fix */
+    }
+
+    .panel-right #close-target {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+        margin-top: 10px;
+        background: var(--hud-bg);
+        z-index: 5;
     }
 
     /* Custom scrollbar inside panels */
