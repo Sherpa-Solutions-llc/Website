@@ -46,10 +46,12 @@
                 <span>SUPPLY CHAIN ONLINE</span>
             </div>
             <div id="clock-display" class="clock-display" style="margin-right:20px;"></div>
-            <button id="btn-demo-toggle" class="hud-btn-outline" style="width: auto; padding: 5px 12px; font-size: 0.9rem; border-color: rgba(0, 229, 255, 0.5); color: #00e5ff; display: flex; align-items: center; gap: 6px; margin-right: 15px;">
-                <i class="fa-solid fa-play"></i> DEMO OFF
-            </button>
-            <audio id="demo-audio" src="/static/audio/harvest_demo.mp3"></audio>
+            <div style="display:flex; align-items:center; gap:10px; margin-right: 15px;">
+                <button id="btn-demo-toggle" class="hud-btn-outline" style="width: auto; padding: 5px 12px; font-size: 0.9rem; border-color: rgba(0, 229, 255, 0.5); color: #00e5ff; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-play"></i> DEMO OFF
+                </button>
+                <input type="range" id="demo-volume-slider" min="0" max="100" value="50" oninput="if(window.setDemoVolume) window.setDemoVolume(this.value)" style="width:80px; accent-color:#00e5ff;" title="Narrator Volume">
+            </div>
             
             <button id="settings-btn" class="hud-btn-outline" style="width: auto; padding: 5px 12px; font-size: 0.9rem; border-color: rgba(74,222,128,0.5); display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-gear" style="color:#4ade80;"></i> SETTINGS
@@ -150,10 +152,29 @@
 
     <!-- Purchase Transaction Overlay (Hidden) -->
     <div id="transaction-overlay" class="hidden">
-        <div class="transaction-modal">
+        <div class="transaction-modal" style="min-width:400px;">
             <i id="tx-icon" class="fa-solid fa-file-signature" style="font-size: 3rem; color: #4ade80; margin-bottom: 1rem;"></i>
             <h2 id="tx-title" style="font-family: 'Share Tech Mono'; letter-spacing: 2px;">EXECUTING SMART CONTRACT</h2>
-            <div class="tx-step-container">
+            
+            <!-- Configuration Form -->
+            <div id="tx-config" class="hidden" style="text-align:left; margin-bottom: 20px;">
+                <div style="margin-bottom:10px;">
+                    <label style="color:#4ade80; font-size:0.8rem; display:block;">SUPPLIER CONTACT</label>
+                    <div id="tx-supplier-info" style="font-size:0.9rem; color:#e2e8f0; background:rgba(0,0,0,0.3); padding:8px; border:1px solid rgba(255,255,255,0.1); border-radius:4px;"></div>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label style="color:#4ade80; font-size:0.8rem; display:block;">ESTIMATED ARRIVAL</label>
+                    <div id="tx-supplier-eta" style="font-size:0.9rem; color:#e2e8f0; background:rgba(0,0,0,0.3); padding:8px; border:1px solid rgba(255,255,255,0.1); border-radius:4px;"></div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="color:#4ade80; font-size:0.8rem; display:block;">QUANTITY (METRIC TONS)</label>
+                    <input type="number" id="tx-quantity" value="100" min="10" max="10000" style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #4ade80; color:#fff; font-family:'Share Tech Mono';">
+                </div>
+                <button id="tx-confirm-btn" class="hud-btn-outline" style="width:100%; border-color:#ef4444; color:#ef4444;">AUTHORIZE SMART CONTRACT</button>
+            </div>
+
+            <!-- Spinner Block -->
+            <div class="tx-step-container" id="tx-spinner-block">
                 <div class="tx-step active" id="tx-step-1"><i class="fa-solid fa-circle-notch fa-spin"></i> Securing Blockchain Node...</div>
                 <div class="tx-step" id="tx-step-2"><i class="fa-solid fa-clock"></i> Transmitting SWIFT Payment...</div>
                 <div class="tx-step" id="tx-step-3"><i class="fa-solid fa-clock"></i> Acquiring Target Cargo...</div>
