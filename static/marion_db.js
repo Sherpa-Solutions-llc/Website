@@ -179,22 +179,22 @@ const MAP_DATA = {
         
         // Far East Spine
         "dept-patriot": { id: "dept-patriot", label: "Patriot Store", x: 110.0, y: 0, z: 30.0, floor: 1, type: "department", building: "Bldg 170" },
-        "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 138.0, y: 0, z: 10.0, floor: 1, type: "department", building: "Bldg 170" },
+        "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 145.0, y: 0, z: -15.0, floor: 1, type: "department", building: "Bldg 170" },
         
-        // Perfect Unified Lower Spine - Main Trunk (Flawless Horizontal Z=65 track)
-        "h-low-140": { id: "h-low-140", label: "Ortho Junction", x: -140.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-120": { id: "h-low-120", label: "Pain Junction", x: -120.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-105": { id: "h-low-105", label: "Urology Junction", x: -105.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-75": { id: "h-low-75", label: "Entrance Vertical T-Junction", x: -85.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-50": { id: "h-low-50", label: "Police Junction", x: -50.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-30": { id: "h-low-30", label: "Transition Care Junction", x: -30.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        // Perfect Unified Lower Spine - Main Trunk (Flawless Horizontal Z=70 track)
+        "h-low-140": { id: "h-low-140", label: "Ortho Junction", x: -140.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-120": { id: "h-low-120", label: "Pain Junction", x: -120.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-105": { id: "h-low-105", label: "Urology Junction", x: -105.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-75": { id: "h-low-75", label: "Entrance Vertical T-Junction", x: -85.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-50": { id: "h-low-50", label: "Police Junction", x: -50.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-30": { id: "h-low-30", label: "Transition Care Junction", x: -30.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
         
-        "h-low-10": { id: "h-low-10", label: "Pharmacy Junction", x: -10.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos20": { id: "h-low-pos20", label: "Audiology Junction", x: 20.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos60": { id: "h-low-pos60", label: "East Vertical T-Junction", x: 60.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos80": { id: "h-low-pos80", label: "Release of Info Junction", x: 80.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos120": { id: "h-low-pos120", label: "Far East Vertical T-Junction", x: 120.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos140": { id: "h-low-pos140", label: "Chemo Junction", x: 140.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-10": { id: "h-low-10", label: "Pharmacy Junction", x: -10.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos20": { id: "h-low-pos20", label: "Audiology Junction", x: 20.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos60": { id: "h-low-pos60", label: "East Vertical T-Junction", x: 60.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos80": { id: "h-low-pos80", label: "Release of Info Junction", x: 80.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos120": { id: "h-low-pos120", label: "Far East Vertical T-Junction", x: 120.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos140": { id: "h-low-pos140", label: "Chemo Junction", x: 140.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // West Vertical Axis (X = -85) - Connects Lower to Upper West
         "h-west-65": { id: "h-west-65", label: "Travel Office Junction", x: -85.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
@@ -209,6 +209,7 @@ const MAP_DATA = {
         "h-fareast-50": { id: "h-fareast-50", label: "Elevators Passage", x: 120.0, y: 0, z: 50.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-30": { id: "h-fareast-30", label: "Patriot Junction", x: 120.0, y: 0, z: 30.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-10": { id: "h-fareast-10", label: "Canteen Corridor Lower", x: 120.0, y: 0, z: 10.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-canteen-lower": { id: "h-canteen-lower", label: "Canteen Vestibule Turn", x: 145.0, y: 0, z: 10.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // Upper West Spine (Z = 20)
         "h-up-neg90": { id: "h-up-neg90", label: "Laboratory Junction", x: -90.0, y: 0, z: 20.0, floor: 1, type: "hallway", building: "Bldg 170" },
@@ -284,7 +285,8 @@ const MAP_DATA = {
         { from: "h-up-neg10", to: "dept-employee-health", type: "walkway" },
         
         { from: "h-fareast-30", to: "dept-patriot", type: "walkway" },
-        { from: "h-fareast-10", to: "dept-canteen", type: "walkway" },
+        { from: "h-fareast-10", to: "h-canteen-lower", type: "walkway" },
+        { from: "h-canteen-lower", to: "dept-canteen", type: "walkway" },
         
         // Structural connections
         { from: "h-east-40", to: "elevator-bank-a", type: "walkway" },
