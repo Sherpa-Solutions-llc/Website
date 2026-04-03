@@ -181,20 +181,20 @@ const MAP_DATA = {
         "dept-patriot": { id: "dept-patriot", label: "Patriot Store", x: 110.0, y: 0, z: 30.0, floor: 1, type: "department", building: "Bldg 170" },
         "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 123.0, y: 0, z: -15.0, floor: 1, type: "department", building: "Bldg 170" },
         
-        // Perfect Unified Lower Spine - Main Trunk (Flawless Horizontal Z=77 track)
-        "h-low-140": { id: "h-low-140", label: "Ortho Junction", x: -140.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-120": { id: "h-low-120", label: "Pain Junction", x: -120.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-105": { id: "h-low-105", label: "Urology Junction", x: -105.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-75": { id: "h-low-75", label: "Entrance Vertical T-Junction", x: -85.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-50": { id: "h-low-50", label: "Police Junction", x: -50.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-30": { id: "h-low-30", label: "Transition Care Junction", x: -30.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        // Perfect Unified Lower Spine - Main Trunk (Flawless Horizontal Z=70 track)
+        "h-low-140": { id: "h-low-140", label: "Ortho Junction", x: -140.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-120": { id: "h-low-120", label: "Pain Junction", x: -120.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-105": { id: "h-low-105", label: "Urology Junction", x: -105.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-75": { id: "h-low-75", label: "Entrance Vertical T-Junction", x: -85.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-50": { id: "h-low-50", label: "Police Junction", x: -50.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-30": { id: "h-low-30", label: "Transition Care Junction", x: -30.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
         
-        "h-low-10": { id: "h-low-10", label: "Pharmacy Junction", x: -10.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos20": { id: "h-low-pos20", label: "Audiology Junction", x: 20.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos60": { id: "h-low-pos60", label: "East Vertical T-Junction", x: 60.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos80": { id: "h-low-pos80", label: "Release of Info Junction", x: 80.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos120": { id: "h-low-pos120", label: "Far East Vertical T-Junction", x: 120.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-pos140": { id: "h-low-pos140", label: "Chemo Junction", x: 140.0, y: 0, z: 77.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-10": { id: "h-low-10", label: "Pharmacy Junction", x: -10.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos20": { id: "h-low-pos20", label: "Audiology Junction", x: 20.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos60": { id: "h-low-pos60", label: "East Vertical T-Junction", x: 60.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos80": { id: "h-low-pos80", label: "Release of Info Junction", x: 80.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos120": { id: "h-low-pos120", label: "Far East Vertical T-Junction", x: 120.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos140": { id: "h-low-pos140", label: "Chemo Junction", x: 140.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // West Vertical Axis (X = -85) - Connects Lower to Upper West
         "h-west-65": { id: "h-west-65", label: "Travel Office Junction", x: -85.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
@@ -206,6 +206,7 @@ const MAP_DATA = {
         "h-east-40": { id: "h-east-40", label: "Spinal Cord Junction", x: 60.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // Far East Vertical Axis (X = 120) - Path to Canteen
+        "h-fareast-55": { id: "h-fareast-55", label: "Registration Bypass Roof", x: 120.0, y: 0, z: 55.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-50": { id: "h-fareast-50", label: "Elevators Passage", x: 120.0, y: 0, z: 50.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-30": { id: "h-fareast-30", label: "Patriot Junction", x: 120.0, y: 0, z: 30.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-10": { id: "h-fareast-10", label: "Canteen Corridor Lower", x: 120.0, y: 0, z: 10.0, floor: 1, type: "hallway", building: "Bldg 170" },
@@ -234,7 +235,7 @@ const MAP_DATA = {
         { from: "h-low-10", to: "h-low-pos20", type: "walkway" },
         { from: "h-low-pos20", to: "h-low-pos60", type: "walkway" },
         { from: "h-low-pos60", to: "h-low-pos80", type: "walkway" },
-        { from: "h-low-pos80", to: "h-low-pos120", type: "walkway" },
+        // NOTE: DELETED h-low-pos80 to h-low-pos120 edge because Z=70 punches a Registration wall block!
         { from: "h-low-pos120", to: "h-low-pos140", type: "walkway" },
 
         // West Vertical Axis - Connects Entrance to Upper West Wing
@@ -249,12 +250,14 @@ const MAP_DATA = {
         { from: "h-up-neg60", to: "h-up-neg10", type: "walkway" },
         { from: "h-west-20", to: "h-up-neg10", type: "walkway" }, // Ensure continuity
 
-        // East Vertical Axis (X = 60) - Dead end stub
+        // East Vertical Axis (X = 60) - Registration Bypass Path
         { from: "h-low-pos60", to: "h-east-55", type: "walkway" },
         { from: "h-east-55", to: "h-east-40", type: "walkway" },
+        { from: "h-east-55", to: "h-fareast-55", type: "walkway" }, // OVER the Registration block!
 
         // Far East Vertical Axis (X = 120) - Path to Canteen
-        { from: "h-low-pos120", to: "h-fareast-50", type: "walkway" },
+        { from: "h-fareast-55", to: "h-low-pos120", type: "walkway" }, // Down safely to Chemotherapy
+        { from: "h-fareast-55", to: "h-fareast-50", type: "walkway" }, // Up safely to Canteen
         { from: "h-fareast-50", to: "h-fareast-30", type: "walkway" },
         { from: "h-fareast-30", to: "h-fareast-10", type: "walkway" },
 
