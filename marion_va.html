@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <link rel="icon" type="image/png" href="static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Marion VA Medical Center 3D Wayfinding and Navigation. Offline capable navigation inside the facility.">
+    <meta name="theme-color" content="#2d3f2e">
+    <link rel="manifest" href="/manifest.json">
+    
+    <title>Marion VA Wayfinder | Sherpa Solutions</title>
+
+    <!-- AGGRESSIVE CACHE BUSTER FOR STALE PWA WORKERS -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) caches.delete(name);
+                });
+            }
+        }
+    </script>
+    
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="static/styles.css?v=20">
+    <link rel="stylesheet" href="static/marion_va.css?v=20">
+    
+    <script src="static/theme.js?v=20"></script>
+    <style data-cms="custom-theme-colors">
+        :root[data-theme="light"], :root[data-theme="light"] body {
+            --primary: #2d3f2e !important;
+            --secondary: #ff0000 !important;
+            --accent: #c06c3b !important;
+            --bg-color: #fdfbf7 !important;
+            --surface-color: #ffffff !important;
+            --text-dark: #1a241a !important;
+            --text-light: #ffffff !important;
+        }
+        :root[data-theme="dark"], :root[data-theme="dark"] body {
+            --bg-color: #0d1117 !important;
+            --surface-color: #161b22 !important;
+        }
+    </style>
+</head>
+
+<body class="wayfinder-body">
+
+    <header>
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC">
+            </a>
+        </div>
+        <div class="menu-toggle" id="mobile-menu-btn">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+        </ul>
+        <div class="header-actions">
+            <!-- Wheelchair Toggle Widget -->
+            <button class="btn btn-outline a11y-toggle" id="wheelchair-toggle" aria-label="Toggle Wheelchair Accessible Route">
+                <i class="fa-solid fa-wheelchair"></i> <span class="hide-mobile">Accessible Route</span>
+            </button>
+            <button class="theme-toggle" id="admin-toggle" aria-label="Toggle Admin Editor" title="Toggle Node Editor"><i class="fa-solid fa-cog"></i></button>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        
+        <!-- Search UI Layer -->
+        <div class="floating-ui search-panel">
+            <div class="search-panel-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                <h2 style="margin-bottom: 0;">Marion VA <span>Wayfinder</span></h2>
+                <div class="lp-audio-controls" id="demo-audio-controls">
+                    <button class="lp-audio-btn active" id="btn-audio-toggle" onclick="toggleWayfinderAudio()" title="Toggle Navigation Audio">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <div class="lp-volume-slider" id="volume-slider-container">
+                        <i class="fa-solid fa-volume-low lp-vol-icon"></i>
+                        <input type="range" id="lp-volume-slider" min="0" max="100" value="80" oninput="setWayfinderVolume(this.value)">
+                        <i class="fa-solid fa-volume-high lp-vol-icon"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="search-tabs">
+                <button class="tab-btn active" data-tab="text" data-cms="tab-directions"><i class="fa-solid fa-route"></i> Get Directions</button>
+                <button class="tab-btn" data-tab="browse" data-cms="tab-browse"><i class="fa-solid fa-layer-group"></i> Browse</button>
+                <button class="tab-btn" data-tab="qr" data-cms="tab-scan"><i class="fa-solid fa-qrcode"></i> Scan</button>
+                <button class="tab-btn" data-tab="capture" data-cms="tab-video-explicit"><i class="fa-solid fa-video"></i> Video</button>
+            </div>
+            
+            <div id="tab-text" class="tab-content active">
+                <div class="input-group" style="margin-bottom: 12px;">
+                    <i class="fa-solid fa-person-walking-arrow-right" style="color: var(--accent);"></i>
+                    <input type="text" id="start-location" value="Main Entrance - Bldg 170" dataset-id="ent-170" readonly style="background: rgba(255,255,255,0.05); color: #e1e4e8; cursor: not-allowed; border-color: #333; font-weight: 500;">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    <select id="end-location" class="search-select" style="border-color: var(--accent); padding-left: 36px;">
+                        <option value="">Where do you want to go?</option>
+                    </select>
+                </div>
+                
+                <div id="gps-status" style="margin-top: 8px; font-size: 0.85rem; color: #4da6ff; text-align: center; font-weight: 600; display: none;">
+                    <i class="fa-solid fa-location-arrow fa-fade"></i> Navigating to destination...
+                </div>
+                
+                <!-- Typeahead Dropdowns will be injected here via JS -->
+                <div id="search-suggestions" class="dropdown-suggestions hidden"></div>
+            </div>
+            
+            <div id="tab-browse" class="tab-content hidden">
+                 <!-- Browse logic applies only to destination now -->
+                 <div class="input-group">
+                     <select id="browse-bldg" class="search-select"><option value="">Select Building</option></select>
+                 </div>
+                 <div class="input-group">
+                     <select id="browse-floor" class="search-select" disabled><option value="">Select Floor</option></select>
+                 </div>
+                 <div class="input-group">
+                     <select id="browse-room" class="search-select" disabled><option value="">Select Room / Dept</option></select>
+                 </div>
+                 <button class="btn btn-outline apply-browse-btn" id="btn-browse-apply" style="width:100%; margin-top:10px;">Select Location</button>
+            </div>
+            
+            <div id="loader" class="loader-overlay" style="display:none;">
+        <div class="loader-spinner"></div>
+    </div>
+    
+    <!-- Interface -->            <div id="tab-qr" class="tab-content hidden">
+                 <div class="qr-scanner-box">
+                      <div class="qr-viewport">
+                          <i class="fa-solid fa-qrcode" style="font-size:3rem; margin-bottom:10px;"></i>
+                          <p>Point camera at room signage</p>
+                      </div>
+                      <!-- QR logic applies only to destination now -->
+                      <button class="btn btn-outline" id="btn-mock-scan" style="width:100%; margin-top: 10px; justify-content:center;">Simulate Scan (Pharmacy)</button>
+                 </div>
+            </div>
+
+            <div id="tab-capture" class="tab-content hidden">
+                 <div class="qr-scanner-box" style="text-align:center;">
+                      <i class="fa-solid fa-camera-retro" style="font-size:3rem; margin-bottom:10px; color: var(--accent);"></i>
+                      <p style="font-size:0.9rem; margin-bottom:15px;">Capture footage to map new 3D geometry.</p>
+                      
+                      <label for="reality-capture-input" class="btn btn-outline" style="width:100%; justify-content:center; cursor:pointer;">
+                          <i class="fa-solid fa-folder-open"></i> Select Media
+                      </label>
+                      <!-- The capture attribute opens the camera directly on mobile -->
+                      <input type="file" id="reality-capture-input" accept="image/*,video/*" capture="environment" multiple style="display:none;">
+                      
+                      <div id="capture-preview" style="margin-top:10px; font-size:0.85rem; color:#8b949e; min-height:20px;"></div>
+                      
+                      <button class="btn btn-primary" id="btn-upload-capture" style="width:100%; margin-top:10px; display:none; justify-content:center;">
+                          <i class="fa-solid fa-cloud-arrow-up"></i> Upload AI Training Data
+                      </button>
+                 </div>
+            </div>
+            
+            <button class="btn btn-primary navigate-btn" id="btn-navigate" style="display: none;">Search</button>
+
+            <!-- Directions List will appear here -->
+            <div id="directions-list" class="directions-container hidden">
+                <h3>Estimated Time: <span id="est-time">0 min</span></h3>
+                <ul id="route-steps"></ul>
+            </div>
+        </div>
+
+        <!-- View Controls Layer -->
+        <div class="floating-ui view-controls">
+            <button class="view-btn" id="btn-3d" title="3D Isometric View"><i class="fa-solid fa-cube"></i></button>
+            <button class="view-btn active" id="btn-2d" title="2D Floor Plan"><i class="fa-solid fa-map"></i></button>
+            <button class="view-btn" id="btn-live" title="Live Street View"><i class="fa-solid fa-street-view"></i></button>
+            
+            <div class="floor-selector">
+                <button class="floor-btn" data-floor="4">F4</button>
+                <button class="floor-btn" data-floor="3">F3</button>
+                <button class="floor-btn" data-floor="2">F2</button>
+                <button class="floor-btn active" data-floor="1">Ground</button>
+                <button class="floor-btn" data-floor="-1">Campus</button>
+            </div>
+        </div>
+
+        <!-- Admin Editor UI Layer -->
+        <div id="admin-editor-panel" class="floating-ui admin-panel hidden">
+            <h3><i class="fa-solid fa-pen-ruler"></i> Node Editor</h3>
+            <p class="help-text">Click floor to add Node. Shift+Click 2 Nodes to link. Opt+Click to Delete.</p>
+            
+            <div class="admin-controls">
+                <div class="input-group">
+                    <input type="text" id="admin-node-label" placeholder="Node Name (e.g. Room 101)">
+                </div>
+                <div class="input-group">
+                    <select id="admin-node-type" style="width:100%; padding:8px; border-radius:4px; background:var(--bg-color); color:var(--text-dark); border:1px solid #444;">
+                        <option value="hallway">Hallway / Waypoint</option>
+                        <option value="department">Department / Room</option>
+                        <option value="entrance">Entrance</option>
+                        <option value="elevator">Elevator</option>
+                        <option value="stairs">Stairs</option>
+                    </select>
+                </div>
+                <button class="btn btn-outline" id="btn-export-data"><i class="fa-solid fa-download"></i> Export Data</button>
+            </div>
+            <textarea id="admin-export-output" readonly placeholder="JSON will appear here..." rows="4"></textarea>
+        </div>
+
+        <!-- ThreeJS Canvas Container -->
+        <div id="map-canvas-container"></div>
+
+        <!-- Welcome / Idle Overlay: Building Photo Background -->
+        <div id="welcome-overlay">
+            <div class="welcome-prompt">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Select a destination above to begin navigation</span>
+            </div>
+        </div>
+        
+        <!-- Offline Status Indicator -->
+        <div id="offline-badge" class="offline-badge hidden">
+            <i class="fa-solid fa-wifi-slash"></i> Offline Mode Active
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <!-- Application Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Brutally defeat ServiceWorker ignoreSearch cache rules by changing physical file names -->
+    <script src="static/marion_db.js"></script>
+    <script src="static/marion_engine.js"></script>
+    <script src="static/marion_core.js"></script>
+    <script src="static/cms.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+      
+      // Offline Status Detection
+      window.addEventListener('offline', () => {
+          document.getElementById('offline-badge').classList.remove('hidden');
+      });
+      window.addEventListener('online', () => {
+          document.getElementById('offline-badge').classList.add('hidden');
+      });
+      if (!navigator.onLine) {
+          document.getElementById('offline-badge').classList.remove('hidden');
+      }
+    </script>
+</body>
+</html>
