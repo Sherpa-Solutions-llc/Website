@@ -143,8 +143,8 @@ const MAP_DATA = {
 
         // --- Ground Floor Nodes ---
         // Entrances
-        "ent-170": { id: "ent-170", label: "Main Entrance", x: -75.0, y: 0, z: 120.0, floor: 1, type: "entrance", building: "Bldg 170" },
-        "dept-emergency-checkin": { id: "dept-emergency-checkin", label: "Emergency Room Check-in", x: -95.0, y: 0, z: 120.0, floor: 1, type: "department", building: "Bldg 170" },
+        "ent-170": { id: "ent-170", label: "Main Entrance", x: -85.0, y: 0, z: 120.0, floor: 1, type: "entrance", building: "Bldg 170" },
+        "dept-emergency-checkin": { id: "dept-emergency-checkin", label: "Emergency Room Check-in", x: -105.0, y: 0, z: 120.0, floor: 1, type: "department", building: "Bldg 170" },
         
         // Far West Block
         "dept-emergency": { id: "dept-emergency", label: "Emergency Department", x: -160.0, y: 0, z: 75.0, floor: 1, type: "department", building: "Bldg 170" },
@@ -179,13 +179,13 @@ const MAP_DATA = {
         
         // Far East Spine
         "dept-patriot": { id: "dept-patriot", label: "Patriot Store", x: 110.0, y: 0, z: 30.0, floor: 1, type: "department", building: "Bldg 170" },
-        "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 135.0, y: 0, z: 10.0, floor: 1, type: "department", building: "Bldg 170" },
+        "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 155.0, y: 0, z: 10.0, floor: 1, type: "department", building: "Bldg 170" },
         
         // Perfect Unified Lower Spine - Main Trunk (Flawless Horizontal Z=75 track)
         "h-low-140": { id: "h-low-140", label: "Ortho Junction", x: -140.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-120": { id: "h-low-120", label: "Pain Junction", x: -120.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-105": { id: "h-low-105", label: "Urology Junction", x: -105.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-low-75": { id: "h-low-75", label: "Entrance Vertical T-Junction", x: -75.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-75": { id: "h-low-75", label: "Entrance Vertical T-Junction", x: -85.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-50": { id: "h-low-50", label: "Police Junction", x: -50.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-30": { id: "h-low-30", label: "Transition Care Junction", x: -30.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
         
@@ -196,10 +196,10 @@ const MAP_DATA = {
         "h-low-pos120": { id: "h-low-pos120", label: "Far East Vertical T-Junction", x: 120.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-pos140": { id: "h-low-pos140", label: "Chemo Junction", x: 140.0, y: 0, z: 75.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
-        // West Vertical Axis (X = -75) - Connects Lower to Upper West
-        "h-west-65": { id: "h-west-65", label: "Travel Office Junction", x: -75.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-west-50": { id: "h-west-50", label: "Cashier Junction", x: -75.0, y: 0, z: 50.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-west-20": { id: "h-west-20", label: "Upper West Spine JCT", x: -75.0, y: 0, z: 20.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        // West Vertical Axis (X = -85) - Connects Lower to Upper West
+        "h-west-65": { id: "h-west-65", label: "Travel Office Junction", x: -85.0, y: 0, z: 65.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-west-50": { id: "h-west-50", label: "Cashier Junction", x: -85.0, y: 0, z: 50.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-west-20": { id: "h-west-20", label: "Upper West Spine JCT", x: -85.0, y: 0, z: 20.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // East Vertical Axis (X = 60) - DEAD END Stub
         "h-east-55": { id: "h-east-55", label: "Eligibility Junction", x: 60.0, y: 0, z: 55.0, floor: 1, type: "hallway", building: "Bldg 170" },
