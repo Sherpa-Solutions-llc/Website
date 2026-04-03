@@ -179,7 +179,7 @@ const MAP_DATA = {
         
         // Far East Spine
         "dept-patriot": { id: "dept-patriot", label: "Patriot Store", x: 110.0, y: 0, z: 30.0, floor: 1, type: "department", building: "Bldg 170" },
-        "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 123.0, y: 0, z: -15.0, floor: 1, type: "department", building: "Bldg 170" },
+        "dept-canteen": { id: "dept-canteen", label: "Canteen", x: 120.0, y: 0, z: -15.0, floor: 1, type: "department", building: "Bldg 170" },
         
         // Perfect Unified Lower Spine - Main Trunk (Flawless Horizontal Z=70 track)
         "h-low-140": { id: "h-low-140", label: "Ortho Junction", x: -140.0, y: 0, z: 70.0, floor: 1, type: "hallway", building: "Bldg 170" },
