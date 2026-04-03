@@ -201,16 +201,15 @@ const MAP_DATA = {
         "h-west-50": { id: "h-west-50", label: "Cashier Junction", x: -85.0, y: 0, z: 50.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-west-20": { id: "h-west-20", label: "Upper West Spine JCT", x: -85.0, y: 0, z: 20.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
-        // East Vertical Axis (X = 60) - Registration Bypass Path
-        "h-east-55": { id: "h-east-55", label: "Bypass Lift", x: 60.0, y: 0, z: 64.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        // Central Vestibule Vertical Axis (X = 20)
+        "h-up-pos20": { id: "h-up-pos20", label: "Central Vestibule", x: 20.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-east-40": { id: "h-east-40", label: "Spinal Cord Junction", x: 60.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
-        // Far East Vertical Axis (X = 120) - Path to Canteen
-        "h-fareast-55": { id: "h-fareast-55", label: "Registration Bypass Roof", x: 120.0, y: 0, z: 64.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-fareast-50": { id: "h-fareast-50", label: "Elevators Passage", x: 120.0, y: 0, z: 50.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-fareast-30": { id: "h-fareast-30", label: "Patriot Junction", x: 120.0, y: 0, z: 30.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-fareast-10": { id: "h-fareast-10", label: "Canteen Corridor Lower", x: 120.0, y: 0, z: 10.0, floor: 1, type: "hallway", building: "Bldg 170" },
-        "h-fareast-neg15": { id: "h-fareast-neg15", label: "Canteen Vestibule Turn", x: 120.0, y: 0, z: -15.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        // Far East Vertical Axis (X = 115) - Path to Canteen
+        "h-fareast-40": { id: "h-fareast-40", label: "Upper Bypass Junction", x: 115.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-fareast-30": { id: "h-fareast-30", label: "Patriot Junction", x: 115.0, y: 0, z: 30.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-fareast-10": { id: "h-fareast-10", label: "Canteen Corridor Lower", x: 115.0, y: 0, z: 10.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-fareast-neg15": { id: "h-fareast-neg15", label: "Canteen Vestibule Turn", x: 115.0, y: 0, z: -15.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // Upper West Spine (Z = 20)
         "h-up-neg90": { id: "h-up-neg90", label: "Laboratory Junction", x: -90.0, y: 0, z: 20.0, floor: 1, type: "hallway", building: "Bldg 170" },
@@ -250,15 +249,12 @@ const MAP_DATA = {
         { from: "h-up-neg60", to: "h-up-neg10", type: "walkway" },
         { from: "h-west-20", to: "h-up-neg10", type: "walkway" }, // Ensure continuity
 
-        // East Vertical Axis (X = 60) - Registration Bypass Path
-        { from: "h-low-pos60", to: "h-east-55", type: "walkway" },
-        { from: "h-east-55", to: "h-east-40", type: "walkway" },
-        { from: "h-east-55", to: "h-fareast-55", type: "walkway" }, // OVER the Registration block!
+        // Central Vestibule Bypass Path (Flawless White Space Tracking)
+        { from: "h-low-pos20", to: "h-up-pos20", type: "walkway" }, // Vertically safely into Central Vestibule
+        { from: "h-up-pos20", to: "h-fareast-40", type: "walkway" }, // Horizontally safely clearing ATM and Registration
 
-        // Far East Vertical Axis (X = 120) - Path to Canteen
-        { from: "h-fareast-55", to: "h-low-pos120", type: "walkway" }, // Down safely to Chemotherapy
-        { from: "h-fareast-55", to: "h-fareast-50", type: "walkway" }, // Up safely to Canteen
-        { from: "h-fareast-50", to: "h-fareast-30", type: "walkway" },
+        // Far East Vertical Axis (X = 115) - Path to Canteen
+        { from: "h-fareast-40", to: "h-fareast-30", type: "walkway" },
         { from: "h-fareast-30", to: "h-fareast-10", type: "walkway" },
 
         // --- Explicit Department Bindings ---
