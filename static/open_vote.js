@@ -1,109 +1,6 @@
 // Open Vote Data & Simulation
 
-const polls = [
-    {
-        id: 1,
-        category: "Referendum",
-        title: "Global Legalization of Adult-Use Cannabis",
-        description: "Should cannabis be removed from international drug control treaties and legalized for adult recreational use globally?",
-        options: [
-            { id: "opt1", label: "Approve (Full Legalization)", votes: 89432, color: "#3fb950" },
-            { id: "opt2", label: "Approve (Medical Only)", votes: 34105, color: "#58a6ff" },
-            { id: "opt3", label: "Reject (Maintain Prohibition)", votes: 19056, color: "#f85149" }
-        ],
-        region: "Global",
-        active: true
-    },
-    {
-        id: 2,
-        category: "Approval Rating",
-        title: "United Nations Secretariat Global Confidence",
-        description: "Do you have confidence in the current direction and effectiveness of the UN Secretariat?",
-        options: [
-            { id: "opt1", label: "Favorable", votes: 45210, color: "#3fb950" },
-            { id: "opt2", label: "Neutral / Undecided", votes: 62890, color: "#8b949e" },
-            { id: "opt3", label: "Unfavorable", votes: 115802, color: "#f85149" }
-        ],
-        region: "Global",
-        active: false
-    },
-    {
-        id: 3,
-        category: "Political Initiative",
-        title: "Universal Basic Income (UBI) Mandate",
-        description: "Should a global taxation framework be established to fund a localized Universal Basic Income baseline?",
-        options: [
-            { id: "opt1", label: "Strongly Support", votes: 105423, color: "#3fb950" },
-            { id: "opt2", label: "Support with Means Testing", votes: 45612, color: "#58a6ff" },
-            { id: "opt3", label: "Oppose", votes: 98450, color: "#f85149" }
-        ],
-        region: "Global",
-        active: true
-    },
-    {
-        id: 4,
-        category: "Presidential Election",
-        title: "2024 United States Presidential Election",
-        description: "Official results for the 2024 Presidential Election of the United States of America.",
-        options: [
-            { id: "opt1", label: "Republican Nominee (Trump)", votes: 77302580, color: "#f85149" },
-            { id: "opt2", label: "Democratic Nominee (Harris)", votes: 75017613, color: "#58a6ff" }
-        ],
-        region: "US",
-        active: false
-    },
-    {
-        id: 5,
-        category: "National Senate",
-        title: "2024 US Senate - Pennsylvania",
-        description: "General election to represent Pennsylvania in the United States Senate.",
-        options: [
-            { id: "opt1", label: "Dave McCormick (R)", votes: 3399295, color: "#f85149" },
-            { id: "opt2", label: "Bob Casey Jr. (D)", votes: 3384180, color: "#58a6ff" }
-        ],
-        region: "US",
-        active: false
-    },
-    {
-        id: 6,
-        category: "Congressional District",
-        title: "2024 US House - NY 14th District",
-        description: "General election for the 14th Congressional District of New York.",
-        options: [
-            { id: "opt1", label: "Alexandria Ocasio-Cortez (D)", votes: 123269, color: "#58a6ff" },
-            { id: "opt2", label: "Tina Forte (R)", votes: 55580, color: "#f85149" }
-        ],
-        region: "US",
-        active: false
-    },
-    {
-        id: 7,
-        category: "General Election",
-        title: "UK General Election 2024",
-        description: "Vote for the next Prime Minister and governing party of the United Kingdom.",
-        options: [
-            { id: "opt1", label: "Labour Party", votes: 9731363, color: "#e4003b" },
-            { id: "opt2", label: "Conservative Party", votes: 6814469, color: "#0087dc" },
-            { id: "opt3", label: "Reform UK", votes: 4117610, color: "#12b6cf" },
-            { id: "opt4", label: "Liberal Democrats", votes: 3519143, color: "#faa61a" }
-        ],
-        region: "UK",
-        active: false
-    },
-    {
-        id: 8,
-        category: "Legislative Election",
-        title: "French Legislative Election 2024 (Round 2)",
-        description: "Snap legislative election to determine the composition of the French National Assembly.",
-        options: [
-            { id: "opt1", label: "New Popular Front (NFP)", votes: 7005500, color: "#e4003b" },
-            { id: "opt2", label: "Ensemble (ENS)", votes: 6314000, color: "#faa61a" },
-            { id: "opt3", label: "National Rally (RN)", votes: 8740000, color: "#00008b" }
-        ],
-        region: "France",
-        active: false
-    }
-];
+let polls = [];
 
 let currentPollId = 1;
 let selectedOptionId = null;
@@ -122,9 +19,19 @@ function setDemographicFilter(filter, el) {
 }
 
 // Initialize View
-function init() {
+async function init() {
+    try {
+        const response = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/polls');
+        if (response.ok) {
+            polls = await response.json();
+            if (polls.length > 0) currentPollId = polls[0].id;
+        }
+    } catch (e) {
+        console.error("Failed to fetch polls", e);
+    }
+    
     renderPollList();
-    loadPollData(currentPollId);
+    if(polls.length > 0) loadPollData(currentPollId);
     startLiveSimulation();
 }
 
@@ -343,121 +250,226 @@ function updateVerifiedUI() {
     document.getElementById('right-panel-verified').classList.remove('hidden');
 }
 
+let currentAuthMethod = '';
+
 function selectIdMethod(method) {
-    // Get the country select and VPN toggle
     const countrySelect = document.getElementById('user-country-select');
     const vpnToggle = document.getElementById('vpn-simulator-toggle');
     const warningEl = document.getElementById('ip-mismatch-warning');
     
     if (!countrySelect.value) {
         alert("Please select your legal jurisdiction before choosing a biometric vector.");
-        return; // Halt flow
+        return;
     }
     
-    // Hide warning initially
-    if (warningEl) {
-        warningEl.classList.add('hidden');
-    }
-
+    if (warningEl) warningEl.classList.add('hidden');
     document.getElementById('id-method-modal').classList.remove('active');
     
+    // Reset Modal Steps
+    document.getElementById('biometric-step-1').style.display = 'block';
+    document.getElementById('biometric-step-2').style.display = 'none';
+    
+    currentAuthMethod = method;
     const titleEl = document.getElementById('biometric-title');
     const descEl = document.getElementById('biometric-desc');
-    const iconEl = document.getElementById('scanner-icon');
+    const captureCont = document.getElementById('capture-container');
+    const simControls = document.getElementById('simulation-controls');
     
-    iconEl.className = ''; // Reset classes
-    
+    // Generate dynamic capture UI based on vector
     if (method === 'face') {
         titleEl.textContent = 'Facial Authentication';
-        descEl.textContent = 'Please position your face within the camera frame. AI will analyze your facial geometry to confirm your uniqueness and verify you haven\'t already registered.';
-        iconEl.classList.add('fa-solid', 'fa-face-viewfinder', 'fingerprint-icon');
+        descEl.textContent = 'Please position your face within the frame. AI will map your 3D geometry.';
+        captureCont.innerHTML = `
+            <div style="width: 200px; height: 200px; margin: 0 auto; border: 2px dashed var(--accent-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0,210,255,0.05); position: relative; overflow: hidden;">
+                <i class="fa-solid fa-user" style="font-size: 5rem; color: rgba(255,255,255,0.2);"></i>
+                <div id="face-scanner-line" style="position: absolute; width: 100%; height: 100%; background: linear-gradient(180deg, transparent, rgba(0,210,255,0.4), transparent); top: -100%; display: none;"></div>
+            </div>
+        `;
+        simControls.style.display = 'block';
+        document.getElementById('sim-capture-btn').innerHTML = '<i class="fa-solid fa-camera"></i> Scan Face Geometry';
     } else if (method === 'fingerprint') {
         titleEl.textContent = 'Biometric Scan';
-        descEl.textContent = 'Please place your finger on the sensor. AI will analyze minutiae points to confirm your identity and guarantee this is your first vote.';
-        iconEl.classList.add('fa-solid', 'fa-fingerprint', 'fingerprint-icon');
+        descEl.textContent = 'Please place your finger on the sensor.';
+        captureCont.innerHTML = `
+            <div class="scanner-container" id="scanner">
+                <i class="fa-solid fa-fingerprint fingerprint-icon" id="scanner-icon">
+                    <div class="scan-line"></div>
+                </i>
+            </div>
+        `;
+        simControls.style.display = 'block';
+        document.getElementById('sim-capture-btn').innerHTML = '<i class="fa-solid fa-fingerprint"></i> Simulate Finger Match';
     } else if (method === 'id_card') {
         titleEl.textContent = 'Document Verification';
-        descEl.textContent = 'Please hold your State ID up to the camera. AI optical character recognition will extract data and cross-reference biometric markers to ensure you have not already voted.';
-        iconEl.classList.add('fa-solid', 'fa-id-card', 'fingerprint-icon');
+        descEl.textContent = 'Please upload or capture the Front and Back of your State ID.';
+        captureCont.innerHTML = `
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <div class="id-capture-box" style="border: 1px dashed var(--text-secondary); background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 8px;">
+                    <i class="fa-solid fa-id-card-clip" style="font-size: 2rem; margin-bottom: 0.5rem; color: rgba(255,255,255,0.5);"></i><br><span style="font-size: 0.8rem;">FRONT</span>
+                </div>
+                <div class="id-capture-box" style="border: 1px dashed var(--text-secondary); background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 8px;">
+                    <i class="fa-solid fa-barcode" style="font-size: 2rem; margin-bottom: 0.5rem; color: rgba(255,255,255,0.5);"></i><br><span style="font-size: 0.8rem;">BACK</span>
+                </div>
+            </div>
+        `;
+        simControls.style.display = 'block';
+        document.getElementById('sim-capture-btn').innerHTML = '<i class="fa-solid fa-file-invoice"></i> Simulate OCR Extraction';
     }
 
-    iconEl.innerHTML = '<div class="scan-line"></div>';
+    document.getElementById('scan-status').textContent = 'AWAITING INPUT...';
+    document.getElementById('scan-status').style.color = '';
+    
+    // Wire up simulation button (replace clone to ensure single listener)
+    const simBtn = document.getElementById('sim-capture-btn');
+    const newSimBtn = simBtn.cloneNode(true);
+    simBtn.parentNode.replaceChild(newSimBtn, simBtn);
+    
+    newSimBtn.style.display = 'inline-block'; // reset visibility
 
-    document.getElementById('biometric-modal').classList.add('active');
-    
-    const scanner = document.getElementById('scanner');
-    const status = document.getElementById('scan-status');
-    const poll = polls.find(p => p.id === currentPollId);
-    
-    setTimeout(() => {
-        scanner.classList.add('scanning');
-        status.textContent = 'AI PROCESSING & ENUMERATING MATCHES...';
-        status.style.color = 'var(--accent-glow)';
+    newSimBtn.addEventListener('click', () => {
+        newSimBtn.style.display = 'none'; // hide during processing
+        document.getElementById('scan-status').textContent = 'AI PROCESSING VERIFICATION...';
+        document.getElementById('scan-status').style.color = 'var(--accent-glow)';
         
-        // VPN Simulation Logic Validation
+        // Face animation
+        const fsl = document.getElementById('face-scanner-line');
+        if (fsl) {
+            fsl.style.display = 'block';
+            fsl.animate([{top: '-100%'}, {top: '100%'}], {duration: 1200, iterations: Infinity, direction: 'alternate'});
+        }
+        
+        // Fingerprint animation
+        const scannerEl = document.getElementById('scanner');
+        if (scannerEl) scannerEl.classList.add('scanning');
+
+        // VPN validation
         if (vpnToggle.checked) {
             setTimeout(() => {
-                scanner.className = 'scanner-container';
-                scanner.classList.remove('scanning'); // reset animation
+                if (scannerEl) scannerEl.classList.remove('scanning');
+                if (fsl) fsl.style.display = 'none';
                 
-                status.textContent = 'VALIDATION FAILED';
-                status.style.color = 'var(--accent-red)';
+                document.getElementById('scan-status').textContent = 'VALIDATION FAILED';
+                document.getElementById('scan-status').style.color = 'var(--accent-red)';
                 
-                if (warningEl) {
-                    warningEl.classList.remove('hidden');
-                }
+                const w = document.getElementById('ip-mismatch-warning');
+                if (w) w.classList.remove('hidden');
                 
-                // Allow them to retry easily by not closing the modal completely, 
-                // just show error. But prompt dictates "will not be able to vote until corrected (i.e. turn off VPN)".
                 setTimeout(() => {
                     document.getElementById('biometric-modal').classList.remove('active');
-                    startVerificationProcess(); // Push them back to the start menu so they can fix it
-                    // The warning state will persist in the method-modal HTML now
-                    const methodModalWarning = document.getElementById('ip-mismatch-warning-method');
-                    if(methodModalWarning) methodModalWarning.classList.remove('hidden');
+                    startVerificationProcess(); 
+                    const mw = document.getElementById('ip-mismatch-warning-method');
+                    if(mw) mw.classList.remove('hidden');
                 }, 3000);
             }, 2500);
-            return; // Break successful timeout tree
+            return;
         }
 
+        // Move to PII form
         setTimeout(() => {
-            scanner.className = 'scanner-container scan-success';
-            status.textContent = 'UNIQUE IDENTITY VERIFIED. ONE-TIME TOKEN GENERATED.';
-            status.style.color = 'var(--accent-green)';
+            if (scannerEl) scannerEl.className = 'scanner-container scan-success';
+            if (fsl) fsl.style.background = 'linear-gradient(180deg, transparent, rgba(63, 185, 80, 0.4), transparent)';
+            
+            document.getElementById('scan-status').textContent = 'EXTRACTED. PROCEEDING TO REGISTRY.';
+            document.getElementById('scan-status').style.color = 'var(--accent-green)';
             
             setTimeout(() => {
-                isVerified = true;
-                verifiedCountry = countrySelect.value;
-                updateVerifiedUI();
+                document.getElementById('biometric-step-1').style.display = 'none';
+                document.getElementById('biometric-step-2').style.display = 'block';
                 
-                // Update Dashboard Region text and re-render pool list to apply jurisdiction filter
-                const dashLabel = document.getElementById('dashboard-region-label');
-                if (dashLabel && verifiedCountry) {
-                    const selectEl = document.getElementById('user-country-select');
-                    const countryText = selectEl.options[selectEl.selectedIndex].text;
-                    dashLabel.innerHTML = `| ${countryText}`;
-                }
-                
-                // Refresh list
-                renderPollList();
-                
-                // Prioritize loading their local jurisdiction map instead of global default
-                const jurisdictionPoll = polls.find(p => p.region === verifiedCountry);
-                if (jurisdictionPoll) {
-                    currentPollId = jurisdictionPoll.id;
-                    renderPollList(); // re-render to set active class
-                    loadPollData(currentPollId);
+                // Pre-fill logic depending on vector
+                if (currentAuthMethod === 'id_card') {
+                    document.getElementById('pii-name').value = "John Doe";
+                    document.getElementById('pii-address').value = "123 Springfield Ave, USA";
                 } else {
-                    const activePolls = document.querySelectorAll('.poll-card');
-                    if (activePolls.length > 0) {
-                        activePolls[0].click();
-                    }
+                    document.getElementById('pii-name').value = "";
+                    document.getElementById('pii-address').value = "";
                 }
-                
-                closeModals();
-            }, 2500);
-        }, 3000);
-    }, 1000);
+                document.getElementById('pii-ssn').value = "";
+                document.getElementById('pii-error-msg').style.display = 'none';
+            }, 1500);
+        }, 2500);
+    });
+
+    document.getElementById('biometric-modal').classList.add('active');
+}
+
+async function submitRegistration(event) {
+    event.preventDefault();
+    
+    const submitBtn = document.getElementById('pii-submit-btn');
+    const errorMsg = document.getElementById('pii-error-msg');
+    
+    const name = document.getElementById('pii-name').value;
+    const address = document.getElementById('pii-address').value;
+    const ssn = document.getElementById('pii-ssn').value;
+    
+    // Simulate biometric hash matching the mock extraction
+    // If state ID is used, biometric hash is simulated via the photo.
+    const biometricHash = currentAuthMethod === 'id_card' ? "DOC-" + Math.random().toString(36).substr(2, 9).toUpperCase() : "BIO-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+    submitBtn.disabled = true;
+    errorMsg.style.display = 'none';
+    
+    try {
+        const response = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                method: currentAuthMethod,
+                name: name,
+                address: address,
+                ssn: ssn,
+                biometric_hash: biometricHash
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            errorMsg.innerText = data.detail || "Verification failed.";
+            errorMsg.style.display = 'block';
+            submitBtn.innerHTML = '<i class="fa-solid fa-server"></i> Submit to Registrar';
+            submitBtn.disabled = false;
+            return;
+        }
+        
+        // Success!
+        isVerified = true;
+        verifiedCountry = document.getElementById('user-country-select').value;
+        updateVerifiedUI();
+        
+        // Update Dashboard Region text
+        const dashLabel = document.getElementById('dashboard-region-label');
+        if (dashLabel && verifiedCountry) {
+            const selectEl = document.getElementById('user-country-select');
+            const countryText = selectEl.options[selectEl.selectedIndex].text;
+            dashLabel.innerHTML = `| ${countryText}`;
+        }
+        
+        renderPollList();
+        
+        const jurisdictionPoll = polls.find(p => p.region === verifiedCountry);
+        if (jurisdictionPoll) {
+            currentPollId = jurisdictionPoll.id;
+            renderPollList();
+            loadPollData(currentPollId);
+        } else {
+            const activePolls = document.querySelectorAll('.poll-card');
+            if (activePolls.length > 0) activePolls[0].click();
+        }
+        
+        closeModals();
+        
+    } catch (err) {
+        console.error(err);
+        errorMsg.innerText = "Network Error. Unable to reach Global Registrar.";
+        errorMsg.style.display = 'block';
+        submitBtn.innerHTML = '<i class="fa-solid fa-server"></i> Submit to Registrar';
+        submitBtn.disabled = false;
+    }
 }
 
 function openBallotModal(poll) {
@@ -499,7 +511,7 @@ function selectOption(id) {
     submitBtn.style.opacity = '1';
 }
 
-function submitVote() {
+async function submitVote() {
     if (!selectedOptionId) return;
     
     const submitBtn = document.getElementById('submit-vote-btn');
@@ -509,32 +521,125 @@ function submitVote() {
     submitBtn.style.opacity = '0.5';
     encryptStatus.classList.remove('hidden');
     
-    // Simulate blockchain submission
-    setTimeout(() => {
-        encryptStatus.innerHTML = '<i class="fa-solid fa-check"></i> TX BROADCAST TO NETWORK';
+    // Scramble Animation Setup
+    const poll = polls.find(p => p.id === currentPollId);
+    const opt = poll.options.find(o => o.id === selectedOptionId);
+    
+    const payloadBytes = JSON.stringify({
+        vector: isVerified ? "BIO-" + Math.random().toString(36).substr(2, 6).toUpperCase() : "ANON",
+        poll_id: currentPollId,
+        choice: opt.label
+    });
+    
+    encryptStatus.innerHTML = `<div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:5px;">ENCRYPTING PAYLOAD</div><div id="scramble-text" style="font-family:'Share Tech Mono'; color:var(--accent-glow); font-size: 0.8rem; word-break:break-all;">${payloadBytes}</div>`;
+    
+    const scrambleEl = document.getElementById('scramble-text');
+    let scrambleInterval = setInterval(() => {
+        let sc = "0x";
+        for(let i=0; i<64; i++) {
+            sc += Math.floor(Math.random()*16).toString(16);
+        }
+        scrambleEl.innerHTML = sc;
+    }, 50);
+
+    try {
+        await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/vote', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({poll_id: currentPollId, option_id: selectedOptionId})
+        });
         
-        // Add vote to local data
-        const poll = polls.find(p => p.id === currentPollId);
-        const opt = poll.options.find(o => o.id === selectedOptionId);
-        opt.votes += 1;
-        poll.hasVoted = true; // Mark as voted
+        // Final receipt hash
+        const receiptHash = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
         
         setTimeout(() => {
-            closeModals();
-            loadPollData(currentPollId); // refresh ui
+            clearInterval(scrambleInterval);
+            scrambleEl.innerHTML = receiptHash;
+            scrambleEl.style.color = "var(--accent-green)";
             
-            // Swap right panel UI to receipt
-            document.getElementById('right-panel-verified').classList.add('hidden');
-            document.getElementById('right-panel-receipt').classList.remove('hidden');
+            opt.votes += 1;
+            poll.hasVoted = true; 
             
-            // Generate a fake receipt hash
-            const receiptHash = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-            document.getElementById('receipt-hash-display').innerText = receiptHash;
-            // Store globally for the audit modal
-            window.lastVoteReceiptHash = receiptHash;
+            setTimeout(() => {
+                closeModals();
+                loadPollData(currentPollId); 
+                
+                document.getElementById('right-panel-verified').classList.add('hidden');
+                document.getElementById('right-panel-unverified').classList.add('hidden');
+                document.getElementById('right-panel-receipt').classList.remove('hidden');
+                
+                document.getElementById('receipt-hash-display').innerText = receiptHash;
+                window.lastVoteReceiptHash = receiptHash;
+                
+            }, 1000);
+        }, 1500); // Give 1.5 seconds of scramble
+
+    } catch (e) {
+        clearInterval(scrambleInterval);
+        encryptStatus.innerHTML = '<span style="color:var(--accent-red)">NETWORK ERROR</span>';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+    }
+}
+
+async function adminSavePoll() {
+    const btn = document.getElementById('admin-save-btn');
+    const msg = document.getElementById('admin-msg');
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Deploying...';
+    btn.disabled = true;
+    
+    const category = document.getElementById('admin-poll-category').value;
+    const title = document.getElementById('admin-poll-title').value;
+    const desc = document.getElementById('admin-poll-desc').value;
+    const region = document.getElementById('admin-poll-region').value;
+    const optionsRaw = document.getElementById('admin-poll-options').value;
+    
+    const colors = ["#58a6ff", "#3fb950", "#f85149", "#faa61a", "#12b6cf", "#0087dc", "#e4003b", "#00008b"];
+    const options = optionsRaw.split(",").map((opt, idx) => {
+        return {
+            label: opt.trim(),
+            color: colors[idx % colors.length]
+        };
+    }).filter(opt => opt.label.length > 0);
+    
+    try {
+        const resp = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/poll', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                category, title, description: desc, region, options
+            })
+        });
+        
+        if (resp.ok) {
+            msg.innerHTML = '<i class="fa-solid fa-check"></i> Poll Deployed to Network';
+            msg.style.display = 'block';
+            msg.style.color = 'var(--accent-green)';
             
-        }, 1000);
-    }, 2000);
+            // Re-fetch and re-render
+            const pResp = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/polls');
+            if (pResp.ok) {
+                polls = await pResp.json();
+                renderPollList();
+            }
+            
+            setTimeout(() => {
+                closeModals();
+                msg.style.display = 'none';
+                btn.innerHTML = 'Deploy to Network';
+                btn.disabled = false;
+            }, 1000);
+            return;
+        }
+    } catch(e) {
+        console.error(e);
+    }
+    
+    msg.innerHTML = '<i class="fa-solid fa-xmark"></i> Deployment Failed';
+    msg.style.display = 'block';
+    msg.style.color = 'var(--accent-red)';
+    btn.innerHTML = 'Deploy to Network';
+    btn.disabled = false;
 }
 
 // --- Audit Ledger Terminal Logic ---
@@ -584,3 +689,290 @@ function openAuditLedger() {
 
 // Start
 document.addEventListener('DOMContentLoaded', init);
+
+
+// ==========================================
+// DEMO MODE AUTOPILOT LOGIC
+// ==========================================
+
+let isDemoModeActive = false;
+let virtualCursor = null;
+
+function initVirtualCursor() {
+    if (virtualCursor) return;
+    virtualCursor = document.createElement('div');
+    virtualCursor.id = 'virtual-cursor';
+    document.body.appendChild(virtualCursor);
+}
+
+function removeVirtualCursor() {
+    if (virtualCursor) {
+        virtualCursor.remove();
+        virtualCursor = null;
+    }
+}
+
+async function moveVirtualMouse(targetX, targetY, duration = 1000, click = false) {
+    if (!virtualCursor || !isDemoModeActive) return;
+    virtualCursor.style.display = 'block';
+    return new Promise(resolve => {
+        const startX = parseFloat(virtualCursor.style.left) || window.innerWidth / 2;
+        const startY = parseFloat(virtualCursor.style.top) || window.innerHeight / 2;
+        const startTime = performance.now();
+        function animate(now) {
+            if (!isDemoModeActive) {
+                virtualCursor.style.display = 'none';
+                return resolve();
+            }
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            const curX = startX + (targetX - startX) * ease;
+            const curY = startY + (targetY - startY) * ease;
+            virtualCursor.style.left = `${curX}px`;
+            virtualCursor.style.top = `${curY}px`;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                if (click) {
+                    virtualCursor.classList.add('clicking');
+                    setTimeout(() => {
+                        virtualCursor.classList.remove('clicking');
+                        resolve();
+                    }, 200);
+                } else {
+                    resolve();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    });
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+const demoVoice = window.speechSynthesis;
+let currentDemoUtterance = null;
+let resolveCurrentSpeech = null;
+let isIntentionalCancel = false;
+
+function speakDemoText(text) {
+    if (!isDemoModeActive || !demoVoice) return Promise.resolve();
+    isIntentionalCancel = true;
+    demoVoice.cancel();
+    isIntentionalCancel = false;
+    
+    return new Promise(resolve => {
+        resolveCurrentSpeech = resolve;
+        currentDemoUtterance = new SpeechSynthesisUtterance(text);
+        
+        const voices = demoVoice.getVoices();
+        let preferredVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
+        if (!preferredVoice) {
+            preferredVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Female')));
+        }
+        if (preferredVoice) currentDemoUtterance.voice = preferredVoice;
+        
+        currentDemoUtterance.rate = 1.15; // Energetic pacing
+        const volSliderEl = document.getElementById('demo-volume-slider');
+        if (volSliderEl) currentDemoUtterance.volume = parseFloat(volSliderEl.value);
+        
+        const fallbackTimer = setTimeout(() => {
+            if (resolveCurrentSpeech) { resolveCurrentSpeech(); resolveCurrentSpeech = null; }
+        }, text.length * 100 + 2000);
+        
+        currentDemoUtterance.onend = () => {
+            if (!isIntentionalCancel && resolveCurrentSpeech) {
+                clearTimeout(fallbackTimer); resolveCurrentSpeech(); resolveCurrentSpeech = null;
+            }
+        };
+        demoVoice.speak(currentDemoUtterance);
+    });
+}
+
+const demoBtn = document.getElementById('demo-mode-btn');
+if (demoBtn) {
+    demoBtn.addEventListener('click', () => {
+        isDemoModeActive = !isDemoModeActive;
+        if (isDemoModeActive) {
+            demoBtn.style.background = 'rgba(255, 71, 87, 0.1)';
+            demoBtn.style.color = '#ff4757';
+            demoBtn.style.borderColor = '#ff4757';
+            demoBtn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO ON';
+            document.getElementById('demo-volume-slider').style.display = 'inline-block';
+            runDemoCycle();
+        } else {
+            demoBtn.style.background = 'rgba(0, 210, 255, 0.1)';
+            demoBtn.style.color = '#00d2ff';
+            demoBtn.style.borderColor = '#00d2ff';
+            demoBtn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+            document.getElementById('demo-volume-slider').style.display = 'none';
+            if (demoVoice) demoVoice.cancel();
+            removeVirtualCursor();
+        }
+    });
+}
+
+// Volume slider logic
+document.getElementById('demo-volume-slider').addEventListener('input', (e) => {
+    if (currentDemoUtterance) {
+        currentDemoUtterance.volume = parseFloat(e.target.value);
+        if(e.target.value === "0" && demoVoice.speaking) demoVoice.cancel();
+    }
+});
+
+// Demo interupt handler
+document.addEventListener('mousedown', (e) => {
+    if (isDemoModeActive && e.target.id !== 'demo-mode-btn' && !e.target.closest('#demo-mode-btn') && e.target.id !== 'demo-volume-slider') {
+        if (demoVoice) demoVoice.cancel();
+        if (demoBtn) demoBtn.click();
+    }
+}, true);
+
+// Get Element Center Coordinate
+function getCenterCoords(el) {
+    if(!el) return {x: window.innerWidth/2, y: window.innerHeight/2};
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+}
+
+async function runDemoCycle() {
+    initVirtualCursor();
+    await delay(500);
+    if (!isDemoModeActive) return;
+
+    // 1. Intro
+    await speakDemoText("Welcome to Open Vote by Sherpa Solutions. This interactive dashboard aggregates real-time global consensus intelligence while utilizing cryptographic auditing formulas to enforce democratic integrity.");
+    await delay(500); if (!isDemoModeActive) return;
+    
+    // 2. Pulse Maps
+    const mapBounds = getCenterCoords(document.getElementById('map-container'));
+    await moveVirtualMouse(mapBounds.x + 100, mapBounds.y, 1000);
+    await speakDemoText("The map dynamically listens for live telemetry. As global votes trickle in, the geospatial engine renders live radar pulses mapping their absolute origin points.");
+    await delay(1500); if (!isDemoModeActive) return;
+    
+    // 3. Demographics
+    const demoBtnGenzEl = Array.from(document.querySelectorAll('.filter-pill')).find(el => el.innerText.includes('Gen Z'));
+    if(demoBtnGenzEl) {
+        const c = getCenterCoords(demoBtnGenzEl);
+        await moveVirtualMouse(c.x, c.y, 1000, true);
+        demoBtnGenzEl.click();
+        await speakDemoText("Metrics can be targeted dynamically. Selecting the Gen Z matrix instantly recalculates the entire planetary model using predictive density weighting... notice how the terrain colors organically shift to represent the specific demographic slice.");
+        await delay(2000); if (!isDemoModeActive) return;
+    }
+
+    // 4. US Poll & Slot Machines
+    const usPollEl = Array.from(document.querySelectorAll('.poll-card')).find(el => el.innerText.includes('United States Presidential'));
+    if(usPollEl) {
+        const c = getCenterCoords(usPollEl);
+        await moveVirtualMouse(c.x, c.y, 1000, true);
+        usPollEl.click();
+        await speakDemoText("Watch the velocity counters at the top. The dashboard integrates ease-out algorithmic scrolling to smoothly emulate financial slot-machines, while the geospatial engine automatically down-scales from the 3D globe visualization directly to the targeted local American jurisdiction.");
+        await delay(2000); if (!isDemoModeActive) return;
+    }
+
+    // 5. Verification
+    const authBtn = document.getElementById('verify-btn');
+    if(authBtn && !isVerified) {
+        const c = getCenterCoords(authBtn);
+        await moveVirtualMouse(c.x, c.y, 1500, true);
+        authBtn.click();
+        await speakDemoText("Let's look at blockchain security. In order to cast a vote, you first authenticate your identity utilizing advanced multi-modal biometrics.");
+        await delay(1000); if (!isDemoModeActive) return;
+        
+        const countrySelect = document.getElementById('user-country-select');
+        if(countrySelect) {
+            const cs = getCenterCoords(countrySelect);
+            await moveVirtualMouse(cs.x, cs.y, 800, true);
+            countrySelect.value = 'Global';
+        }
+
+        const faceBtn = document.querySelector('.method-card[onclick="selectIdMethod(\'face\')"]');
+        if(faceBtn) {
+            const fc = getCenterCoords(faceBtn);
+            await moveVirtualMouse(fc.x, fc.y, 800, true);
+            faceBtn.click();
+            await delay(1000); if (!isDemoModeActive) return;
+
+            // Click the 'Scan Face Geometry' simulation button
+            const simBtn = document.getElementById('sim-capture-btn');
+            if (simBtn) {
+                const sc = getCenterCoords(simBtn);
+                await moveVirtualMouse(sc.x, sc.y, 800, true);
+                simBtn.click();
+            }
+            // Wait for 3D AI scan animation to succeed and transition to PII form
+            await delay(3500); if (!isDemoModeActive) return;
+
+            // Helper to simulate keystrokes
+            async function typeText(elId, txt) {
+                const el = document.getElementById(elId);
+                if(!el) return;
+                const ec = getCenterCoords(el);
+                await moveVirtualMouse(ec.x, ec.y, 500, true);
+                for(let i=0; i<txt.length; i++) {
+                    if(!isDemoModeActive) return;
+                    el.value += txt[i];
+                    await delay(50);
+                }
+            }
+
+            await speakDemoText("After capturing your unique volumetric geometry, we merge the vector with your personally identifiable information. The custom verification backend instantly queries the centralized registry to confirm nobody has cast a ballot under this digital footprint.");
+            
+            await typeText('pii-name', "Sherpa Evaluator");
+            await typeText('pii-address', "Global Summit HQ");
+            await typeText('pii-ssn', "000-XXX-0000");
+            
+            await delay(500); if (!isDemoModeActive) return;
+
+            const submitPiBtn = document.getElementById('pii-submit-btn');
+            if(submitPiBtn) {
+                const spc = getCenterCoords(submitPiBtn);
+                await moveVirtualMouse(spc.x, spc.y, 800, true);
+                submitPiBtn.click();
+            }
+
+            // Wait for backend FastAPI response
+            await delay(2500); if (!isDemoModeActive) return;
+        }
+        // 6. Casting Vote
+        const p2PollEl = Array.from(document.querySelectorAll('.poll-card')).find(el => el.innerText.includes('Universal Basic Income'));
+        if(p2PollEl) {
+            const p2C = getCenterCoords(p2PollEl);
+            await moveVirtualMouse(p2C.x, p2C.y, 1000, true);
+            p2PollEl.click();
+            await delay(1000); if (!isDemoModeActive) return;
+            
+            // wait for modal
+            const optEl = document.querySelector('.ballot-option');
+            if(optEl) {
+                const optC = getCenterCoords(optEl);
+                await moveVirtualMouse(optC.x, optC.y, 1000, true);
+                optEl.click();
+                await delay(500);
+                
+                const subBtn = document.getElementById('submit-vote-btn');
+                const subC = getCenterCoords(subBtn);
+                await moveVirtualMouse(subC.x, subC.y, 800, true);
+                subBtn.click();
+                
+                await speakDemoText("Once cast, your entry is injected through a mathematical SHA-256 algorithm. The system permanently associates your selection with a deterministic string hash receipt.");
+                await delay(3500); if (!isDemoModeActive) return;
+                
+                const ledgerBtn = document.getElementById('view-ledger-btn');
+                if(ledgerBtn) {
+                    const lC = getCenterCoords(ledgerBtn);
+                    await moveVirtualMouse(lC.x, lC.y, 1000, true);
+                    ledgerBtn.click();
+                    await speakDemoText("We can seamlessly interface with the public terminal. By comparing your receipt against the network's decentralized block synchronization, we establish uncompromising cryptographic immutability.");
+                }
+            }
+        }
+    }
+    
+    await delay(12000);
+    // End demo gracefully
+    if(isDemoModeActive && demoBtn) {
+        demoBtn.click();
+    }
+}
