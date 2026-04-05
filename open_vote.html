@@ -446,6 +446,27 @@
         </div>
     </div>
 
+    <!-- Thank You Modal -->
+    <div class="modal-overlay" id="thank-you-modal">
+        <div class="modal-content" style="max-width: 500px; text-align: center; border-color: var(--accent-green);">
+            <div class="modal-header" style="border: none; justify-content: flex-end; padding-bottom: 0;">
+                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding-top: 0;">
+                <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: var(--accent-green); margin-bottom: 1rem;"></i>
+                <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Thank You For Voting!</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">Your voice has been successfully recorded and mathematically secured on the Open Vote global registry.</p>
+                <div style="background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.1); padding: 1rem; border-radius: 6px; margin-bottom: 2rem;">
+                    <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Your Cryptographic Receipt</span>
+                    <div id="thank-you-hash-display" style="font-family: 'Share Tech Mono'; color: var(--accent-glow); font-size: 0.85rem; word-break: break-all;">
+                        0x...
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="closeModals()" style="width: 100%; justify-content: center;">Return to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="static/map_engine.js"></script>
     <script src="static/open_vote.js"></script>
