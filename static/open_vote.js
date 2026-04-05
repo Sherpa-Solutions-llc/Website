@@ -9,6 +9,32 @@ let selectedOptionId = null;
 let simulationInterval;
 let isVerified = false;
 let verifiedCountry = null; // Stores verified jurisdiction
+let verifiedState = null;
+let isSimulationMode = false;
+let currentViewType = 'bar'; // 'bar', '3d', '2d'
+
+const stateAbbr = {
+    "Alabama": "al", "Alaska": "ak", "Arizona": "az", "Arkansas": "ar", "California": "ca", "Colorado": "co", "Connecticut": "ct", "Delaware": "de", "Florida": "fl", "Georgia": "ga", "Hawaii": "hi", "Idaho": "id", "Illinois": "il", "Indiana": "in", "Iowa": "ia", "Kansas": "ks", "Kentucky": "ky", "Louisiana": "la", "Maine": "me", "Maryland": "md", "Massachusetts": "ma", "Michigan": "mi", "Minnesota": "mn", "Mississippi": "ms", "Missouri": "mo", "Montana": "mt", "Nebraska": "ne", "Nevada": "nv", "New Hampshire": "nh", "New Jersey": "nj", "New Mexico": "nm", "New York": "ny", "North Carolina": "nc", "North Dakota": "nd", "Ohio": "oh", "Oklahoma": "ok", "Oregon": "or", "Pennsylvania": "pa", "Rhode Island": "ri", "South Carolina": "sc", "South Dakota": "sd", "Tennessee": "tn", "Texas": "tx", "Utah": "ut", "Vermont": "vt", "Virginia": "va", "Washington": "wa", "West Virginia": "wv", "Wisconsin": "wi", "Wyoming": "wy", "District of Columbia": "dc"
+};
+
+function toggleSimulationMode() {
+    isSimulationMode = !isSimulationMode;
+    const btn = document.getElementById('simulate-mode-btn');
+    if (btn) {
+        if (isSimulationMode) {
+            btn.innerHTML = `<i class="fa-solid fa-flask"></i> SIMULATE ON`;
+            btn.style.color = '#ffaa00';
+            btn.style.borderColor = '#ffaa00';
+            btn.style.background = 'rgba(255, 170, 0, 0.1)';
+        } else {
+            btn.innerHTML = `<i class="fa-solid fa-flask"></i> SIMULATE OFF`;
+            btn.style.color = 'var(--text-secondary)';
+            btn.style.borderColor = 'rgba(255,255,255,0.2)';
+            btn.style.background = 'transparent';
+        }
+    }
+}
+
 let currentDemographicFilter = 'all';
 
 function setDemographicFilter(filter, el) {
@@ -35,6 +61,41 @@ async function init() {
     renderPollList();
     if(polls.length > 0) loadPollData(currentPollId);
     startLiveSimulation();
+    
+    // Ensure initial view is correct
+    switchView('bar');
+}
+
+function switchView(type) {
+    currentViewType = type;
+    document.querySelectorAll('.view-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.borderColor = 'rgba(255,255,255,0.2)';
+    });
+    
+    const activeBtn = document.getElementById('btn-view-' + type);
+    if(activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.style.borderColor = 'var(--accent-gold)';
+    }
+    
+    document.getElementById('chart-view').classList.add('hidden');
+    document.getElementById('map-view').classList.add('hidden');
+    document.getElementById('svg-map-view').classList.add('hidden');
+    
+    if (type === 'bar') {
+        document.getElementById('chart-view').classList.remove('hidden');
+    } else if (type === '3d') {
+        document.getElementById('map-view').classList.remove('hidden');
+        if (typeof mapInitialized !== 'undefined' && !mapInitialized) {
+            if (typeof initMap === 'function') initMap();
+        } else if (typeof updateMapForPoll === 'function') {
+            updateMapForPoll();
+        }
+    } else if (type === '2d') {
+        document.getElementById('svg-map-view').classList.remove('hidden');
+        render2DMap();
+    }
 }
 
 function renderPollList() {
@@ -182,12 +243,18 @@ function loadPollData(id) {
         });
     }, 50);
     
-    // Persistently display the Map View across all polls
-    if (typeof isMapView !== 'undefined' && !isMapView) {
-        toggleMapView();
-    } else if (typeof updateMapForPoll === 'function') {
-        updateMapForPoll();
+    // Persistently update geospatial logic if viewed
+    if (currentViewType === '3d') {
+        if (typeof mapInitialized !== 'undefined' && !mapInitialized) {
+            if (typeof initMap === 'function') initMap();
+        } else if (typeof updateMapForPoll === 'function') {
+            updateMapForPoll();
+        }
+    } else if (currentViewType === '2d') {
+        colorize2DMapUS();
     }
+    
+    renderStateBreakdown(poll, weightedOptions);
 }
 
 function startLiveSimulation() {
@@ -197,12 +264,30 @@ function startLiveSimulation() {
         if(activePolls.length === 0) return;
         
         const poll = activePolls[0];
-        // add random votes
-        poll.options.forEach(opt => {
-            if(Math.random() > 0.5) {
-                opt.votes += Math.floor(Math.random() * 5);
-            }
-        });
+        // add random votes only if simulating
+        if (isSimulationMode) {
+            poll.options.forEach(opt => {
+                if(Math.random() > 0.5) {
+                    const tick = Math.floor(Math.random() * 5);
+                    opt.votes += tick;
+                    
+                    // Add to a randomly distributed state bucket
+                    if (opt.state_tallies && opt.state_tallies.length > 0) {
+                        let rand = Math.random();
+                        let chosenState = opt.state_tallies[0].state;
+                        for (const [st, wt] of Object.entries(usStateWeights)) {
+                            rand -= wt;
+                            if (rand <= 0) {
+                                chosenState = st;
+                                break;
+                            }
+                        }
+                        const stateObj = opt.state_tallies.find(s => s.state === chosenState);
+                        if (stateObj) stateObj.votes += tick;
+                    }
+                }
+            });
+        }
         
         // trigger pulse
         if(typeof triggerGlobalPulse === 'function') {
@@ -441,6 +526,7 @@ async function submitRegistration(event) {
         // Success!
         isVerified = true;
         verifiedCountry = document.getElementById('user-country-select').value;
+        verifiedState = document.getElementById('user-state-select').value;
         updateVerifiedUI();
         
         // Update Dashboard Region text
@@ -548,7 +634,7 @@ async function submitVote() {
         await fetch(API_BASE + '/api/open-vote/vote', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({poll_id: currentPollId, option_id: selectedOptionId})
+            body: JSON.stringify({poll_id: currentPollId, option_id: selectedOptionId, state: verifiedState || ""})
         });
         
         // Final receipt hash
@@ -979,4 +1065,243 @@ async function runDemoCycle() {
     if(isDemoModeActive && demoBtn) {
         demoBtn.click();
     }
+}
+
+const usStateWeights = {
+    "California": 0.118, "Texas": 0.088, "Florida": 0.065, "New York": 0.059, "Pennsylvania": 0.039,
+    "Illinois": 0.038, "Ohio": 0.035, "Georgia": 0.032, "North Carolina": 0.031, "Michigan": 0.030,
+    "New Jersey": 0.028, "Virginia": 0.026, "Washington": 0.023, "Arizona": 0.022, "Massachusetts": 0.021,
+    "Tennessee": 0.021, "Indiana": 0.020, "Maryland": 0.018, "Missouri": 0.018, "Wisconsin": 0.018,
+    "Colorado": 0.017, "Minnesota": 0.017, "South Carolina": 0.015, "Alabama": 0.015, "Louisiana": 0.014,
+    "Kentucky": 0.013, "Oregon": 0.013, "Oklahoma": 0.012, "Connecticut": 0.011, "Utah": 0.010,
+    "Iowa": 0.010, "Nevada": 0.009, "Arkansas": 0.009, "Mississippi": 0.009, "Kansas": 0.009,
+    "New Mexico": 0.006, "Nebraska": 0.006, "Idaho": 0.006, "West Virginia": 0.005, "Hawaii": 0.004,
+    "New Hampshire": 0.004, "Maine": 0.004, "Rhode Island": 0.003, "Montana": 0.003, "Delaware": 0.003,
+    "South Dakota": 0.003, "North Dakota": 0.002, "Alaska": 0.002, "District of Columbia": 0.002, 
+    "Vermont": 0.002, "Wyoming": 0.002
+};
+
+function renderStateBreakdown(poll, weightedOptions) {
+    const container = document.getElementById('us-state-breakdown');
+    const scrollList = document.getElementById('state-list-scroll');
+    if (!container || !scrollList) return;
+    
+
+    container.classList.remove('hidden');
+    container.style.display = 'block';
+    
+    let html = '';
+    
+    // Inject Column Headers
+    html += `
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 2px solid rgba(255,255,255,0.2); font-family: 'Inter', sans-serif; margin-bottom: 0.5rem;">
+        <div style="font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); width: 140px; flex-shrink: 0; text-transform: uppercase;">Jurisdiction</div>
+        <div style="display: flex; gap: 1rem; flex: 1; justify-content: flex-end; overflow-x: auto;">
+    `;
+    
+    weightedOptions.forEach(opt => {
+        let cleanLabel = opt.label;
+        const match = cleanLabel.match(/\((.*?)\)/);
+        if (match && cleanLabel.includes('Nominee')) {
+            cleanLabel = match[1]; 
+        } else if (cleanLabel.length > 20) {
+            if(cleanLabel.includes('Republican')) cleanLabel = 'Rep. Nominee';
+            else if(cleanLabel.includes('Democratic')) cleanLabel = 'Dem. Nominee';
+            else if(cleanLabel.includes('Third')) cleanLabel = '3rd Party';
+        } else {
+            // For senate/house string like "Alexandria Ocasio-Cortez (D)"
+            // let's shorten it so columns don't overflow
+            if (cleanLabel.includes('Ocasio-Cortez')) cleanLabel = 'AOC (D)';
+            else if (cleanLabel.includes('McCormick')) cleanLabel = 'McCormick (R)';
+            else if (cleanLabel.includes('Casey')) cleanLabel = 'Casey (D)';
+        }
+        
+        html += `<div style="width: 100px; flex-shrink: 0; text-align: right; font-weight: 600; font-size: 0.8rem; color: ${opt.color}; opacity: 0.9; text-transform: uppercase;">${cleanLabel}</div>`;
+    });
+    
+    html += `</div></div>`;
+    const sortedStates = Object.keys(usStateWeights).sort();
+    for (const state of sortedStates) {
+        const weight = usStateWeights[state];
+        const safeStateId = 'row-' + state.replace(/\s+/g, '-').toLowerCase();
+        let stateHtml = `<div id="${safeStateId}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'Inter', sans-serif; transition: background 0.4s ease;">`;
+        stateHtml += `<div style="font-weight: 500; font-size: 0.95rem; color: var(--text-primary); width: 140px; flex-shrink: 0;">${state}</div>`;
+        
+        let talliesHtml = `<div style="display: flex; gap: 1rem; flex: 1; justify-content: flex-end; overflow-x: auto;">`;
+        
+        weightedOptions.forEach(opt => {
+            let stateVotes = 0;
+            // Unpack true archived state data from database
+            if (opt.state_tallies && opt.state_tallies.length > 0) {
+                const sObj = opt.state_tallies.find(s => s.state === state);
+                if (sObj) stateVotes = sObj.votes;
+            } else {
+                // Fallback simulation
+                const variance = 0.9 + ((state.length * opt.label.length % 20) / 100); 
+                stateVotes = Math.floor((opt.weightedVotes || opt.votes) * weight * variance);
+            }
+            
+            talliesHtml += `
+                <div style="display: flex; flex-direction: column; align-items: flex-end; width: 100px; flex-shrink: 0;">
+                    <span style="font-size: 0.95rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; color: ${opt.color};">${stateVotes.toLocaleString()}</span>
+                </div>
+            `;
+        });
+        
+        talliesHtml += `</div></div>`;
+        html += stateHtml + talliesHtml;
+    }
+    scrollList.innerHTML = html;
+}
+
+// 2D SVG Rendering Engine
+let loadedSVGMaps = {};
+async function render2DMap() {
+    const container = document.getElementById('svg-map-render-target');
+    if (!container) return;
+    
+    const countryEl = document.getElementById('svg-country-select');
+    const country = countryEl ? countryEl.value : 'US';
+    
+    let mapFile = 'us_map.svg';
+    if (country === 'Global') mapFile = 'world_map.svg';
+    else if (country === 'UK') mapFile = 'uk_map.svg';
+    else if (country === 'France') mapFile = 'france_map.svg';
+    
+    if (!loadedSVGMaps[country]) {
+        try {
+            const res = await fetch('static/' + mapFile);
+            if(res.ok) {
+                loadedSVGMaps[country] = await res.text();
+            } else {
+                container.innerHTML = `<div style="color:var(--accent-red)">Error loading map geometry.</div>`;
+                return;
+            }
+        } catch(e) {
+            console.error(e);
+            container.innerHTML = `<div style="color:var(--accent-red)">Error reaching map server.</div>`;
+            return;
+        }
+    }
+    
+    // Switch the SVG content
+    container.innerHTML = loadedSVGMaps[country];
+    const svgEl = container.querySelector('svg');
+    if (svgEl) {
+        svgEl.style.width = '100%';
+        svgEl.style.height = '100%';
+        svgEl.style.maxHeight = '320px';
+        
+        // Add interaction to path elements
+        svgEl.querySelectorAll('path').forEach(path => {
+            // Strip out highcharts logos if any
+            if(path.classList && path.classList.contains('highcharts-credits')) {
+                path.style.display = 'none';
+            } else {
+                path.style.cursor = 'pointer';
+                path.addEventListener('mouseenter', (e) => {
+                    e.target.style.filter = 'brightness(1.5)';
+                });
+                path.addEventListener('mouseleave', (e) => {
+                    e.target.style.filter = 'none';
+                });
+                path.addEventListener('click', (e) => {
+                    let targetStateName = null;
+                    if (country === 'US') {
+                        for (const [sName, abbr] of Object.entries(stateAbbr)) {
+                            if (path.classList.contains(abbr)) {
+                                targetStateName = sName;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (targetStateName) {
+                        const safeStateId = 'row-' + targetStateName.replace(/\s+/g, '-').toLowerCase();
+                        const rowEl = document.getElementById(safeStateId);
+                        if (rowEl) {
+                            rowEl.style.background = 'rgba(255,255,255,0.1)';
+                            setTimeout(() => rowEl.style.background = '', 1500);
+                            rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
+    if (country === 'US') {
+        colorize2DMapUS();
+    } else {
+        colorize2DMapGeneric();
+    }
+}
+
+function colorize2DMapUS() {
+    const container = document.getElementById('svg-map-render-target');
+    if (!container || !container.querySelector('svg')) return;
+    
+    const poll = polls.find(p => p.id === currentPollId);
+    if (!poll) return;
+
+    for (const [stateName, abbr] of Object.entries(stateAbbr)) {
+        const path = container.querySelector(`.${abbr}`);
+        if (!path) continue;
+        
+        let winningColor = '#3a3a4a'; // default dark fill
+        let maxVotes = -1;
+        
+        poll.options.forEach(opt => {
+             if (opt.state_tallies && opt.state_tallies.length > 0) {
+                 const sObj = opt.state_tallies.find(s => s.state === stateName);
+                 if (sObj && sObj.votes > maxVotes) {
+                     maxVotes = sObj.votes;
+                     winningColor = opt.color;
+                 }
+             } else {
+                 if (opt.votes > maxVotes) {
+                     maxVotes = opt.votes;
+                     winningColor = opt.color;
+                 }
+             }
+        });
+        
+        path.style.transition = 'fill 0.5s ease-out';
+        path.style.fill = winningColor;
+    }
+}
+
+function colorize2DMapGeneric() {
+    const container = document.getElementById('svg-map-render-target');
+    if (!container || !container.querySelector('svg')) return;
+    
+    const poll = polls.find(p => p.id === currentPollId);
+    if (!poll || !poll.options || poll.options.length === 0) return;
+
+    const paths = container.querySelectorAll('path:not([display="none"])');
+    const totalOptions = poll.options.length;
+
+    paths.forEach(path => {
+        // Highcharts logo removal hack (backup)
+        if (path.className && typeof path.className === 'string' && path.className.includes('highcharts-credits')) {
+            path.style.display = 'none';
+            return;
+        }
+
+        // Determine a winning color based on a hash of the path's ID or class
+        // so it stays consistent but distributed
+        const pid = path.id || (path.className && path.className.baseVal) || Math.random().toString();
+        
+        let hash = 0;
+        for (let i = 0; i < pid.length; i++) {
+            hash = (hash << 5) - hash + pid.charCodeAt(i);
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        
+        const winnerIndex = Math.abs(hash) % totalOptions;
+        const winningColor = poll.options[winnerIndex].color;
+        
+        path.style.transition = 'fill 0.5s ease-out';
+        path.style.fill = winningColor;
+    });
 }
