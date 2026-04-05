@@ -6,6 +6,11 @@ let usTopology = null;
 let currentZoomState = null;
 let isMapView = false;
 
+// Global Hooks for Live Pulsing
+let mapSvgGroup = null;
+let mapProjection = null;
+let globeTimer = null;
+
 // Shared Color Scales (dynamically updated)
 let dynamicColorScale = null;
 
@@ -45,8 +50,13 @@ async function initMap() {
     const svg = d3.select("#interactive-map");
     const loading = document.getElementById('map-loading');
     
-    // Clear canvas for re-projection
+    // Clear canvas and any active global timers for re-projection
     svg.selectAll("*").remove();
+    if(globeTimer) {
+        globeTimer.stop();
+        globeTimer = null;
+    }
+    
     loading.style.display = 'block';
     
     const width = svg.node().getBoundingClientRect().width || 600;
@@ -76,16 +86,39 @@ async function initMap() {
             .translate([width / 2, height / 2]);
         topoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
     } else {
-        // Global / Fallback (Equirectangular)
-        const scaleFactor = Math.min(width / 6.28, height / 3.14);
-        projection = d3.geoEquirectangular()
+        // Global / Fallback (Orthographic 3D Globe)
+        const scaleFactor = Math.min(width, height) / 2 - 10;
+        projection = d3.geoOrthographic()
             .scale(scaleFactor)
-            .translate([width / 2, height / 2]);
+            .translate([width / 2, height / 2])
+            .clipAngle(90); // hide back of the globe
         topoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+        
+        // Render Ocean Drop shadow background for 3D effect
+        svg.append("circle")
+            .attr("cx", width / 2)
+            .attr("cy", height / 2)
+            .attr("r", scaleFactor)
+            .style("fill", "#040608")
+            .style("stroke", "rgba(88, 166, 255, 0.1)")
+            .style("stroke-width", "2px")
+            .style("filter", "drop-shadow(0 0 20px rgba(88, 166, 255, 0.2))");
+        
+        // Spin the globe continuously
+        let rotation = [0, 0];
+        globeTimer = d3.timer((elapsed) => {
+            rotation[0] = elapsed * 0.01; // Speed of spin
+            projection.rotate(rotation);
+            svg.selectAll("path").attr("d", path);
+        });
     }
 
     const path = d3.geoPath().projection(projection);
     const g = svg.append("g");
+    
+    // Bind globals
+    mapSvgGroup = g;
+    mapProjection = projection;
 
     try {
         const topologyData = await d3.json(topoUrl);
@@ -257,7 +290,18 @@ function getMockCountyData(id, name, poll) {
     const rnd = mathSeed - Math.floor(mathSeed);
     
     // Simulate geographic acreage vs population density leaning
-    const isOptALeaning = rnd > 0.65; // ~35% counties favor A, ~65% B
+    let isOptALeaning = rnd > 0.65; // ~35% counties favor A, ~65% B
+    
+    // Feature 4: Demographic Slice Modifiers shift the map drastically
+    if (typeof currentDemographicFilter !== 'undefined') {
+        if (currentDemographicFilter === 'verified') {
+            isOptALeaning = rnd > 0.55; 
+        } else if (currentDemographicFilter === 'genz') {
+            isOptALeaning = rnd > 0.35; // heavily shifts to option A
+        } else if (currentDemographicFilter === 'boomer') {
+            isOptALeaning = rnd > 0.85; // heavily shifts to option B
+        }
+    }
     
     let baseVotes = Math.floor(200 + (rnd * 48000));
     // High-pop favor A
@@ -332,6 +376,50 @@ function getMockStateColor(id) {
         if(v > maxVotes) { maxVotes = v; maxIndex = i; }
     });
     return poll.options[maxIndex].color;
+}
+
+function triggerGlobalPulse() {
+    if(!mapSvgGroup || !mapProjection || !isMapView || !usTopology) return;
+    
+    // Pick a random geometry bounding box
+    const countyNodes = d3.selectAll(".county-path").nodes();
+    if(countyNodes && countyNodes.length > 0) {
+        const randomNode = countyNodes[Math.floor(Math.random() * countyNodes.length)];
+        const d = d3.select(randomNode).datum();
+        
+        if(!d) return;
+        
+        // Calculate center of the randomly selected area
+        let bounds;
+        try {
+            bounds = d3.geoPath().projection(mapProjection).bounds(d);
+        } catch(e) { return; }
+        
+        if(!bounds || !bounds[0] || isNaN(bounds[0][0]) || !isFinite(bounds[0][0])) return;
+        
+        const cx = (bounds[0][0] + bounds[1][0]) / 2;
+        const cy = (bounds[0][1] + bounds[1][1]) / 2;
+        
+        // Pick random active poll color for effect
+        const poll = polls.find(p => p.id === currentPollId);
+        const color = poll ? poll.options[Math.floor(Math.random() * poll.options.length)].color : "var(--accent-glow)";
+        
+        const circle = mapSvgGroup.append("circle")
+            .attr("cx", cx)
+            .attr("cy", cy)
+            .attr("r", 0)
+            .style("fill", color)
+            .style("opacity", 0.8)
+            .style("filter", "blur(2px)")
+            .style("pointer-events", "none");
+            
+        circle.transition()
+            .duration(1500 + Math.random() * 1500)
+            .ease(d3.easeCubicOut)
+            .attr("r", 20 + Math.random() * 50)
+            .style("opacity", 0)
+            .remove();
+    }
 }
 
 function updateMapForPoll() {
