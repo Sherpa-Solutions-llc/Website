@@ -6795,7 +6795,8 @@ function loadPollData(id) {
     if (isNewPoll) {
         let scoreHtml = '';
         weightedOptions.forEach((opt, index) => {
-            scoreHtml += `<div style="color: ${opt.color}; padding-bottom: 3px; font-size: 0.95rem;"><span id="score-val-${index}">0</span> <span style="color: var(--text-secondary);">${opt.label}</span></div>`;
+            let electoralHtml = (opt.electoral_votes && opt.electoral_votes > 0) ? ` <strong style="color: #ffd700;">[${opt.electoral_votes} EV]</strong>` : '';
+            scoreHtml += `<div style="color: ${opt.color}; padding-bottom: 3px; font-size: 0.95rem;"><span id="score-val-${index}">0</span> <span style="color: var(--text-secondary);">${opt.label}${electoralHtml}</span></div>`;
         });
         scoreContainer.innerHTML = scoreHtml;
     }
@@ -6813,11 +6814,12 @@ function loadPollData(id) {
     if (isNewPoll) {
         barsContainer.innerHTML = '';
         weightedOptions.forEach((opt, index) => {
+            let electoralHtml = (opt.electoral_votes && opt.electoral_votes > 0) ? ` <strong style="color: #ffd700;">[${opt.electoral_votes} EV]</strong>` : '';
             const div = document.createElement('div');
             div.className = 'result-row';
             div.innerHTML = `
                 <div class="result-label">
-                    <span>${opt.label}</span>
+                    <span>${opt.label}${electoralHtml}</span>
                     <span class="result-pct" id="bar-pct-${index}">0% (0)</span>
                 </div>
                 <div class="bar-track">
@@ -7774,8 +7776,10 @@ async function render2DMap() {
     const container = document.getElementById('svg-map-render-target');
     if (!container) return;
     
-    const countryEl = document.getElementById('svg-country-select');
-    const country = countryEl ? countryEl.value : 'US';
+    const poll = polls.find(p => p.id === currentPollId);
+    if (!poll) return;
+
+    let country = poll.region;
     
     let mapFile = 'us_map.svg';
     if (country === 'Global') mapFile = 'world_map.svg';
@@ -7784,7 +7788,8 @@ async function render2DMap() {
     
     
     if (!loadedSVGMaps[country]) {
-        loadedSVGMaps[country] = RAW_SVGS[country];
+        // Fallback to global if map is missing entirely to avoid JS errors
+        loadedSVGMaps[country] = RAW_SVGS[country] || RAW_SVGS['Global'];
     }
     
     // Switch the SVG content
