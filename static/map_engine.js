@@ -238,17 +238,41 @@ async function initMap() {
             d3.select(event.currentTarget).style("fill-opacity", 0); // Hide the clicked state to reveal counties completely
         }
 
-        const zoom = d3.zoom()
-            .scaleExtent([1, 8])
-            .on("zoom", (event) => {
-                g.attr("transform", event.transform);
-                // Dynamically adjust stroke width so boundaries don't become massive
-                g.selectAll(".state-boundary").attr("stroke-width", 1.5 / event.transform.k).attr("stroke", "#000");
-                g.selectAll(".state-path").attr("stroke-width", 1.5 / event.transform.k).attr("stroke", "#000");
-                g.selectAll(".county-path").attr("stroke-width", 0.5 / event.transform.k).attr("stroke", "rgba(0,0,0,0.5)");
-            });
-
-        svg.call(zoom);
+        if (targetRegion === "Global") {
+            const drag = d3.drag()
+                .on("start", () => {
+                    // Halt automatic continuous spin so user takes control
+                    if(globeTimer) {
+                        globeTimer.stop();
+                        globeTimer = null;
+                    }
+                })
+                .on("drag", (event) => {
+                    const rotate = projection.rotate();
+                    // Sensitivity scaling
+                    const k = 90 / projection.scale();
+                    projection.rotate([
+                        rotate[0] + event.dx * k,
+                        rotate[1] - event.dy * k
+                    ]);
+                    // Re-render D3 geometry paths bound to the new projection angles
+                    svg.selectAll("path").attr("d", path);
+                });
+            svg.call(drag);
+            
+        } else {
+            const zoom = d3.zoom()
+                .scaleExtent([1, 8])
+                .on("zoom", (event) => {
+                    // Standard 2D pan/zoom applies translation matrix directly to the DOM group
+                    g.attr("transform", event.transform);
+                    // Dynamically adjust stroke width so boundaries don't become massive
+                    g.selectAll(".state-boundary").attr("stroke-width", 1.5 / event.transform.k).attr("stroke", "#000");
+                    g.selectAll(".state-path").attr("stroke-width", 1.5 / event.transform.k).attr("stroke", "#000");
+                    g.selectAll(".county-path").attr("stroke-width", 0.5 / event.transform.k).attr("stroke", "rgba(0,0,0,0.5)");
+                });
+            svg.call(zoom);
+        }
 
         function reset() {
             currentZoomState = null;
