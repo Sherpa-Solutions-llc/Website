@@ -713,7 +713,7 @@ body {
 /* D3 Geospatial Map Styles */
 .state-path {
     cursor: pointer;
-    stroke: rgba(255, 255, 255, 0.4);
+    stroke: #000;
     stroke-width: 1px;
     transition: opacity 0.3s ease, filter 0.3s ease;
 }
@@ -722,11 +722,11 @@ body {
     opacity: 0.9;
     filter: brightness(1.2);
     stroke: var(--text-primary);
-    stroke-width: 1.5px;
+    stroke-width: 2px;
 }
 
 .county-path {
-    stroke: rgba(255, 255, 255, 0.15);
+    stroke: rgba(0, 0, 0, 0.5);
     stroke-width: 0.3px;
     transition: fill 0.3s ease, stroke-width 0.2s;
 }
@@ -738,7 +738,7 @@ body {
 
 .state-boundary {
     fill: none;
-    stroke: var(--accent-glow);
+    stroke: #000;
     stroke-width: 1.5px;
     stroke-linejoin: round;
     pointer-events: none;
