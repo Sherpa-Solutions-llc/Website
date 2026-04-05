@@ -534,6 +534,21 @@ async def init_open_vote_db():
                 label TEXT NOT NULL,
                 votes INTEGER DEFAULT 0,
                 color TEXT NOT NULL,
+                electoral_votes INTEGER DEFAULT 0,
+                FOREIGN KEY(poll_id) REFERENCES open_vote_polls(id)
+            )
+        ''')
+        try:
+            await db.execute('ALTER TABLE open_vote_options ADD COLUMN electoral_votes INTEGER DEFAULT 0')
+        except sqlite3.OperationalError:
+            pass
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS open_vote_state_tallies (
+                poll_id INTEGER NOT NULL,
+                option_id TEXT NOT NULL,
+                state_code TEXT NOT NULL,
+                votes INTEGER DEFAULT 0,
+                PRIMARY KEY (poll_id, option_id, state_code),
                 FOREIGN KEY(poll_id) REFERENCES open_vote_polls(id)
             )
         ''')
@@ -551,17 +566,60 @@ async def seed_open_vote_polls():
         {"id": 1, "category": "Referendum", "title": "Global Legalization of Adult-Use Cannabis", "description": "Should cannabis be removed from international drug control treaties and legalized for adult recreational use globally?", "region": "Global", "active": True, "options": [{"id": "opt1", "label": "Approve (Full Legalization)", "votes": 89432, "color": "#3fb950"}, {"id": "opt2", "label": "Approve (Medical Only)", "votes": 34105, "color": "#58a6ff"}, {"id": "opt3", "label": "Reject (Maintain Prohibition)", "votes": 19056, "color": "#f85149"}]},
         {"id": 2, "category": "Approval Rating", "title": "United Nations Secretariat Global Confidence", "description": "Do you have confidence in the current direction and effectiveness of the UN Secretariat?", "region": "Global", "active": False, "options": [{"id": "opt1", "label": "Favorable", "votes": 45210, "color": "#3fb950"}, {"id": "opt2", "label": "Neutral / Undecided", "votes": 62890, "color": "#8b949e"}, {"id": "opt3", "label": "Unfavorable", "votes": 115802, "color": "#f85149"}]},
         {"id": 3, "category": "Political Initiative", "title": "Universal Basic Income (UBI) Mandate", "description": "Should a global taxation framework be established to fund a localized Universal Basic Income baseline?", "region": "Global", "active": True, "options": [{"id": "opt1", "label": "Strongly Support", "votes": 105423, "color": "#3fb950"}, {"id": "opt2", "label": "Support with Means Testing", "votes": 45612, "color": "#58a6ff"}, {"id": "opt3", "label": "Oppose", "votes": 98450, "color": "#f85149"}]},
-        {"id": 4, "category": "Presidential Election", "title": "2024 United States Presidential Election", "description": "Official results for the 2024 Presidential Election of the United States of America.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Republican Nominee (Trump)", "votes": 77302580, "color": "#f85149"}, {"id": "opt2", "label": "Democratic Nominee (Harris)", "votes": 75017613, "color": "#58a6ff"}]},
+        {"id": 4, "category": "Presidential Election", "title": "2024 United States Presidential Election", "description": "Official results for the 2024 Presidential Election of the United States of America.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Republican Nominee (Trump)", "votes": 77302580, "color": "#f85149", "electoral_votes": 312}, {"id": "opt2", "label": "Democratic Nominee (Harris)", "votes": 75017613, "color": "#58a6ff", "electoral_votes": 226}]},
         {"id": 5, "category": "National Senate", "title": "2024 US Senate - Pennsylvania", "description": "General election to represent Pennsylvania in the United States Senate.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Dave McCormick (R)", "votes": 3399295, "color": "#f85149"}, {"id": "opt2", "label": "Bob Casey Jr. (D)", "votes": 3384180, "color": "#58a6ff"}]},
         {"id": 6, "category": "Congressional District", "title": "2024 US House - NY 14th District", "description": "General election for the 14th Congressional District of New York.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Alexandria Ocasio-Cortez (D)", "votes": 123269, "color": "#58a6ff"}, {"id": "opt2", "label": "Tina Forte (R)", "votes": 55580, "color": "#f85149"}]},
         {"id": 7, "category": "General Election", "title": "UK General Election 2024", "description": "Vote for the next Prime Minister and governing party of the United Kingdom.", "region": "UK", "active": False, "options": [{"id": "opt1", "label": "Labour Party", "votes": 9731363, "color": "#e4003b"}, {"id": "opt2", "label": "Conservative Party", "votes": 6814469, "color": "#0087dc"}, {"id": "opt3", "label": "Reform UK", "votes": 4117610, "color": "#12b6cf"}, {"id": "opt4", "label": "Liberal Democrats", "votes": 3519143, "color": "#faa61a"}]},
         {"id": 8, "category": "Legislative Election", "title": "French Legislative Election 2024 (Round 2)", "description": "Snap legislative election to determine the composition of the French National Assembly.", "region": "France", "active": False, "options": [{"id": "opt1", "label": "New Popular Front (NFP)", "votes": 7005500, "color": "#e4003b"}, {"id": "opt2", "label": "Ensemble (ENS)", "votes": 6314000, "color": "#faa61a"}, {"id": "opt3", "label": "National Rally (RN)", "votes": 8740000, "color": "#00008b"}]}
     ]
+    US_STATE_WEIGHTS = {
+        "California": 0.118, "Texas": 0.088, "Florida": 0.065, "New York": 0.059, "Pennsylvania": 0.039,
+        "Illinois": 0.038, "Ohio": 0.035, "Georgia": 0.032, "North Carolina": 0.031, "Michigan": 0.030,
+        "New Jersey": 0.028, "Virginia": 0.026, "Washington": 0.023, "Arizona": 0.022, "Massachusetts": 0.021,
+        "Tennessee": 0.021, "Indiana": 0.020, "Maryland": 0.018, "Missouri": 0.018, "Wisconsin": 0.018,
+        "Colorado": 0.017, "Minnesota": 0.017, "South Carolina": 0.015, "Alabama": 0.015, "Louisiana": 0.014,
+        "Kentucky": 0.013, "Oregon": 0.013, "Oklahoma": 0.012, "Connecticut": 0.011, "Utah": 0.010,
+        "Iowa": 0.010, "Nevada": 0.009, "Arkansas": 0.009, "Mississippi": 0.009, "Kansas": 0.009,
+        "New Mexico": 0.006, "Nebraska": 0.006, "Idaho": 0.006, "West Virginia": 0.005, "Hawaii": 0.004,
+        "New Hampshire": 0.004, "Maine": 0.004, "Rhode Island": 0.003, "Montana": 0.003, "Delaware": 0.003,
+        "South Dakota": 0.003, "North Dakota": 0.002, "Alaska": 0.002, "District of Columbia": 0.002, 
+        "Vermont": 0.002, "Wyoming": 0.002
+    }
+    
     async with aiosqlite.connect(VOTERS_DB) as db:
         for p in polls_seed:
             await db.execute('INSERT INTO open_vote_polls (id, category, title, description, region, active) VALUES (?, ?, ?, ?, ?, ?)', (p["id"], p["category"], p["title"], p["description"], p["region"], 1 if p["active"] else 0))
             for opt in p["options"]:
-                await db.execute('INSERT INTO open_vote_options (id, poll_id, label, votes, color) VALUES (?, ?, ?, ?, ?)', (opt["id"], p["id"], opt["label"], opt["votes"], opt["color"]))
+                await db.execute('INSERT INTO open_vote_options (id, poll_id, label, votes, color, electoral_votes) VALUES (?, ?, ?, ?, ?, ?)', (opt["id"], p["id"], opt["label"], opt["votes"], opt["color"], opt.get("electoral_votes", 0)))
+                
+                if p["region"] == "Global" or p["region"] == "US":
+                    for state, weight in US_STATE_WEIGHTS.items():
+                        bias = 1.0
+                        hash_val = ord(state[0]) + ord(state[-1])
+                        opt_label = opt["label"].lower()
+                        if "harris" in opt_label or "democrat" in opt_label:
+                            bias = 1.3 if hash_val % 2 == 0 else 0.7
+                        elif "trump" in opt_label or "republican" in opt_label:
+                            bias = 1.3 if hash_val % 2 != 0 else 0.7
+                            
+                        # Add a strong secondary deterministic factor based purely on the spelling of the state 
+                        # so that some states heavily favor one party.
+                        state_hash = sum(ord(c) for c in state)
+                        if "democrat" in opt_label or "harris" in opt_label:
+                            if state_hash % 3 == 0:
+                                bias *= 1.8
+                            elif state_hash % 3 == 1:
+                                bias *= 0.4
+                        elif "republican" in opt_label or "trump" in opt_label:
+                            if state_hash % 3 == 1:
+                                bias *= 1.8
+                            elif state_hash % 3 == 0:
+                                bias *= 0.4
+
+                        variance = (0.8 + ((len(state) * len(opt["label"]) % 20) / 100)) * bias
+                        state_votes = int(opt["votes"] * weight * variance)
+                        await db.execute('INSERT INTO open_vote_state_tallies (poll_id, option_id, state_code, votes) VALUES (?, ?, ?, ?)', (p["id"], opt["id"], state, state_votes))
+                        
         await db.commit()
 
 async def get_all_open_vote_polls():
@@ -573,7 +631,12 @@ async def get_all_open_vote_polls():
         for p in polls:
             async with db.execute('SELECT * FROM open_vote_options WHERE poll_id = ?', (p["id"],)) as cursor:
                 p["options"] = [dict(r) for r in await cursor.fetchall()]
-                p["active"] = bool(p["active"])
+                
+                for opt in p["options"]:
+                    async with db.execute('SELECT state_code, votes FROM open_vote_state_tallies WHERE poll_id = ? AND option_id = ?', (p["id"], opt["id"])) as state_cursor:
+                        opt["state_tallies"] = [{"state": row["state_code"], "votes": row["votes"]} for row in await state_cursor.fetchall()]
+                        
+            p["active"] = bool(p["active"])
         return polls
 
 async def create_open_vote_poll(category: str, title: str, description: str, region: str, active: bool, options: list):
@@ -586,13 +649,15 @@ async def create_open_vote_poll(category: str, title: str, description: str, reg
         
         for idx, opt in enumerate(options):
             await db.execute('''
-                INSERT INTO open_vote_options (id, poll_id, label, votes, color)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (opt.get("id", f"opt{idx+1}"), poll_id, opt["label"], opt.get("votes", 0), opt.get("color", "#58a6ff")))
+                INSERT INTO open_vote_options (id, poll_id, label, votes, color, electoral_votes)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (opt.get("id", f"opt{idx+1}"), poll_id, opt["label"], opt.get("votes", 0), opt.get("color", "#58a6ff"), opt.get("electoral_votes", 0)))
         await db.commit()
         return poll_id
 
-async def increment_open_vote_option(poll_id: int, option_id: str):
+async def increment_open_vote_option(poll_id: int, option_id: str, state_code: str = ""):
     async with aiosqlite.connect(VOTERS_DB) as db:
         await db.execute('UPDATE open_vote_options SET votes = votes + 1 WHERE poll_id = ? AND id = ?', (poll_id, option_id))
+        if state_code:
+            await db.execute('UPDATE open_vote_state_tallies SET votes = votes + 1 WHERE poll_id = ? AND option_id = ? AND state_code = ?', (poll_id, option_id, state_code))
         await db.commit()
