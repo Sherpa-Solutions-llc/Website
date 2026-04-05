@@ -110,6 +110,16 @@ let selectedOptionId = null;
 let simulationInterval;
 let isVerified = false;
 let verifiedCountry = null; // Stores verified jurisdiction
+let currentDemographicFilter = 'all';
+
+function setDemographicFilter(filter, el) {
+    currentDemographicFilter = filter;
+    document.querySelectorAll('.demo-pill').forEach(btn => btn.classList.remove('active'));
+    el.classList.add('active');
+    
+    // Changing filters regenerates math algorithms
+    loadPollData(currentPollId);
+}
 
 // Initialize View
 function init() {
@@ -157,44 +167,111 @@ function renderPollList() {
     });
 }
 
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // Ease-out quart for satisfying deceleration
+        const ease = 1 - Math.pow(1 - progress, 4);
+        const current = Math.floor(ease * (end - start) + start);
+        obj.innerHTML = current.toLocaleString();
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            obj.innerHTML = end.toLocaleString();
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
 function loadPollData(id) {
     const poll = polls.find(p => p.id === id);
     if (!poll) return;
 
     document.getElementById('current-poll-title').textContent = poll.title;
     
-    // Calculate total layout
-    const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
-    document.getElementById('stat-total').textContent = totalVotes.toLocaleString();
+    // Fetch demographic weights dynamically based on the current filter selection
+    let optModA = 1, optModB = 1, optModC = 1, optModD = 1;
+    if (currentDemographicFilter === 'verified') {
+         optModA = 1.1; optModB = 0.9;
+    } else if (currentDemographicFilter === 'genz') {
+         optModA = 1.6; optModB = 0.4; optModC = 1.3;
+    } else if (currentDemographicFilter === 'boomer') {
+         optModA = 0.6; optModB = 1.4; optModC = 0.8;
+    }
     
-    // Inject dynamic Score block
-    const scoreHtml = poll.options.map(opt => `<div style="color: ${opt.color}; padding-bottom: 3px; font-size: 0.95rem;">${opt.votes.toLocaleString()} <span style="color: var(--text-secondary);">${opt.label}</span></div>`);
-    document.getElementById('stat-nodes').innerHTML = scoreHtml.join('');
+    const mods = [optModA, optModB, optModC, optModD];
+    
+    // Pre-calculate modified votes for animation targets
+    const weightedOptions = poll.options.map((opt, i) => {
+        return { ...opt, weightedVotes: Math.floor(opt.votes * (mods[i] || 1)) };
+    });
+
+    // Calculate total layout using the demographic weighted arrays
+    const totalVotes = weightedOptions.reduce((sum, opt) => sum + opt.weightedVotes, 0);
+    const totalEl = document.getElementById('stat-total');
+    let currentTotal = parseInt(totalEl.innerText.replace(/,/g, '')) || 0;
+    
+    const scoreContainer = document.getElementById('stat-nodes');
+    const isNewPoll = scoreContainer.getAttribute('data-poll-id') !== id.toString();
+    scoreContainer.setAttribute('data-poll-id', id);
+
+    if (isNewPoll) {
+        currentTotal = 0; // force animate from zero on switch
+    }
+    animateValue(totalEl, currentTotal, totalVotes, 1500);
+    
+    // Inject dynamic Score block structured for animation
+    if (isNewPoll) {
+        let scoreHtml = '';
+        weightedOptions.forEach((opt, index) => {
+            scoreHtml += `<div style="color: ${opt.color}; padding-bottom: 3px; font-size: 0.95rem;"><span id="score-val-${index}">0</span> <span style="color: var(--text-secondary);">${opt.label}</span></div>`;
+        });
+        scoreContainer.innerHTML = scoreHtml;
+    }
+
+    weightedOptions.forEach((opt, index) => {
+        const valEl = document.getElementById(`score-val-${index}`);
+        if(valEl) {
+             const currentVal = parseInt(valEl.innerText.replace(/,/g, '')) || 0;
+             animateValue(valEl, currentVal, opt.weightedVotes, 1500 + (index * 200));
+        }
+    });
     
     // Render Bars
     const barsContainer = document.getElementById('results-bars');
-    barsContainer.innerHTML = '';
-    
-    poll.options.forEach(opt => {
-        const pct = ((opt.votes / totalVotes) * 100).toFixed(1);
-        const div = document.createElement('div');
-        div.className = 'result-row';
-        div.innerHTML = `
-            <div class="result-label">
-                <span>${opt.label}</span>
-                <span class="result-pct">${pct}% (${opt.votes.toLocaleString()})</span>
-            </div>
-            <div class="bar-track">
-                <div class="bar-fill" style="width: 0%; background: ${opt.color}"></div>
-            </div>
-        `;
-        barsContainer.appendChild(div);
-        
-        // Animate in
-        setTimeout(() => {
-            div.querySelector('.bar-fill').style.width = `${pct}%`;
-        }, 100);
-    });
+    if (isNewPoll) {
+        barsContainer.innerHTML = '';
+        weightedOptions.forEach((opt, index) => {
+            const div = document.createElement('div');
+            div.className = 'result-row';
+            div.innerHTML = `
+                <div class="result-label">
+                    <span>${opt.label}</span>
+                    <span class="result-pct" id="bar-pct-${index}">0% (0)</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill" id="bar-fill-${index}" style="width: 0%; background: ${opt.color}"></div>
+                </div>
+            `;
+            barsContainer.appendChild(div);
+        });
+    }
+
+    // Assign bar values securely without killing DOM
+    setTimeout(() => {
+        weightedOptions.forEach((opt, index) => {
+            const pct = totalVotes > 0 ? ((opt.weightedVotes / totalVotes) * 100).toFixed(1) : 0;
+            const pctEl = document.getElementById(`bar-pct-${index}`);
+            const fillEl = document.getElementById(`bar-fill-${index}`);
+            
+            if(pctEl && fillEl) {
+                 pctEl.innerHTML = `${pct}% (${opt.weightedVotes.toLocaleString()})`;
+                 fillEl.style.width = `${pct}%`;
+            }
+        });
+    }, 50);
     
     // Persistently display the Map View across all polls
     if (typeof isMapView !== 'undefined' && !isMapView) {
@@ -217,6 +294,13 @@ function startLiveSimulation() {
                 opt.votes += Math.floor(Math.random() * 5);
             }
         });
+        
+        // trigger pulse
+        if(typeof triggerGlobalPulse === 'function') {
+             triggerGlobalPulse();
+             if(Math.random() > 0.3) setTimeout(triggerGlobalPulse, 400);
+             if(Math.random() > 0.6) setTimeout(triggerGlobalPulse, 800); 
+        }
         
         // update UI if we are looking at it
         if(currentPollId === poll.id) {
@@ -438,9 +522,64 @@ function submitVote() {
         setTimeout(() => {
             closeModals();
             loadPollData(currentPollId); // refresh ui
-            alert("Success! Your vote has been securely recorded on the ledger.");
+            
+            // Swap right panel UI to receipt
+            document.getElementById('right-panel-verified').classList.add('hidden');
+            document.getElementById('right-panel-receipt').classList.remove('hidden');
+            
+            // Generate a fake receipt hash
+            const receiptHash = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+            document.getElementById('receipt-hash-display').innerText = receiptHash;
+            // Store globally for the audit modal
+            window.lastVoteReceiptHash = receiptHash;
+            
         }, 1000);
     }, 2000);
+}
+
+// --- Audit Ledger Terminal Logic ---
+
+function openAuditLedger() {
+    document.getElementById('audit-modal').classList.add('active');
+    
+    const targetHash = window.lastVoteReceiptHash || "N/A";
+    document.getElementById('audit-my-hash').innerText = targetHash;
+    
+    const terminal = document.getElementById('ledger-terminal');
+    terminal.innerHTML = '<div style="color: var(--accent-glow);">[ ! ] ESTABLISHING SECURE CONNECTION TO PUBLIC NODE...</div>';
+    
+    let count = 0;
+    const scrollMax = 20;
+    
+    // Simulate terminal hash synchronization
+    const terminalSpam = setInterval(() => {
+        if(count > scrollMax) {
+            clearInterval(terminalSpam);
+            const successDiv = document.createElement('div');
+            successDiv.style.color = "var(--accent-green)";
+            successDiv.style.marginTop = "10px";
+            successDiv.innerHTML = `> VERIFIED: RECEIPT [${targetHash}] IS SECURELY RECORDED IN BLOCK #${Math.floor(Math.random()*900000) + 100000}<br>> IMMUTABILITY STATUS: LOCKED`;
+            terminal.appendChild(successDiv);
+            terminal.scrollTop = terminal.scrollHeight;
+            return;
+        }
+        
+        const div = document.createElement('div');
+        const randomHash = "0x" + Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+        
+        // Randomly decide if this line simulates finding our hash
+        if(count === scrollMax - 3 && targetHash !== "N/A") {
+            div.style.color = "var(--accent-green)";
+            div.innerHTML = `[SYNC] INCOMING TX: <span style="background: rgba(63, 185, 80, 0.2);">${targetHash}</span> (MATCH FOUND)`;
+        } else {
+            div.style.color = "rgba(255,255,255,0.4)";
+            div.innerText = `[SYNC] INCOMING TX: ${randomHash}`;
+        }
+        
+        terminal.appendChild(div);
+        terminal.scrollTop = terminal.scrollHeight; // auto scroll
+        count++;
+    }, 150);
 }
 
 // Start
