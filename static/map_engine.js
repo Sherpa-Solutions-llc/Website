@@ -96,12 +96,16 @@ async function initMap() {
         const objKeys = Object.keys(topologyData.objects);
         if(objKeys.length === 0) throw new Error("No topology objects found");
         
-        let subGeometries = [];
-        let baseGeometries = topojson.feature(topologyData, topologyData.objects[objKeys[0]]).features;
+        // Intelligently map the base (states) and sub (counties) layers
+        let stateKey = objKeys.find(k => k.toLowerCase().includes('state') || k.toLowerCase().includes('lad') || k.toLowerCase().includes('countr')) || objKeys[0];
+        let countyKey = objKeys.find(k => k.toLowerCase().includes('counti') || k.toLowerCase().includes('borough')) || objKeys[objKeys.length - 1];
         
-        if (objKeys.length > 1) {
-            subGeometries = topojson.feature(topologyData, topologyData.objects[objKeys[1]]).features;
+        if (stateKey === countyKey && objKeys.length > 1) {
+            countyKey = objKeys.find(k => k !== stateKey);
         }
+        
+        let baseGeometries = topojson.feature(topologyData, topologyData.objects[stateKey]).features;
+        let subGeometries = stateKey !== countyKey ? topojson.feature(topologyData, topologyData.objects[countyKey]).features : [];
 
         // Draw deep layers (counties or similar)
         const renderData = subGeometries.length > 0 ? subGeometries : baseGeometries;
@@ -152,7 +156,7 @@ async function initMap() {
 
         // Overlay boundaries (e.g. states over counties, or just borders of base features)
         g.append("path")
-            .datum(topojson.mesh(topologyData, topologyData.objects[objKeys[0]], (a, b) => a !== b))
+            .datum(topojson.mesh(topologyData, topologyData.objects[stateKey], (a, b) => a !== b))
             .attr("class", "state-boundary")
             .attr("d", path)
             .attr("stroke", "#000") // Force black borders
