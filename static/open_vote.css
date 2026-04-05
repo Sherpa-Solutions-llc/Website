@@ -259,6 +259,37 @@ body {
 .center-panel {
     flex: 1;
 }
+/* Demographic Filter Pills */
+.demographic-filters {
+    scrollbar-width: none; /* Firefox */
+}
+.demographic-filters::-webkit-scrollbar {
+    display: none; /* Chrome */
+}
+
+.demo-pill {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-secondary);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.demo-pill:hover {
+    border-color: var(--accent-glow);
+    color: white;
+}
+
+.demo-pill.active {
+    background: rgba(224, 159, 37, 0.2);
+    border-color: var(--accent-glow);
+    color: var(--accent-glow);
+    font-weight: 500;
+}
 
 .dashboard-stats {
     display: grid;
