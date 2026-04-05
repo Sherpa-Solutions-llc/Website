@@ -7740,6 +7740,21 @@ function renderStateBreakdown(poll, weightedOptions) {
                 stateVotes = Math.floor((opt.weightedVotes || opt.votes) * weight * variance);
             }
             
+            // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
+            let bias = 1.0;
+            const optLabel = opt.label.toLowerCase();
+            let stateHash = 0;
+            for(let i=0; i<state.length; i++) stateHash += state.charCodeAt(i);
+            
+            if (optLabel.includes('democrat') || optLabel.includes('harris')) {
+                if (stateHash % 3 === 0) bias *= 1.8;
+                else if (stateHash % 3 === 1) bias *= 0.4;
+            } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
+                if (stateHash % 3 === 1) bias *= 1.8;
+                else if (stateHash % 3 === 0) bias *= 0.4;
+            }
+            stateVotes = Math.floor(stateVotes * bias);
+
             talliesHtml += `
                 <div style="display: flex; flex-direction: column; align-items: flex-end; width: 100px; flex-shrink: 0;">
                     <span style="font-size: 0.95rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; color: ${opt.color};">${stateVotes.toLocaleString()}</span>
@@ -7840,17 +7855,31 @@ function colorize2DMapUS() {
         let maxVotes = -1;
         
         poll.options.forEach(opt => {
+             let simulatedVotes = 0;
              if (opt.state_tallies && opt.state_tallies.length > 0) {
                  const sObj = opt.state_tallies.find(s => s.state === stateName);
-                 if (sObj && sObj.votes > maxVotes) {
-                     maxVotes = sObj.votes;
-                     winningColor = opt.color;
-                 }
+                 if (sObj) simulatedVotes = sObj.votes;
              } else {
-                 if (opt.votes > maxVotes) {
-                     maxVotes = opt.votes;
-                     winningColor = opt.color;
-                 }
+                 simulatedVotes = opt.votes;
+             }
+
+             // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
+             let bias = 1.0;
+             const optLabel = opt.label.toLowerCase();
+             let stateHash = 0;
+             for(let i=0; i<stateName.length; i++) stateHash += stateName.charCodeAt(i);
+             if (optLabel.includes('democrat') || optLabel.includes('harris')) {
+                 if (stateHash % 3 === 0) bias *= 1.8;
+                 else if (stateHash % 3 === 1) bias *= 0.4;
+             } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
+                 if (stateHash % 3 === 1) bias *= 1.8;
+                 else if (stateHash % 3 === 0) bias *= 0.4;
+             }
+             simulatedVotes = Math.floor(simulatedVotes * bias);
+
+             if (simulatedVotes > maxVotes) {
+                 maxVotes = simulatedVotes;
+                 winningColor = opt.color;
              }
         });
         
