@@ -5,28 +5,7 @@ let mapInitialized = false;
 let isMapView = false;
 let myGlobe = null;
 
-function toggleMapView() {
-    const chartView = document.getElementById('chart-view');
-    const mapView = document.getElementById('map-view');
-    
-    if (isMapView) {
-        chartView.classList.remove('hidden');
-        mapView.classList.add('hidden');
-        isMapView = false;
-        document.getElementById('btn-toggle-view').innerHTML = '<i class="fa-solid fa-earth-americas"></i> Map View';
-    } else {
-        chartView.classList.add('hidden');
-        mapView.classList.remove('hidden');
-        isMapView = true;
-        document.getElementById('btn-toggle-view').innerHTML = '<i class="fa-solid fa-chart-column"></i> Bar View';
-        
-        if (!mapInitialized) {
-            initMap();
-        } else {
-            updateMapForPoll();
-        }
-    }
-}
+
 
 async function initMap() {
     mapInitialized = true;
