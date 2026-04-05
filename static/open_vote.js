@@ -571,8 +571,10 @@ async function submitVote() {
                 document.getElementById('right-panel-receipt').classList.remove('hidden');
                 
                 document.getElementById('receipt-hash-display').innerText = receiptHash;
+                document.getElementById('thank-you-hash-display').innerText = receiptHash;
                 window.lastVoteReceiptHash = receiptHash;
                 
+                document.getElementById('thank-you-modal').classList.add('active');
             }, 1000);
         }, 1500); // Give 1.5 seconds of scramble
 
