@@ -87,6 +87,14 @@
                     </div>
                 </div>
 
+                <!-- Demographic Lenses -->
+                <div class="demographic-filters" style="display: flex; gap: 0.5rem; margin-bottom: 2.5rem; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="demo-pill active" onclick="setDemographicFilter('all', this)">All Demographics</button>
+                    <button class="demo-pill" onclick="setDemographicFilter('verified', this)"><i class="fa-solid fa-check-double" style="margin-right: 4px;"></i> High Confidence IDs</button>
+                    <button class="demo-pill" onclick="setDemographicFilter('genz', this)">Gen Z (18-27)</button>
+                    <button class="demo-pill" onclick="setDemographicFilter('boomer', this)">Baby Boomers</button>
+                </div>
+
                 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
                     <h3 id="current-poll-title" style="font-size: 1.5rem; font-weight: 600;">Loading Results...</h3>
                     <button class="btn" id="btn-toggle-view" onclick="toggleMapView()" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;">
@@ -158,6 +166,28 @@
                     <i class="fa-solid fa-arrow-left" style="color: var(--accent-glow); margin-bottom: 1rem; display: block; font-size: 1.5rem;"></i>
                     <p style="font-size: 0.85rem; color: var(--text-primary);">Select an active poll from the left menu to cast your vote.</p>
                 </div>
+            </div>
+
+            <div id="right-panel-receipt" class="action-card hidden" style="border-color: var(--accent-blue);">
+                <div class="security-badge" style="background: rgba(88, 166, 255, 0.1); border-color: rgba(88, 166, 255, 0.3); color: var(--accent-blue);">
+                    <i class="fa-solid fa-link"></i> Vote Immutable
+                </div>
+                
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem; color: var(--text-primary);">Ballot Cast Successfully</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">
+                    Your vote has been cryptographically signed and injected into the public ledger.
+                </p>
+                
+                <div style="padding: 1rem; background: rgba(0,0,0,0.5); border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase;">Receipt Hash</span>
+                    <div id="receipt-hash-display" style="font-family: 'Share Tech Mono'; color: var(--accent-glow); font-size: 0.95rem; word-break: break-all; margin-top: 0.2rem;">
+                        0x...
+                    </div>
+                </div>
+
+                <button class="vote-action-btn" onclick="openAuditLedger()" style="background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); font-size: 0.9rem; padding: 0.8rem;">
+                    <i class="fa-solid fa-server" style="margin-right: 0.5rem;"></i> View Public Audit Ledger
+                </button>
             </div>
         </aside>
 
@@ -292,6 +322,27 @@
                         <input type="text" placeholder="Approve, Reject, Abstain">
                     </div>
                     <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;" onclick="alert('Administrative functions are disabled in this demo environment.'); closeModals();">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Ledger Modal -->
+    <div class="modal-overlay" id="audit-modal">
+        <div class="modal-content" style="max-width: 700px; background: rgba(13, 17, 23, 0.95); border-color: var(--accent-blue);">
+            <div class="modal-header" style="border-bottom-color: rgba(88, 166, 255, 0.2);">
+                <h2 style="color: var(--text-primary);"><i class="fa-solid fa-server" style="color: var(--accent-blue);"></i> Public Ledger Node <span style="font-size: 0.8rem; opacity:0.5; margin-left: 10px;">v4.1.2_SYNC</span></h2>
+                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="background: #000; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-family: 'Share Tech Mono'; font-size: 0.85rem; color: var(--accent-green);">NETWORK: SECURE</div>
+                    <div style="font-family: 'Inter'; font-size: 0.8rem; display: flex; gap: 1rem;">
+                        <span>Your Receipt: <strong id="audit-my-hash" style="color: var(--accent-glow);">N/A</strong></span>
+                    </div>
+                </div>
+                <div id="ledger-terminal" style="height: 350px; overflow-y: auto; background: #06080a; padding: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <!-- JS Injected Terminal Lines -->
                 </div>
             </div>
         </div>
