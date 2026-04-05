@@ -1,4 +1,6 @@
 // Open Vote Data & Simulation
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
+
 
 let polls = [];
 
@@ -21,7 +23,7 @@ function setDemographicFilter(filter, el) {
 // Initialize View
 async function init() {
     try {
-        const response = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/polls');
+        const response = await fetch(API_BASE + '/api/open-vote/polls');
         if (response.ok) {
             polls = await response.json();
             if (polls.length > 0) currentPollId = polls[0].id;
@@ -412,7 +414,7 @@ async function submitRegistration(event) {
     errorMsg.style.display = 'none';
     
     try {
-        const response = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/register', {
+        const response = await fetch(API_BASE + '/api/open-vote/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -543,7 +545,7 @@ async function submitVote() {
     }, 50);
 
     try {
-        await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/vote', {
+        await fetch(API_BASE + '/api/open-vote/vote', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({poll_id: currentPollId, option_id: selectedOptionId})
@@ -603,7 +605,7 @@ async function adminSavePoll() {
     }).filter(opt => opt.label.length > 0);
     
     try {
-        const resp = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/poll', {
+        const resp = await fetch(API_BASE + '/api/open-vote/poll', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -617,7 +619,7 @@ async function adminSavePoll() {
             msg.style.color = 'var(--accent-green)';
             
             // Re-fetch and re-render
-            const pResp = await fetch('https://sherpa-solutions-api-production.up.railway.app/api/open-vote/polls');
+            const pResp = await fetch(API_BASE + '/api/open-vote/polls');
             if (pResp.ok) {
                 polls = await pResp.json();
                 renderPollList();
