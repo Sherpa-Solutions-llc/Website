@@ -63,7 +63,7 @@ async function init() {
     startLiveSimulation();
     
     // Ensure initial view is correct
-    switchView('bar');
+    switchView('3d');
 }
 
 function switchView(type) {
