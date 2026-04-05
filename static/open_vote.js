@@ -6795,7 +6795,7 @@ function loadPollData(id) {
     if (isNewPoll) {
         let scoreHtml = '';
         weightedOptions.forEach((opt, index) => {
-            let electoralHtml = (opt.electoral_votes && opt.electoral_votes > 0) ? ` <strong style="color: #ffd700;">[${opt.electoral_votes} EV]</strong>` : '';
+            let electoralHtml = (opt.electoral_votes && opt.electoral_votes > 0) ? ` <strong style="color: #ffd700;">[${opt.electoral_votes} Electoral Votes]</strong>` : '';
             scoreHtml += `<div style="color: ${opt.color}; padding-bottom: 3px; font-size: 0.95rem;"><span id="score-val-${index}">0</span> <span style="color: var(--text-secondary);">${opt.label}${electoralHtml}</span></div>`;
         });
         scoreContainer.innerHTML = scoreHtml;
@@ -6814,7 +6814,7 @@ function loadPollData(id) {
     if (isNewPoll) {
         barsContainer.innerHTML = '';
         weightedOptions.forEach((opt, index) => {
-            let electoralHtml = (opt.electoral_votes && opt.electoral_votes > 0) ? ` <strong style="color: #ffd700;">[${opt.electoral_votes} EV]</strong>` : '';
+            let electoralHtml = (opt.electoral_votes && opt.electoral_votes > 0) ? ` <strong style="color: #ffd700;">[${opt.electoral_votes} Electoral Votes]</strong>` : '';
             const div = document.createElement('div');
             div.className = 'result-row';
             div.innerHTML = `
