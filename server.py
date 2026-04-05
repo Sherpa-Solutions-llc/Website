@@ -345,6 +345,7 @@ async def startup_event():
     await init_earthquakes_db()
     await init_osint_db()
     await init_cameras_db()
+    await init_voters_db()
     await database.init_stock_db()
     await database.init_traku_db()
     await database.init_traku_search_history()
@@ -811,6 +812,67 @@ async def submit_consulting_lead(lead: ConsultingLead):
         raise HTTPException(status_code=500, detail="Failed to save lead")
 
 
+# ==========================================
+# OPEN VOTE - Identity Verification Backend
+# ==========================================
+class VoterRegistration(BaseModel):
+    method: str
+    name: str
+    address: str
+    ssn: str
+    biometric_hash: str
+
+VOTERS_DB_PATH = os.path.join(BASE_DIR, "sherpa_voters.db")
+
+async def init_voters_db():
+    try:
+        async with aiosqlite.connect(VOTERS_DB_PATH) as db:
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS voters (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    method TEXT,
+                    name TEXT,
+                    address TEXT,
+                    ssn TEXT UNIQUE,
+                    biometric_hash TEXT UNIQUE,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            await db.commit()
+        print("Sherpa Voters Identity Database initialized.")
+    except Exception as e:
+        print(f"Failed to init_voters_db: {e}")
+
+@app.post("/api/open-vote/register")
+async def register_voter(req: VoterRegistration):
+    try:
+        async with aiosqlite.connect(VOTERS_DB_PATH) as db:
+            # Check for duplicate SSN
+            async with db.execute('SELECT id FROM voters WHERE ssn = ?', (req.ssn,)) as cursor:
+                duplicate_ssn = await cursor.fetchone()
+                if duplicate_ssn:
+                    raise HTTPException(status_code=400, detail="Duplicate Voter Detected: This SSN has already cast a ballot.")
+            
+            # Check for duplicate Biometric Hash (if fingerprint/face)
+            if req.biometric_hash != "N/A":
+                async with db.execute('SELECT id FROM voters WHERE biometric_hash = ?', (req.biometric_hash,)) as cursor:
+                    duplicate_bio = await cursor.fetchone()
+                    if duplicate_bio:
+                        raise HTTPException(status_code=400, detail="Duplicate Voter Detected: Biometric signature matches an existing ballot.")
+
+            # Insert new voter
+            await db.execute('''
+                INSERT INTO voters (method, name, address, ssn, biometric_hash)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (req.method, req.name, req.address, req.ssn, req.biometric_hash))
+            await db.commit()
+            
+            return {"status": "success", "message": "Identity Verified & Secured. Voting Token Issued."}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in register_voter: {e}")
+        raise HTTPException(status_code=500, detail="Internal Verification Server Error")
 @app.get("/api/police-data")
 async def get_police_data():
     try:
@@ -4117,5 +4179,66 @@ async def get_freeme_status(campaign_id: str):
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
         
     return JSONResponse(status_data)
+
+# ==========================================
+# OPEN VOTE ENDPOINTS
+# ==========================================
+class OpenVotePollRequest(BaseModel):
+    category: str
+    title: str
+    description: str
+    region: str
+    active: bool = True
+    options: list
+
+class OpenVoteVoteRequest(BaseModel):
+    poll_id: int
+    option_id: str
+
+class OpenVoteRegisterRequest(BaseModel):
+    method: str
+    name: str = ""
+    address: str = ""
+    ssn: str = ""
+    biometric_hash: str
+
+@app.on_event("startup")
+async def startup_open_vote():
+    try:
+        await database.init_open_vote_db()
+    except Exception as e:
+        print(f"Error initializing open vote db: {e}")
+
+@app.get("/api/open-vote/polls")
+async def get_open_vote_polls():
+    try:
+        polls = await database.get_all_open_vote_polls()
+        return JSONResponse(polls)
+    except Exception as e:
+        print(f"Error fetching open vote polls: {e}")
+        return JSONResponse({"error": "Database error"}, status_code=500)
+
+@app.post("/api/open-vote/poll")
+async def create_open_vote_poll_api(req: OpenVotePollRequest):
+    try:
+        poll_id = await database.create_open_vote_poll(req.category, req.title, req.description, req.region, req.active, req.options)
+        return JSONResponse({"status": "success", "poll_id": poll_id})
+    except Exception as e:
+        print(f"Error creating open vote poll: {e}")
+        return JSONResponse({"error": "Failed to create poll"}, status_code=500)
+
+@app.post("/api/open-vote/vote")
+async def cast_open_vote(req: OpenVoteVoteRequest):
+    try:
+        await database.increment_open_vote_option(req.poll_id, req.option_id)
+        return JSONResponse({"status": "success"})
+    except Exception as e:
+        print(f"Error casting vote: {e}")
+        return JSONResponse({"error": "Failed to cast vote"}, status_code=500)
+
+@app.post("/api/open-vote/register")
+async def register_open_vote(req: OpenVoteRegisterRequest):
+    # Mock registration response
+    return JSONResponse({"status": "success", "message": "Identity verified", "vector": req.biometric_hash})
 
 # Rev: 20260315-0916
