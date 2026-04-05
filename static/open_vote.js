@@ -7896,27 +7896,44 @@ function colorize2DMapGeneric() {
     if (!poll || !poll.options || poll.options.length === 0) return;
 
     const paths = container.querySelectorAll('path:not([display="none"])');
-    const totalOptions = poll.options.length;
+    
+    // Calculate precise numerical distributions
+    let totalVotes = 0;
+    poll.options.forEach(opt => totalVotes += (opt.votes || 0));
+    if (totalVotes === 0) totalVotes = 1; // safety fallback
+
+    let thresholds = [];
+    let cumulative = 0;
+    poll.options.forEach(opt => {
+        cumulative += (opt.votes || 0);
+        thresholds.push({
+            color: opt.color,
+            threshold: (cumulative / totalVotes) * 100
+        });
+    });
 
     paths.forEach(path => {
-        // Highcharts logo removal hack (backup)
         if (path.className && typeof path.className === 'string' && path.className.includes('highcharts-credits')) {
             path.style.display = 'none';
             return;
         }
 
-        // Determine a winning color based on a hash of the path's ID or class
-        // so it stays consistent but distributed
         const pid = path.id || (path.className && path.className.baseVal) || Math.random().toString();
-        
         let hash = 0;
         for (let i = 0; i < pid.length; i++) {
             hash = (hash << 5) - hash + pid.charCodeAt(i);
-            hash = hash & hash; // Convert to 32bit integer
+            hash = hash & hash;
         }
         
-        const winnerIndex = Math.abs(hash) % totalOptions;
-        const winningColor = poll.options[winnerIndex].color;
+        // Use numerical distribution thresholds instead of uniform flat module
+        const roll = Math.abs(hash) % 100;
+        let winningColor = poll.options[0].color;
+        for(let i = 0; i < thresholds.length; i++) {
+             if (roll < thresholds[i].threshold) {
+                  winningColor = thresholds[i].color;
+                  break;
+             }
+        }
         
         path.style.transition = 'fill 0.5s ease-out';
         path.style.fill = winningColor;
