@@ -13,9 +13,42 @@
     <!-- D3 & TopoJSON for Maps -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
+    <script src="//unpkg.com/globe.gl"></script>
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="static/open_vote.css">
+    <style>
+        #virtual-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px solid #00d2ff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            display: none;
+            transition: transform 0.1s ease-out, box-shadow 0.1s;
+            box-shadow: 0 0 10px #00d2ff;
+            transform-origin: center;
+        }
+        #virtual-cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #virtual-cursor.clicking {
+            transform: scale(0.6);
+            background: rgba(0, 210, 255, 0.8);
+            box-shadow: 0 0 20px #00e5ff, inset 0 0 10px #fff;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,6 +65,11 @@
         </a>
         
         <div class="header-controls">
+            <button id="demo-mode-btn" class="btn" style="background: rgba(0, 210, 255, 0.1); border-color: #00d2ff; color: #00d2ff; font-weight: bold; margin-right: 15px; transition: all 0.2s ease;" title="Toggle Demo Mode">
+                <i class="fa-solid fa-play"></i> DEMO OFF
+            </button>
+            <input type="range" id="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" title="Demo Voice Volume" style="display: none; width: 60px; margin-right: 15px; cursor: pointer; accent-color: #00d2ff;">
+            
             <div id="global-id-status" class="status-badge" style="color: var(--accent-red); margin-right: 1rem;">
                 <div class="pulse-dot"></div>
                 <span style="font-family: 'Share Tech Mono'; font-size: 0.9rem;">ID UNVERIFIED</span>
@@ -141,7 +179,7 @@
                     Your identity will be verified to prevent duplicate voting, but your selection remains completely unlinked and mathematically private.
                 </p>
                 
-                <button class="vote-action-btn" onclick="startVerificationProcess()">
+                <button id="verify-btn" class="vote-action-btn" onclick="startVerificationProcess()">
                     <i class="fa-solid fa-fingerprint" style="margin-right: 0.5rem;"></i> Identity Verification
                 </button>
 
@@ -247,21 +285,67 @@
 
     <!-- Biometric Scan Modal -->
     <div class="modal-overlay" id="biometric-modal">
-        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 3rem 2rem;">
-            <h2 style="margin-bottom: 0.5rem;" id="biometric-title">Identity Verification</h2>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2.5rem;" id="biometric-desc">Please place your finger on the sensor</p>
+        <div class="modal-content" style="max-width: 500px; text-align: center; padding: 2rem;">
             
-            <div class="scanner-container" id="scanner">
-                <i class="fa-solid fa-fingerprint fingerprint-icon" id="scanner-icon">
-                    <div class="scan-line"></div>
-                </i>
-                <div class="scan-status" id="scan-status">AWAITING INPUT...</div>
+            <!-- Step 1: Capture Phase -->
+            <div id="biometric-step-1">
+                <h2 style="margin-bottom: 0.5rem;" id="biometric-title">Identity Verification</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;" id="biometric-desc">Please place your finger on the sensor</p>
+                
+                <!-- Dynamic Capture Container (Defaults to Fingerprint) -->
+                <div id="capture-container">
+                    <div class="scanner-container" id="scanner">
+                        <i class="fa-solid fa-fingerprint fingerprint-icon" id="scanner-icon">
+                            <div class="scan-line"></div>
+                        </i>
+                    </div>
+                </div>
+                
+                <div class="scan-status" id="scan-status" style="margin-top: 1rem; font-family: 'Share Tech Mono';">AWAITING INPUT...</div>
+
+                <!-- Simulation Controls (for Demo/Prototype purposes) -->
+                <div id="simulation-controls" style="margin-top: 1.5rem; display: none;">
+                    <button id="sim-capture-btn" class="btn" style="background: var(--surface-light); color: var(--accent-glow);">
+                        <i class="fa-solid fa-camera"></i> Begin Capture
+                    </button>
+                    <!-- HIDDEN mock file input for ID -->
+                    <input type="file" id="sim-id-upload" accept="image/*" style="display: none;">
+                </div>
+
+                <div id="ip-mismatch-warning" class="hidden" style="margin-top: 1.5rem; padding: 1rem; background: rgba(248, 81, 73, 0.1); border: 1px solid var(--accent-red); border-radius: 6px; color: var(--accent-red); font-size: 0.9rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>IP / LOCATION MISMATCH</strong><br>
+                    Your connection origin does not match your declared jurisdiction. Please disconnect your VPN or Proxy to proceed.
+                </div>
             </div>
-            
-            <div id="ip-mismatch-warning" class="hidden" style="margin-top: 1.5rem; padding: 1rem; background: rgba(248, 81, 73, 0.1); border: 1px solid var(--accent-red); border-radius: 6px; color: var(--accent-red); font-size: 0.9rem;">
-                <i class="fa-solid fa-triangle-exclamation"></i> <strong>IP / LOCATION MISMATCH</strong><br>
-                Your connection origin does not match your declared jurisdiction. Please disconnect your VPN or Proxy to proceed.
+
+            <!-- Step 2: PII Data Entry Form -->
+            <div id="biometric-step-2" style="display: none; text-align: left;">
+                <h2 style="margin-bottom: 0.5rem; color: var(--accent-glow);"><i class="fa-solid fa-clipboard-check"></i> Registration File</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Cross-referencing vector against centralized civil registry. Please confirm your Personally Identifiable Information.</p>
+                
+                <form id="voter-pii-form" onsubmit="submitRegistration(event)">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Full Legal Name</label>
+                        <input type="text" id="pii-name" required placeholder="John Doe" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Registered Residential Address</label>
+                        <input type="text" id="pii-address" required placeholder="123 Civic Ave, Springfield" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Social Security / National Identity Number</label>
+                        <input type="password" id="pii-ssn" required placeholder="XXX-XX-XXXX" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif;">
+                        <span style="font-size: 0.7rem; color: var(--accent-red); margin-top: 0.3rem; display: block;">* Used strictly for duplicate prevention hash-generation.</span>
+                    </div>
+
+                    <button type="submit" id="pii-submit-btn" class="vote-action-btn" style="width: 100%;">
+                        <i class="fa-solid fa-server" style="margin-right: 0.5rem;"></i> Submit to Registrar
+                    </button>
+                    
+                    <div id="pii-error-msg" style="color: var(--accent-red); margin-top: 1rem; font-size: 0.85rem; text-align: center; display: none;"></div>
+                </form>
             </div>
+
         </div>
     </div>
 
@@ -304,10 +388,10 @@
                 </div>
 
                 <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px;">
-                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: var(--accent-glow);">Create New Item</h3>
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: var(--accent-glow);">Create New Poll</h3>
                     <div class="form-group">
                         <label>Category</label>
-                        <select>
+                        <select id="admin-poll-category">
                             <option>Political Initiative</option>
                             <option>Referendum</option>
                             <option>Approval Rating</option>
@@ -315,13 +399,27 @@
                     </div>
                     <div class="form-group">
                         <label>Title</label>
-                        <input type="text" placeholder="e.g., Global Legalization of Marijuana">
+                        <input type="text" id="admin-poll-title" placeholder="e.g., Global Legalization of Marijuana">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="admin-poll-desc" placeholder="e.g., Should this be passed?">
+                    </div>
+                    <div class="form-group">
+                        <label>Region</label>
+                        <select id="admin-poll-region">
+                            <option value="Global">Global</option>
+                            <option value="US">United States</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="France">France</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Options (Comma separated)</label>
-                        <input type="text" placeholder="Approve, Reject, Abstain">
+                        <input type="text" id="admin-poll-options" placeholder="Approve, Reject, Abstain">
                     </div>
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;" onclick="alert('Administrative functions are disabled in this demo environment.'); closeModals();">Save</button>
+                    <button class="btn btn-primary" id="admin-save-btn" style="width: 100%; justify-content: center; margin-top: 1rem;" onclick="adminSavePoll()">Deploy to Network</button>
+                    <div id="admin-msg" style="color: var(--accent-green); margin-top: 1rem; text-align: center; display: none;"></div>
                 </div>
             </div>
         </div>
