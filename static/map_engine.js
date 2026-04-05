@@ -154,9 +154,11 @@ async function initMap() {
         g.append("path")
             .datum(topojson.mesh(topologyData, topologyData.objects[objKeys[0]], (a, b) => a !== b))
             .attr("class", "state-boundary")
-            .attr("d", path);
+            .attr("d", path)
+            .attr("stroke", "#000") // Force black borders
+            .attr("stroke-width", "1.5px");
 
-        // State overlay interactive layer
+        // state-path is interactive overlay layer
         g.append("g")
             .attr("id", "states")
             .selectAll("path")
@@ -165,6 +167,8 @@ async function initMap() {
             .attr("class", "state-path")
             .attr("d", path)
             .attr("fill", d => getMockStateColor(d.id || Math.random() * 1000))
+            .attr("stroke", "#000") // Force initial border color via D3
+            .attr("stroke-width", "1.5px")
             .on("click", clicked);
 
         function clicked(event, d) {
@@ -202,7 +206,9 @@ async function initMap() {
             .on("zoom", (event) => {
                 g.attr("transform", event.transform);
                 // Dynamically adjust stroke width so boundaries don't become massive
-                g.selectAll(".state-boundary").attr("stroke-width", 1.5 / event.transform.k);
+                g.selectAll(".state-boundary").attr("stroke-width", 1.5 / event.transform.k).attr("stroke", "#000");
+                g.selectAll(".state-path").attr("stroke-width", 1.5 / event.transform.k).attr("stroke", "#000");
+                g.selectAll(".county-path").attr("stroke-width", 0.5 / event.transform.k).attr("stroke", "rgba(0,0,0,0.5)");
             });
 
         svg.call(zoom);
