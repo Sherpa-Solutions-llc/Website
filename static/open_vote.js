@@ -6852,7 +6852,7 @@ function loadPollData(id) {
             updateMapForPoll();
         }
     } else if (currentViewType === '2d') {
-        colorize2DMapUS();
+        render2DMap();
     }
     
     renderStateBreakdown(poll, weightedOptions);
