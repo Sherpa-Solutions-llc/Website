@@ -1777,8 +1777,15 @@ async def edit_page_view(page_name: str, user: str = Depends(require_admin)):
 import asyncio
 
 @app.post("/api/sync-github")
-async def sync_github(user: str = Depends(require_admin)):
+async def sync_github(request: Request, user: str = Depends(require_admin)):
     try:
+        data = await request.json()
+        projects = data.get("projects", [])
+        
+        with open(r"C:\tmp\github_sync_config.json", "w") as f:
+            import json
+            json.dump({"projects": projects}, f)
+
         # Initialize progress file with starting state
         progress_file = r"C:\tmp\github_sync_progress.json"
         with open(progress_file, 'w') as f:
@@ -4194,6 +4201,7 @@ class OpenVotePollRequest(BaseModel):
 class OpenVoteVoteRequest(BaseModel):
     poll_id: int
     option_id: str
+    state: str = ""
 
 class OpenVoteRegisterRequest(BaseModel):
     method: str
@@ -4230,7 +4238,7 @@ async def create_open_vote_poll_api(req: OpenVotePollRequest):
 @app.post("/api/open-vote/vote")
 async def cast_open_vote(req: OpenVoteVoteRequest):
     try:
-        await database.increment_open_vote_option(req.poll_id, req.option_id)
+        await database.increment_open_vote_option(req.poll_id, req.option_id, req.state)
         return JSONResponse({"status": "success"})
     except Exception as e:
         print(f"Error casting vote: {e}")
@@ -4241,4 +4249,15 @@ async def register_open_vote(req: OpenVoteRegisterRequest):
     # Mock registration response
     return JSONResponse({"status": "success", "message": "Identity verified", "vector": req.biometric_hash})
 
-# Rev: 20260315-0916
+@app.get("/api/open-vote/nuke")
+async def nuke_ov_db():
+    import os
+    if os.path.exists(database.VOTERS_DB):
+        try:
+            os.remove(database.VOTERS_DB)
+        except Exception as e:
+            return {"error": str(e)}
+    await database.init_open_vote_db()
+    return {"status": "reseeded"}
+
+# Rev: 20260315-0917
