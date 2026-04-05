@@ -743,3 +743,42 @@ body {
     stroke-linejoin: round;
     pointer-events: none;
 }
+
+/* =========================================
+   Mobile Responsiveness (Samsung / iPhone)
+   ========================================= */
+@media screen and (max-width: 1024px) {
+    body {
+        overflow-y: auto;
+        height: auto;
+    }
+    .main-container {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    .left-panel, .right-panel {
+        width: 100%;
+        flex-shrink: 1;
+    }
+    .panel-content {
+        padding: 1rem;
+    }
+    .dashboard-stats {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 0.8rem;
+    }
+    .method-grid {
+        grid-template-columns: 1fr;
+    }
+    .stat-value {
+        font-size: 2rem;
+    }
+    .app-header {
+        padding: 0 1rem;
+    }
+    .header-controls {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
