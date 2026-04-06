@@ -49,6 +49,29 @@ async function initMap() {
                .ringMaxRadius(5)
                .ringPropagationSpeed(3)
                .ringRepeatPeriod(700);
+
+        // Setup HTML labels for vote tallies
+        myGlobe.htmlElementsData([])
+               .htmlElement(d => {
+                   const el = document.createElement('div');
+                   el.innerHTML = `
+                       <div style="
+                           color: ${d.color};
+                           background: rgba(13, 17, 23, 0.85);
+                           border: 1px solid ${d.color};
+                           border-radius: 4px;
+                           padding: 2px 6px;
+                           font-family: 'Share Tech Mono', monospace;
+                           font-size: 0.75rem;
+                           box-shadow: 0 0 8px ${d.color};
+                           pointer-events: none;
+                           transform: translate(-50%, -50%);
+                           text-shadow: 0 0 5px ${d.color};
+                           text-align: center;
+                       ">${d.label}<br><span style="font-weight:bold;font-size:0.9rem;">${d.votes.toLocaleString()}</span></div>
+                   `;
+                   return el;
+               });
                
         // Auto-rotate configuration
         myGlobe.controls().autoRotate = true;
@@ -120,9 +143,61 @@ function updateMapForPoll() {
         myGlobe.pointOfView({ altitude: 2.0 }, 1000);
     }
     
+    
     // Clear geometry
     myGlobe.ringsData([]);
     myGlobe.arcsData([]);
+    
+    // Update HTML points for vote tallies
+    let htmlPoints = [];
+
+    const regionCenters = {
+        "Global": [{ lat: 46.2, lng: 6.1 }, { lat: 38.9, lng: -77.0 }], 
+        "UK":     [{ lat: 51.5, lng: -0.1 }, { lat: 53.4, lng: -2.2 }],
+        "France": [{ lat: 48.8, lng: 2.3 },  { lat: 45.7, lng: 4.8 }]
+    };
+
+    if (poll.region === "US") {
+        poll.options.forEach(opt => {
+            if (opt.state_tallies && opt.state_tallies.length > 0) {
+                opt.state_tallies.forEach(st => {
+                    const cd = coords[st.state];
+                    if (cd && st.votes > 0) {
+                        htmlPoints.push({
+                            lat: cd.lat, lng: cd.lng,
+                            color: opt.color,
+                            label: st.state.substring(0,3).toUpperCase(),
+                            votes: st.votes
+                        });
+                    }
+                });
+            } else {
+                // Simulation payload
+                htmlPoints.push({
+                    lat: 39 + Math.random()*4 - 2, 
+                    lng: -95 + Math.random()*10 - 5,
+                    color: opt.color,
+                    label: opt.label.substring(0,3).toUpperCase(),
+                    votes: opt.votes || 0
+                });
+            }
+        });
+    } else {
+        let idx = 0;
+        poll.options.forEach(opt => {
+            const rc = regionCenters[poll.region] ? regionCenters[poll.region][idx % regionCenters[poll.region].length] : {lat:Math.random()*20, lng:Math.random()*20};
+            htmlPoints.push({
+                lat: rc.lat + (Math.random()*2 - 1),
+                lng: rc.lng + (Math.random()*2 - 1),
+                color: opt.color,
+                label: opt.label.substring(0,12),
+                votes: opt.votes || 0
+            });
+            idx++;
+        });
+    }
+
+    myGlobe.htmlElementsData(htmlPoints);
 }
 
 function triggerGlobalPulse() {
