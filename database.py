@@ -524,7 +524,8 @@ async def init_open_vote_db():
                 title TEXT NOT NULL,
                 description TEXT NOT NULL,
                 region TEXT NOT NULL,
-                active BOOLEAN DEFAULT 1
+                active BOOLEAN DEFAULT 1,
+                year INTEGER DEFAULT 2024
             )
         ''')
         await db.execute('''
@@ -563,14 +564,14 @@ async def init_open_vote_db():
 
 async def seed_open_vote_polls():
     polls_seed = [
-        {"id": 1, "category": "Referendum", "title": "Global Legalization of Adult-Use Cannabis", "description": "Should cannabis be removed from international drug control treaties and legalized for adult recreational use globally?", "region": "Global", "active": True, "options": [{"id": "opt1", "label": "Approve (Full Legalization)", "votes": 89432, "color": "#3fb950"}, {"id": "opt2", "label": "Approve (Medical Only)", "votes": 34105, "color": "#58a6ff"}, {"id": "opt3", "label": "Reject (Maintain Prohibition)", "votes": 19056, "color": "#f85149"}]},
-        {"id": 2, "category": "Approval Rating", "title": "United Nations Secretariat Global Confidence", "description": "Do you have confidence in the current direction and effectiveness of the UN Secretariat?", "region": "Global", "active": False, "options": [{"id": "opt1", "label": "Favorable", "votes": 45210, "color": "#3fb950"}, {"id": "opt2", "label": "Neutral / Undecided", "votes": 62890, "color": "#8b949e"}, {"id": "opt3", "label": "Unfavorable", "votes": 115802, "color": "#f85149"}]},
-        {"id": 3, "category": "Political Initiative", "title": "Universal Basic Income (UBI) Mandate", "description": "Should a global taxation framework be established to fund a localized Universal Basic Income baseline?", "region": "Global", "active": True, "options": [{"id": "opt1", "label": "Strongly Support", "votes": 105423, "color": "#3fb950"}, {"id": "opt2", "label": "Support with Means Testing", "votes": 45612, "color": "#58a6ff"}, {"id": "opt3", "label": "Oppose", "votes": 98450, "color": "#f85149"}]},
-        {"id": 4, "category": "Presidential Election", "title": "2024 United States Presidential Election", "description": "Official results for the 2024 Presidential Election of the United States of America.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Republican Nominee (Trump)", "votes": 77302580, "color": "#f85149", "electoral_votes": 312}, {"id": "opt2", "label": "Democratic Nominee (Harris)", "votes": 75017613, "color": "#58a6ff", "electoral_votes": 226}]},
-        {"id": 5, "category": "National Senate", "title": "2024 US Senate - Pennsylvania", "description": "General election to represent Pennsylvania in the United States Senate.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Dave McCormick (R)", "votes": 3399295, "color": "#f85149"}, {"id": "opt2", "label": "Bob Casey Jr. (D)", "votes": 3384180, "color": "#58a6ff"}]},
-        {"id": 6, "category": "Congressional District", "title": "2024 US House - NY 14th District", "description": "General election for the 14th Congressional District of New York.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Alexandria Ocasio-Cortez (D)", "votes": 123269, "color": "#58a6ff"}, {"id": "opt2", "label": "Tina Forte (R)", "votes": 55580, "color": "#f85149"}]},
-        {"id": 7, "category": "General Election", "title": "UK General Election 2024", "description": "Vote for the next Prime Minister and governing party of the United Kingdom.", "region": "UK", "active": False, "options": [{"id": "opt1", "label": "Labour Party", "votes": 9731363, "color": "#e4003b"}, {"id": "opt2", "label": "Conservative Party", "votes": 6814469, "color": "#0087dc"}, {"id": "opt3", "label": "Reform UK", "votes": 4117610, "color": "#12b6cf"}, {"id": "opt4", "label": "Liberal Democrats", "votes": 3519143, "color": "#faa61a"}]},
-        {"id": 8, "category": "Legislative Election", "title": "French Legislative Election 2024 (Round 2)", "description": "Snap legislative election to determine the composition of the French National Assembly.", "region": "France", "active": False, "options": [{"id": "opt1", "label": "New Popular Front (NFP)", "votes": 7005500, "color": "#e4003b"}, {"id": "opt2", "label": "Ensemble (ENS)", "votes": 6314000, "color": "#faa61a"}, {"id": "opt3", "label": "National Rally (RN)", "votes": 8740000, "color": "#00008b"}]}
+        {"id": 1, "year": 2024, "category": "Referendum", "title": "Global Legalization of Adult-Use Cannabis", "description": "Should cannabis be removed from international drug control treaties and legalized for adult recreational use globally?", "region": "Global", "active": True, "options": [{"id": "opt1", "label": "Approve (Full Legalization)", "votes": 89432, "color": "#3fb950"}, {"id": "opt2", "label": "Approve (Medical Only)", "votes": 34105, "color": "#58a6ff"}, {"id": "opt3", "label": "Reject (Maintain Prohibition)", "votes": 19056, "color": "#f85149"}]},
+        {"id": 2, "year": 2024, "category": "Approval Rating", "title": "United Nations Secretariat Global Confidence", "description": "Do you have confidence in the current direction and effectiveness of the UN Secretariat?", "region": "Global", "active": False, "options": [{"id": "opt1", "label": "Favorable", "votes": 45210, "color": "#3fb950"}, {"id": "opt2", "label": "Neutral / Undecided", "votes": 62890, "color": "#8b949e"}, {"id": "opt3", "label": "Unfavorable", "votes": 115802, "color": "#f85149"}]},
+        {"id": 3, "year": 2024, "category": "Political Initiative", "title": "Universal Basic Income (UBI) Mandate", "description": "Should a global taxation framework be established to fund a localized Universal Basic Income baseline?", "region": "Global", "active": True, "options": [{"id": "opt1", "label": "Strongly Support", "votes": 105423, "color": "#3fb950"}, {"id": "opt2", "label": "Support with Means Testing", "votes": 45612, "color": "#58a6ff"}, {"id": "opt3", "label": "Oppose", "votes": 98450, "color": "#f85149"}]},
+        {"id": 4, "year": 2024, "category": "Presidential Election", "title": "2024 United States Presidential Election", "description": "Official results for the 2024 Presidential Election of the United States of America.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Republican Nominee (Trump)", "votes": 77302580, "color": "#f85149", "electoral_votes": 312}, {"id": "opt2", "label": "Democratic Nominee (Harris)", "votes": 75017613, "color": "#58a6ff", "electoral_votes": 226}]},
+        {"id": 5, "year": 2024, "category": "National Senate", "title": "2024 US Senate - Pennsylvania", "description": "General election to represent Pennsylvania in the United States Senate.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Dave McCormick (R)", "votes": 3399295, "color": "#f85149"}, {"id": "opt2", "label": "Bob Casey Jr. (D)", "votes": 3384180, "color": "#58a6ff"}]},
+        {"id": 6, "year": 2024, "category": "Congressional District", "title": "2024 US House - NY 14th District", "description": "General election for the 14th Congressional District of New York.", "region": "US", "active": False, "options": [{"id": "opt1", "label": "Alexandria Ocasio-Cortez (D)", "votes": 132714, "color": "#58a6ff"}, {"id": "opt2", "label": "Tina Forte (R)", "votes": 59078, "color": "#f85149"}]},
+        {"id": 7, "year": 2024, "category": "General Election", "title": "UK General Election 2024", "description": "Vote for the next Prime Minister and governing party of the United Kingdom.", "region": "UK", "active": False, "options": [{"id": "opt1", "label": "Labour Party", "votes": 9731363, "color": "#e4003b"}, {"id": "opt2", "label": "Conservative Party", "votes": 6814469, "color": "#0087dc"}, {"id": "opt3", "label": "Reform UK", "votes": 4117610, "color": "#12b6cf"}, {"id": "opt4", "label": "Liberal Democrats", "votes": 3519143, "color": "#faa61a"}]},
+        {"id": 8, "year": 2024, "category": "Legislative Election", "title": "French Legislative Election 2024 (Round 2)", "description": "Snap legislative election to determine the composition of the French National Assembly.", "region": "France", "active": False, "options": [{"id": "opt1", "label": "New Popular Front (NFP)", "votes": 7005500, "color": "#e4003b"}, {"id": "opt2", "label": "Ensemble (ENS)", "votes": 6314000, "color": "#faa61a"}, {"id": "opt3", "label": "National Rally (RN)", "votes": 8740000, "color": "#00008b"}]}
     ]
     US_STATE_WEIGHTS = {
         "California": 0.118, "Texas": 0.088, "Florida": 0.065, "New York": 0.059, "Pennsylvania": 0.039,
@@ -588,12 +589,17 @@ async def seed_open_vote_polls():
     
     async with aiosqlite.connect(VOTERS_DB) as db:
         for p in polls_seed:
-            await db.execute('INSERT INTO open_vote_polls (id, category, title, description, region, active) VALUES (?, ?, ?, ?, ?, ?)', (p["id"], p["category"], p["title"], p["description"], p["region"], 1 if p["active"] else 0))
+            await db.execute('INSERT INTO open_vote_polls (id, category, title, description, region, active, year) VALUES (?, ?, ?, ?, ?, ?, ?)', (p["id"], p["category"], p["title"], p["description"], p["region"], 1 if p["active"] else 0, p["year"]))
             for opt in p["options"]:
                 await db.execute('INSERT INTO open_vote_options (id, poll_id, label, votes, color, electoral_votes) VALUES (?, ?, ?, ?, ?, ?)', (opt["id"], p["id"], opt["label"], opt["votes"], opt["color"], opt.get("electoral_votes", 0)))
                 
                 if p["region"] == "Global" or p["region"] == "US":
                     for state, weight in US_STATE_WEIGHTS.items():
+                        if p["id"] == 6:
+                            state_votes = opt["votes"] if state == "New York" else 0
+                            await db.execute('INSERT INTO open_vote_state_tallies (poll_id, option_id, state_code, votes) VALUES (?, ?, ?, ?)', (p["id"], opt["id"], state, state_votes))
+                            continue
+                            
                         bias = 1.0
                         hash_val = ord(state[0]) + ord(state[-1])
                         opt_label = opt["label"].lower()
@@ -639,12 +645,48 @@ async def get_all_open_vote_polls():
             p["active"] = bool(p["active"])
         return polls
 
-async def create_open_vote_poll(category: str, title: str, description: str, region: str, active: bool, options: list):
+async def get_open_vote_years():
+    async with aiosqlite.connect(VOTERS_DB) as db:
+        async with db.execute('SELECT DISTINCT year FROM open_vote_polls ORDER BY year DESC') as cursor:
+            rows = await cursor.fetchall()
+            return [r[0] for r in rows]
+
+async def get_open_vote_polls_lazy(year: int, category_filter: str = None):
+    async with aiosqlite.connect(VOTERS_DB) as db:
+        db.row_factory = aiosqlite.Row
+        
+        query = "SELECT * FROM open_vote_polls WHERE year = ?"
+        params = [year]
+        if category_filter:
+            if category_filter == "Federal":
+                query += " AND (category LIKE '%President%' OR category LIKE '%Senate%' OR category LIKE '%House%' OR category LIKE '%Congressional District%')"
+            elif category_filter == "State":
+                query += " AND category LIKE '%Governor%'"
+            elif category_filter == "Local":
+                query += " AND category LIKE '%Mayor%'"
+            elif category_filter == "Special":
+                query += " AND category LIKE '%Special%'"
+        
+        async with db.execute(query, params) as cursor:
+            polls = [dict(r) for r in await cursor.fetchall()]
+            
+        for p in polls:
+            async with db.execute('SELECT * FROM open_vote_options WHERE poll_id = ?', (p["id"],)) as cursor:
+                p["options"] = [dict(r) for r in await cursor.fetchall()]
+                
+                for opt in p["options"]:
+                    async with db.execute('SELECT state_code, votes FROM open_vote_state_tallies WHERE poll_id = ? AND option_id = ?', (p["id"], opt["id"])) as state_cursor:
+                        opt["state_tallies"] = [{"state": row["state_code"], "votes": row["votes"]} for row in await state_cursor.fetchall()]
+                        
+            p["active"] = bool(p["active"])
+        return polls
+
+async def create_open_vote_poll(category: str, title: str, description: str, region: str, active: bool, options: list, year: int = 2024):
     async with aiosqlite.connect(VOTERS_DB) as db:
         cursor = await db.execute('''
-            INSERT INTO open_vote_polls (category, title, description, region, active)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (category, title, description, region, 1 if active else 0))
+            INSERT INTO open_vote_polls (category, title, description, region, active, year)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (category, title, description, region, 1 if active else 0, year))
         poll_id = cursor.lastrowid
         
         for idx, opt in enumerate(options):
