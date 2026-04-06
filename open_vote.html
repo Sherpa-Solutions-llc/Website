@@ -59,7 +59,7 @@
 
     <!-- Header -->
     <header class="app-header">
-        <a href="https://count-my-vote.com" class="logo-area" title="Count My Vote" style="display: flex; align-items: center; text-decoration: none;">
+        <a href="#" class="logo-area" title="Count My Vote" style="display: flex; align-items: center; text-decoration: none;" onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/' : (window.location.hostname.includes('sherpa') ? '/open_vote.html' : '/'); return false;">
             <img src="static/Open%20Vote%20Logo.png" alt="Count My Vote" style="height: 42px;"> 
         </a>
         
@@ -77,7 +77,7 @@
                 <div class="pulse-dot"></div>
                 <span style="font-family: 'Share Tech Mono'; font-size: 0.9rem;">BLOCKCHAIN SECURED</span>
             </div>
-            <a href="/next_steps.html" class="btn" style="background: rgba(255, 171, 0, 0.1); border-color: #ffab00; color: #ffab00; font-weight: bold; margin-right: 15px; text-decoration: none;" title="View Production Logistics & Next Steps">
+            <a href="#" onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/next_steps.html' : (window.location.hostname.includes('sherpa') ? '/next_steps.html' : 'https://www.sherpa-solutions-llc.com/next_steps.html'); return false;" class="btn" style="background: rgba(255, 171, 0, 0.1); border-color: #ffab00; color: #ffab00; font-weight: bold; margin-right: 15px; text-decoration: none;" title="View Production Logistics & Next Steps">
                 <i class="fa-solid fa-list-check"></i> NEXT STEPS
             </a>
             <button class="btn" id="btn-admin" onclick="openAdminModal()" style="display:none;">
