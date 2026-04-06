@@ -6647,21 +6647,30 @@ function setDemographicFilter(filter, el) {
 
 // Initialize View
 async function init() {
+    let years = [];
     try {
-        const response = await fetch(API_BASE + '/api/open-vote/polls');
+        const response = await fetch(API_BASE + '/api/open-vote/years');
         if (response.ok) {
-            polls = await response.json();
-            if (polls.length > 0) currentPollId = polls[0].id;
+            years = await response.json();
+            window.masterYearsList = years; // Store strictly for search fallback
         }
     } catch (e) {
-        console.error("Failed to fetch polls", e);
+        console.error('Failed to fetch years', e);
     }
     
-    renderPollList();
-    if(polls.length > 0) loadPollData(currentPollId);
-    startLiveSimulation();
+    // We start with NO backend polls fully loaded until an accordion expands
+    polls = [];
+    renderPollList(window.masterYearsList);
     
-    // Ensure initial view is correct
+    // Auto-load current year top-level data
+    if(years && years.length > 0) {
+        await lazyLoadCategory(years[0], null, document.getElementById(`container-yr-${years[0]}`));
+        if(polls.length > 0){
+             currentPollId = polls[0].id;
+             loadPollData(currentPollId);
+        }
+    }
+    startLiveSimulation();
     switchView('3d');
 }
 
@@ -6697,44 +6706,152 @@ function switchView(type) {
     }
 }
 
-function renderPollList() {
+async function lazyLoadCategory(year, category, containerElement) {
+    if(!containerElement) return;
+    containerElement.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--accent-glow); font-family: 'Share Tech Mono';"><i class="fa-solid fa-circle-notch fa-spin"></i> CLUSTERING...</div>`;
+    
+    try {
+        let url = API_BASE + `/api/open-vote/polls/lazy?year=${year}`;
+        if (category) url += `&category=${encodeURIComponent(category)}`;
+        
+        const response = await fetch(url);
+        if (response.ok) {
+            const fetchedPolls = await response.json();
+            
+            // Upsert into memory store
+            fetchedPolls.forEach(fp => {
+                const idx = polls.findIndex(p => p.id === fp.id);
+                if(idx === -1) polls.push(fp);
+                else polls[idx] = fp;
+            });
+            
+            // Render specific subset
+            containerElement.innerHTML = '';
+            
+            if(fetchedPolls.length === 0){
+                containerElement.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-secondary); opacity: 0.5;">No records located for this taxonomy.</div>`;
+                return;
+            }
+            
+            fetchedPolls.forEach(poll => {
+                const div = document.createElement('div');
+                div.className = `poll-card ${poll.id === currentPollId ? 'active' : ''}`;
+                div.onclick = () => {
+                    currentPollId = poll.id;
+                    // Reset styling locally rather than full rerender
+                    document.querySelectorAll('.poll-card').forEach(c => c.classList.remove('active'));
+                    div.classList.add('active');
+                    
+                    loadPollData(poll.id);
+                    if (isVerified && poll.active && !poll.hasVoted) openBallotModal(poll);
+                };
+                
+                let statusHtml = poll.active ? `<div class="status-badge"><div class="pulse-dot"></div> Active Voting</div>` : `<div style="color: var(--text-secondary)"><i class="fa-solid fa-lock"></i> Concluded</div>`;
+                div.innerHTML = `
+                    <div class="poll-category">${poll.category}</div>
+                    <div class="poll-title">${poll.title}</div>
+                    <div class="poll-meta">
+                        ${statusHtml}
+                        <span>ID: 0x${Math.random().toString(16).substr(2, 6).toUpperCase()}</span>
+                    </div>
+                `;
+                containerElement.appendChild(div);
+            });
+        }
+    } catch (e) {
+        containerElement.innerHTML = `<div style="color: var(--accent-red); padding: 1rem;">Decryption Failure. ${e}</div>`;
+    }
+}
+
+function renderPollList(years) {
+    if(!years) years = window.masterYearsList || [];
     const list = document.getElementById('poll-list');
     list.innerHTML = '';
     
-    // Filter polls based on verification state
-    let visiblePolls = polls;
-    if (isVerified && verifiedCountry && verifiedCountry !== "Global") {
-        // If verified, only show Global polls and polls matching their exact country
-        visiblePolls = polls.filter(p => p.region === "Global" || p.region === verifiedCountry);
-    }
-    
-    visiblePolls.forEach(poll => {
-        const div = document.createElement('div');
-        div.className = `poll-card ${poll.id === currentPollId ? 'active' : ''}`;
-        div.onclick = () => {
-            currentPollId = poll.id;
-            renderPollList();
-            loadPollData(poll.id);
-            
-            // If user verified and poll active and unvoted, clicking the poll opens the ballot
-            if (isVerified && poll.active && !poll.hasVoted) {
-                openBallotModal(poll);
-            }
-        };
-        
-        let statusHtml = poll.active ? `<div class="status-badge"><div class="pulse-dot"></div> Active Voting</div>` : `<div style="color: var(--text-secondary)"><i class="fa-solid fa-lock"></i> Concluded</div>`;
+    if (years.length === 0) return;
 
-        div.innerHTML = `
-            <div class="poll-category">${poll.category}</div>
-            <div class="poll-title">${poll.title}</div>
-            <div class="poll-meta">
-                ${statusHtml}
-                <span>ID: 0x${Math.random().toString(16).substr(2, 6).toUpperCase()}</span>
+    years.forEach((year, index) => {
+        const yearHeader = document.createElement('div');
+        yearHeader.style.cssText = "padding: 0.8rem 1rem; background: rgba(0, 210, 255, 0.05); color: var(--accent-glow); display: flex; justify-content: space-between; cursor: pointer; border-bottom: 1px solid rgba(0, 210, 255, 0.2); font-weight: 600; font-family: 'Share Tech Mono'; letter-spacing: 1px;";
+        yearHeader.innerHTML = `<span><i class="fa-solid fa-calendar-days" style="margin-right: 0.5rem;"></i>${year} MASTER LEDGER</span> <i class="fa-solid fa-chevron-down"></i>`;
+        
+        const outerContainer = document.createElement('div');
+        
+        const navHtml = `
+            <div style="display: flex; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); overflow-x: auto; font-size: 0.8rem; font-family: 'Share Tech Mono';">
+                <div class="tax-tab active" data-y="${year}" data-cat="" style="padding: 0.5rem; cursor: pointer; border-right: 1px solid rgba(255,255,255,0.1); color: var(--accent-glow);">Global</div>
+                <div class="tax-tab" data-y="${year}" data-cat="Federal" style="padding: 0.5rem; cursor: pointer; border-right: 1px solid rgba(255,255,255,0.1);">Federal</div>
+                <div class="tax-tab" data-y="${year}" data-cat="State" style="padding: 0.5rem; cursor: pointer; border-right: 1px solid rgba(255,255,255,0.1);">State</div>
+                <div class="tax-tab" data-y="${year}" data-cat="Local" style="padding: 0.5rem; cursor: pointer; border-right: 1px solid rgba(255,255,255,0.1);">Local</div>
+                <div class="tax-tab" data-y="${year}" data-cat="Special" style="padding: 0.5rem; cursor: pointer;">Special</div>
             </div>
         `;
-        list.appendChild(div);
+        
+        const cardContainer = document.createElement('div');
+        cardContainer.id = `container-yr-${year}`;
+        
+        outerContainer.innerHTML = navHtml;
+        outerContainer.appendChild(cardContainer);
+        
+        if (index === 0) {
+            yearHeader.classList.add('expanded');
+            outerContainer.style.display = 'block';
+        } else {
+            outerContainer.style.display = 'none';
+            yearHeader.querySelector('.fa-chevron-down').classList.replace('fa-chevron-down', 'fa-chevron-right');
+        }
+
+        yearHeader.onclick = () => {
+            const isExpanded = yearHeader.classList.toggle('expanded');
+            outerContainer.style.display = isExpanded ? 'block' : 'none';
+            const icon = yearHeader.querySelector('i:last-child');
+            if (isExpanded) {
+                icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
+                if(cardContainer.innerHTML === '') lazyLoadCategory(year, null, cardContainer);
+            } else {
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
+            }
+        };
+
+        outerContainer.querySelectorAll('.tax-tab').forEach(tab => {
+            tab.onclick = (e) => {
+                e.stopPropagation();
+                outerContainer.querySelectorAll('.tax-tab').forEach(t => {
+                    t.classList.remove('active');
+                    t.style.color = '';
+                });
+                tab.classList.add('active');
+                tab.style.color = 'var(--accent-glow)';
+                lazyLoadCategory(year, tab.getAttribute('data-cat'), cardContainer);
+            };
+        });
+
+        list.appendChild(yearHeader);
+        list.appendChild(outerContainer);
     });
 }
+
+window.filterPolls = () => {
+    // Basic local filter on loaded memory as search
+    const searchVal = (document.getElementById('poll-search-input')?.value || '').toLowerCase();
+    
+    document.querySelectorAll('.poll-card').forEach(card => {
+        const title = card.querySelector('.poll-title').textContent.toLowerCase();
+        const cat = card.querySelector('.poll-category').textContent.toLowerCase();
+        if(title.includes(searchVal) || cat.includes(searchVal)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Auto-expand all years if searching
+    if(searchVal.length > 0){
+        document.querySelectorAll('.year-accordion-header').forEach(header => {
+            if(!header.classList.contains('expanded')) header.click();
+        });
+    }
+};
 
 function animateValue(obj, start, end, duration) {
     let startTimestamp = null;
@@ -7740,22 +7857,22 @@ function renderStateBreakdown(poll, weightedOptions) {
                 // Fallback simulation
                 const variance = 0.9 + ((state.length * opt.label.length % 20) / 100); 
                 stateVotes = Math.floor((opt.weightedVotes || opt.votes) * weight * variance);
+                
+                // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
+                let bias = 1.0;
+                const optLabel = opt.label.toLowerCase();
+                let stateHash = 0;
+                for(let i=0; i<state.length; i++) stateHash += state.charCodeAt(i);
+                
+                if (optLabel.includes('democrat') || optLabel.includes('harris')) {
+                    if (stateHash % 3 === 0) bias *= 1.8;
+                    else if (stateHash % 3 === 1) bias *= 0.4;
+                } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
+                    if (stateHash % 3 === 1) bias *= 1.8;
+                    else if (stateHash % 3 === 0) bias *= 0.4;
+                }
+                stateVotes = Math.floor(stateVotes * bias);
             }
-            
-            // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
-            let bias = 1.0;
-            const optLabel = opt.label.toLowerCase();
-            let stateHash = 0;
-            for(let i=0; i<state.length; i++) stateHash += state.charCodeAt(i);
-            
-            if (optLabel.includes('democrat') || optLabel.includes('harris')) {
-                if (stateHash % 3 === 0) bias *= 1.8;
-                else if (stateHash % 3 === 1) bias *= 0.4;
-            } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
-                if (stateHash % 3 === 1) bias *= 1.8;
-                else if (stateHash % 3 === 0) bias *= 0.4;
-            }
-            stateVotes = Math.floor(stateVotes * bias);
 
             talliesHtml += `
                 <div style="display: flex; flex-direction: column; align-items: flex-end; width: 100px; flex-shrink: 0;">
@@ -7866,23 +7983,23 @@ function colorize2DMapUS() {
                  if (sObj) simulatedVotes = sObj.votes;
              } else {
                  simulatedVotes = opt.votes;
+                 
+                 // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
+                 let bias = 1.0;
+                 const optLabel = opt.label.toLowerCase();
+                 let stateHash = 0;
+                 for(let i=0; i<stateName.length; i++) stateHash += stateName.charCodeAt(i);
+                 if (optLabel.includes('democrat') || optLabel.includes('harris')) {
+                     if (stateHash % 3 === 0) bias *= 1.8;
+                     else if (stateHash % 3 === 1) bias *= 0.4;
+                 } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
+                     if (stateHash % 3 === 1) bias *= 1.8;
+                     else if (stateHash % 3 === 0) bias *= 0.4;
+                 }
+                 simulatedVotes = Math.floor(simulatedVotes * bias);
              }
 
-             // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
-             let bias = 1.0;
-             const optLabel = opt.label.toLowerCase();
-             let stateHash = 0;
-             for(let i=0; i<stateName.length; i++) stateHash += stateName.charCodeAt(i);
-             if (optLabel.includes('democrat') || optLabel.includes('harris')) {
-                 if (stateHash % 3 === 0) bias *= 1.8;
-                 else if (stateHash % 3 === 1) bias *= 0.4;
-             } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
-                 if (stateHash % 3 === 1) bias *= 1.8;
-                 else if (stateHash % 3 === 0) bias *= 0.4;
-             }
-             simulatedVotes = Math.floor(simulatedVotes * bias);
-
-             if (simulatedVotes > maxVotes) {
+             if (simulatedVotes > maxVotes && simulatedVotes > 0) {
                  maxVotes = simulatedVotes;
                  winningColor = opt.color;
              }
