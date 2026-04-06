@@ -67,7 +67,50 @@ function updateMapForPoll() {
     if (poll.region === "Global") {
         myGlobe.pointOfView({ altitude: 2.5 }, 1000);
     } else if (poll.region === "US") {
-        myGlobe.pointOfView({ lat: 39.8, lng: -98.5, altitude: 1.2 }, 1000);
+        // If it's a specific localized state race, try to fly the 3D earth directly down on top of it
+        const coords = {
+            "Alaska": { lat: 61.3, lng: -152.4 }, "Hawaii": { lat: 21.0, lng: -157.5 },
+            "Washington": { lat: 47.4, lng: -121.1 }, "Oregon": { lat: 44.5, lng: -122.0 },
+            "California": { lat: 36.1, lng: -119.6 }, "Nevada": { lat: 38.3, lng: -117.1 },
+            "Idaho": { lat: 44.2, lng: -114.4 }, "Montana": { lat: 46.9, lng: -110.3 },
+            "Wyoming": { lat: 42.7, lng: -107.3 }, "Utah": { lat: 40.1, lng: -111.8 },
+            "Arizona": { lat: 33.7, lng: -111.4 }, "New Mexico": { lat: 34.8, lng: -106.2 },
+            "Colorado": { lat: 39.0, lng: -105.3 }, "North Dakota": { lat: 47.5, lng: -99.9 },
+            "South Dakota": { lat: 44.2, lng: -99.9 }, "Nebraska": { lat: 41.1, lng: -98.2 },
+            "Kansas": { lat: 38.5, lng: -96.7 }, "Oklahoma": { lat: 35.5, lng: -96.9 },
+            "Texas": { lat: 31.0, lng: -97.5 }, "Minnesota": { lat: 45.6, lng: -93.9 },
+            "Iowa": { lat: 42.0, lng: -93.2 }, "Missouri": { lat: 38.5, lng: -92.2 },
+            "Arkansas": { lat: 34.9, lng: -92.3 }, "Louisiana": { lat: 31.1, lng: -91.8 },
+            "Wisconsin": { lat: 44.2, lng: -89.6 }, "Illinois": { lat: 40.3, lng: -88.9 },
+            "Michigan": { lat: 43.3, lng: -84.5 }, "Indiana": { lat: 39.8, lng: -86.2 },
+            "Kentucky": { lat: 37.6, lng: -84.6 }, "Tennessee": { lat: 35.7, lng: -86.6 },
+            "Mississippi": { lat: 32.7, lng: -89.6 }, "Alabama": { lat: 32.8, lng: -86.8 },
+            "Ohio": { lat: 40.3, lng: -82.7 }, "Georgia": { lat: 33.0, lng: -83.6 },
+            "Florida": { lat: 27.7, lng: -81.6 }, "South Carolina": { lat: 33.8, lng: -80.9 },
+            "North Carolina": { lat: 35.6, lng: -79.8 }, "Virginia": { lat: 37.7, lng: -78.1 },
+            "West Virginia": { lat: 38.4, lng: -80.9 }, "Maryland": { lat: 39.0, lng: -76.8 },
+            "Delaware": { lat: 39.3, lng: -75.5 }, "Pennsylvania": { lat: 40.5, lng: -77.2 },
+            "New Jersey": { lat: 40.2, lng: -74.5 }, "New York": { lat: 42.1, lng: -74.9 },
+            "Connecticut": { lat: 41.5, lng: -72.7 }, "Rhode Island": { lat: 41.7, lng: -71.5 },
+            "Massachusetts": { lat: 42.2, lng: -71.5 }, "Vermont": { lat: 44.0, lng: -72.6 },
+            "New Hampshire": { lat: 43.4, lng: -71.5 }, "Maine": { lat: 44.6, lng: -69.3 }
+        };
+        
+        let foundState = false;
+        if(poll.title) {
+            for (const [st, cd] of Object.entries(coords)) {
+                if (poll.title.includes(st)) {
+                    myGlobe.pointOfView({ lat: cd.lat, lng: cd.lng, altitude: 0.35 }, 1500); // 1.5sec swoop
+                    foundState = true;
+                    break;
+                }
+            }
+        }
+        
+        // Default flat US viewport
+        if(!foundState) {
+            myGlobe.pointOfView({ lat: 39.8, lng: -98.5, altitude: 1.2 }, 1000);
+        }
     } else if (poll.region === "UK") {
         myGlobe.pointOfView({ lat: 54.5, lng: -2.5, altitude: 0.8 }, 1000);
     } else if (poll.region === "France") {
