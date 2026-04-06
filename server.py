@@ -4226,6 +4226,23 @@ async def get_open_vote_polls():
         print(f"Error fetching open vote polls: {e}")
         return JSONResponse({"error": "Database error"}, status_code=500)
 
+@app.get("/api/open-vote/years")
+async def get_open_vote_years():
+    try:
+        years = await database.get_open_vote_years()
+        return JSONResponse(years)
+    except Exception as e:
+        return JSONResponse({"error": "Database error"}, status_code=500)
+
+@app.get("/api/open-vote/polls/lazy")
+async def get_open_vote_polls_lazy(year: int, category: str = None):
+    try:
+        polls = await database.get_open_vote_polls_lazy(year, category)
+        return JSONResponse(polls)
+    except Exception as e:
+        print(f"Error lazy loading open vote polls: {e}")
+        return JSONResponse({"error": "Database error"}, status_code=500)
+
 @app.post("/api/open-vote/poll")
 async def create_open_vote_poll_api(req: OpenVotePollRequest):
     try:
