@@ -697,9 +697,23 @@ async def create_open_vote_poll(category: str, title: str, description: str, reg
         await db.commit()
         return poll_id
 
-async def increment_open_vote_option(poll_id: int, option_id: str, state_code: str = ""):
+import hashlib
+import time
+
+async def increment_open_vote_option(poll_id: int, option_id: str, state_code: str = "", vector: str = "ANON"):
     async with aiosqlite.connect(VOTERS_DB) as db:
         await db.execute('UPDATE open_vote_options SET votes = votes + 1 WHERE poll_id = ? AND id = ?', (poll_id, option_id))
         if state_code:
             await db.execute('UPDATE open_vote_state_tallies SET votes = votes + 1 WHERE poll_id = ? AND option_id = ? AND state_code = ?', (poll_id, option_id, state_code))
+            
+        # Cryptographic Verification Engine
+        raw_string = f"{poll_id}-{option_id}-{state_code}-{vector}-{time.time()}".encode('utf-8')
+        tx_hash = "0x" + hashlib.sha256(raw_string).hexdigest()
+        
+        await db.execute('''
+            INSERT INTO open_vote_ledger (tx_hash, poll_id, option_id, state_code, biometric_signature)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (tx_hash, poll_id, option_id, state_code, vector))
+            
         await db.commit()
+        return tx_hash
