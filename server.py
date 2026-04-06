@@ -123,7 +123,11 @@ ALLOWED_ORIGINS = [
     "https://sherpa-solutions-llc.com/",
     "https://www.sherpa-solutions-llc.com/",
     "https://sherpa-solutions-llc.github.io",
-    "https://sherpa-solutions-llc.github.io/"
+    "https://sherpa-solutions-llc.github.io/",
+    "https://count-my-vote.com",
+    "https://www.count-my-vote.com",
+    "https://count-my-vote.com/",
+    "https://www.count-my-vote.com/"
 ]
 
 app.add_middleware(
@@ -134,8 +138,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (css, images)
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# Mount static files (css, images) only if the directory exists
+try:
+    if os.path.exists(STATIC_DIR):
+        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+except Exception as e:
+    print(f"Failed to mount static dir: {e}")
 
 # In-memory session store for simplicity (token -> user_id)
 # In production, use Redis or signed JWT cookies
@@ -4202,6 +4210,7 @@ class OpenVoteVoteRequest(BaseModel):
     poll_id: int
     option_id: str
     state: str = ""
+    vector: str = "ANON"
 
 class OpenVoteRegisterRequest(BaseModel):
     method: str
@@ -4244,7 +4253,13 @@ async def get_open_vote_polls_lazy(year: int, category: str = None):
         return JSONResponse({"error": "Database error"}, status_code=500)
 
 @app.post("/api/open-vote/poll")
-async def create_open_vote_poll_api(req: OpenVotePollRequest):
+async def create_open_vote_poll_api(req: OpenVotePollRequest, request: Request):
+    # Security Validation: Block completely if the HTTP origin isn't local.
+    # In a real environment, this needs a mature JWT Admin middleware layer.
+    client_host = request.client.host
+    if client_host != "127.0.0.1" and client_host != "localhost" and client_host != "::1":
+       return JSONResponse({"error": "Unauthorized Access Endpoint Disabled Outside Host"}, status_code=403)
+       
     try:
         poll_id = await database.create_open_vote_poll(req.category, req.title, req.description, req.region, req.active, req.options)
         return JSONResponse({"status": "success", "poll_id": poll_id})
@@ -4255,8 +4270,8 @@ async def create_open_vote_poll_api(req: OpenVotePollRequest):
 @app.post("/api/open-vote/vote")
 async def cast_open_vote(req: OpenVoteVoteRequest):
     try:
-        await database.increment_open_vote_option(req.poll_id, req.option_id, req.state)
-        return JSONResponse({"status": "success"})
+        tx_hash = await database.increment_open_vote_option(req.poll_id, req.option_id, req.state, req.vector)
+        return JSONResponse({"status": "success", "tx_hash": tx_hash})
     except Exception as e:
         print(f"Error casting vote: {e}")
         return JSONResponse({"error": "Failed to cast vote"}, status_code=500)
@@ -4265,6 +4280,19 @@ async def cast_open_vote(req: OpenVoteVoteRequest):
 async def register_open_vote(req: OpenVoteRegisterRequest):
     # Mock registration response
     return JSONResponse({"status": "success", "message": "Identity verified", "vector": req.biometric_hash})
+
+@app.get("/api/open-vote/ledger")
+async def get_open_vote_ledger():
+    try:
+        import aiosqlite
+        async with aiosqlite.connect(database.VOTERS_DB) as db:
+            async with db.execute('SELECT tx_hash FROM open_vote_ledger ORDER BY timestamp DESC LIMIT 20') as cursor:
+                rows = await cursor.fetchall()
+                hashes = [r[0] for r in rows]
+                return JSONResponse(hashes)
+    except Exception as e:
+        print(f"Error fetching ledger: {e}")
+        return JSONResponse({"error": "Failed to sync ledger"}, status_code=500)
 
 @app.get("/api/open-vote/nuke")
 async def nuke_ov_db():
@@ -4278,3 +4306,4 @@ async def nuke_ov_db():
     return {"status": "reseeded"}
 
 # Rev: 20260315-0917
+# Cache Bust: Force Railway to ignore old Nixpacks cache 4568
