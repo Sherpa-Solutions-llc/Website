@@ -6975,53 +6975,6 @@ function loadPollData(id) {
     renderStateBreakdown(poll, weightedOptions);
 }
 
-function startLiveSimulation() {
-    // Randomly tick up votes on the active poll
-    simulationInterval = setInterval(() => {
-        const activePolls = polls.filter(p => p.active);
-        if(activePolls.length === 0) return;
-        
-        const poll = activePolls[0];
-        // add random votes only if simulating
-        if (isSimulationMode) {
-            poll.options.forEach(opt => {
-                if(Math.random() > 0.5) {
-                    const tick = Math.floor(Math.random() * 5);
-                    opt.votes += tick;
-                    
-                    // Add to a randomly distributed state bucket
-                    if (opt.state_tallies && opt.state_tallies.length > 0) {
-                        let rand = Math.random();
-                        let chosenState = opt.state_tallies[0].state;
-                        for (const [st, wt] of Object.entries(usStateWeights)) {
-                            rand -= wt;
-                            if (rand <= 0) {
-                                chosenState = st;
-                                break;
-                            }
-                        }
-                        const stateObj = opt.state_tallies.find(s => s.state === chosenState);
-                        if (stateObj) stateObj.votes += tick;
-                    }
-                }
-            });
-        }
-        
-        // trigger pulse
-        if(typeof triggerGlobalPulse === 'function') {
-             triggerGlobalPulse();
-             if(Math.random() > 0.3) setTimeout(triggerGlobalPulse, 400);
-             if(Math.random() > 0.6) setTimeout(triggerGlobalPulse, 800); 
-        }
-        
-        // update UI if we are looking at it
-        if(currentPollId === poll.id) {
-            loadPollData(poll.id);
-        }
-        
-    }, 3000);
-}
-
 
 // --- Modals and Interactions ---
 
@@ -7243,6 +7196,8 @@ async function submitRegistration(event) {
         
         // Success!
         isVerified = true;
+        window.activeBiometricHash = data.vector || biometricHash; // Ensure we grab the backend allocated hash
+        
         verifiedCountry = document.getElementById('user-country-select').value;
         verifiedState = document.getElementById('user-state-select').value;
         updateVerifiedUI();
@@ -7332,7 +7287,7 @@ async function submitVote() {
     const opt = poll.options.find(o => o.id === selectedOptionId);
     
     const payloadBytes = JSON.stringify({
-        vector: isVerified ? "BIO-" + Math.random().toString(36).substr(2, 6).toUpperCase() : "ANON",
+        vector: window.activeBiometricHash || (isVerified ? "BIO-" + Math.random().toString(36).substr(2, 6).toUpperCase() : "ANON"),
         poll_id: currentPollId,
         choice: opt.label
     });
@@ -7349,21 +7304,34 @@ async function submitVote() {
     }, 50);
 
     try {
-        await fetch(API_BASE + '/api/open-vote/vote', {
+        const resp = await fetch(API_BASE + '/api/open-vote/vote', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({poll_id: currentPollId, option_id: selectedOptionId, state: verifiedState || ""})
+            body: JSON.stringify({
+                poll_id: currentPollId, 
+                option_id: selectedOptionId, 
+                state: verifiedState || "", 
+                vector: window.activeBiometricHash || ""
+            })
         });
         
-        // Final receipt hash
-        const receiptHash = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
+        let txHash;
+        if (resp.ok) {
+            const data = await resp.json();
+            txHash = data.tx_hash; 
+        } else {
+             throw new Error("API Failure");
+        }
+        
+        const receiptHash = txHash || "0xERROR";
         
         setTimeout(() => {
             clearInterval(scrambleInterval);
             scrambleEl.innerHTML = receiptHash;
             scrambleEl.style.color = "var(--accent-green)";
             
-            opt.votes += 1;
+            // Note: Since this is now a real DB query, we must refetch the list
+            // rather than manually incrementing visually
             poll.hasVoted = true; 
             
             setTimeout(() => {
@@ -7452,7 +7420,7 @@ async function adminSavePoll() {
 
 // --- Audit Ledger Terminal Logic ---
 
-function openAuditLedger() {
+async function openAuditLedger() {
     document.getElementById('audit-modal').classList.add('active');
     
     const targetHash = window.lastVoteReceiptHash || "N/A";
@@ -7461,38 +7429,52 @@ function openAuditLedger() {
     const terminal = document.getElementById('ledger-terminal');
     terminal.innerHTML = '<div style="color: var(--accent-glow);">[ ! ] ESTABLISHING SECURE CONNECTION TO PUBLIC NODE...</div>';
     
-    let count = 0;
-    const scrollMax = 20;
-    
-    // Simulate terminal hash synchronization
-    const terminalSpam = setInterval(() => {
-        if(count > scrollMax) {
-            clearInterval(terminalSpam);
-            const successDiv = document.createElement('div');
-            successDiv.style.color = "var(--accent-green)";
-            successDiv.style.marginTop = "10px";
-            successDiv.innerHTML = `> VERIFIED: RECEIPT [${targetHash}] IS SECURELY RECORDED IN BLOCK #${Math.floor(Math.random()*900000) + 100000}<br>> IMMUTABILITY STATUS: LOCKED`;
-            terminal.appendChild(successDiv);
-            terminal.scrollTop = terminal.scrollHeight;
+    try {
+        const resp = await fetch(API_BASE + '/api/open-vote/ledger');
+        if (resp.ok) {
+            const externalHashes = await resp.json();
+            
+            let count = 0;
+            const scrollMax = externalHashes.length || 20;
+            
+            const terminalSpam = setInterval(() => {
+                if(count >= scrollMax) {
+                    clearInterval(terminalSpam);
+                    if(targetHash !== "N/A") {
+                        const successDiv = document.createElement('div');
+                        successDiv.style.color = "var(--accent-green)";
+                        successDiv.style.marginTop = "10px";
+                        successDiv.innerHTML = `> VERIFIED: RECEIPT [${targetHash}] IS SECURELY RECORDED IN BLOCK #${Math.floor(Math.random()*900000) + 100000}<br>> IMMUTABILITY STATUS: LOCKED`;
+                        terminal.appendChild(successDiv);
+                    }
+                    terminal.scrollTop = terminal.scrollHeight;
+                    return;
+                }
+                
+                const div = document.createElement('div');
+                let hsh = externalHashes[count] || "0x" + Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+                
+                // Randomly decide if this line simulates finding our hash
+                if(count === scrollMax - 3 && targetHash !== "N/A") {
+                    div.style.color = "var(--accent-green)";
+                    div.innerHTML = `[SYNC] INCOMING TX: <span style="background: rgba(63, 185, 80, 0.2);">${targetHash}</span> (MATCH FOUND)`;
+                } else {
+                    div.style.color = "rgba(255,255,255,0.4)";
+                    div.innerText = `[SYNC] INCOMING TX: ${hsh}`;
+                }
+                
+                terminal.appendChild(div);
+                terminal.scrollTop = terminal.scrollHeight; // auto scroll
+                count++;
+            }, 100);
+            
             return;
         }
-        
-        const div = document.createElement('div');
-        const randomHash = "0x" + Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-        
-        // Randomly decide if this line simulates finding our hash
-        if(count === scrollMax - 3 && targetHash !== "N/A") {
-            div.style.color = "var(--accent-green)";
-            div.innerHTML = `[SYNC] INCOMING TX: <span style="background: rgba(63, 185, 80, 0.2);">${targetHash}</span> (MATCH FOUND)`;
-        } else {
-            div.style.color = "rgba(255,255,255,0.4)";
-            div.innerText = `[SYNC] INCOMING TX: ${randomHash}`;
-        }
-        
-        terminal.appendChild(div);
-        terminal.scrollTop = terminal.scrollHeight; // auto scroll
-        count++;
-    }, 150);
+    } catch(e) {
+        console.error("Ledger sync failure", e);
+    }
+    
+    terminal.innerHTML += '<div style="color: var(--accent-red); margin-top: 20px;">[X] CONNECTION FAILURE TO NODE 0xSERVER.</div>';
 }
 
 // Start
@@ -7765,7 +7747,7 @@ async function runDemoCycle() {
                 subBtn.click();
                 
                 await speakDemoText("Once cast, your entry is injected through a mathematical SHA-256 algorithm. The system permanently associates your selection with a deterministic string hash receipt.");
-                await delay(3500); if (!isDemoModeActive) return;
+                await delay(4500); if (!isDemoModeActive) return;
                 
                 const ledgerBtn = document.getElementById('view-ledger-btn');
                 if(ledgerBtn) {
@@ -7773,6 +7755,7 @@ async function runDemoCycle() {
                     await moveVirtualMouse(lC.x, lC.y, 1000, true);
                     ledgerBtn.click();
                     await speakDemoText("We can seamlessly interface with the public terminal. By comparing your receipt against the network's decentralized block synchronization, we establish uncompromising cryptographic immutability.");
+                    await delay(4000); if (!isDemoModeActive) return;
                 }
             }
         }
@@ -7973,40 +7956,38 @@ function colorize2DMapUS() {
         const path = container.querySelector(`.${abbr}`);
         if (!path) continue;
         
-        let winningColor = '#3a3a4a'; // default dark fill
+        let winningColor = '#242436'; // Dimmer baseline for inactive states
         let maxVotes = -1;
+        let isParticipating = false;
         
+        // 1. Is there literal database vote parity for this state?
         poll.options.forEach(opt => {
-             let simulatedVotes = 0;
              if (opt.state_tallies && opt.state_tallies.length > 0) {
                  const sObj = opt.state_tallies.find(s => s.state === stateName);
-                 if (sObj) simulatedVotes = sObj.votes;
-             } else {
-                 simulatedVotes = opt.votes;
-                 
-                 // --- INJECT VISUAL VARIANCE TO OVERRIDE BACKEND ---
-                 let bias = 1.0;
-                 const optLabel = opt.label.toLowerCase();
-                 let stateHash = 0;
-                 for(let i=0; i<stateName.length; i++) stateHash += stateName.charCodeAt(i);
-                 if (optLabel.includes('democrat') || optLabel.includes('harris')) {
-                     if (stateHash % 3 === 0) bias *= 1.8;
-                     else if (stateHash % 3 === 1) bias *= 0.4;
-                 } else if (optLabel.includes('republican') || optLabel.includes('trump')) {
-                     if (stateHash % 3 === 1) bias *= 1.8;
-                     else if (stateHash % 3 === 0) bias *= 0.4;
+                 if (sObj && sObj.votes > 0) {
+                     isParticipating = true;
+                     if (sObj.votes > maxVotes) {
+                         maxVotes = sObj.votes;
+                         winningColor = opt.color;
+                     }
                  }
-                 simulatedVotes = Math.floor(simulatedVotes * bias);
-             }
-
-             if (simulatedVotes > maxVotes && simulatedVotes > 0) {
-                 maxVotes = simulatedVotes;
-                 winningColor = opt.color;
              }
         });
         
+        // 2. If no explicit DB state_tallies exist for a state, it remains dim.
+        // We no longer hallucinate data or assume it's national via algorithmic bias.
+
         path.style.transition = 'fill 0.5s ease-out';
         path.style.fill = winningColor;
+        
+        // Push aesthetic layer based on activity
+        if (winningColor === '#242436') {
+             path.style.opacity = '0.3';
+             path.style.pointerEvents = 'none'; // Disable hover interactivity for irrelevant states
+        } else {
+             path.style.opacity = '1.0';
+             path.style.pointerEvents = 'auto'; // Active states
+        }
     }
 }
 
