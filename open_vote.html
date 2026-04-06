@@ -59,15 +59,11 @@
 
     <!-- Header -->
     <header class="app-header">
-        <a href="projects.html" class="logo-area" title="Back to Projects">
-            <img src="static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 40px; margin-right: 8px;"> 
-            <h1>Open Vote</h1>
+        <a href="https://count-my-vote.com" class="logo-area" title="Count My Vote" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="static/Open%20Vote%20Logo.png" alt="Count My Vote" style="height: 42px;"> 
         </a>
         
         <div class="header-controls">
-            <button id="simulate-mode-btn" class="btn" style="background: transparent; border-color: rgba(255,255,255,0.2); color: var(--text-secondary); font-weight: bold; margin-right: 15px; transition: all 0.2s ease;" onclick="toggleSimulationMode()" title="Toggle Test Simulation Mode">
-                <i class="fa-solid fa-flask"></i> SIMULATE OFF
-            </button>
             <button id="demo-mode-btn" class="btn" style="background: rgba(0, 210, 255, 0.1); border-color: #00d2ff; color: #00d2ff; font-weight: bold; margin-right: 15px; transition: all 0.2s ease;" title="Toggle Demo Mode">
                 <i class="fa-solid fa-play"></i> DEMO OFF
             </button>
@@ -81,9 +77,17 @@
                 <div class="pulse-dot"></div>
                 <span style="font-family: 'Share Tech Mono'; font-size: 0.9rem;">BLOCKCHAIN SECURED</span>
             </div>
-            <button class="btn" id="btn-admin" onclick="openAdminModal()">
+            <a href="/next_steps.html" class="btn" style="background: rgba(255, 171, 0, 0.1); border-color: #ffab00; color: #ffab00; font-weight: bold; margin-right: 15px; text-decoration: none;" title="View Production Logistics & Next Steps">
+                <i class="fa-solid fa-list-check"></i> NEXT STEPS
+            </a>
+            <button class="btn" id="btn-admin" onclick="openAdminModal()" style="display:none;">
                 <i class="fa-solid fa-screwdriver-wrench"></i> Admin Panel
             </button>
+            <script>
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') {
+                    document.getElementById('btn-admin').style.display = 'inline-flex';
+                }
+            </script>
         </div>
     </header>
 
@@ -266,6 +270,14 @@
         </aside>
 
     </main>
+
+    <!-- Footer: Built by a Sherpa -->
+    <footer style="position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 100;">
+        <a href="https://www.sherpa-solutions-llc.com" target="_blank" style="text-decoration: none; color: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.3s ease;" onmouseover="this.style.color='#fff'; this.style.transform='scale(1.05)'" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)'; this.style.transform='scale(1)'">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px;">Built by a Sherpa</span>
+            <img src="static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+        </a>
+    </footer>
 
     <!-- Modals -->
 
