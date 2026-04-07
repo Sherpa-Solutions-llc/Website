@@ -33,7 +33,39 @@ async function initMap() {
             .atmosphereColor('lightskyblue')
             .atmosphereAltitude(0.15)
             .pointOfView({ lat: 39.8, lng: -98.5, altitude: 2 }) // default view
-            
+            .htmlElementsData([])
+            .htmlElement(d => {
+                const el = document.createElement('div');
+                el.className = 'globe-scoreboard';
+                
+                let title = d.poll.title || "Live Results";
+                let totalVotes = d.poll.options.reduce((sum, opt) => sum + (opt.weightedVotes || opt.votes || 0), 0);
+                if (totalVotes === 0) totalVotes = 1;
+
+                let optionsHtml = '';
+                // Sort by top 2 options
+                let sortedOptions = [...d.poll.options].sort((a,b) => (b.weightedVotes||b.votes||0) - (a.weightedVotes||a.votes||0)).slice(0,2);
+                
+                sortedOptions.forEach(opt => {
+                    let v = opt.weightedVotes || opt.votes || 0;
+                    let pct = ((v / totalVotes) * 100).toFixed(1);
+                    optionsHtml += `
+                        <div class="score-row">
+                            <span style="color: ${opt.color}; font-weight: 600;">${opt.name}</span>
+                            <span>${pct}% (${v.toLocaleString()})</span>
+                        </div>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" style="width: ${pct}%; background: ${opt.color};"></div>
+                        </div>
+                    `;
+                });
+
+                el.innerHTML = `
+                    <h4>${title}</h4>
+                    ${optionsHtml}
+                `;
+                return el;
+            });
         // Setup arcs state (telemetry paths)
         myGlobe.arcsData([])
                .arcColor('color')
@@ -49,29 +81,6 @@ async function initMap() {
                .ringMaxRadius(5)
                .ringPropagationSpeed(3)
                .ringRepeatPeriod(700);
-
-        // Setup HTML labels for vote tallies
-        myGlobe.htmlElementsData([])
-               .htmlElement(d => {
-                   const el = document.createElement('div');
-                   el.innerHTML = `
-                       <div style="
-                           color: ${d.color};
-                           background: rgba(13, 17, 23, 0.85);
-                           border: 1px solid ${d.color};
-                           border-radius: 4px;
-                           padding: 2px 6px;
-                           font-family: 'Share Tech Mono', monospace;
-                           font-size: 0.75rem;
-                           box-shadow: 0 0 8px ${d.color};
-                           pointer-events: none;
-                           transform: translate(-50%, -50%);
-                           text-shadow: 0 0 5px ${d.color};
-                           text-align: center;
-                       ">${d.label}<br><span style="font-weight:bold;font-size:0.9rem;">${d.votes.toLocaleString()}</span></div>
-                   `;
-                   return el;
-               });
                
         // Auto-rotate configuration
         myGlobe.controls().autoRotate = true;
@@ -143,61 +152,35 @@ function updateMapForPoll() {
         myGlobe.pointOfView({ altitude: 2.0 }, 1000);
     }
     
-    
     // Clear geometry
     myGlobe.ringsData([]);
     myGlobe.arcsData([]);
     
-    // Update HTML points for vote tallies
-    let htmlPoints = [];
-
-    const regionCenters = {
-        "Global": [{ lat: 46.2, lng: 6.1 }, { lat: 38.9, lng: -77.0 }], 
-        "UK":     [{ lat: 51.5, lng: -0.1 }, { lat: 53.4, lng: -2.2 }],
-        "France": [{ lat: 48.8, lng: 2.3 },  { lat: 45.7, lng: 4.8 }]
-    };
-
+    // Update HTML overlay scoreboard
+    let markerLat = 39.8;
+    let markerLng = -98.5;
+    
     if (poll.region === "US") {
-        poll.options.forEach(opt => {
-            if (opt.state_tallies && opt.state_tallies.length > 0) {
-                opt.state_tallies.forEach(st => {
-                    const cd = coords[st.state];
-                    if (cd && st.votes > 0) {
-                        htmlPoints.push({
-                            lat: cd.lat, lng: cd.lng,
-                            color: opt.color,
-                            label: st.state.substring(0,3).toUpperCase(),
-                            votes: st.votes
-                        });
-                    }
-                });
-            } else {
-                // Simulation payload
-                htmlPoints.push({
-                    lat: 39 + Math.random()*4 - 2, 
-                    lng: -95 + Math.random()*10 - 5,
-                    color: opt.color,
-                    label: opt.label.substring(0,3).toUpperCase(),
-                    votes: opt.votes || 0
-                });
+        if (poll.title) {
+            for (const [st, cd] of Object.entries(coords)) {
+                if (poll.title.includes(st)) {
+                    markerLat = cd.lat;
+                    markerLng = cd.lng;
+                    break;
+                }
             }
-        });
-    } else {
-        let idx = 0;
-        poll.options.forEach(opt => {
-            const rc = regionCenters[poll.region] ? regionCenters[poll.region][idx % regionCenters[poll.region].length] : {lat:Math.random()*20, lng:Math.random()*20};
-            htmlPoints.push({
-                lat: rc.lat + (Math.random()*2 - 1),
-                lng: rc.lng + (Math.random()*2 - 1),
-                color: opt.color,
-                label: opt.label.substring(0,12),
-                votes: opt.votes || 0
-            });
-            idx++;
-        });
+        }
+    } else if (poll.region === "UK") {
+        markerLat = 54.5; markerLng = -2.5;
+    } else if (poll.region === "France") {
+        markerLat = 46.5; markerLng = 2.5;
     }
-
-    myGlobe.htmlElementsData(htmlPoints);
+    
+    myGlobe.htmlElementsData([{
+        lat: markerLat,
+        lng: markerLng,
+        poll: poll
+    }]);
 }
 
 function triggerGlobalPulse() {
