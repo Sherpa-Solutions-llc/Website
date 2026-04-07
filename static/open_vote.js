@@ -6670,7 +6670,7 @@ async function init() {
              loadPollData(currentPollId);
         }
     }
-    switchView('2d');
+    switchView('3d');
 }
 
 function switchView(type) {
