@@ -51,7 +51,7 @@ async function initMap() {
                     let pct = ((v / totalVotes) * 100).toFixed(1);
                     optionsHtml += `
                         <div class="score-row">
-                            <span style="color: ${opt.color}; font-weight: 600;">${opt.name}</span>
+                            <span style="color: ${opt.color}; font-weight: 600;">${opt.label}</span>
                             <span>${pct}% (${v.toLocaleString()})</span>
                         </div>
                         <div class="score-bar-bg">
@@ -96,6 +96,9 @@ function updateMapForPoll() {
     const poll = polls.find(p => p.id === currentPollId);
     if (!poll) return;
 
+    let markerLat = 39.8;
+    let markerLng = -98.5;
+
     if (poll.region === "Global") {
         myGlobe.pointOfView({ altitude: 2.5 }, 1000);
     } else if (poll.region === "US") {
@@ -133,6 +136,8 @@ function updateMapForPoll() {
             for (const [st, cd] of Object.entries(coords)) {
                 if (poll.title.includes(st)) {
                     myGlobe.pointOfView({ lat: cd.lat, lng: cd.lng, altitude: 0.35 }, 1500); // 1.5sec swoop
+                    markerLat = cd.lat;
+                    markerLng = cd.lng;
                     foundState = true;
                     break;
                 }
@@ -156,21 +161,7 @@ function updateMapForPoll() {
     myGlobe.ringsData([]);
     myGlobe.arcsData([]);
     
-    // Update HTML overlay scoreboard
-    let markerLat = 39.8;
-    let markerLng = -98.5;
-    
-    if (poll.region === "US") {
-        if (poll.title) {
-            for (const [st, cd] of Object.entries(coords)) {
-                if (poll.title.includes(st)) {
-                    markerLat = cd.lat;
-                    markerLng = cd.lng;
-                    break;
-                }
-            }
-        }
-    } else if (poll.region === "UK") {
+    if (poll.region === "UK") {
         markerLat = 54.5; markerLng = -2.5;
     } else if (poll.region === "France") {
         markerLat = 46.5; markerLng = 2.5;
