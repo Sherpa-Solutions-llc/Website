@@ -135,7 +135,7 @@ function updateMapForPoll() {
         if(poll.title) {
             for (const [st, cd] of Object.entries(coords)) {
                 if (poll.title.includes(st)) {
-                    myGlobe.pointOfView({ lat: cd.lat, lng: cd.lng, altitude: 0.35 }, 1500); // 1.5sec swoop
+                    myGlobe.pointOfView({ lat: cd.lat, lng: cd.lng, altitude: 2.0 }, 1500); // swoop but keep globe visible
                     markerLat = cd.lat;
                     markerLng = cd.lng;
                     foundState = true;
@@ -146,12 +146,12 @@ function updateMapForPoll() {
         
         // Default flat US viewport
         if(!foundState) {
-            myGlobe.pointOfView({ lat: 39.8, lng: -98.5, altitude: 1.2 }, 1000);
+            myGlobe.pointOfView({ lat: 39.8, lng: -98.5, altitude: 2.0 }, 1000);
         }
     } else if (poll.region === "UK") {
-        myGlobe.pointOfView({ lat: 54.5, lng: -2.5, altitude: 0.8 }, 1000);
+        myGlobe.pointOfView({ lat: 54.5, lng: -2.5, altitude: 2.0 }, 1000);
     } else if (poll.region === "France") {
-        myGlobe.pointOfView({ lat: 46.5, lng: 2.5, altitude: 0.8 }, 1000);
+        myGlobe.pointOfView({ lat: 46.5, lng: 2.5, altitude: 2.0 }, 1000);
     } else {
         // Fallback zoom
         myGlobe.pointOfView({ altitude: 2.0 }, 1000);
