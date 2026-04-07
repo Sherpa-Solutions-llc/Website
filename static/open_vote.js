@@ -6670,8 +6670,7 @@ async function init() {
              loadPollData(currentPollId);
         }
     }
-    startLiveSimulation();
-    switchView('3d');
+    switchView('2d');
 }
 
 function switchView(type) {
