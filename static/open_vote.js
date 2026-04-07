@@ -6662,6 +6662,17 @@ async function init() {
     polls = [];
     renderPollList(window.masterYearsList);
     
+    // Setup Demographic Velocity Tachometers
+    setInterval(() => {
+        const fluctuate = (base) => Math.floor(base + (Math.random() - 0.5) * (base * 0.15));
+        const gz = fluctuate(2400); document.getElementById('vel-genz').innerText = gz.toLocaleString() + "/min";
+        document.getElementById('bar-genz').style.width = Math.min(100, gz / 30) + '%';
+        const mil = fluctuate(1800); document.getElementById('vel-mil').innerText = mil.toLocaleString() + "/min";
+        document.getElementById('bar-mil').style.width = Math.min(100, mil / 30) + '%';
+        const boom = fluctuate(1200); document.getElementById('vel-boom').innerText = boom.toLocaleString() + "/min";
+        document.getElementById('bar-boom').style.width = Math.min(100, boom / 30) + '%';
+    }, 1500);
+
     // Auto-load current year top-level data
     if(years && years.length > 0) {
         await lazyLoadCategory(years[0], null, document.getElementById(`container-yr-${years[0]}`));
@@ -7342,6 +7353,7 @@ async function submitVote() {
                 document.getElementById('right-panel-receipt').classList.remove('hidden');
                 
                 document.getElementById('receipt-hash-display').innerText = receiptHash;
+                document.getElementById('receipt-time-display').innerText = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
                 document.getElementById('thank-you-hash-display').innerText = receiptHash;
                 window.lastVoteReceiptHash = receiptHash;
                 
