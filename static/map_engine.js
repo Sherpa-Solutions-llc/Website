@@ -35,6 +35,8 @@ async function initMap() {
             .pointOfView({ lat: 39.8, lng: -98.5, altitude: 2 }) // default view
             .htmlElementsData([])
             .htmlElement(d => {
+                const wrapper = document.createElement('div');
+                
                 const el = document.createElement('div');
                 el.className = 'globe-scoreboard';
                 
@@ -64,7 +66,8 @@ async function initMap() {
                     <h4>${title}</h4>
                     ${optionsHtml}
                 `;
-                return el;
+                wrapper.appendChild(el);
+                return wrapper;
             });
         // Setup arcs state (telemetry paths)
         myGlobe.arcsData([])
