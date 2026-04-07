@@ -814,9 +814,9 @@ body {
     }
 }
 
-
 /* Globe 3D Scoreboard */
 .globe-scoreboard {
+    position: absolute;
     background: rgba(13, 17, 23, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
