@@ -92,6 +92,10 @@ async function initMap() {
     }
     
     updateMapForPoll();
+    if (!window.viralTelemetryStarted) {
+        window.viralTelemetryStarted = true;
+        startViralTelemetery();
+    }
 }
 
 function updateMapForPoll() {
@@ -230,4 +234,97 @@ function triggerGlobalPulse() {
         if(currentArcs.length > 15) currentArcs.shift();
         myGlobe.arcsData(currentArcs);
     }
+}
+
+// Viral Demographics/Features Engine
+
+let heartbeatInterval;
+let threatInterval;
+
+function startViralTelemetery() {
+    // 5. Citizen Node Status - Persistent Green Dots
+    const numNodes = 1200;
+    const nodeData = [];
+    for(let i=0; i<numNodes; i++) {
+        nodeData.push({
+            lat: (Math.random() - 0.5) * 140, // Concentrate away from poles
+            lng: (Math.random() - 0.5) * 360,
+            size: Math.random() * 0.1 + 0.02,
+            color: 'rgba(0, 255, 0, 0.4)'
+        });
+    }
+    if (myGlobe && myGlobe.pointsData) {
+        myGlobe.pointsData(nodeData)
+               .pointColor('color')
+               .pointAltitude(0.01)
+               .pointRadius('size');
+    }
+
+    // 3. Heartbeat of Democracy
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    heartbeatInterval = setInterval(() => {
+        triggerGlobalPulse();
+    }, 1200);
+
+    // 2. Threat Block Interceptor
+    if (threatInterval) clearInterval(threatInterval);
+    threatInterval = setInterval(() => {
+        // 10% chance every 2 seconds = occasional threats
+        if (Math.random() < 0.10) {
+            triggerThreatIntercept();
+        }
+    }, 2000);
+}
+
+function triggerThreatIntercept() {
+    if(!isMapView || !myGlobe) return;
+    const lat = (Math.random() - 0.5) * 160;
+    const lng = (Math.random() - 0.5) * 360;
+    
+    // Flash aggressive red ring
+    let currentRings = myGlobe.ringsData();
+    currentRings.push({ lat, lng, color: 'rgba(255, 0, 0, 1)' });
+    if(currentRings.length > 20) currentRings.shift();
+    myGlobe.ringsData(currentRings);
+    
+    // Add threat to arc to nowhere (dropped)
+    let currentArcs = myGlobe.arcsData();
+    currentArcs.push({
+        startLat: lat, startLng: lng,
+        endLat: lat + (Math.random()-0.5)*20, endLng: lng + (Math.random()-0.5)*20,
+        color: ['rgba(255, 0, 0, 1)', "rgba(255,0,0,0)"]
+    });
+    if(currentArcs.length > 15) currentArcs.shift();
+    myGlobe.arcsData(currentArcs);
+
+    // Push Toast
+    showThreatToast(lat, lng);
+}
+
+function showThreatToast(lat, lng) {
+    const toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.left = '20px';
+    toast.style.background = 'rgba(20, 0, 0, 0.9)';
+    toast.style.border = '1px solid #ff0000';
+    toast.style.boxShadow = '0 0 15px rgba(255,0,0,0.5)';
+    toast.style.color = '#ff0000';
+    toast.style.padding = '15px';
+    toast.style.borderRadius = '4px';
+    toast.style.fontFamily = "'Share Tech Mono', monospace";
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 5px;"><i class="fa-solid fa-triangle-exclamation"></i> THREAT INTERCEPTED</div>
+        <div style="font-size: 0.8rem; color: #fff;">Deepfake Identity Blocked</div>
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 5px;">Origin: Lat ${lat.toFixed(1)}, Lng ${lng.toFixed(1)}</div>
+        <div style="font-size: 0.75rem; color: rgba(255,0,0,0.8); margin-top: 2px;">IMEI Permanently Blacklisted & Reported</div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.5s';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
+    }, 4500);
 }
