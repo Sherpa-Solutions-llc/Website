@@ -15,7 +15,8 @@
     <script src="https://unpkg.com/topojson-client@3"></script>
     <script src="//unpkg.com/globe.gl"></script>
 
-    <link rel="stylesheet" href="static/open_vote.css?v=6">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="static/open_vote.css?v=8">
     <style>
         #virtual-cursor {
             position: fixed;
@@ -59,7 +60,7 @@
     <!-- Header -->
     <header class="app-header">
         <a href="#" class="logo-area" title="Count My Vote" style="display: flex; align-items: center; text-decoration: none;" onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/' : (window.location.hostname.includes('sherpa') ? '/open_vote.html' : '/'); return false;">
-            <img src="static/Open%20Vote%20Logo.png?v=8" alt="Open Vote" style="height: 60px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"> 
+            <img src="static/open-vote-logo.png?v=8" alt="Open Vote" style="height: 60px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"> 
         </a>
         
         <div class="header-controls">
@@ -124,9 +125,34 @@
                         <div class="stat-value" id="stat-total">142,593</div>
                         <div class="stat-label">Total Votes</div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="stat-rate" style="color: var(--accent-blue);">45/min</div>
-                        <div class="stat-label">Current Velocity</div>
+                    <div class="stat-box" style="padding: 1rem; align-items: stretch; justify-content: space-around;">
+                        <div class="tacho-row" style="margin-bottom: 0.4rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px;">
+                                <span style="font-family: 'Inter', sans-serif;">GEN-Z VELOCITY</span>
+                                <span id="vel-genz" style="color: var(--accent-glow); font-family: 'Share Tech Mono'; font-weight: bold;">2,400/min</span>
+                            </div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                                <div id="bar-genz" style="height: 100%; width: 85%; background: linear-gradient(90deg, transparent, var(--accent-glow)); box-shadow: 0 0 8px var(--accent-glow); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            </div>
+                        </div>
+                        <div class="tacho-row" style="margin-bottom: 0.4rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px;">
+                                <span style="font-family: 'Inter', sans-serif;">MILLENNIAL VELOCITY</span>
+                                <span id="vel-mil" style="color: var(--accent-blue); font-family: 'Share Tech Mono'; font-weight: bold;">1,800/min</span>
+                            </div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                                <div id="bar-mil" style="height: 100%; width: 65%; background: linear-gradient(90deg, transparent, var(--accent-blue)); box-shadow: 0 0 8px var(--accent-blue); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            </div>
+                        </div>
+                        <div class="tacho-row">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px;">
+                                <span style="font-family: 'Inter', sans-serif;">BOOMER VELOCITY</span>
+                                <span id="vel-boom" style="color: var(--accent-red); font-family: 'Share Tech Mono'; font-weight: bold;">1,200/min</span>
+                            </div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                                <div id="bar-boom" style="height: 100%; width: 45%; background: linear-gradient(90deg, transparent, var(--accent-red)); box-shadow: 0 0 8px var(--accent-red); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="stat-nodes" style="color: var(--accent-green); font-size: 1rem; line-height: 1.2; word-break: break-word;">Loading...</div>
@@ -245,25 +271,45 @@
                 </div>
             </div>
 
-            <div id="right-panel-receipt" class="action-card hidden" style="border-color: var(--accent-blue);">
-                <div class="security-badge" style="background: rgba(88, 166, 255, 0.1); border-color: rgba(88, 166, 255, 0.3); color: var(--accent-blue);">
-                    <i class="fa-solid fa-link"></i> Vote Immutable
+            <div id="right-panel-receipt" class="action-card hidden" style="border-color: var(--accent-glow); background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(13, 17, 23, 0.95)); box-shadow: 0 0 20px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 210, 255, 0.1); position: relative; overflow: hidden;">
+                <!-- Holographic Glare -->
+                <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 60%); transform: rotate(30deg); pointer-events: none; animation: hologramScroll 6s infinite linear;"></div>
+                
+                <style>
+                    @keyframes hologramScroll { 0% { transform: translateY(-50%) rotate(30deg); } 100% { transform: translateY(50%) rotate(30deg); } }
+                    @keyframes spinSlow { 100% { transform: rotate(360deg); } }
+                </style>
+
+                <div class="security-badge" style="background: rgba(0, 210, 255, 0.15); border-color: rgba(0, 210, 255, 0.4); color: var(--accent-glow); display: inline-flex; margin-bottom: 1rem; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
+                    <i class="fa-solid fa-cube fa-spin" style="margin-right: 0.4rem; animation-duration: 4s;"></i> Proof of Democracy
                 </div>
                 
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem; color: var(--text-primary);">Ballot Cast Successfully</h3>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">
-                    Your vote has been cryptographically signed and injected into the public ledger.
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;">BALLOT SECURED</h3>
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+                    Your identity is detached. Your vote is mathematically irrefutable on the public ledger.
                 </p>
                 
-                <div style="padding: 1rem; background: rgba(0,0,0,0.5); border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem;">
-                    <span style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase;">Receipt Hash</span>
-                    <div id="receipt-hash-display" style="font-family: 'Share Tech Mono'; color: var(--accent-glow); font-size: 0.95rem; word-break: break-all; margin-top: 0.2rem;">
-                        0x...
+                <!-- 3D Spinning Emblem -->
+                <div style="text-align: center; margin: 1.5rem 0;">
+                    <div style="width: 70px; height: 70px; margin: 0 auto; border-radius: 50%; border: 2px dashed rgba(0, 210, 255, 0.5); animation: spinSlow 15s linear infinite; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 20px rgba(0,210,255,0.1), 0 0 20px rgba(0,210,255,0.1);">
+                        <i class="fa-brands fa-ethereum" style="font-size: 2rem; color: var(--accent-glow); text-shadow: 0 0 15px var(--accent-glow);"></i>
                     </div>
                 </div>
+                
+                <div style="padding: 0.8rem; background: rgba(0,0,0,0.6); border-radius: 6px; border: 1px solid rgba(0,210,255,0.2); margin-bottom: 1.5rem; position: relative; z-index: 2;">
+                    <span style="font-size: 0.65rem; color: var(--accent-glow); text-transform: uppercase; letter-spacing: 1px;">Zero-Knowledge Hash</span>
+                    <div id="receipt-hash-display" style="font-family: 'Share Tech Mono'; color: #fff; font-size: 0.8rem; word-break: break-all; margin-top: 0.3rem;">
+                        0x...
+                    </div>
+                    <div id="receipt-time-display" style="font-family: 'Share Tech Mono'; color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 0.5rem; text-align: right;"></div>
+                </div>
 
-                <button class="vote-action-btn" onclick="openAuditLedger()" style="background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); font-size: 0.9rem; padding: 0.8rem;">
-                    <i class="fa-solid fa-server" style="margin-right: 0.5rem;"></i> View Public Audit Ledger
+                <a href="#" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just secured my ballot on the blockchain. Unhackable. Verifiable. Where\'s yours? %23Count-My-Vote'), '_blank'); return false;" class="vote-action-btn" style="background: rgba(29, 161, 242, 0.1); border: 1px solid #1da1f2; color: #1da1f2; margin-bottom: 0.8rem; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 2;">
+                    <i class="fa-brands fa-twitter" style="margin-right: 0.5rem;"></i> Share Verification
+                </a>
+
+                <button class="vote-action-btn" onclick="openAuditLedger()" style="background: transparent; border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); font-size: 0.85rem; padding: 0.8rem; position: relative; z-index: 2;">
+                    <i class="fa-solid fa-server" style="margin-right: 0.5rem;"></i> Internal Audit Ledger
                 </button>
             </div>
         </aside>
@@ -571,7 +617,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="static/map_engine.js?v=6"></script>
-    <script src="static/open_vote.js?v=1775368459"></script>
+    <script src="static/map_engine.js?v=8"></script>
+    <script src="static/open_vote.js?v=1775368461"></script>
 </body>
 </html>
