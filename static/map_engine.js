@@ -257,7 +257,27 @@ function startViralTelemetery() {
         myGlobe.pointsData(nodeData)
                .pointColor('color')
                .pointAltitude(0.01)
-               .pointRadius('size');
+               .pointRadius('size')
+               .onPointClick((point) => {
+                   // Drill down to node
+                   myGlobe.pointOfView({ lat: point.lat, lng: point.lng, altitude: 0.8 }, 1000);
+                   
+                   const modal = document.getElementById('node-drilldown-modal');
+                   if(modal) {
+                       const idDisplay = document.getElementById('node-id-display');
+                       const blocksDisplay = document.getElementById('node-blocks-display');
+                       const hrDisplay = document.getElementById('node-hashrate-display');
+                       
+                       // Generate faux id based on lat lng
+                       idDisplay.innerText = '0x' + Math.abs(Math.floor(point.lat * point.lng * 10000)).toString(16).padEnd(8, '0').toUpperCase();
+                       blocksDisplay.innerText = Math.floor(Math.random() * 500) + 120;
+                       hrDisplay.innerText = (10 + Math.random() * 15).toFixed(1) + ' TH/s';
+                       
+                       modal.style.opacity = '1';
+                       if(window.nodeModalTimeout) clearTimeout(window.nodeModalTimeout);
+                       window.nodeModalTimeout = setTimeout(() => { modal.style.opacity = '0'; }, 5000);
+                   }
+               });
     }
 
     // 3. Heartbeat of Democracy
@@ -328,3 +348,77 @@ function showThreatToast(lat, lng) {
         setTimeout(() => toast.remove(), 500);
     }, 4500);
 }
+
+// Feature 3: Cyber Radar / Censorship Overlays
+let cyberRadarInterval;
+window.toggleCyberRadar = function() {
+    const btn = document.getElementById('btn-cyber-radar');
+    const isOff = btn.style.color === 'rgb(255, 68, 68)' || btn.style.color === '#ff4444';
+    
+    if (isOff) {
+        btn.style.color = 'var(--accent-glow)';
+        btn.style.background = 'rgba(0, 210, 255, 0.1)';
+        btn.style.borderColor = 'var(--accent-glow)';
+        btn.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> CYBER RADAR: ACTIVE';
+        
+        // Push massive transparent red rings to simulate localized censorship/firewalls
+        cyberRadarInterval = setInterval(() => {
+            if(!myGlobe) return;
+            const darkZones = [
+                { lat: 35.86, lng: 104.19 }, // Zone A
+                { lat: 61.52, lng: 105.31 }, // Zone B
+                { lat: 32.42, lng: 53.68 }   // Zone C
+            ];
+            
+            const target = darkZones[Math.floor(Math.random() * darkZones.length)];
+            let rings = myGlobe.ringsData();
+            rings.push({
+                lat: target.lat, 
+                lng: target.lng, 
+                color: 'rgba(255, 0, 0, 0.4)',
+                maxR: 35
+            });
+            if(rings.length > 25) rings.shift();
+            myGlobe.ringsData(rings);
+            
+            // Adjust ring propagation specifically for radar mode
+            myGlobe.ringMaxRadius(d => d.maxR || 5)
+                   .ringColor('color');
+        }, 1500);
+        
+    } else {
+        btn.style.color = '#ff4444';
+        btn.style.background = 'rgba(255, 0, 0, 0.1)';
+        btn.style.borderColor = 'rgba(255, 0, 0, 0.5)';
+        btn.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> CYBER RADAR';
+        
+        clearInterval(cyberRadarInterval);
+        myGlobe.ringMaxRadius(5);
+    }
+};
+
+// Feature 5: Historical Replay Timeline Scrubber
+document.addEventListener("DOMContentLoaded", () => {
+    const scrubber = document.getElementById('historical-scrubber');
+    if (!scrubber) return;
+    
+    scrubber.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const display = document.getElementById('historical-time-display');
+        
+        if (val == 100) {
+            display.innerText = 'LIVE';
+            display.style.color = 'var(--accent-glow)';
+        } else {
+            // Calculate a retro time
+            const hoursBack = Math.floor((100 - val) * 0.24); 
+            display.innerText = "T-" + hoursBack + "h 00m";
+            display.style.color = 'var(--accent-gold)';
+            
+            // Spawn a massive burst of historical arcs to visualize the "replay"
+            if(myGlobe && Math.random() > 0.5) {
+                for(let i=0; i<3; i++) triggerGlobalPulse();
+            }
+        }
+    });
+});
