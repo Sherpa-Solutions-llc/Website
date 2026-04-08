@@ -6681,7 +6681,63 @@ async function init() {
              loadPollData(currentPollId);
         }
     }
+    
+    // Switch to Dashboard
+    isVerified = false;
+    verifiedState = null;
     switchView('3d');
+    startMempoolStream();
+}
+
+function startMempoolStream() {
+    const streamContainer = document.getElementById('mempool-stream');
+    if (!streamContainer) return;
+    
+    setInterval(() => {
+        // Generate mock hash
+        const chars = '0123456789abcdef';
+        let hash = '0x';
+        for(let i=0; i<18; i++) {
+            hash += chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        const el = document.createElement('div');
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.3s ease, color 0.3s ease';
+        el.innerText = hash + " [WAITING]";
+        streamContainer.appendChild(el);
+        
+        setTimeout(() => el.style.opacity = '1', 50);
+        
+        if (streamContainer.children.length > 8) {
+            streamContainer.removeChild(streamContainer.firstChild);
+        }
+    }, 500);
+
+    // Block mining interval
+    setInterval(() => {
+        const status = document.getElementById('mempool-status');
+        const term = document.getElementById('mempool-terminal');
+        if (!status || !term) return;
+        
+        status.innerHTML = '<span style="color:var(--accent-green)">BLOCK VERIFIED</span>';
+        term.style.borderColor = 'var(--accent-green)';
+        term.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.3)';
+        
+        // Turn hashes green momentarily before clearing
+        Array.from(streamContainer.children).forEach(child => {
+            child.style.color = 'var(--accent-green)';
+            child.innerText = child.innerText.replace('[WAITING]', '[LOCKED]');
+        });
+        
+        setTimeout(() => {
+            streamContainer.innerHTML = '';
+            status.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            term.style.borderColor = 'rgba(0, 210, 255, 0.4)';
+            term.style.boxShadow = '0 0 10px rgba(0, 210, 255, 0.1)';
+        }, 1200);
+        
+    }, 12000);
 }
 
 function switchView(type) {
@@ -7099,16 +7155,61 @@ function selectIdMethod(method) {
         document.getElementById('scan-status').textContent = 'AI PROCESSING VERIFICATION...';
         document.getElementById('scan-status').style.color = 'var(--accent-glow)';
         
-        // Face animation
+        // Face animation and liveness check
         const fsl = document.getElementById('face-scanner-line');
         if (fsl) {
             fsl.style.display = 'block';
             fsl.animate([{top: '-100%'}, {top: '100%'}], {duration: 1200, iterations: Infinity, direction: 'alternate'});
+            
+            // Liveness Challenge sequence
+            const statusEl = document.getElementById('scan-status');
+            setTimeout(() => statusEl.textContent = '[ ALGORITHMIC LIVENESS CHECK DEPLOYED ]', 600);
+            setTimeout(() => statusEl.textContent = '[ PROMPT: PLEASE BLINK TWICE ]', 1600);
+            setTimeout(() => {
+                statusEl.textContent = '[ DETECTED ]';
+                statusEl.style.color = 'var(--accent-green)';
+            }, 2600);
+            setTimeout(() => {
+                statusEl.textContent = '[ PROMPT: PLEASE LOOK LEFT ]';
+                statusEl.style.color = 'var(--accent-glow)';
+            }, 3200);
+            setTimeout(() => {
+                statusEl.textContent = '[ DETECTED ]';
+                statusEl.style.color = 'var(--accent-green)';
+            }, 4200);
+            setTimeout(() => statusEl.textContent = '[ PROOF OF HUMANITY: VERIFIED ]', 4800);
         }
         
         // Fingerprint animation
         const scannerEl = document.getElementById('scanner');
         if (scannerEl) scannerEl.classList.add('scanning');
+        
+        // ID Outline
+        document.querySelectorAll('.id-capture-box').forEach(b => {
+             b.style.borderColor = 'var(--accent-glow)';
+        });
+
+        // Trigger transition to step 2 after sequence completes
+        const delayMs = fsl ? 5500 : 2500;
+        setTimeout(() => {
+            if (scannerEl) scannerEl.classList.remove('scanning');
+            document.getElementById('scan-status').textContent = 'VERIFIED';
+            document.getElementById('scan-status').style.color = 'var(--accent-green)';
+            
+            setTimeout(() => {
+                document.getElementById('biometric-step-1').style.display = 'none';
+                document.getElementById('biometric-step-2').style.display = 'block';
+                
+                // Demo mode bypass immediately sets values and jumps to vector confirmation
+                if (window.isDemoModeActive) {
+                     document.getElementById('reg-fname').value = "John";
+                     document.getElementById('reg-lname').value = "Doe";
+                     document.getElementById('reg-address').value = "123 Democratic Way, MI";
+                     document.getElementById('reg-ssn').value = "***-**-1234";
+                }
+                
+            }, 800);
+        }, delayMs);
 
         // VPN validation
         if (vpnToggle.checked) {
@@ -7678,7 +7779,8 @@ async function runDemoCycle() {
         const c = getCenterCoords(authBtn);
         await moveVirtualMouse(c.x, c.y, 1500, true);
         authBtn.click();
-        await speakDemoText("Let's look at blockchain security. In order to cast a vote, you first authenticate your identity utilizing advanced multi-modal biometrics.");
+        await speakDemoText("Let's look at decentralized mesh security. In order to cast a vote, you first authenticate your identity utilizing advanced multi-modal biometrics.");
+        openBiometricModal();
         await delay(1000); if (!isDemoModeActive) return;
         
         const countrySelect = document.getElementById('user-country-select');
