@@ -28,7 +28,10 @@ const state = {
         weather: false,
         cctv: false,
         police: false,
-        scanners: false
+        scanners: false,
+        sar: false,
+        wildfires: false,
+        deformation: false
     },
     dataSources: {
         flights: 'opensky',
@@ -39,7 +42,10 @@ const state = {
         weather: 'rainviewer',
         cctv: 'public',
         police: 'arcgis',
-        scanners: 'broadcastify'
+        scanners: 'broadcastify',
+        sar: 'copernicus',
+        wildfires: 'firms',
+        deformation: 'bridge'
     },
     flights: [],
     satellites: [],
@@ -49,6 +55,9 @@ const state = {
     cctv_cameras: [],
     police_data: [],
     scanners: [],
+    sar: [],
+    wildfires: [],
+    deformation: [],
     target: null,
     lastFetchTime: 0
 };
@@ -68,6 +77,9 @@ const shippingDataSource = new Cesium.CustomDataSource('shipping');
 const weatherDataSource = new Cesium.CustomDataSource('weather');
 const policeDataSource = new Cesium.CustomDataSource('police');
 const scannersDataSource = new Cesium.CustomDataSource('scanners');
+const sarDataSource = new Cesium.CustomDataSource('sar');
+const wildfiresDataSource = new Cesium.CustomDataSource('wildfires');
+const deformationDataSource = new Cesium.CustomDataSource('deformation');
 
 // Active weather imagery layer (RainViewer) — stored outside entities so
 // it persists across entity refresh calls
@@ -148,6 +160,9 @@ window.toggleLayer = function (layerName) {
     else if (layerName === 'cctv') updateCCTVLayer();
     else if (layerName === 'police') updatePoliceLayer();
     else if (layerName === 'scanners') updateScannersLayer();
+    else if (layerName === 'sar') window.updateSARLayer();
+    else if (layerName === 'wildfires') window.updateWildfireLayer();
+    else if (layerName === 'deformation') window.updateDeformationLayer();
     updateHUDCounts();
 };
 
@@ -298,6 +313,9 @@ async function initCesium() {
         await viewer.dataSources.add(weatherDataSource);
         await viewer.dataSources.add(policeDataSource);
         await viewer.dataSources.add(scannersDataSource);
+        await viewer.dataSources.add(sarDataSource);
+        await viewer.dataSources.add(wildfiresDataSource);
+        await viewer.dataSources.add(deformationDataSource);
 
         // Setup Police Cluster Features
         policeDataSource.clustering.enabled = true;
@@ -3266,3 +3284,119 @@ async function runDemoCycle() {
         }
     }
 }
+
+// ----- NEW COMPONENT HOOKS (SAR, Wildfires, Deformation) -----
+window.updateSARLayer = function() {
+    if (!viewer) return;
+    if (state.layers.sar) {
+        console.log('[System] Fetching SAR/Sentinel-1 layer telemetry...');
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.querySelector('h2').innerText = 'ACQUIRING SAR TELEMETRY';
+            overlay.querySelector('p').innerText = 'Pinging Copernicus Sentinel-1 ecosystem...';
+            overlay.style.display = 'flex';
+        }
+        fetch(`${API_BASE}/api/sar-data`)
+            .then(res => res.json())
+            .then(data => {
+                if (overlay) overlay.style.display = 'none';
+                sarDataSource.entities.suspendEvents();
+                sarDataSource.entities.removeAll();
+                data.forEach(swath => {
+                    const coords = swath.geometry.flat();
+                    sarDataSource.entities.add({
+                        id: swath.id,
+                        polygon: {
+                            hierarchy: Cesium.Cartesian3.fromDegreesArray(coords),
+                            material: Cesium.Color.CYAN.withAlpha(0.3),
+                            outline: true,
+                            outlineColor: Cesium.Color.CYAN
+                        },
+                        customData: { type: 'sar', id: swath.id, title: swath.mission, time: swath.time }
+                    });
+                });
+                sarDataSource.entities.resumeEvents();
+                window.updateLastFetchTime('sar');
+                if(typeof updateHUDCounts==='function') updateHUDCounts();
+            }).catch(e => { console.error(e); if(overlay) overlay.style.display='none'; });
+    } else {
+        sarDataSource.entities.removeAll();
+    }
+};
+
+window.updateWildfireLayer = function() {
+    if (!viewer) return;
+    if (state.layers.wildfires) {
+        console.log('[System] Fetching NASA FIRMS anomaly layer...');
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.querySelector('h2').innerText = 'ACQUIRING FIRMS TELEMETRY';
+            overlay.querySelector('p').innerText = 'Pinging NASA Wildfire sensors...';
+            overlay.style.display = 'flex';
+        }
+        fetch(`${API_BASE}/api/wildfires`)
+            .then(res => res.json())
+            .then(data => {
+                if(overlay) overlay.style.display = 'none';
+                wildfiresDataSource.entities.suspendEvents();
+                wildfiresDataSource.entities.removeAll();
+                data.forEach(fire => {
+                    wildfiresDataSource.entities.add({
+                        id: fire.id,
+                        position: Cesium.Cartesian3.fromDegrees(fire.lng, fire.lat, 0),
+                        point: {
+                            pixelSize: 15,
+                            color: Cesium.Color.RED.withAlpha(0.8),
+                            outlineColor: Cesium.Color.ORANGE,
+                            outlineWidth: 2
+                        },
+                        customData: { type: 'wildfire', id: fire.id, title: 'Thermal Anomaly', brightness: fire.brightness }
+                    });
+                });
+                wildfiresDataSource.entities.resumeEvents();
+                window.updateLastFetchTime('wildfires');
+                if(typeof updateHUDCounts==='function') updateHUDCounts();
+            }).catch(e => { console.error(e); if(overlay) overlay.style.display='none'; });
+    } else {
+        wildfiresDataSource.entities.removeAll();
+    }
+};
+
+window.updateDeformationLayer = function() {
+    if (!viewer) return;
+    if (state.layers.deformation) {
+        console.log('[System] Fetching Infrastructure Deformation data...');
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.querySelector('h2').innerText = 'ACQUIRING DEFORMATION RISK';
+            overlay.querySelector('p').innerText = 'Pinging global bridge & slope strain matrices...';
+            overlay.style.display = 'flex';
+        }
+        fetch(`${API_BASE}/api/deformation`)
+            .then(res => res.json())
+            .then(data => {
+                if(overlay) overlay.style.display = 'none';
+                deformationDataSource.entities.suspendEvents();
+                deformationDataSource.entities.removeAll();
+                data.forEach(def => {
+                    const color = def.risk_level === 'CRITICAL' ? Cesium.Color.fromCssColorString('#ff0033') : Cesium.Color.YELLOW;
+                    deformationDataSource.entities.add({
+                        id: def.id,
+                        position: Cesium.Cartesian3.fromDegrees(def.lng, def.lat, 0),
+                        point: {
+                            pixelSize: 20,
+                            color: color.withAlpha(0.9),
+                            outlineColor: Cesium.Color.WHITE,
+                            outlineWidth: 3
+                        },
+                        customData: { type: 'deformation', id: def.id, title: def.type, risk: def.risk_level }
+                    });
+                });
+                deformationDataSource.entities.resumeEvents();
+                window.updateLastFetchTime('deformation');
+                if(typeof updateHUDCounts==='function') updateHUDCounts();
+            }).catch(e => { console.error(e); if(overlay) overlay.style.display='none'; });
+    } else {
+        deformationDataSource.entities.removeAll();
+    }
+};

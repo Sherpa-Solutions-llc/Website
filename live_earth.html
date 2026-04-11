@@ -174,6 +174,37 @@
                     </select>
                 </div>
             </div>
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Space Radar (SAR) <span id="last-update-sar" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-sar" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="copernicus" selected>Copernicus Ecosystem (Sentinel-1)</option>
+                        <option value="nisar">NASA-ISRO NISAR</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #ff3838;"><i class="fa-solid fa-fire"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Wildfires <span id="last-update-wildfires" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-wildfires" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="firms" selected>NASA FIRMS (Default)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layer-item" style="cursor: default;">
+                <div class="layer-icon" style="color: #e1b12c;"><i class="fa-solid fa-bridge"></i></div>
+                <div class="layer-info" style="width: 100%;">
+                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Deformation <span id="last-update-deformation" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
+                    <select id="setting-source-deformation" class="hud-select" style="margin-top: 5px; width: 100%;">
+                        <option value="bridge" selected>Global Bridge Deformation</option>
+                        <option value="nepal">Nepal AI Landslide Risk</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </aside>
 
@@ -438,6 +469,75 @@
                     </div>
                 </div>
                 <div class="layer-toggle-btn" id="toggle-scanners" onclick="toggleLayer('scanners')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
+            </div>
+
+            <!-- SAR -->
+            <div class="layer-row">
+                <div class="layer-item" id="layer-sar">
+                    <div class="layer-header" onclick="toggleLayerOptions('sar')">
+                        <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i></div>
+                        <div class="layer-info">
+                            <h3>Space Radar (SAR)</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-sar">
+                        <select id="sar-type" class="hud-select" onchange="if(typeof updateSARLayer==='function') updateSARLayer();">
+                            <option value="active">Active Acquisition</option>
+                            <option value="archive">Archive Pass</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-toggle-btn" id="toggle-sar" onclick="toggleLayer('sar')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
+            </div>
+
+            <!-- Wildfires -->
+            <div class="layer-row">
+                <div class="layer-item" id="layer-wildfires">
+                    <div class="layer-header" onclick="toggleLayerOptions('wildfires')">
+                        <div class="layer-icon" style="color: #ff3838;"><i class="fa-solid fa-fire"></i></div>
+                        <div class="layer-info">
+                            <h3>Wildfires</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-wildfires">
+                        <select id="wildfire-duration" class="hud-select" onchange="if(typeof updateWildfireLayer==='function') updateWildfireLayer();">
+                            <option value="24h">Thermal Anomalies (24hr)</option>
+                            <option value="7d">Thermal Anomalies (7d)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-toggle-btn" id="toggle-wildfires" onclick="toggleLayer('wildfires')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
+            </div>
+
+            <!-- Deformation -->
+            <div class="layer-row">
+                <div class="layer-item" id="layer-deformation">
+                    <div class="layer-header" onclick="toggleLayerOptions('deformation')">
+                        <div class="layer-icon" style="color: #e1b12c;"><i class="fa-solid fa-bridge"></i></div>
+                        <div class="layer-info">
+                            <h3>Deformation</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-deformation">
+                        <select id="deformation-filter" class="hud-select" onchange="if(typeof updateDeformationLayer==='function') updateDeformationLayer();">
+                            <option value="all">All Infrastructure</option>
+                            <option value="critical">Critical Stress Points</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-toggle-btn" id="toggle-deformation" onclick="toggleLayer('deformation')">
                     <i class="fa-solid fa-toggle-off"></i>
                 </div>
             </div>

@@ -65,16 +65,21 @@ const MAP_DATA = {
 
         // ─── Bldg 14 – Boiler Plant ───
         "ent-bldg14": { id: "ent-bldg14", label: "Bldg 14 Entrance (Boiler Plant)", x: 650, y: 0, z: 300, floor: -1, type: "entrance", building: "Bldg 14" },
+        "dept-boiler": { id: "dept-boiler", label: "Boiler Plant", x: 650, y: 0, z: 270, floor: -1, type: "department", building: "Bldg 14" },
 
         // ─── Bldg 15 – Engineering ───
         "ent-bldg15": { id: "ent-bldg15", label: "Bldg 15 Entrance (Engineering)", x: 680, y: 0, z: 420, floor: -1, type: "entrance", building: "Bldg 15" },
+        "dept-engineering": { id: "dept-engineering", label: "Engineering", x: 680, y: 0, z: 390, floor: -1, type: "department", building: "Bldg 15" },
 
         // ─── Bldg 16 – Logistics ───
         "ent-bldg16": { id: "ent-bldg16", label: "Bldg 16 Entrance (Logistics)", x: 600, y: 0, z: 420, floor: -1, type: "entrance", building: "Bldg 16" },
+        "dept-logistics": { id: "dept-logistics", label: "Logistics", x: 600, y: 0, z: 390, floor: -1, type: "department", building: "Bldg 16" },
 
         // ─── Bldg 37 – IT and BioMedical ───
         "ent-bldg37": { id: "ent-bldg37", label: "Bldg 37 Entrance (IT & BioMedical)", x: -320, y: 0, z: 200, floor: -1, type: "entrance", building: "Bldg 37" },
         "hall-bldg37": { id: "hall-bldg37", label: "Bldg 37 Lobby", x: -320, y: 0, z: 160, floor: -1, type: "hallway", building: "Bldg 37" },
+        "dept-it": { id: "dept-it", label: "Information Technology", x: -300, y: 0, z: 140, floor: -1, type: "department", building: "Bldg 37" },
+        "dept-biomedical": { id: "dept-biomedical", label: "BioMedical Engineering", x: -340, y: 0, z: 140, floor: -1, type: "department", building: "Bldg 37" },
 
 
         // ─── Bldg 43 – Community Living Center (CLC) ───
@@ -83,6 +88,7 @@ const MAP_DATA = {
         "dept-clc-nursing": { id: "dept-clc-nursing", label: "CLC Nursing Station", x: 480, y: 0, z: -150, floor: -1, type: "department", building: "Bldg 43" },
         "dept-clc-therapy": { id: "dept-clc-therapy", label: "CLC Physical Therapy", x: 500, y: 0, z: -180, floor: -1, type: "department", building: "Bldg 43" },
         "dept-clc-dining": { id: "dept-clc-dining", label: "CLC Dining Room", x: 540, y: 0, z: -130, floor: -1, type: "department", building: "Bldg 43" },
+        "dept-clc": { id: "dept-clc", label: "Community Living Center", x: 510, y: 0, z: -160, floor: -1, type: "department", building: "Bldg 43" },
 
         // ─── Bldg 49 ───
         "ent-bldg49": { id: "ent-bldg49", label: "Bldg 49 Entrance", x: -100, y: 0, z: 480, floor: -1, type: "entrance", building: "Bldg 49" },
@@ -92,10 +98,14 @@ const MAP_DATA = {
         "ent-bldg81": { id: "ent-bldg81", label: "Bldg 81 Entrance (RRTP)", x: 300, y: 0, z: -380, floor: -1, type: "entrance", building: "Bldg 81" },
         "hall-bldg81": { id: "hall-bldg81", label: "RRTP Main Corridor", x: 300, y: 0, z: -420, floor: -1, type: "hallway", building: "Bldg 81" },
         "dept-rrtp-mhclinic": { id: "dept-rrtp-mhclinic", label: "RRTP Mental Health Clinic", x: 280, y: 0, z: -440, floor: -1, type: "department", building: "Bldg 81" },
+        "dept-rrtp": { id: "dept-rrtp", label: "Residential Rehabilitation Treatment", x: 320, y: 0, z: -440, floor: -1, type: "department", building: "Bldg 81" },
 
         // ─── Bldg 82 – AMVETS / American Legion / DAV ───
         "ent-bldg82": { id: "ent-bldg82", label: "Bldg 82 Entrance (Veteran Service Orgs)", x: 480, y: 0, z: -320, floor: -1, type: "entrance", building: "Bldg 82" },
         "hall-bldg82": { id: "hall-bldg82", label: "Bldg 82 Lobby", x: 480, y: 0, z: -360, floor: -1, type: "hallway", building: "Bldg 82" },
+        "dept-amvets": { id: "dept-amvets", label: "AMVETS", x: 460, y: 0, z: -380, floor: -1, type: "department", building: "Bldg 82" },
+        "dept-amlegion": { id: "dept-amlegion", label: "American Legion", x: 480, y: 0, z: -390, floor: -1, type: "department", building: "Bldg 82" },
+        "dept-dav": { id: "dept-dav", label: "Disabled American Veterans", x: 500, y: 0, z: -380, floor: -1, type: "department", building: "Bldg 82" },
 
 
 
@@ -104,12 +114,15 @@ const MAP_DATA = {
         "hall-bldg83": { id: "hall-bldg83", label: "Behavioral Health Corridor", x: 360, y: 0, z: -360, floor: -1, type: "hallway", building: "Bldg 83" },
         "dept-mental-health": { id: "dept-mental-health", label: "Mental Health Clinic", x: 340, y: 0, z: -380, floor: -1, type: "department", building: "Bldg 83" },
         "dept-substance-abuse": { id: "dept-substance-abuse", label: "Substance Abuse Treatment", x: 370, y: 0, z: -390, floor: -1, type: "department", building: "Bldg 83" },
+        "dept-ptsd": { id: "dept-ptsd", label: "PTSD Clinic", x: 380, y: 0, z: -400, floor: -1, type: "department", building: "Bldg 83" },
+        "dept-psych": { id: "dept-psych", label: "Psychology", x: 350, y: 0, z: -410, floor: -1, type: "department", building: "Bldg 83" },
 
 
         // ─── M1 – Administration ───
         "ent-m1": { id: "ent-m1", label: "M1 Entrance (Administration)", x: -500, y: 0, z: 400, floor: -1, type: "entrance", building: "M1" },
         "hall-m1": { id: "hall-m1", label: "M1 Main Hall", x: -500, y: 0, z: 360, floor: -1, type: "hallway", building: "M1" },
         "dept-m1-admin": { id: "dept-m1-admin", label: "Administration (M1)", x: -520, y: 0, z: 340, floor: -1, type: "department", building: "M1" },
+        "dept-m1-residential": { id: "dept-m1-residential", label: "Residential Services (M1)", x: -480, y: 0, z: 340, floor: -1, type: "department", building: "M1" },
 
         // ─── M2 through M6 – Administration Buildings ───
         "ent-m2": { id: "ent-m2", label: "M2 Entrance (Administration)", x: -420, y: 0, z: 300, floor: -1, type: "entrance", building: "M2" },
@@ -193,6 +206,7 @@ const MAP_DATA = {
         "h-low-pos20": { id: "h-low-pos20", label: "Audiology Junction", x: 20.0, y: 0, z: 76.5, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-pos60": { id: "h-low-pos60", label: "East Vertical T-Junction", x: 60.0, y: 0, z: 77.5, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-pos80": { id: "h-low-pos80", label: "Release of Info Junction", x: 80.0, y: 0, z: 78.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-low-pos100": { id: "h-low-pos100", label: "Eligibility Junction", x: 97.0, y: 0, z: 78.5, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-pos120": { id: "h-low-pos120", label: "Far East Vertical T-Junction", x: 120.0, y: 0, z: 79.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-low-pos140": { id: "h-low-pos140", label: "Chemo Junction", x: 140.0, y: 0, z: 79.5, floor: 1, type: "hallway", building: "Bldg 170" },
 
@@ -203,10 +217,14 @@ const MAP_DATA = {
 
         // Central Vestibule Vertical Axis (X = 20)
         "h-up-pos20": { id: "h-up-pos20", label: "Central Vestibule", x: 20.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
+
+        // East Vertical Axis (X = 60)
+        "h-east-55": { id: "h-east-55", label: "Eligibility Corridor", x: 60.0, y: 0, z: 55.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-east-40": { id: "h-east-40", label: "Spinal Cord Junction", x: 60.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
 
         // Far East Vertical Axis (X = 115) - Path to Canteen
         "h-fareast-40": { id: "h-fareast-40", label: "Upper Bypass Junction", x: 115.0, y: 0, z: 40.0, floor: 1, type: "hallway", building: "Bldg 170" },
+        "h-fareast-55": { id: "h-fareast-55", label: "Far East Corridor Entry", x: 115.0, y: 0, z: 55.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-30": { id: "h-fareast-30", label: "Patriot Junction", x: 115.0, y: 0, z: 30.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-10": { id: "h-fareast-10", label: "Canteen Corridor Lower", x: 115.0, y: 0, z: 10.0, floor: 1, type: "hallway", building: "Bldg 170" },
         "h-fareast-neg15": { id: "h-fareast-neg15", label: "Canteen Vestibule Turn", x: 115.0, y: 0, z: -15.0, floor: 1, type: "hallway", building: "Bldg 170" },
@@ -233,9 +251,7 @@ const MAP_DATA = {
         { from: "h-low-30", to: "h-low-10", type: "walkway" },
         { from: "h-low-10", to: "h-low-pos20", type: "walkway" },
         { from: "h-low-pos20", to: "h-low-pos60", type: "walkway" },
-        { from: "h-low-pos60", to: "h-low-pos80", type: "walkway" },
-        // NOTE: DELETED h-low-pos80 to h-low-pos120 edge because Z=70 punches a Registration wall block!
-        { from: "h-low-pos120", to: "h-low-pos140", type: "walkway" },
+        // Lower spine ends at h-low-pos60 — eastern nodes clip through Registration wall.
 
         // West Vertical Axis - Connects Entrance to Upper West Wing
         { from: "ent-170", to: "h-low-75", type: "walkway" },
@@ -243,18 +259,24 @@ const MAP_DATA = {
         { from: "h-west-65", to: "h-west-50", type: "walkway" },
         { from: "h-west-50", to: "h-west-20", type: "walkway" },
         
-        // Upper West Spine
+        // Upper Spine (full east extension at z=20)
         { from: "h-up-neg90", to: "h-west-20", type: "walkway" },
         { from: "h-up-neg90", to: "h-up-neg60", type: "walkway" },
         { from: "h-up-neg60", to: "h-up-neg10", type: "walkway" },
-        { from: "h-west-20", to: "h-up-neg10", type: "walkway" }, // Ensure continuity
+        { from: "h-west-20", to: "h-up-neg10", type: "walkway" },
+        { from: "h-up-neg10", to: "h-fareast-40", type: "walkway" },
 
-        // Central Vestibule Bypass Path (Flawless White Space Tracking)
-        { from: "h-low-pos20", to: "h-up-pos20", type: "walkway" }, // Vertically safely into Central Vestibule
-        { from: "h-up-pos20", to: "h-fareast-40", type: "walkway" }, // Horizontally safely clearing ATM and Registration
+        // Central Vestibule connects down from lower spine east junction
+        { from: "h-low-pos20", to: "h-up-pos20", type: "walkway" },
+        { from: "h-up-pos20", to: "h-fareast-40", type: "walkway" },
+
+        // East Vertical Axis (X = 60)
+        { from: "h-low-pos60", to: "h-east-55", type: "walkway" },
+        { from: "h-east-55", to: "h-east-40", type: "walkway" },
 
         // Far East Vertical Axis (X = 115) - Path to Canteen
-        { from: "h-fareast-40", to: "h-fareast-30", type: "walkway" },
+        { from: "h-fareast-40", to: "h-fareast-55", type: "walkway" },
+        { from: "h-fareast-55", to: "h-fareast-30", type: "walkway" },
         { from: "h-fareast-30", to: "h-fareast-10", type: "walkway" },
 
         // --- Explicit Department Bindings ---
@@ -272,9 +294,9 @@ const MAP_DATA = {
         { from: "dept-pharmacy", to: "dept-advocate", type: "walkway" },
         
         { from: "h-low-pos20", to: "dept-audiology", type: "walkway" },
-        { from: "h-low-pos80", to: "dept-release-info", type: "walkway" },
-        { from: "h-low-pos120", to: "dept-registration", type: "walkway" },
-        { from: "h-low-pos140", to: "dept-chemotherapy", type: "walkway" },
+        { from: "h-fareast-40", to: "dept-release-info", type: "walkway" },
+        { from: "h-fareast-40", to: "dept-registration", type: "walkway" },
+        { from: "h-fareast-40", to: "dept-chemotherapy", type: "walkway" },
         
         { from: "h-east-55", to: "dept-eligibility", type: "walkway" },
         { from: "h-east-40", to: "dept-spinal-cord", type: "walkway" },
@@ -395,12 +417,19 @@ const MAP_DATA = {
 
         // ─── M Buildings – Residential ───
         { from: "ent-m1", to: "hall-m1", type: "walkway" },
+        { from: "hall-m1", to: "dept-m1-admin", type: "walkway" },
         { from: "hall-m1", to: "dept-m1-residential", type: "walkway" },
         { from: "ent-m2", to: "dept-m2", type: "walkway" },
         { from: "ent-m3", to: "dept-m3", type: "walkway" },
         { from: "ent-m4", to: "dept-m4", type: "walkway" },
         { from: "ent-m5", to: "dept-m5", type: "walkway" },
         { from: "ent-m6", to: "dept-m6", type: "walkway" },
+
+        // ─── Campus Parking Connections ───
+        { from: "parking-main", to: "campus-hub", type: "walkway" },
+        { from: "parking-west", to: "campus-west", type: "walkway" },
+        { from: "parking-east", to: "campus-east", type: "walkway" },
+        { from: "parking-north", to: "campus-north", type: "walkway" },
 
     ],
     
