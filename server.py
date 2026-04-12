@@ -4244,20 +4244,6 @@ async def get_deformation():
         print(f"Error fetching deformation data: {e}")
     return JSONResponse(results)
 
-@app.get("/api/deformation/restore")
-async def restore_deformation_hardcoded():
-    db_path = os.path.join(os.path.dirname(__file__), "sherpa_deformation.db")
-    if os.path.exists(db_path):
-        async with aiosqlite.connect(db_path) as db:
-            await db.execute("DELETE FROM deformations")
-            await db.execute("INSERT INTO deformations (id, lat, lng, type, risk_level) VALUES (?, ?, ?, ?, ?)", 
-                             ("nepal_slide_1", 28.39, 84.12, "AI Landslide Predictor", "CRITICAL"))
-            await db.execute("INSERT INTO deformations (id, lat, lng, type, risk_level) VALUES (?, ?, ?, ?, ?)", 
-                             ("bridge_sf_1", 37.81, -122.47, "Bridge Strain Match", "ELEVATED"))
-            await db.commit()
-            return {"status": "restored"}
-    return {"status": "not found"}
-
 @app.get("/api/wildfires")
 async def get_wildfires(period: str = Query("24h")):
     """Returns global thermal anomalies/wildfires from the SQLite db."""
