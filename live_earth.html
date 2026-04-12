@@ -2,6 +2,19 @@
 <html lang="en" data-theme="light">
 
 <head>
+    <script>
+        if (window.trustedTypes && trustedTypes.createPolicy) {
+            try {
+                trustedTypes.createPolicy('default', {
+                    createHTML: string => string,
+                    createScriptURL: string => string,
+                    createScript: string => string
+                });
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+    </script>
     <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,9 +69,6 @@
 
         <input type="range" id="demo-volume-slider" class="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" title="Demo Voice Volume">
 
-        <button id="settings-toggle-btn" class="settings-btn" title="Data Source Settings">
-            <i class="fa-solid fa-gear"></i>
-        </button>
 
         <div class="hud-status">
             <div class="status-indicator" id="system-status-indicator">
@@ -73,141 +83,7 @@
     <!-- 3D WebGL Globe Container -->
     <div id="globe-container"></div>
 
-    <!-- Right Panel: Data Provider Settings -->
-    <aside class="hud-panel" id="settings-modal" style="display: none; right: 20px; top: 80px; width: 350px;">
-        <h2 class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="display: flex; gap: 10px; align-items: center;"><i class="fa-solid fa-gears"></i> DATA SOURCES</span>
-            <i class="fa-solid fa-times" id="close-settings-btn" style="cursor: pointer;"></i>
-        </h2>
-        <div class="panel-content">
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Aircraft <span id="last-update-flights" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-flights" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="opensky" selected>OpenSky Network (Default)</option>
-                        <option value="adsblol">ADSB.lol Open Registry</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Military <span id="last-update-military" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-military" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="adsblol" selected>ADSB.lol (Default)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Earthquakes <span id="last-update-earthquakes" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-earthquakes" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="usgs" selected>USGS (Default)</option>
-                        <option value="emsc">European-Mediterranean SC</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Satellites <span id="last-update-satellites" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-satellites" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="celestrak" selected>Celestrak CelesTrak (Default)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Vessels <span id="last-update-traffic" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-traffic" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="aisstream" selected>AISStream.io (Default)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Weather Radar <span id="last-update-weather" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-weather" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="rainviewer" selected>RainViewer + Open-Meteo (Default)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-video"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">CCTV <span id="last-update-cctv" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-cctv" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="public" selected>Public Camera Registry (Default)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #0d47a1;"><i class="fa-solid fa-building-shield"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Police <span id="last-update-police" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-police" class="hud-select" style="margin-top: 5px; width: 100%;" onchange="if(window.filterPoliceDropdowns) window.filterPoliceDropdowns('source')">
-                        <option value="all" selected>All Sources</option>
-                        <option value="arcgis">ArcGIS Open Data</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #d32f2f;"><i class="fa-solid fa-walkie-talkie"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Radio <span id="last-update-scanners" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-scanners" class="hud-select" style="margin-top: 5px; width: 100%;" onchange="if(window.filterScannerDropdowns) window.filterScannerDropdowns('source')">
-                        <option value="all">All Sources</option>
-                        <option value="broadcastify" selected>Broadcastify Live Feeds</option>
-                        <option value="openmhz" disabled>OpenMHz (Coming Soon)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Space Radar (SAR) <span id="last-update-sar" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-sar" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="copernicus" selected>Copernicus Ecosystem (Sentinel-1)</option>
-                        <option value="nisar">NASA-ISRO NISAR</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #ff3838;"><i class="fa-solid fa-fire"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Wildfires <span id="last-update-wildfires" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-wildfires" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="firms" selected>NASA FIRMS (Default)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="layer-item" style="cursor: default;">
-                <div class="layer-icon" style="color: #e1b12c;"><i class="fa-solid fa-bridge"></i></div>
-                <div class="layer-info" style="width: 100%;">
-                    <h3 style="display: flex; justify-content: space-between; align-items: center;">Deformation <span id="last-update-deformation" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
-                    <select id="setting-source-deformation" class="hud-select" style="margin-top: 5px; width: 100%;">
-                        <option value="bridge" selected>Global Bridge Deformation</option>
-                        <option value="nepal">Nepal AI Landslide Risk</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </aside>
-
+    <!-- Right Panel Removed based on user request -->
     <!-- UI Overlay Panels -->
     <!-- Left Panel: Layer Controls -->
     <aside class="hud-panel panel-left" id="layers-panel">
@@ -398,10 +274,13 @@
                     </div>
                     <div class="layer-options-container" id="options-cctv">
                         <select id="cctv-mode" class="hud-select" onchange="if(typeof updateCCTVLayer==='function') updateCCTVLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
-                            <option value="all">All Cameras</option>
-                            <option value="usa">United States</option>
-                            <option value="uk">United Kingdom</option>
-                        </select>
+    <option value="all">All Cameras</option>
+    <option value="usa">United States</option>
+    <option value="uk">United Kingdom</option>
+    <optgroup label="US States">
+        <option value="Alabama">Alabama</option><option value="Alaska">Alaska</option><option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option><option value="California">California</option><option value="Colorado">Colorado</option><option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option><option value="Florida">Florida</option><option value="Georgia">Georgia</option><option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option><option value="Illinois">Illinois</option><option value="Indiana">Indiana</option><option value="Iowa">Iowa</option><option value="Kansas">Kansas</option><option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option><option value="Maine">Maine</option><option value="Maryland">Maryland</option><option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option><option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option><option value="Missouri">Missouri</option><option value="Montana">Montana</option><option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option><option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option><option value="New Mexico">New Mexico</option><option value="New York">New York</option><option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option><option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option><option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option><option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option><option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option><option value="Texas">Texas</option><option value="Utah">Utah</option><option value="Vermont">Vermont</option><option value="Virginia">Virginia</option><option value="Washington">Washington</option><option value="West Virginia">West Virginia</option><option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option>
+    </optgroup>
+</select>
                     </div>
                 </div>
                 <div class="layer-toggle-btn" id="toggle-cctv" onclick="toggleLayer('cctv')">
@@ -570,7 +449,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 
     <!-- Application Script -->
-    <script defer src="/static/live_earth.js?v=10036"></script>
+    <script defer src="/static/live_earth.js?v=10037"></script>
     <!-- Version Footer -->
     <div style="position:fixed; bottom:4px; right:10px; font-size:8px; font-family:'Share Tech Mono',monospace; color:var(--hud-cyan); opacity:0.6; z-index:5; pointer-events:none; letter-spacing:1px;">v2.5</div>
 
