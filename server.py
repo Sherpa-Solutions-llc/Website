@@ -123,11 +123,7 @@ ALLOWED_ORIGINS = [
     "https://sherpa-solutions-llc.com/",
     "https://www.sherpa-solutions-llc.com/",
     "https://sherpa-solutions-llc.github.io",
-    "https://sherpa-solutions-llc.github.io/",
-    "https://count-my-vote.com",
-    "https://www.count-my-vote.com",
-    "https://count-my-vote.com/",
-    "https://www.count-my-vote.com/"
+    "https://sherpa-solutions-llc.github.io/"
 ]
 
 app.add_middleware(
@@ -138,12 +134,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (css, images) only if the directory exists
-try:
-    if os.path.exists(STATIC_DIR):
-        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-except Exception as e:
-    print(f"Failed to mount static dir: {e}")
+# Mount static files (css, images)
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # In-memory session store for simplicity (token -> user_id)
 # In production, use Redis or signed JWT cookies
@@ -353,7 +345,6 @@ async def startup_event():
     await init_earthquakes_db()
     await init_osint_db()
     await init_cameras_db()
-    await init_voters_db()
     await database.init_stock_db()
     await database.init_traku_db()
     await database.init_traku_search_history()
@@ -820,67 +811,6 @@ async def submit_consulting_lead(lead: ConsultingLead):
         raise HTTPException(status_code=500, detail="Failed to save lead")
 
 
-# ==========================================
-# OPEN VOTE - Identity Verification Backend
-# ==========================================
-class VoterRegistration(BaseModel):
-    method: str
-    name: str
-    address: str
-    ssn: str
-    biometric_hash: str
-
-VOTERS_DB_PATH = os.path.join(BASE_DIR, "sherpa_voters.db")
-
-async def init_voters_db():
-    try:
-        async with aiosqlite.connect(VOTERS_DB_PATH) as db:
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS voters (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    method TEXT,
-                    name TEXT,
-                    address TEXT,
-                    ssn TEXT UNIQUE,
-                    biometric_hash TEXT UNIQUE,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            await db.commit()
-        print("Sherpa Voters Identity Database initialized.")
-    except Exception as e:
-        print(f"Failed to init_voters_db: {e}")
-
-@app.post("/api/open-vote/register")
-async def register_voter(req: VoterRegistration):
-    try:
-        async with aiosqlite.connect(VOTERS_DB_PATH) as db:
-            # Check for duplicate SSN
-            async with db.execute('SELECT id FROM voters WHERE ssn = ?', (req.ssn,)) as cursor:
-                duplicate_ssn = await cursor.fetchone()
-                if duplicate_ssn:
-                    raise HTTPException(status_code=400, detail="Duplicate Voter Detected: This SSN has already cast a ballot.")
-            
-            # Check for duplicate Biometric Hash (if fingerprint/face)
-            if req.biometric_hash != "N/A":
-                async with db.execute('SELECT id FROM voters WHERE biometric_hash = ?', (req.biometric_hash,)) as cursor:
-                    duplicate_bio = await cursor.fetchone()
-                    if duplicate_bio:
-                        raise HTTPException(status_code=400, detail="Duplicate Voter Detected: Biometric signature matches an existing ballot.")
-
-            # Insert new voter
-            await db.execute('''
-                INSERT INTO voters (method, name, address, ssn, biometric_hash)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (req.method, req.name, req.address, req.ssn, req.biometric_hash))
-            await db.commit()
-            
-            return {"status": "success", "message": "Identity Verified & Secured. Voting Token Issued."}
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error in register_voter: {e}")
-        raise HTTPException(status_code=500, detail="Internal Verification Server Error")
 @app.get("/api/police-data")
 async def get_police_data():
     try:
@@ -1785,15 +1715,8 @@ async def edit_page_view(page_name: str, user: str = Depends(require_admin)):
 import asyncio
 
 @app.post("/api/sync-github")
-async def sync_github(request: Request, user: str = Depends(require_admin)):
+async def sync_github(user: str = Depends(require_admin)):
     try:
-        data = await request.json()
-        projects = data.get("projects", [])
-        
-        with open(r"C:\tmp\github_sync_config.json", "w") as f:
-            import json
-            json.dump({"projects": projects}, f)
-
         # Initialize progress file with starting state
         progress_file = r"C:\tmp\github_sync_progress.json"
         with open(progress_file, 'w') as f:
@@ -3282,6 +3205,7 @@ async def init_cameras_db():
                 lng         REAL,
                 type        TEXT DEFAULT 'cctv',
                 country     TEXT,
+                state       TEXT,
                 stream_type TEXT,
                 snapshot    TEXT,
                 hls_url     TEXT,
@@ -3342,6 +3266,7 @@ async def fetch_cameras_logic():
                 lng         REAL,
                 type        TEXT DEFAULT 'cctv',
                 country     TEXT,
+                state       TEXT,
                 stream_type TEXT,
                 snapshot    TEXT,
                 hls_url     TEXT,
@@ -3359,11 +3284,11 @@ async def fetch_cameras_logic():
         await db.execute("DELETE FROM cameras")
         for cam in cameras:
             await db.execute(
-                "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, state, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     cam.get("id"), cam.get("title"),
                     cam.get("lat"), cam.get("lng"),
-                    cam.get("type", "cctv"), cam.get("country", ""),
+                    cam.get("type", "cctv"), cam.get("country", ""), cam.get("state", ""),
                     cam.get("stream_type", "snapshot"), cam.get("snapshot", ""),
                     cam.get("hls_url", ""), cam.get("video", ""),
                     cam.get("link", ""), fetched_at
@@ -3377,11 +3302,11 @@ async def fetch_cameras_logic():
         await db.execute("DELETE FROM cameras")
         for cam in cameras:
             await db.execute(
-                "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, state, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     cam.get("id"), cam.get("title"),
                     cam.get("lat"), cam.get("lng"),
-                    cam.get("type", "cctv"), cam.get("country", ""),
+                    cam.get("type", "cctv"), cam.get("country", ""), cam.get("state", ""),
                     cam.get("stream_type", "snapshot"), cam.get("snapshot", ""),
                     cam.get("hls_url", ""), cam.get("video", ""),
                     cam.get("link", ""), fetched_at
@@ -3424,7 +3349,7 @@ async def _fetch_caltrans_district(client: httpx.AsyncClient, district: str) -> 
             name = loc.get("locationName", "").replace(" -- ", " — ")
             snap = static.get("currentImageURL", "")
             hls  = img_data.get("streamingVideoURL", "")
-            if not (lat and lng and snap):
+            if not (lat and lng and hls):
                 continue
             cam_id = f"ca_{district}_{cam.get('index', '')}"
             cameras.append({
@@ -3464,7 +3389,7 @@ async def _fetch_uk_cameras(client: httpx.AsyncClient) -> list:
                 if p.get('key') == 'imageUrl': img_url = p.get('value')
                 if p.get('key') == 'videoUrl': vid_url = p.get('value')
                 
-            if not img_url: continue
+            if not vid_url: continue
 
             cameras.append({
                 "id": "uk_" + cc.get("id", "unk").replace(".", "_"),
@@ -3488,14 +3413,14 @@ async def get_cameras():
     try:
         async with aiosqlite.connect(CAMERAS_DB) as db:
             async with db.execute(
-                "SELECT id, title, lat, lng, type, country, stream_type, snapshot, hls_url, video, link FROM cameras"
+                "SELECT id, title, lat, lng, type, country, state, stream_type, snapshot, hls_url, video, link FROM cameras"
             ) as cursor:
                 rows = await cursor.fetchall()
         return JSONResponse([{
             "id": r[0], "title": r[1], "lat": r[2], "lng": r[3],
-            "type": r[4], "country": r[5], "stream_type": r[6],
-            "snapshot": r[7], "hls_url": r[8] or "",
-            "video": r[9] or "", "link": r[10] or ""
+            "type": r[4], "country": r[5], "state": r[6], "stream_type": r[7],
+            "snapshot": r[8], "hls_url": r[9] or "",
+            "video": r[10] or "", "link": r[11] or ""
         } for r in rows])
     except Exception as e:
         print(f"[Cameras] DB Error: {e}")
@@ -4195,115 +4120,6 @@ async def get_freeme_status(campaign_id: str):
         
     return JSONResponse(status_data)
 
-# ==========================================
-# OPEN VOTE ENDPOINTS
-# ==========================================
-class OpenVotePollRequest(BaseModel):
-    category: str
-    title: str
-    description: str
-    region: str
-    active: bool = True
-    options: list
+# Rev: 20260315-0916
 
-class OpenVoteVoteRequest(BaseModel):
-    poll_id: int
-    option_id: str
-    state: str = ""
-    vector: str = "ANON"
-
-class OpenVoteRegisterRequest(BaseModel):
-    method: str
-    name: str = ""
-    address: str = ""
-    ssn: str = ""
-    biometric_hash: str
-
-@app.on_event("startup")
-async def startup_open_vote():
-    try:
-        await database.init_open_vote_db()
-    except Exception as e:
-        print(f"Error initializing open vote db: {e}")
-
-@app.get("/api/open-vote/polls")
-async def get_open_vote_polls():
-    try:
-        polls = await database.get_all_open_vote_polls()
-        return JSONResponse(polls)
-    except Exception as e:
-        print(f"Error fetching open vote polls: {e}")
-        return JSONResponse({"error": "Database error"}, status_code=500)
-
-@app.get("/api/open-vote/years")
-async def get_open_vote_years():
-    try:
-        years = await database.get_open_vote_years()
-        return JSONResponse(years)
-    except Exception as e:
-        return JSONResponse({"error": "Database error"}, status_code=500)
-
-@app.get("/api/open-vote/polls/lazy")
-async def get_open_vote_polls_lazy(year: int, category: str = None):
-    try:
-        polls = await database.get_open_vote_polls_lazy(year, category)
-        return JSONResponse(polls)
-    except Exception as e:
-        print(f"Error lazy loading open vote polls: {e}")
-        return JSONResponse({"error": "Database error"}, status_code=500)
-
-@app.post("/api/open-vote/poll")
-async def create_open_vote_poll_api(req: OpenVotePollRequest, request: Request):
-    # Security Validation: Block completely if the HTTP origin isn't local.
-    # In a real environment, this needs a mature JWT Admin middleware layer.
-    client_host = request.client.host
-    if client_host != "127.0.0.1" and client_host != "localhost" and client_host != "::1":
-       return JSONResponse({"error": "Unauthorized Access Endpoint Disabled Outside Host"}, status_code=403)
-       
-    try:
-        poll_id = await database.create_open_vote_poll(req.category, req.title, req.description, req.region, req.active, req.options)
-        return JSONResponse({"status": "success", "poll_id": poll_id})
-    except Exception as e:
-        print(f"Error creating open vote poll: {e}")
-        return JSONResponse({"error": "Failed to create poll"}, status_code=500)
-
-@app.post("/api/open-vote/vote")
-async def cast_open_vote(req: OpenVoteVoteRequest):
-    try:
-        tx_hash = await database.increment_open_vote_option(req.poll_id, req.option_id, req.state, req.vector)
-        return JSONResponse({"status": "success", "tx_hash": tx_hash})
-    except Exception as e:
-        print(f"Error casting vote: {e}")
-        return JSONResponse({"error": "Failed to cast vote"}, status_code=500)
-
-@app.post("/api/open-vote/register")
-async def register_open_vote(req: OpenVoteRegisterRequest):
-    # Mock registration response
-    return JSONResponse({"status": "success", "message": "Identity verified", "vector": req.biometric_hash})
-
-@app.get("/api/open-vote/ledger")
-async def get_open_vote_ledger():
-    try:
-        import aiosqlite
-        async with aiosqlite.connect(database.VOTERS_DB) as db:
-            async with db.execute('SELECT tx_hash FROM open_vote_ledger ORDER BY timestamp DESC LIMIT 20') as cursor:
-                rows = await cursor.fetchall()
-                hashes = [r[0] for r in rows]
-                return JSONResponse(hashes)
-    except Exception as e:
-        print(f"Error fetching ledger: {e}")
-        return JSONResponse({"error": "Failed to sync ledger"}, status_code=500)
-
-@app.get("/api/open-vote/nuke")
-async def nuke_ov_db():
-    import os
-    if os.path.exists(database.VOTERS_DB):
-        try:
-            os.remove(database.VOTERS_DB)
-        except Exception as e:
-            return {"error": str(e)}
-    await database.init_open_vote_db()
-    return {"status": "reseeded"}
-
-# Rev: 20260315-0917
-# Cache Bust: Force Railway to ignore old Nixpacks cache 4568
+# trigger reload
