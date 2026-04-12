@@ -6598,7 +6598,7 @@ Copyright (c) 2025 Highsoft AS, Based on data from Natural Earth
 };
 
 // Open Vote Data & Simulation
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? 'http://localhost:8787' : 'https://sherpa-solutions-api-production.up.railway.app';
 
 
 let polls = [];
@@ -6662,16 +6662,12 @@ async function init() {
     polls = [];
     renderPollList(window.masterYearsList);
     
-    // Setup Demographic Velocity Tachometers
-    setInterval(() => {
-        const fluctuate = (base) => Math.floor(base + (Math.random() - 0.5) * (base * 0.15));
-        const gz = fluctuate(2400); document.getElementById('vel-genz').innerText = gz.toLocaleString() + "/min";
-        document.getElementById('bar-genz').style.width = Math.min(100, gz / 30) + '%';
-        const mil = fluctuate(1800); document.getElementById('vel-mil').innerText = mil.toLocaleString() + "/min";
-        document.getElementById('bar-mil').style.width = Math.min(100, mil / 30) + '%';
-        const boom = fluctuate(1200); document.getElementById('vel-boom').innerText = boom.toLocaleString() + "/min";
-        document.getElementById('bar-boom').style.width = Math.min(100, boom / 30) + '%';
-    }, 1500);
+    document.getElementById('vel-genz').innerText = "0/min";
+    document.getElementById('bar-genz').style.width = '0%';
+    document.getElementById('vel-mil').innerText = "0/min";
+    document.getElementById('bar-mil').style.width = '0%';
+    document.getElementById('vel-boom').innerText = "0/min";
+    document.getElementById('bar-boom').style.width = '0%';
 
     // Auto-load current year top-level data
     if(years && years.length > 0) {
@@ -6693,51 +6689,7 @@ function startMempoolStream() {
     const streamContainer = document.getElementById('mempool-stream');
     if (!streamContainer) return;
     
-    setInterval(() => {
-        // Generate mock hash
-        const chars = '0123456789abcdef';
-        let hash = '0x';
-        for(let i=0; i<18; i++) {
-            hash += chars[Math.floor(Math.random() * chars.length)];
-        }
-        
-        const el = document.createElement('div');
-        el.style.opacity = '0';
-        el.style.transition = 'opacity 0.3s ease, color 0.3s ease';
-        el.innerText = hash + " [WAITING]";
-        streamContainer.appendChild(el);
-        
-        setTimeout(() => el.style.opacity = '1', 50);
-        
-        if (streamContainer.children.length > 8) {
-            streamContainer.removeChild(streamContainer.firstChild);
-        }
-    }, 500);
-
-    // Block mining interval
-    setInterval(() => {
-        const status = document.getElementById('mempool-status');
-        const term = document.getElementById('mempool-terminal');
-        if (!status || !term) return;
-        
-        status.innerHTML = '<span style="color:var(--accent-green)">BLOCK VERIFIED</span>';
-        term.style.borderColor = 'var(--accent-green)';
-        term.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.3)';
-        
-        // Turn hashes green momentarily before clearing
-        Array.from(streamContainer.children).forEach(child => {
-            child.style.color = 'var(--accent-green)';
-            child.innerText = child.innerText.replace('[WAITING]', '[LOCKED]');
-        });
-        
-        setTimeout(() => {
-            streamContainer.innerHTML = '';
-            status.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            term.style.borderColor = 'rgba(0, 210, 255, 0.4)';
-            term.style.boxShadow = '0 0 10px rgba(0, 210, 255, 0.1)';
-        }, 1200);
-        
-    }, 12000);
+    streamContainer.innerHTML = '<div style="color: rgba(255,255,255,0.3); font-size: 0.8rem;">[IDLE] Awaiting network transactions...</div>';
 }
 
 function switchView(type) {
@@ -6786,6 +6738,18 @@ async function lazyLoadCategory(year, category, containerElement) {
             
             // Upsert into memory store
             fetchedPolls.forEach(fp => {
+                // Assign robust categorical colors natively since Edge schema drops color column
+                const defColors = ['#58a6ff', '#f85149', '#3fb950', '#8b949e', '#e4003b', '#faa61a'];
+                if(fp.options) {
+                    fp.options.forEach((opt, i) => {
+                        if (!opt.color) {
+                            if(opt.label.toLowerCase().includes('approve')) opt.color = '#3fb950';
+                            else if(opt.label.toLowerCase().includes('reject')) opt.color = '#f85149';
+                            else opt.color = defColors[i % defColors.length];
+                        }
+                    });
+                }
+
                 const idx = polls.findIndex(p => p.id === fp.id);
                 if(idx === -1) polls.push(fp);
                 else polls[idx] = fp;
@@ -7271,33 +7235,35 @@ async function submitRegistration(event) {
     const name = document.getElementById('pii-name').value;
     const address = document.getElementById('pii-address').value;
     const ssn = document.getElementById('pii-ssn').value;
-    
-    // Simulate biometric hash matching the mock extraction
-    // If state ID is used, biometric hash is simulated via the photo.
-    const biometricHash = currentAuthMethod === 'id_card' ? "DOC-" + Math.random().toString(36).substr(2, 9).toUpperCase() : "BIO-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-
-    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Securing Hardware Key...';
     submitBtn.disabled = true;
     errorMsg.style.display = 'none';
     
     try {
-        const response = await fetch(API_BASE + '/api/open-vote/register', {
+        // 1. Get Registration Challenge
+        const genResp = await fetch(API_BASE + '/api/open-vote/auth/register/generate', { method: 'POST' });
+        if (!genResp.ok) throw new Error('Failed to reach secure enclave');
+        const genData = await genResp.json();
+        
+        // 2. Trigger OS Biometrics Native Passkey
+        const attResp = await SimpleWebAuthnBrowser.startRegistration(genData.options);
+        
+        // 3. Verify hardware attestation
+        const verifyResp = await fetch(API_BASE + '/api/open-vote/auth/register/verify', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                method: currentAuthMethod,
+                attestationResponse: attResp,
+                userId: genData.userId,
                 name: name,
                 address: address,
-                ssn: ssn,
-                biometric_hash: biometricHash
+                ssn: ssn
             })
         });
         
-        const data = await response.json();
+        const data = await verifyResp.json();
         
-        if (!response.ok) {
+        if (!verifyResp.ok) {
             errorMsg.innerText = data.detail || "Verification failed.";
             errorMsg.style.display = 'block';
             submitBtn.innerHTML = '<i class="fa-solid fa-server"></i> Submit to Registrar';
@@ -7415,24 +7381,47 @@ async function submitVote() {
     }, 50);
 
     try {
-        const resp = await fetch(API_BASE + '/api/open-vote/vote', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                poll_id: currentPollId, 
-                option_id: selectedOptionId, 
-                state: verifiedState || "", 
-                vector: window.activeBiometricHash || ""
-            })
-        });
-        
         let txHash;
-        if (resp.ok) {
-            const data = await resp.json();
-            txHash = data.tx_hash; 
-        } else {
-             throw new Error("API Failure");
+        const submitVote = async () => {
+            return await fetch(API_BASE + '/api/open-vote/vote', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ poll_id: currentPollId, option_id: selectedOptionId })
+            });
+        };
+        
+        let resp = await submitVote();
+        
+        if (resp.status === 401) {
+            // Need hardware authentication
+            clearInterval(scrambleInterval);
+            scrambleEl.innerText = "Awaiting Hardware Key...";
+            
+            const authGen = await fetch(API_BASE + '/api/open-vote/auth/login/generate', { method: 'POST' });
+            if (!authGen.ok) throw new Error("Failed to reach secure enclave");
+            const authGenData = await authGen.json();
+            
+            const assertion = await SimpleWebAuthnBrowser.startAuthentication(authGenData.options);
+            
+            const authVer = await fetch(API_BASE + '/api/open-vote/auth/login/verify', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ assertionResponse: assertion })
+            });
+            
+            if (!authVer.ok) throw new Error("Hardware Verification Failed");
+            
+            // Re-attempt vote
+            resp = await submitVote();
         }
+        
+        if (!resp.ok) {
+            const errData = await resp.json();
+            throw new Error(errData.error || "API Failure");
+        }
+        
+        const data = await resp.json();
+        txHash = data.txHash;
         
         const receiptHash = txHash || "0xERROR";
         
