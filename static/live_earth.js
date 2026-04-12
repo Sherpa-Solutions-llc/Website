@@ -3445,6 +3445,8 @@ window.fetchSAR = async function() {
                     const lat = satellite.degreesLat(gd.latitude);
                     const lng = satellite.degreesLong(gd.longitude);
                     const altKm = gd.height;
+                    // Skip satellites with invalid propagation results
+                    if (!isFinite(lat) || !isFinite(lng) || !isFinite(altKm) || altKm < 100 || altKm > 2000) return;
                     const swathHalfDeg = 1.2;
                     const corners = [
                         [lng - swathHalfDeg, lat - swathHalfDeg],
