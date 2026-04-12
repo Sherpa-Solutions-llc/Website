@@ -280,20 +280,11 @@ function startViralTelemetery() {
                });
     }
 
-    // 3. Heartbeat of Democracy
+    // 3. Hearbeat of Democracy (DISABLED FOR PRODUCTION)
     if (heartbeatInterval) clearInterval(heartbeatInterval);
-    heartbeatInterval = setInterval(() => {
-        triggerGlobalPulse();
-    }, 1200);
 
-    // 2. Threat Block Interceptor
+    // 2. Threat Block Interceptor (DISABLED FOR PRODUCTION)
     if (threatInterval) clearInterval(threatInterval);
-    threatInterval = setInterval(() => {
-        // 10% chance every 2 seconds = occasional threats
-        if (Math.random() < 0.10) {
-            triggerThreatIntercept();
-        }
-    }, 2000);
 }
 
 function triggerThreatIntercept() {
@@ -376,7 +367,8 @@ window.toggleCyberRadar = function() {
                 lat: target.lat, 
                 lng: target.lng, 
                 color: 'rgba(255, 0, 0, 0.4)',
-                maxR: 35
+                maxR: 5,
+                isRadar: true
             });
             if(rings.length > 25) rings.shift();
             myGlobe.ringsData(rings);
@@ -393,6 +385,10 @@ window.toggleCyberRadar = function() {
         btn.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> CYBER RADAR';
         
         clearInterval(cyberRadarInterval);
+        if (typeof myGlobe !== 'undefined' && myGlobe !== null) {
+            let cleanedRings = myGlobe.ringsData().filter(r => !r.isRadar);
+            myGlobe.ringsData(cleanedRings);
+        }
         myGlobe.ringMaxRadius(5);
     }
 };
