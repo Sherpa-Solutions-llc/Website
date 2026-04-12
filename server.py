@@ -2307,7 +2307,7 @@ async def init_vessels_db():
 
 async def fetch_vessels_logic():
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers={"Accept-Encoding": "gzip", "Digitraffic-User": "SherpaLiveEarth/1.0"}) as client:
             # Step 1: Fetch live vessel locations
             print("[AIS] Fetching live vessels from DigiTraffic...")
             res = await client.get('https://meri.digitraffic.fi/api/ais/v1/locations')
