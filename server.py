@@ -4230,7 +4230,7 @@ async def get_deformation():
         db_path = os.path.join(os.path.dirname(__file__), "sherpa_deformation.db")
         if os.path.exists(db_path):
             async with aiosqlite.connect(db_path) as db:
-                async with db.execute("SELECT id, lat, lng, type, risk_level FROM deformations LIMIT 500") as cursor:
+                async with db.execute("SELECT id, lat, lng, type, risk_level FROM deformations") as cursor:
                     rows = await cursor.fetchall()
                     for r in rows:
                         results.append({
