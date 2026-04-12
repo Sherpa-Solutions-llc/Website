@@ -445,7 +445,16 @@ async def startup_event():
             asyncio.create_task(update_earthquakes_loop())
             asyncio.create_task(update_cameras_loop())
             asyncio.create_task(update_wildfires_loop())
-            asyncio.create_task(update_deformation_loop())
+            
+            # --- Wildfires ---
+            async with aiosqlite.connect(os.path.join(BASE_DIR, "sherpa_wildfires.db")) as db:
+                async with db.execute("SELECT COUNT(*) FROM wildfires") as cursor:
+                    row = await cursor.fetchone()
+                    if not row or row[0] <= 2: # 2 represents the old mock data limit
+                        print("[Wildfires] DB empty or mock data on startup, fetching live NASA FIRMS in background...")
+                        await fetch_wildfires_logic()
+                    else:
+                        print("[Wildfires] DB already populated, skipping initial fetch.")
 
         except Exception as e:
             print(f"[Startup] Background prime failed: {e}")
@@ -2944,7 +2953,7 @@ async def get_satellites():
     """Returns the cached list of satellites from the local SQLite database."""
     try:
         async with aiosqlite.connect(SATELLITES_DB) as db:
-            async with db.execute("SELECT name, line1, line2, type, country, status FROM satellites LIMIT 750") as cursor:
+            async with db.execute("SELECT name, line1, line2, type, country, status FROM satellites") as cursor:
                 rows = await cursor.fetchall()
                 satellites_json = []
                 for r in rows:
@@ -3283,7 +3292,7 @@ async def fetch_cameras_logic():
                 last_updated INTEGER
             )
         ''')
-        # await db.execute("DELETE FROM cameras")
+        await db.execute("DELETE FROM cameras")
         for cam in cameras:
             await db.execute(
                 "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, state, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -3301,7 +3310,7 @@ async def fetch_cameras_logic():
 
     # 2. Update MAIN DB Atomically
     async with aiosqlite.connect(CAMERAS_DB) as db:
-        # await db.execute("DELETE FROM cameras")
+        await db.execute("DELETE FROM cameras")
         for cam in cameras:
             await db.execute(
                 "INSERT OR REPLACE INTO cameras (id, title, lat, lng, type, country, state, stream_type, snapshot, hls_url, video, link, fetched_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -3324,6 +3333,63 @@ async def update_cameras_loop():
         await asyncio.sleep(3600)
         try:
             await fetch_cameras_logic()
+        except Exception as e:
+            print(f"[Cameras update loop error] {e}")
+
+async def fetch_wildfires_logic():
+    try:
+        db_path = os.path.join(BASE_DIR, "sherpa_wildfires.db")
+        targets = [
+            ("wildfires", "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_24h.csv"),
+            ("wildfires_7d", "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_7d.csv")
+        ]
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            for table_name, url in targets:
+                res = await client.get(url)
+                if res.status_code == 200:
+                    lines = res.text.strip().split('\n')
+                    if len(lines) > 1:
+                        async with aiosqlite.connect(db_path) as db:
+                            await db.execute(f'''CREATE TABLE IF NOT EXISTS {table_name} (
+                                id TEXT PRIMARY KEY, lat REAL, lng REAL, brightness REAL, time TEXT
+                            )''')
+                            await db.execute(f"DELETE FROM {table_name}")
+                            count = 0
+                            
+                            # Random uniform sampling for massive datasets to prevent WebGL catastrophic failure
+                            # We keep ~15,000 points dynamically distributed
+                            import random
+                            total_rows = len(lines) - 1
+                            sample_rate = 1.0 if total_rows <= 15000 else 15000.0 / total_rows
+                            
+                            for i in range(1, len(lines)):
+                                if count >= 15000: break
+                                if sample_rate < 1.0 and random.random() > sample_rate: continue
+                                
+                                cols = lines[i].split(',')
+                                if len(cols) >= 7:
+                                    try:
+                                        lat, lng, bright = float(cols[0]), float(cols[1]), float(cols[2])
+                                        f_date, f_time = cols[5], cols[6]
+                                        iso_time = f"{f_date}T{f_time[:2]}:{f_time[2:]}:00Z"
+                                        wid = f"firms_{table_name}_{count}"
+                                        await db.execute(f"INSERT INTO {table_name} (id, lat, lng, brightness, time) VALUES (?, ?, ?, ?, ?)", (wid, lat, lng, bright, iso_time))
+                                        count += 1
+                                    except: pass
+                            await db.commit()
+                            print(f"[Wildfires] Synced {count} points into {table_name} from NASA FIRMS.")
+                else:
+                    print(f"[Wildfires] Failed to fetch {table_name}: HTTP {res.status_code}")
+    except Exception as e:
+        print(f"[Wildfires] Fetch error: {e}")
+
+async def update_wildfires_loop():
+    """Refresh NASA FIRMS wildfire list every 6 hours."""
+    while True:
+        await asyncio.sleep(21600)  # 6 hours
+        try:
+            await fetch_wildfires_logic()
         except Exception as e:
             print(f"[Cameras update loop error] {e}")
 
@@ -3408,114 +3474,6 @@ async def _fetch_uk_cameras(client: httpx.AsyncClient) -> list:
     except Exception as e:
         print(f"[Cameras] TfL JamCams UK failed: {e}")
         return []
-
-@app.get("/api/sar-data")
-async def get_sar_data():
-    """Return real SAR-capable satellites with TLE data from the Celestrak-backed satellites DB."""
-    SAR_KEYWORDS = ['SENTINEL-1', 'RADARSAT', 'COSMO-SKYMED', 'TERRASAR', 'ALOS-2', 'SARAL', 'ICEYE', 'CAPELLA', 'SAR']
-    results = []
-    try:
-        async with aiosqlite.connect(SATELLITES_DB) as db:
-            async with db.execute("SELECT name, line1, line2, type, country, status FROM satellites") as cursor:
-                rows = await cursor.fetchall()
-        for r in rows:
-            name = r[0] or ""
-            upper_name = name.upper()
-            if any(k in upper_name for k in SAR_KEYWORDS):
-                if r[1] and r[2]:  # Must have valid TLE lines
-                    results.append({
-                        "id": f"sar_{name.replace(' ','_').lower()}",
-                        "name": name,
-                        "mission": name,
-                        "tle1": r[1],
-                        "tle2": r[2],
-                        "country": r[4] or "Unknown",
-                        "status": r[5] or "active"
-                    })
-    except Exception as e:
-        print(f"API Error (SAR): {e}")
-    return results
-
-@app.get("/api/deformation")
-async def get_deformation():
-    results = []
-    try:
-        db_path = os.path.join(os.path.dirname(__file__), "sherpa_deformation.db")
-        if os.path.exists(db_path):
-            async with aiosqlite.connect(db_path) as db:
-                async with db.execute("SELECT id, lat, lng, type, risk_level FROM deformation LIMIT 500") as cursor:
-                    rows = await cursor.fetchall()
-                    for r in rows:
-                        results.append({
-                            "id": r[0],
-                            "lat": r[1],
-                            "lng": r[2],
-                            "type": r[3],
-                            "risk_level": r[4]
-                        })
-    except Exception as e:
-        print(f"Error fetching deformation data: {e}")
-    return results
-
-@app.get("/api/wildfires")
-async def get_wildfires():
-    """Returns global thermal anomalies/wildfires from the SQLite db."""
-    db_path = os.path.join(BASE_DIR, "sherpa_wildfires.db")
-    try:
-        if os.path.exists(db_path):
-            async with aiosqlite.connect(db_path) as db:
-                async with db.execute("SELECT id, lat, lng, brightness, confidence FROM wildfire LIMIT 15000") as cursor:
-                    rows = await cursor.fetchall()
-            
-            fires = []
-            for r in rows:
-                fires.append({
-                    "id": r[0],
-                    "lat": r[1],
-                    "lng": r[2],
-                    "brightness": r[3],
-                    "confidence": r[4],
-                })
-            return JSONResponse(fires)
-    except Exception as e:
-        print(f"Error serving wildfires: {e}")
-    return JSONResponse([])
-
-async def update_wildfires_loop():
-    """Background agent script processor for Wildfire telemetry"""
-    while True:
-        await asyncio.sleep(43200) # Every 12 hours
-        try:
-            print("[Agent] Running fetch_real_wildfires.py background task...")
-            process = await asyncio.create_subprocess_exec(
-                sys.executable, "fetch_real_wildfires.py",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=BASE_DIR
-            )
-            stdout, stderr = await process.communicate()
-            if process.returncode != 0:
-                print(f"[Agent] Wildfire task error: {stderr.decode()}")
-        except Exception as e:
-            print(f"[Agent] Wildfire task failed: {e}")
-
-async def update_deformation_loop():
-    """Background agent script processor for Infrastructure Deformation"""
-    while True:
-        await asyncio.sleep(86400) # Every 24 hours
-        try:
-            print("[Agent] Running fetch_real_infrastructure.py background task...")
-            process = await asyncio.create_subprocess_exec(
-                sys.executable, "fetch_real_infrastructure.py",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=BASE_DIR
-            )
-            stdout, stderr = await process.communicate()
-            if process.returncode != 0:
-                print(f"[Agent] Deformation task error: {stderr.decode()}")
-        except Exception as e:
-            print(f"[Agent] Deformation task failed: {e}")
 
 @app.get("/api/cameras")
 async def get_cameras():
@@ -4233,3 +4191,80 @@ async def get_freeme_status(campaign_id: str):
 # Rev: 20260315-0916
 
 # trigger reload
+
+
+@app.get("/api/sar-data")
+async def get_sar_data():
+    """Return real SAR-capable satellites with TLE data from the Celestrak-backed satellites DB."""
+    SAR_KEYWORDS = ['SENTINEL-1', 'RADARSAT', 'COSMO-SKYMED', 'TERRASAR', 'ALOS-2', 'SARAL', 'ICEYE', 'CAPELLA', 'SAR']
+    results = []
+    try:
+        async with aiosqlite.connect(SATELLITES_DB) as db:
+            async with db.execute("SELECT name, line1, line2, type, country, status FROM satellites") as cursor:
+                rows = await cursor.fetchall()
+        for r in rows:
+            name = r[0] or ""
+            upper_name = name.upper()
+            if any(k in upper_name for k in SAR_KEYWORDS):
+                if r[1] and r[2]:  # Must have valid TLE lines
+                    results.append({
+                        "id": f"sar_{name.replace(' ','_').lower()}",
+                        "name": name,
+                        "mission": name,
+                        "tle1": r[1],
+                        "tle2": r[2],
+                        "country": r[4] or "Unknown",
+                        "status": r[5] or "active"
+                    })
+    except Exception as e:
+        print(f"API Error (SAR): {e}")
+    return JSONResponse(results)
+
+@app.get("/api/deformation")
+async def get_deformation():
+    results = []
+    try:
+        db_path = os.path.join(os.path.dirname(__file__), "sherpa_deformation.db")
+        if os.path.exists(db_path):
+            async with aiosqlite.connect(db_path) as db:
+                async with db.execute("SELECT id, lat, lng, type, risk_level FROM deformations LIMIT 500") as cursor:
+                    rows = await cursor.fetchall()
+                    for r in rows:
+                        results.append({
+                            "id": r[0],
+                            "lat": r[1],
+                            "lng": r[2],
+                            "type": r[3],
+                            "risk_level": r[4]
+                        })
+    except Exception as e:
+        print(f"Error fetching deformation data: {e}")
+    return JSONResponse(results)
+
+@app.get("/api/wildfires")
+async def get_wildfires(period: str = Query("24h")):
+    """Returns global thermal anomalies/wildfires from the SQLite db."""
+    db_path = os.path.join(os.path.dirname(__file__), "sherpa_wildfires.db")
+    
+    table = "wildfires_7d" if period == "7d" else "wildfires"
+    
+    try:
+        if os.path.exists(db_path):
+            async with aiosqlite.connect(db_path) as db:
+                async with db.execute(f"SELECT id, lat, lng, brightness, time FROM {table} LIMIT 15000") as cursor:
+                    rows = await cursor.fetchall()
+            
+            fires = []
+            for r in rows:
+                fires.append({
+                    "id": r[0],
+                    "lat": r[1],
+                    "lng": r[2],
+                    "brightness": r[3],
+                    "confidence": 100, # Mocked confidence metric
+                    "time": r[4]
+                })
+            return JSONResponse(fires)
+    except Exception as e:
+        print(f"Error serving wildfires: {e}")
+    return JSONResponse([])
