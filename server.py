@@ -4244,6 +4244,30 @@ async def get_deformation():
         print(f"Error fetching deformation data: {e}")
     return JSONResponse(results)
 
+from pydantic import BaseModel
+from typing import List
+
+class DeformationPoint(BaseModel):
+    id: str
+    lat: float
+    lng: float
+    type: str
+    risk_level: str
+
+@app.post("/api/deformation/migrate")
+async def migrate_deformation(payload: List[DeformationPoint]):
+    db_path = os.path.join(os.path.dirname(__file__), "sherpa_deformation.db")
+    if os.path.exists(db_path):
+        async with aiosqlite.connect(db_path) as db:
+            await db.execute("DELETE FROM deformations")
+            await db.executemany(
+                "INSERT INTO deformations (id, lat, lng, type, risk_level) VALUES (?, ?, ?, ?, ?)",
+                [(p.id, p.lat, p.lng, p.type, p.risk_level) for p in payload]
+            )
+            await db.commit()
+            return {"status": "success", "migrated": len(payload)}
+    return {"status": "error"}
+
 @app.get("/api/wildfires")
 async def get_wildfires(period: str = Query("24h")):
     """Returns global thermal anomalies/wildfires from the SQLite db."""
