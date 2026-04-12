@@ -448,6 +448,9 @@ async def startup_event():
             
             # --- Wildfires ---
             async with aiosqlite.connect(os.path.join(BASE_DIR, "sherpa_wildfires.db")) as db:
+                await db.execute('''CREATE TABLE IF NOT EXISTS wildfires (
+                    id TEXT PRIMARY KEY, lat REAL, lng REAL, brightness REAL, time TEXT
+                )''')
                 async with db.execute("SELECT COUNT(*) FROM wildfires") as cursor:
                     row = await cursor.fetchone()
                     if not row or row[0] <= 2: # 2 represents the old mock data limit
