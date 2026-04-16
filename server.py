@@ -1728,13 +1728,21 @@ async def edit_page_view(page_name: str, user: str = Depends(require_admin)):
 
 import asyncio
 
+class SyncRequest(BaseModel):
+    projects: list[str] = []
+
 @app.post("/api/sync-github")
-async def sync_github(user: str = Depends(require_admin)):
+async def sync_github(request: SyncRequest, user: str = Depends(require_admin)):
     try:
+        # Write selected projects config
+        config_file = r"C:\tmp\github_sync_config.json"
+        import json
+        with open(config_file, 'w') as f:
+            json.dump({"projects": request.projects}, f)
+
         # Initialize progress file with starting state
         progress_file = r"C:\tmp\github_sync_progress.json"
         with open(progress_file, 'w') as f:
-            import json
             json.dump({"current": 0, "total": 0, "status": "starting", "message": "Initializing...", "percentage": 0}, f)
             
         # Run the existing upload script in the background
@@ -1751,6 +1759,8 @@ async def sync_github(user: str = Depends(require_admin)):
             
         return {"status": "success", "message": "Deployment started in background."}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JSONResponse(
             status_code=500,
             content={"status": "error", "message": str(e)}
