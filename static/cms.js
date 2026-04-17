@@ -43,10 +43,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (content[key]) {
                     if (el.tagName === 'IMG') {
                         // For images, we just update the src link
-                        el.src = content[key];
+                        if (el.getAttribute('src') !== content[key] && el.src !== content[key]) {
+                            el.src = content[key];
+                        }
                     } else {
-                        // For everything else, replace the raw HTML
-                        el.innerHTML = content[key];
+                        // For everything else, replace the raw HTML only if it changed
+                        if (el.innerHTML !== content[key]) {
+                            el.innerHTML = content[key];
+                        }
                     }
                 }
             });
