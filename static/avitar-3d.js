@@ -321,10 +321,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }, undefined, function ( e ) {
             console.error( "CRITICAL: GLTF Framework Load Failure", e );
             // Failsafe auto-recovery for dead Blob urls in localStorage cache
-            const defaultRobot = "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb";
+            const defaultRobot = "static/tomb_raider_laracroft.glb";
             if (url !== defaultRobot) {
                 console.warn("Autonomously booting fallback Failsafe Matrix.");
-                window.loadModel(defaultRobot, {scale: 1.6, y: -3.5, rot: Math.PI});
+                window.loadModel(defaultRobot, {scale: 1.6, y: -3.5, rot: 0});
             }
         });
     };
@@ -336,10 +336,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const config = JSON.parse(savedConfig);
             window.loadModel(config.url, {scale: config.scale, y: config.y, rot: config.rot});
         } catch(e) {
-            window.loadModel("https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb", {scale: 1.6, y: -3.5, rot: Math.PI});
+            window.loadModel("static/tomb_raider_laracroft.glb", {scale: 1.6, y: -3.5, rot: 0});
         }
     } else {
-        window.loadModel("https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb", {scale: 1.6, y: -3.5, rot: Math.PI});
+        window.loadModel("static/tomb_raider_laracroft.glb", {scale: 1.6, y: -3.5, rot: 0});
     }
 
     // Responsive Canvas Resize Hook

@@ -46,10 +46,76 @@ header {
     backdrop-filter: blur(10px);
     position: fixed;
     width: 100%;
-    top: 0;
+    top: 38px;
     z-index: 1000;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
     transition: var(--transition);
+}
+
+.top-announcement-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--accent);
+    color: var(--text-light);
+    text-align: center;
+    padding: 8px 5%;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 1001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+.top-announcement-bar a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+.top-announcement-bar a:hover {
+    opacity: 0.8;
+}
+.top-announcement-bar .divider {
+    opacity: 0.5;
+}
+
+/* Quick Contact FAB */
+.fab-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.fab-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(192, 108, 59, 0.4);
+    text-decoration: none;
+    transition: var(--transition);
+}
+.fab-btn:hover {
+    transform: scale(1.1);
+    background-color: #a85e33;
+    color: white;
+}
+.fab-email {
+    background-color: var(--primary);
+    box-shadow: 0 4px 15px rgba(45, 63, 46, 0.4);
+}
+.fab-email:hover {
+    background-color: #1a241a;
 }
 
 .logo-container {

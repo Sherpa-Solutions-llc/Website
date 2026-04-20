@@ -1419,10 +1419,10 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
-SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme']
+SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody']
 
 @app.get("/api/edit-page/{page_name}")
-async def edit_page_view(page_name: str, user: str = Depends(require_admin)):
+async def edit_page_view(page_name: str):
     if page_name not in SAFE_EDIT_PAGES:
         raise HTTPException(status_code=404)
     html_path = os.path.join(BASE_DIR, f"{page_name}.html")
