@@ -215,7 +215,55 @@
         </div>
     </section>
 
+    <!-- ─── PRODUCT SHOWCASE ─────────────────────────────────────── -->
+    <section id="showcase" style="
+        background: linear-gradient(180deg, #0b0c0b 0%, #111411 50%, #0b0c0b 100%);
+        padding: 5rem 2rem;
+        text-align: center;
+        border-top: 1px solid rgba(212,175,55,0.15);
+        border-bottom: 1px solid rgba(212,175,55,0.15);
+    ">
+        <div class="content-container" style="max-width: 1100px; margin: 0 auto;">
+            <p style="font-size: 0.85rem; letter-spacing: 0.2em; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem;">The Complete System</p>
+            <h2 class="serif-font" style="font-size: 2.5rem; color: #fdfbf7; margin-bottom: 0.75rem;">
+                Everything You Need, <em style="color: var(--primary);">Nothing You Don't</em>
+            </h2>
+            <p style="color: #888; max-width: 600px; margin: 0 auto 3rem; line-height: 1.7;">
+                From the intuitive mobile web interface to the precision-engineered memorial pot — Heavenly Melody is a complete tribute system, ready the moment it arrives.
+            </p>
 
+            <!-- Showcase image with glow -->
+            <div style="
+                position: relative;
+                display: inline-block;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow:
+                    0 0 60px rgba(212, 175, 55, 0.25),
+                    0 0 120px rgba(212, 175, 55, 0.1),
+                    0 40px 80px rgba(0,0,0,0.8);
+                max-width: 600px;
+                width: 100%;
+                transition: transform 0.4s ease, box-shadow 0.4s ease;
+            " onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 0 80px rgba(212,175,55,0.4), 0 0 160px rgba(212,175,55,0.15), 0 50px 100px rgba(0,0,0,0.9)'"
+               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 60px rgba(212,175,55,0.25), 0 0 120px rgba(212,175,55,0.1), 0 40px 80px rgba(0,0,0,0.8)'">
+                <img
+                    src="static/heavenly_melody_showcase.jpg"
+                    alt="Heavenly Melody memorial flower pot with smartphone app interface showing audio management and LED controls"
+                    style="width: 100%; display: block; border-radius: 20px;"
+                    loading="lazy"
+                >
+                <!-- Gold shimmer overlay on hover -->
+                <div style="
+                    position: absolute; inset: 0; border-radius: 20px;
+                    background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, transparent 60%);
+                    pointer-events: none;
+                "></div>
+            </div>
+
+
+        </div>
+    </section>
 
     <section id="features" class="content-block" style="background: rgba(0,0,0,0.5);">
         <div class="content-container">
