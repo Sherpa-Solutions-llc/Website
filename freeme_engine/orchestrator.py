@@ -7,7 +7,7 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 from freeme_engine.browser import PlaywrightBrowserManager
-from freeme_engine.agents import TruePeopleSearchAgent
+from freeme_engine.agents import TruePeopleSearchAgent, WhitepagesAgent, SpokeoAgent, BeenVerifiedAgent, InteliusAgent, AcxiomAgent
 
 # Global namespace holding active and historical campaign states
 CAMPAIGNS: Dict[str, Any] = {}
@@ -68,72 +68,56 @@ async def launch_campaign(campaign_id: str, profile: dict, brokers: list, demo_m
         campaign["brokers"][broker] = "active"
         await asyncio.sleep(1)
 
-        # SIMULATED OR LIVE PROCESSING: Search Phase
+        # DISPATCH TO AUTHENTIC PLAYWRIGHT AGENTS
         try:
             if not demo_mode and page:
+                agent_class = None
                 if broker.lower() == "truepeoplesearch":
-                    # Deploy the authentic Playwright agent
-                    agent = TruePeopleSearchAgent(manager=manager, page=page, profile=profile, campaign_log_append=campaign["logs"].append)
+                    agent_class = TruePeopleSearchAgent
+                elif broker.lower() == "whitepages":
+                    agent_class = WhitepagesAgent
+                elif broker.lower() == "spokeo":
+                    agent_class = SpokeoAgent
+                elif broker.lower() == "beenverified":
+                    agent_class = BeenVerifiedAgent
+                elif broker.lower() == "intelius":
+                    agent_class = InteliusAgent
+                elif broker.lower() == "acxiom":
+                    agent_class = AcxiomAgent
+                
+                if agent_class:
+                    agent = agent_class(manager=manager, page=page, profile=profile, campaign_log_append=campaign["logs"].append)
                     result = await agent.execute()
                     
-                    # Update our local page reference in case the agent respawned it
+                    # Update local page reference if agent respawned or bypassed CAPTCHA
                     if getattr(agent, "page", None):
                         page = agent.page
                         
                     if isinstance(result, dict) and result.get("status") == "success":
-                        campaign["logs"].append(f"[System] Playwright securely excised {result.get('records_found', 1)} record(s) from TruePeopleSearch.")
-                        campaign["brokers"][broker] = result  # Store the deep dictionary
+                        campaign["logs"].append(f"[{llm_model}] Successfully excised {result.get('records_found', 1)} record(s) from {broker}.")
+                        campaign["brokers"][broker] = result
                     else:
-                        campaign["logs"].append(f"[Warning] TruePeopleSearch payload failed.")
+                        campaign["logs"].append(f"[Warning] {broker} trajectory failed or records not found.")
                         campaign["brokers"][broker] = "failed"
                 else:
-                    # Naive URL construction for proof of concept for other unknown brokers
+                    # Fallback for completely unknown brokers
                     target_url = f"https://www.{broker.lower().replace(' ', '')}.com"
-                    campaign["logs"].append(f"[{llm_model}] Analyzing {target_url} homepage layout...")
-                    
+                    campaign["logs"].append(f"[{llm_model}] Unknown broker subclass. Exploring {target_url} autonomously...")
                     await page.goto(target_url, timeout=15000)
-                    page_title = await page.title()
-                    campaign["logs"].append(f"[System] Loaded DOM. Title: '{page_title}'")
+                    campaign["brokers"][broker] = "failed"
             else:
-                campaign["logs"].append(f"[{llm_model}] Analyzing {broker} homepage layout. Identifying opt-out flow...")
-                
-        except Exception as e:
-             campaign["logs"].append(f"[Warning] Failed to hit target broker URL: {str(e)}")
-             
-        await asyncio.sleep(2)
-        
-        # --- SIMULATED PROCESSING FALLBACK ---
-        # If we didn't run a live agent (or it failed), simulate the rest of the flow
-        if broker == "TruePeopleSearch" and not demo_mode and campaign["brokers"].get(broker) != "failed":
-            # Live agent already succeeded, skip simulated logs
-            pass
-        else:
-            campaign["logs"].append(f"[{llm_model}] Attempting PII injection for target '{full_name}'.")
-            await asyncio.sleep(1.5)
-
-            campaign["logs"].append(f"[Engine] Handling semantic extraction & potential CAPTCHAs...")
-            await asyncio.sleep(2.5)
-
-            campaign["logs"].append(f"[Success] Successfully submitted opt-out ticket to {broker}.")
-            if not isinstance(campaign["brokers"].get(broker), dict):
-                # Dynamically build the extracted types list based on exactly what the user provided
-                actual_types = []
-                if full_name: actual_types.append("Full Name")
-                if profile.get("emails"): actual_types.append("Email Address")
-                if profile.get("phones"): actual_types.append("Phone Number")
-                if profile.get("addresses"): actual_types.append("Current Address")
-                if profile.get("dob"): actual_types.append("Date of Birth")
-                
-                # Make sure we always report at least something if the profile object is weird
-                if not actual_types: actual_types.append("Target Profile")
-
+                campaign["logs"].append(f"[{llm_model}] DEMO MODE: Analyzing {broker} homepage layout. Identifying opt-out flow...")
+                await asyncio.sleep(2)
+                campaign["logs"].append(f"[Engine] Handling semantic extraction & potential CAPTCHAs...")
+                await asyncio.sleep(2.5)
+                campaign["logs"].append(f"[Success] DEMO MODE: Simulated opt-out ticket to {broker}.")
                 import random
-                campaign["brokers"][broker] = {
-                    "status": "success",
-                    "records_found": random.randint(1, 4),
-                    "data_types": actual_types
-                }
-                
+                campaign["brokers"][broker] = {"status": "success", "records_found": random.randint(1, 4), "data_types": ["Full Name", "Date of Birth"]}
+
+        except Exception as e:
+             campaign["logs"].append(f"[Warning] Failed to process {broker}: {str(e)}")
+             campaign["brokers"][broker] = "failed"
+             
         # --- UNIFIED COMPLETION INCREMENTOR ---
         if campaign["brokers"].get(broker) != "failed":
             campaign["brokers_completed"] += 1
