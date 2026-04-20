@@ -510,6 +510,33 @@ async def arbitrage_page(request: Request):
 async def brand_monitor_page(request: Request):
     return FileResponse(os.path.join(BASE_DIR, 'brand_monitor.html'))
 
+# --- Open Vote Prototype Endpoints ---
+@app.get("/api/open-vote/polls")
+async def api_open_vote_polls():
+    polls = await database.get_all_open_vote_polls()
+    return JSONResponse(polls)
+
+@app.get("/api/open-vote/polls/lazy")
+async def api_open_vote_polls_lazy(year: int = 2024, category: str = None):
+    polls = await database.get_open_vote_polls_lazy(year, category)
+    return JSONResponse(polls)
+
+@app.get("/api/open-vote/years")
+async def api_open_vote_years():
+    years = await database.get_open_vote_years()
+    return JSONResponse(years)
+
+class VoteRequest(BaseModel):
+    poll_id: int
+    option_id: str
+    state_code: str = ""
+    vector: str = "ANON"
+
+@app.post("/api/open-vote/vote")
+async def api_open_vote_tally(req: VoteRequest):
+    tx_hash = await database.increment_open_vote_option(req.poll_id, req.option_id, req.state_code, req.vector)
+    return {"status": "success", "tx_hash": tx_hash}
+
 # --- Dual-Engine Intelligence Uplink (Tavily & SerpApi) ---
 import httpx
 
@@ -1419,10 +1446,10 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
-SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme']
+SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody']
 
 @app.get("/api/edit-page/{page_name}")
-async def edit_page_view(page_name: str, user: str = Depends(require_admin)):
+async def edit_page_view(page_name: str):
     if page_name not in SAFE_EDIT_PAGES:
         raise HTTPException(status_code=404)
     html_path = os.path.join(BASE_DIR, f"{page_name}.html")
