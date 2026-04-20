@@ -600,6 +600,55 @@
     </div>
 
     <!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
+    <div id="deploy-modal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h3>Deploy to GitHub</h3>
+            <p style="color: var(--secondary); margin-bottom: 1.5rem;">Select the specific projects you want to deploy to live hosting.</p>
+            <div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="heavenly_melody" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" checked> 
+                    <span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="core_site" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🌐 Sherpa Core Website (Home, About, Store, etc)</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="open_vote" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🗳️ Open Vote (Geospatial Dashboard)</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="live_earth" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🌍 Live Earth</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="traku" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🔍 Traku (Skip Tracer)</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="stock_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">📈 Stock Monitor</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="productivity_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🤖 Productivity Agent</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="osint_api" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🛰️ OSINT API</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="freeme" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🛡️ FreeMe Engine</span>
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal('deploy-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitDeployment()">Deploy Selected</button>
+            </div>
+        </div>
+    </div>
+
     <div id="password-modal" class="custom-modal">
         <div class="modal-content">
             <h3 id="pw-modal-title">Change Password</h3>
@@ -927,124 +976,140 @@
 
         async function syncToGitHub() {
             const btn = document.getElementById('btn-sync-github');
+            
+            // Auto-save any unsaved CMS changes before deploying
+            if (cmsHasChanges) {
+                saveEditorChanges();
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Draft...';
+                await new Promise(r => setTimeout(r, 800)); // wait for iframe postMessage to process
+                btn.innerHTML = originalText;
+            }
+
+            document.getElementById('deploy-modal').classList.add('active');
+        }
+
+        async function submitDeployment() {
+            closeModal('deploy-modal');
+            
+            // Gather selected project keys
+            const checkboxes = document.querySelectorAll('.deploy-project-cb:checked');
+            const selectedProjects = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selectedProjects.length === 0) {
+                alert("Please select at least one project to deploy.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-sync-github');
             const progressContainer = document.getElementById('sync-progress-container');
             const progressText = document.getElementById('sync-progress-text');
             const progressPercent = document.getElementById('sync-progress-percent');
             const progressBar = document.getElementById('sync-progress-bar');
+            const railwayStatus = document.getElementById('railway-progress-status');
             const originalText = btn.innerHTML;
 
-            // Auto-save any unsaved CMS changes before deploying
-            if (cmsHasChanges) {
-                saveEditorChanges();
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Draft...';
-                await new Promise(r => setTimeout(r, 800)); // wait for iframe postMessage to process
-            }
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deploying...';
 
-            // Use custom confirmation modal instead of native confirm()
-            document.getElementById('confirm-modal-text').innerText = "This will check all local files and upload only changed ones to GitHub. Unchanged files are skipped to save time. Proceed?";
-            document.getElementById('confirm-modal-btn').innerText = "Yes, Deploy";
-            document.getElementById('confirm-modal-btn').className = "btn btn-primary";
-            document.getElementById('confirm-modal-btn').onclick = async () => {
-                closeModal('confirm-modal');
-                await startSync();
-            };
-            document.getElementById('confirm-modal').classList.add('active');
+            // Reset and show progress UI
+            progressContainer.style.display = 'flex';
+            progressBar.style.width = '0%';
+            progressBar.style.background = 'var(--accent)';
+            progressText.innerText = 'Ready...';
+            progressText.style.color = 'var(--secondary)';
+            progressPercent.innerText = '0%';
+            progressPercent.style.color = 'var(--secondary)';
+            
+            // Railway Status Reset
+            railwayStatus.innerText = 'Ready';
+            railwayStatus.style.color = 'var(--secondary)';
 
-            async function startSync() {
-                btn.disabled = true;
-                btn.style.opacity = '0.7';
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deploying...';
-
-                // Reset and show progress UI
-                progressContainer.style.display = 'flex';
-                progressBar.style.width = '0%';
-                progressBar.style.background = 'var(--accent)';
-                progressText.innerText = 'Ready...';
-                progressText.style.color = 'var(--secondary)';
-                progressPercent.innerText = '0%';
-                progressPercent.style.color = 'var(--secondary)';
-                
-                // Railway Status Reset
-                const railwayStatus = document.getElementById('railway-progress-status');
-                railwayStatus.innerText = 'Ready';
-                railwayStatus.style.color = 'var(--secondary)';
-
-                // Step 1: Kick off the background deploy — this returns immediately
-                try {
-                    progressText.innerText = 'Committing changes...';
-                    const res = await fetch('/api/sync-github', { method: 'POST' });
-                    if (!res.ok) {
-                        const data = await res.json();
-                        progressBar.style.background = '#e74c3c';
-                        progressText.innerText = 'Failed to start deployment';
-                        progressText.style.color = '#e74c3c';
-                        alert('Deployment Failed: ' + (data.message || 'Server error.'));
-                        btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
-                        return;
-                    }
-                } catch (error) {
+            // Step 1: Kick off the background deploy
+            try {
+                progressText.innerText = 'Committing changes...';
+                const res = await fetch('/api/sync-github', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ projects: selectedProjects })
+                });
+                if (!res.ok) {
+                    const data = await res.json();
                     progressBar.style.background = '#e74c3c';
-                    progressText.innerText = 'Connection Error';
+                    progressText.innerText = 'Failed to start deployment';
                     progressText.style.color = '#e74c3c';
-                    alert('Connection Error: Could not reach the server.');
+                    alert('Deployment Failed: ' + (data.message || 'Server error.'));
                     btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
                     return;
                 }
-
-                // Step 2: Poll progress file until Python script reports 'completed'
-                const pollInterval = setInterval(async () => {
-                    try {
-                        const progRes = await fetch('/api/sync-progress?t=' + Date.now());
-                        if (!progRes.ok) return;
-                        const p = await progRes.json();
-                        console.log('Sync Progress:', p);
-
-                        if (p.total > 0) {
-                            progressPercent.innerText = `${p.percentage}%`;
-                            progressBar.style.width = `${p.percentage}%`;
-                            // Show the detailed message from the script (includes uploaded vs skipped counts)
-                            progressText.innerText = p.message || `${p.current} / ${p.total} files checked`;
-                            
-                            // Determine Railway Status. If any python/db files change, it will trigger a restart.
-                            if (p.percentage > 0 && p.percentage < 100) {
-                                railwayStatus.innerText = 'In Progress';
-                                railwayStatus.style.color = '#3498db';
-                            }
-                        }
-
-                        if (p.status === 'completed') {
-                            clearInterval(pollInterval);
-                            progressBar.style.width = '100%';
-                            progressBar.style.background = '#2ecc71';
-                            progressText.innerText = `✓ Deployed to GitHub`;
-                            progressText.style.color = '#2ecc71';
-                            progressPercent.innerText = '100%';
-                            progressPercent.style.color = '#2ecc71';
-                            btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
-                            
-                            // If files were actually modified/uploaded, Railway will rebuild
-                            if (p.current > 0 || p.message.includes('uploaded')) {
-                                railwayStatus.innerText = 'Deploying...';
-                                railwayStatus.style.color = '#3498db';
-                                
-                                // Show "Deployed" on Railway after a reasonable wait (matching the alert timer)
-                                setTimeout(() => {
-                                    railwayStatus.innerText = 'Deployed';
-                                    railwayStatus.style.color = '#2ecc71';
-                                }, 60000); // Show Deployed after 60s
-                            } else {
-                                railwayStatus.innerText = 'No Changes';
-                                railwayStatus.style.color = '#f39c12';
-                            }
-
-                            setTimeout(() => {
-                                progressContainer.style.display = 'none';
-                                alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates shortly.');
-                            }, 90000); 
-                        }
-                    } catch (e) { console.error('Polling error:', e); }
-                }, 600);
+            } catch (error) {
+                progressBar.style.background = '#e74c3c';
+                progressText.innerText = 'Connection Error';
+                progressText.style.color = '#e74c3c';
+                alert('Connection Error: Could not reach the server.');
+                btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                return;
             }
+
+            // Step 2: Poll progress file until Python script reports 'completed'
+            const pollInterval = setInterval(async () => {
+                try {
+                    const progRes = await fetch('/api/sync-progress?t=' + Date.now());
+                    if (!progRes.ok) return;
+                    const p = await progRes.json();
+                    console.log('Sync Progress:', p);
+
+                    if (p.total > 0) {
+                        progressPercent.innerText = `${p.percentage}%`;
+                        progressBar.style.width = `${p.percentage}%`;
+                        // Show the detailed message from the script
+                        progressText.innerText = p.message || `${p.current} / ${p.total} files checked`;
+                        
+                        // Determine Railway Status
+                        if (p.percentage > 0 && p.percentage < 100) {
+                            railwayStatus.innerText = 'In Progress';
+                            railwayStatus.style.color = '#3498db';
+                        }
+                    }
+
+                    if (p.status === 'completed') {
+                        clearInterval(pollInterval);
+                        progressBar.style.width = '100%';
+                        progressBar.style.background = '#2ecc71';
+                        
+                        // Expose the final file count message to the user UI
+                        let cleanMsg = p.message ? p.message.replace('Done: ', '') : '';
+                        progressText.innerText = `✓ Deployed Selected Projects (${cleanMsg})`;
+                        
+                        progressText.style.color = '#2ecc71';
+                        progressPercent.innerText = '100%';
+                        progressPercent.style.color = '#2ecc71';
+                        btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                        
+                        // If files were actually modified/uploaded, Railway will rebuild
+                        if (p.current > 0 || p.message.includes('uploaded')) {
+                            railwayStatus.innerText = 'Deploying...';
+                            railwayStatus.style.color = '#3498db';
+                            
+                            setTimeout(() => {
+                                railwayStatus.innerText = 'Deployed';
+                                railwayStatus.style.color = '#2ecc71';
+                            }, 60000); // Show Deployed after 60s
+                        } else {
+                            railwayStatus.innerText = 'No Changes';
+                            railwayStatus.style.color = '#f39c12';
+                        }
+
+                        setTimeout(() => {
+                            progressContainer.style.display = 'none';
+                            alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates shortly.');
+                        }, 90000); 
+                    }
+                } catch (e) { console.error('Polling error:', e); }
+            }, 600);
         }
 
         // Initialize dashboard on load

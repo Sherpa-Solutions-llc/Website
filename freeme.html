@@ -1059,7 +1059,7 @@
 <strong>Demo Mode (ON):</strong> Bypasses the Playwright engine and fast-forwards through simulated agent logs. Prevents using actual API credits or submitting real opt-outs while testing the UI workflow. 
                         </p>
 <p style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 1.5rem;">
-<strong>Autonomous Opt-Out Engine (OFF):</strong> Submits real requests. Hard limit of 3 campaigns per IP per day during alpha.
+<strong>Autonomous Opt-Out Engine (OFF):</strong> Submits real requests via Playwright parsing. <em>Note: If Cloudflare Anti-Bot triggers, the physical browser will forcefully respawn on your monitor for manual Captcha clearance.</em>
                         </p>
 <div class="input-group" id="mock-data-container" style="margin-top: 1.5rem;">
 <label>Inject Random Mock Data (Overwrites Target Profile tab)</label>
