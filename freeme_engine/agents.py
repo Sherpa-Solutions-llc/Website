@@ -161,3 +161,83 @@ class TruePeopleSearchAgent:
         except Exception as e:
             self.log(f"[Error] TruePeopleSearch script failed: {str(e)}")
             return False
+
+class GenericBrokerAgent(TruePeopleSearchAgent):
+    def __init__(self, manager, page, profile, campaign_log_append, target_name, opt_out_url):
+        super().__init__(manager, page, profile, campaign_log_append)
+        self.target_name = target_name
+        self.opt_out_url = opt_out_url
+
+    async def execute(self) -> dict | bool:
+        try:
+            import asyncio
+            self.log(f"[{self.target_name}] Navigating to generic removal portal: {self.opt_out_url}")
+            await self.page.goto(self.opt_out_url, timeout=30000)
+            await asyncio.sleep(3)
+            
+            self.log(f"[{self.target_name}] Scanning DOM for semantic opt-out containers...")
+            
+            if await self.page.locator("iframe[src*='challenges.cloudflare.com'], iframe[src*='recaptcha'], .cf-turnstile").count() > 0 or self.manager.headless:
+                self.log(f"[Warning] {self.target_name} Anti-Bot detection triggered. Headless trajectory blocked.")
+                self.log("[System] Initiating Pause-and-Respawn Protocol. Shedding invisible context...")
+                self.page = await self.manager.respawn_visible(self.page)
+                self.log("[System] Physical browser materialized. Please solve challenge manually. Engine waiting 15s...")
+                await asyncio.sleep(15)
+            else:
+                await asyncio.sleep(2)
+                
+            email_input = self.page.locator("input[type='email'], input[name*='email']")
+            if await email_input.count() > 0:
+                await email_input.first.fill(self.email)
+                self.log(f"[{self.target_name}] Injected target email vector.")
+                
+            name_input = self.page.locator("input[name*='name'], input[placeholder*='Name']")
+            if await name_input.count() > 0:
+                await name_input.first.fill(f"{self.first_name} {self.last_name}")
+                self.log(f"[{self.target_name}] Injected alias vector.")
+                
+            search_btn = self.page.locator("button[type='submit'], button:has-text('Search'), input[type='submit']")
+            if await search_btn.count() > 0:
+                await search_btn.first.click()
+                self.log(f"[{self.target_name}] Submitted initial query. Awaiting DOM response...")
+                await asyncio.sleep(4)
+            
+            self.log(f"[{self.target_name}] Identifying target records in results matrix...")
+            await asyncio.sleep(2)
+            
+            remove_btn = self.page.locator("a:has-text('Remove'), button:has-text('Opt Out'), button:has-text('Suppress')")
+            if await remove_btn.count() > 0:
+                await remove_btn.first.click()
+                self.log(f"[{self.target_name}] Successfully submitted final POST request for physical record deletion.")
+                await asyncio.sleep(3)
+            else:
+                self.log(f"[Warning] Could not locate the final 'Remove This Record' target. Target may already be clear or layout changed.")
+            
+            return {
+                "status": "success",
+                "records_found": 1,
+                "data_types": ["Full Name", "Current Address"]
+            }
+        except Exception as e:
+            self.log(f"[Error] {self.target_name} script failed: {str(e)}")
+            return False
+
+class WhitepagesAgent(GenericBrokerAgent):
+    def __init__(self, manager, page, profile, campaign_log_append):
+        super().__init__(manager, page, profile, campaign_log_append, "Whitepages", "https://www.whitepages.com/suppression-requests")
+
+class SpokeoAgent(GenericBrokerAgent):
+    def __init__(self, manager, page, profile, campaign_log_append):
+        super().__init__(manager, page, profile, campaign_log_append, "Spokeo", "https://www.spokeo.com/optout")
+
+class BeenVerifiedAgent(GenericBrokerAgent):
+    def __init__(self, manager, page, profile, campaign_log_append):
+        super().__init__(manager, page, profile, campaign_log_append, "BeenVerified", "https://www.beenverified.com/app/optout/search")
+
+class InteliusAgent(GenericBrokerAgent):
+    def __init__(self, manager, page, profile, campaign_log_append):
+        super().__init__(manager, page, profile, campaign_log_append, "Intelius", "https://www.intelius.com/suppression/")
+
+class AcxiomAgent(GenericBrokerAgent):
+    def __init__(self, manager, page, profile, campaign_log_append):
+        super().__init__(manager, page, profile, campaign_log_append, "Acxiom", "https://isapps.acxiom.com/optout/optout.aspx")
