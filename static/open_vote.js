@@ -6597,8 +6597,7 @@ Copyright (c) 2025 Highsoft AS, Based on data from Natural Earth
 <g id="__separator_lines__"><path d="M123,619 L546,619 M219,627 L219,680 M452,627 L452,680 M371,627 L371,680 M292,627 L292,680" fill="none" stroke="#551111" stroke-width="0.4" /></g></svg>`
 };
 
-// Open Vote Data & Simulation
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? 'http://localhost:8787' : 'https://sherpa-solutions-api-production.up.railway.app';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? 'http://localhost:8001' : 'https://sherpa-solutions-api-production.up.railway.app';
 
 
 let polls = [];
@@ -6675,6 +6674,56 @@ async function init() {
         if(polls.length > 0){
              currentPollId = polls[0].id;
              loadPollData(currentPollId);
+        }
+        
+        // Initialize timeline scrubber
+        const scrubber = document.getElementById('historical-scrubber');
+        const timeDisplay = document.getElementById('historical-time-display');
+        if (scrubber) {
+            const minYear = Math.min(...years);
+            const maxYear = Math.max(...years);
+            scrubber.min = minYear;
+            scrubber.max = maxYear;
+            scrubber.value = maxYear;
+            timeDisplay.innerText = "YEAR: " + maxYear;
+            
+            scrubber.addEventListener('input', (e) => {
+                const selectedYear = parseInt(e.target.value);
+                timeDisplay.innerText = "YEAR: " + selectedYear;
+            });
+            
+            scrubber.addEventListener('change', async (e) => {
+                const selectedYear = parseInt(e.target.value);
+                timeDisplay.innerText = "YEAR: " + selectedYear;
+                
+                // Programmatically expand the accordion for the selected year
+                const header = document.getElementById(`header-yr-${selectedYear}`);
+                if (header) {
+                    // Collapse others
+                    years.forEach(y => {
+                        if (y !== selectedYear) {
+                            const otherHeader = document.getElementById(`header-yr-${y}`);
+                            if (otherHeader && otherHeader.classList.contains('expanded')) {
+                                otherHeader.click(); // toggle off
+                            }
+                        }
+                    });
+                    
+                    if (!header.classList.contains('expanded')) {
+                        header.click(); // toggle on
+                    } else {
+                        // Already expanded, force load first poll
+                        const container = document.getElementById(`container-yr-${selectedYear}`);
+                        if (container && container.innerHTML === '') {
+                            await lazyLoadCategory(selectedYear, null, container);
+                        }
+                        if (polls.length > 0) {
+                            currentPollId = polls[0].id;
+                            loadPollData(currentPollId);
+                        }
+                    }
+                }
+            });
         }
     }
     
@@ -6802,6 +6851,7 @@ function renderPollList(years) {
 
     years.forEach((year, index) => {
         const yearHeader = document.createElement('div');
+        yearHeader.id = `header-yr-${year}`;
         yearHeader.style.cssText = "padding: 0.8rem 1rem; background: rgba(0, 210, 255, 0.05); color: var(--accent-glow); display: flex; justify-content: space-between; cursor: pointer; border-bottom: 1px solid rgba(0, 210, 255, 0.2); font-weight: 600; font-family: 'Share Tech Mono'; letter-spacing: 1px;";
         yearHeader.innerHTML = `<span><i class="fa-solid fa-calendar-days" style="margin-right: 0.5rem;"></i>${year} MASTER LEDGER</span> <i class="fa-solid fa-chevron-down"></i>`;
         
