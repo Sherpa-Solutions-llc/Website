@@ -717,3 +717,55 @@ async def increment_open_vote_option(poll_id: int, option_id: str, state_code: s
             
         await db.commit()
         return tx_hash
+
+# ─── Analytics Engine ───────────────────────────────────────────────
+ANALYTICS_DB = os.path.join(BASE_DIR, "sherpa_analytics.db")
+
+async def init_analytics_db():
+    async with aiosqlite.connect(ANALYTICS_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS analytics_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                ip_address TEXT,
+                location TEXT,
+                page TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                duration INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        # Index for faster dashboard querying
+        await db.execute('CREATE INDEX IF NOT EXISTS idx_analytics_session ON analytics_events(session_id)')
+        await db.commit()
+
+async def log_analytics_event(session_id: str, ip_address: str, location: str, page: str, event_type: str, duration: int = 0):
+    async with aiosqlite.connect(ANALYTICS_DB) as db:
+        await db.execute('''
+            INSERT INTO analytics_events (session_id, ip_address, location, page, event_type, duration)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (session_id, ip_address, location, page, event_type, duration))
+        await db.commit()
+
+async def get_analytics_summary(limit: int = 200):
+    async with aiosqlite.connect(ANALYTICS_DB) as db:
+        db.row_factory = aiosqlite.Row
+        
+        # 1. Total unique visitors (all time)
+        async with db.execute('SELECT COUNT(DISTINCT session_id) as total FROM analytics_events') as cursor:
+            row = await cursor.fetchone()
+            total_visitors = row['total'] if row else 0
+            
+        # 2. Get latest events for the dashboard
+        async with db.execute('''
+            SELECT session_id, ip_address, location, page, event_type, duration, created_at
+            FROM analytics_events 
+            ORDER BY created_at DESC 
+            LIMIT ?
+        ''', (limit,)) as cursor:
+            events = [dict(r) for r in await cursor.fetchall()]
+            
+        return {
+            "total_visitors": total_visitors,
+            "events": events
+        }
