@@ -350,6 +350,7 @@ async def startup_event():
     await database.init_traku_search_history()
     await database.init_stock_alerts()
     await database.init_consulting_leads()
+    await database.init_analytics_db()
 
     # Init SaaS User table
     await database.db.execute('''
@@ -4332,3 +4333,43 @@ async def get_wildfires(period: str = Query("24h")):
     except Exception as e:
         print(f"Error serving wildfires: {e}")
     return JSONResponse([])
+
+# --- Analytics Engine ---
+class AnalyticsPayload(BaseModel):
+    session_id: str
+    page: str
+    event_type: str
+    duration: int = 0
+
+@app.post("/api/analytics")
+async def receive_analytics(payload: AnalyticsPayload, request: Request):
+    ip_address = request.client.host
+    location = "Local/Unknown"
+    
+    if ip_address and ip_address not in ["127.0.0.1", "::1", "localhost"]:
+        # Resolve IP to location asynchronously without blocking
+        async def resolve_location(ip, session_id, page, event_type, duration):
+            loc = "Unknown"
+            try:
+                async with httpx.AsyncClient(timeout=3.0) as client:
+                    res = await client.get(f"http://ip-api.com/json/{ip}?fields=status,country,city")
+                    if res.status_code == 200:
+                        data = res.json()
+                        if data.get("status") == "success":
+                            loc = f"{data.get('city', '')}, {data.get('country', '')}".strip(", ")
+            except Exception:
+                pass
+            await database.log_analytics_event(session_id, ip, loc, page, event_type, duration)
+
+        asyncio.create_task(resolve_location(ip_address, payload.session_id, payload.page, payload.event_type, payload.duration))
+        return {"status": "queued"}
+    else:
+        location = "Localhost"
+        await database.log_analytics_event(payload.session_id, ip_address, location, payload.page, payload.event_type, payload.duration)
+        return {"status": "success"}
+
+@app.get("/api/analytics/summary")
+async def get_analytics_summary(request: Request):
+    # Protected endpoint
+    summary = await database.get_analytics_summary(limit=100)
+    return JSONResponse(summary)
