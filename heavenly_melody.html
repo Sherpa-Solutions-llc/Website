@@ -327,9 +327,62 @@
                 Configure your Heavenly Melody to perfectly suit their resting place. Select from multiple styles, flower types, and placement options.
             </p>
 
-            <form id="_cms_purchase_form" class="glass-panel" action="mock_checkout.html" method="GET" style="max-width: 800px; margin: 0 auto; padding: 2.5rem; border-radius: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 3rem; max-width: 1200px; margin: 0 auto; align-items: start;">
+                
+                <!-- Live Preview Pane -->
+                <div id="product-preview-pane" class="glass-panel" style="position: sticky; top: 100px; padding: 2rem; border-radius: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px;">
+                    <h3 style="color: var(--primary); margin-bottom: 1.5rem; font-size: 1.5rem;" class="serif-font">Live Preview</h3>
+                    <div id="preview-composite-box" style="position: relative; width: 300px; height: 350px; margin: 0 auto;">
+                        <!-- Pot Base Image (Fills the absolute container) -->
+                        <img id="preview-pot-img" src="static/pot_classic_stone.png?v=3" alt="Selected Pot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; z-index: 2; pointer-events: none;">
+                        
+                        <!-- Flower Container with programmatic mask via JS based on pot rim -->
+                        <div id="preview-flowers" style="position: absolute; top: 0; left: 0; width: 100%; height: 350px; overflow: hidden; display: flex; justify-content: center; align-items: flex-end; z-index: 3;">
+                            <!-- Flowers injected via JS -->
+                        </div>
+                        
+                        <!-- Vector SVG Processing Overlay -->
+                        <svg id="preview-svg-overlay" viewBox="0 0 300 350" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none;">
+                            <!-- Subtle curve for tall cylinder face -->
+                            <path id="pot-curve-path" d="" fill="transparent" stroke="none" />
+                            
+                            <!-- Dynamic Tall Cylinder Typography -->
+                            <g id="typography-group" display="none">
+                                <!-- Highlight layer for engraving -->
+                                <text id="svg-header-highlight" font-family="'Georgia', 'Times New Roman', serif" font-size="8" font-weight="600" fill="rgba(255,255,255,0.3)" letter-spacing="1" text-anchor="middle">
+                                    <textPath id="svg-header-path" href="#pot-curve-path" startOffset="50%" text-anchor="middle">In Loving Memory</textPath>
+                                </text>
+                                <text id="svg-name-highlight" font-family="'Georgia', 'Times New Roman', serif" font-size="11" font-weight="bold" fill="rgba(255,255,255,0.3)" letter-spacing="2" text-anchor="middle">
+                                    <textPath id="svg-name-path" href="#pot-curve-path" startOffset="50%" text-anchor="middle"></textPath>
+                                </text>
+                                
+                                <!-- Core dark layer -->
+                                <text id="svg-header-text" font-family="'Georgia', 'Times New Roman', serif" font-size="8" font-weight="600" fill="rgba(30,30,30,0.8)" letter-spacing="1" text-anchor="middle">
+                                    <textPath id="svg-header-path-core" href="#pot-curve-path" startOffset="50%" text-anchor="middle">In Loving Memory</textPath>
+                                </text>
+                                <text id="svg-name-text" font-family="'Georgia', 'Times New Roman', serif" font-size="11" font-weight="bold" fill="rgba(30,30,30,0.85)" letter-spacing="2" text-anchor="middle">
+                                    <textPath id="svg-name-path-core" href="#pot-curve-path" startOffset="50%" text-anchor="middle"></textPath>
+                                </text>
+                            </g>
+                            
+                            <!-- Heavenly Melody Engraved Logo -->
+                            <image id="svg-logo-image" href="static/heavenly_melody_logo_transparent.png" x="110" y="270" width="80" height="25" preserveAspectRatio="xMidYMid meet" opacity="0.9" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6));"/>
+                        </svg>
+                    </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.85rem; margin-top: 2rem; font-style: italic;">* Preview is illustrative. Actual placement may vary slightly.</p>
+                </div>
+
+            <form id="_cms_purchase_form" class="glass-panel" action="mock_checkout.html" method="GET" style="width: 100%; padding: 2.5rem; border-radius: 12px;">
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                    <!-- Customized Name -->
+                    <div style="grid-column: 1 / -1; margin-bottom: 1rem;">
+                        <label style="display: block; color: var(--text-dark); margin-bottom: 0.5rem; font-weight: 600;">Customized Memorial Name</label>
+                        <input type="text" id="custom-name-input" name="memorial_name" maxlength="24" placeholder="Enter Loved One's Name" style="width: 100%; padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; color: #fff; font-size: 1.1rem; font-family: 'Inter', sans-serif;">
+                        <p style="color: #b0b0b0; font-size: 0.85rem; margin-top: 0.5rem;">Maximum 24 characters. Included at no extra charge.</p>
+                    </div>
+
                     <!-- Pot Style (Visual) -->
                     <div style="grid-column: 1 / -1;">
                         <label style="display: block; color: var(--text-dark); margin-bottom: 1rem; font-weight: 600;">Pot Style - $12 each</label>
@@ -382,49 +435,32 @@
                         <label style="display: block; color: var(--text-dark); margin-bottom: 1rem; font-weight: 600;">LED Flower Types (Select Multiple) - $9 Each</label>
                         <div class="pot-options">
                             
-                            <!-- Tulip -->
-                            <div class="pot-card flower-card glass-panel">
-                                <img src="static/flower_tulip.png" alt="Graceful Tulip (Pink/White)">
-                                <span class="card-title">Graceful Tulip<br><small style="font-weight: 300; opacity: 0.8;">(Pink/White)</small></span>
-                                <div class="qty-stepper">
-                                    <button type="button" class="qty-btn btn-minus" aria-label="Decrease">&minus;</button>
-                                    <input type="number" name="qty_tulip" class="flower-qty-input price-trigger" value="0" min="0" max="20" readonly>
-                                    <button type="button" class="qty-btn btn-plus" aria-label="Increase">&plus;</button>
-                                </div>
-                            </div>
+                            <!-- Classic Elegance -->
+                            <label class="pot-card glass-panel">
+                                <input type="radio" class="price-trigger" name="flower_bouquet" value="classic_elegance" checked>
+                                <img src="static/flower_rose.png" alt="Classic Elegance Bouquet">
+                                <span class="card-title">Classic Elegance<br><small style="font-weight: 300; opacity: 0.8;">Three Crimson Roses</small><br><small style="color: var(--primary);">$29</small></span>
+                            </label>
                             
-                            <!-- Rose -->
-                            <div class="pot-card flower-card glass-panel">
-                                <img src="static/flower_rose.png" alt="Eternal Rose (Red/Gold)">
-                                <span class="card-title">Eternal Rose<br><small style="font-weight: 300; opacity: 0.8;">(Red/Gold)</small></span>
-                                <div class="qty-stepper">
-                                    <button type="button" class="qty-btn btn-minus" aria-label="Decrease">&minus;</button>
-                                    <input type="number" name="qty_rose" class="flower-qty-input price-trigger" value="0" min="0" max="20" readonly>
-                                    <button type="button" class="qty-btn btn-plus" aria-label="Increase">&plus;</button>
-                                </div>
-                            </div>
+                            <!-- Sunset Radiance -->
+                            <label class="pot-card glass-panel">
+                                <input type="radio" class="price-trigger" name="flower_bouquet" value="sunset_radiance">
+                                <img src="static/flower_sunflower.png" alt="Sunset Radiance Bouquet">
+                                <span class="card-title">Sunset Radiance<br><small style="font-weight: 300; opacity: 0.8;">Sunflowers & Lilies</small><br><small style="color: var(--primary);">$34</small></span>
+                            </label>
                             
-                            <!-- Lily -->
-                            <div class="pot-card flower-card glass-panel">
-                                <img src="static/flower_lily.png" alt="Peaceful Lily (White)">
-                                <span class="card-title">Peaceful Lily<br><small style="font-weight: 300; opacity: 0.8;">(White)</small></span>
-                                <div class="qty-stepper">
-                                    <button type="button" class="qty-btn btn-minus" aria-label="Decrease">&minus;</button>
-                                    <input type="number" name="qty_lily" class="flower-qty-input price-trigger" value="0" min="0" max="20" readonly>
-                                    <button type="button" class="qty-btn btn-plus" aria-label="Increase">&plus;</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Sunflower -->
-                            <div class="pot-card flower-card glass-panel">
-                                <img src="static/flower_sunflower.png" alt="Radiant Sunflower (Yellow)">
-                                <span class="card-title">Radiant Sunflower<br><small style="font-weight: 300; opacity: 0.8;">(Yellow)</small></span>
-                                <div class="qty-stepper">
-                                    <button type="button" class="qty-btn btn-minus" aria-label="Decrease">&minus;</button>
-                                    <input type="number" name="qty_sunflower" class="flower-qty-input price-trigger" value="0" min="0" max="20" readonly>
-                                    <button type="button" class="qty-btn btn-plus" aria-label="Increase">&plus;</button>
-                                </div>
-                            </div>
+                            <!-- Spring Mist -->
+                            <label class="pot-card glass-panel">
+                                <input type="radio" class="price-trigger" name="flower_bouquet" value="spring_mist">
+                                <img src="static/flower_tulip.png" alt="Spring Mist Bouquet">
+                                <span class="card-title">Spring Mist<br><small style="font-weight: 300; opacity: 0.8;">Tulips & Morning Lilies</small><br><small style="color: var(--primary);">$29</small></span>
+                            </label>
+                            <!-- No Flowers -->
+                            <label class="pot-card glass-panel">
+                                <input type="radio" class="price-trigger" name="flower_bouquet" value="none">
+                                <div style="width: 100%; aspect-ratio: 1; border-radius: 6px; margin-bottom: 0.5rem; background: rgba(0,0,0,0.4); display: flex; align-items:center; justify-content:center;"><i class="fa-solid fa-ban" style="font-size:2rem; color: #666;"></i></div>
+                                <span class="card-title">Empty Planter<br><small style="font-weight: 300; opacity: 0.8;">Fill it yourself</small><br><small style="color: var(--primary);">+$0</small></span>
+                            </label>
 
                         </div>
                     </div>
@@ -481,12 +517,13 @@
                                 total += POT_PRICE;
                             }
                             
-                            // Add flower totals
-                            let flowerSum = 0;
-                            quantityInputs.forEach(input => {
-                                flowerSum += parseInt(input.value, 10) || 0;
-                            });
-                            total += (flowerSum * FLOWER_PRICE);
+                            // Apply Bouquet Pre-arranged Pricing
+                            const selectedBouquet = document.querySelector('input[name="flower_bouquet"]:checked');
+                            if (selectedBouquet) {
+                                if (selectedBouquet.value === 'classic_elegance') total += 29;
+                                if (selectedBouquet.value === 'sunset_radiance') total += 34;
+                                if (selectedBouquet.value === 'spring_mist') total += 29;
+                            }
                             
                             // Add mount kit total
                             if (mountCheckbox && mountCheckbox.checked) {
@@ -497,48 +534,202 @@
                             priceDisplay.textContent = total;
                         }
                         
-                        // Attach Event Listeners to +/- buttons
-                        document.querySelectorAll('.flower-card').forEach(card => {
-                            const btnMinus = card.querySelector('.btn-minus');
-                            const btnPlus = card.querySelector('.btn-plus');
-                            const input = card.querySelector('.flower-qty-input');
-                            
-                            btnMinus.addEventListener('click', () => {
-                                let currentVal = parseInt(input.value, 10);
-                                if (currentVal > 0) {
-                                    input.value = currentVal - 1;
-                                    if (input.value == 0) {
-                                        card.classList.remove('selected');
-                                        btnMinus.disabled = true;
-                                    }
-                                    calculateTotal();
-                                }
-                            });
-                            
-                            btnPlus.addEventListener('click', () => {
-                                let currentVal = parseInt(input.value, 10);
-                                if (currentVal < parseInt(input.max, 10)) {
-                                    input.value = currentVal + 1;
-                                    card.classList.add('selected');
-                                    btnMinus.disabled = false;
-                                    calculateTotal();
-                                }
-                            });
-                            
-                            // Initialize button state
-                            if (input.value == 0) btnMinus.disabled = true;
-                        });
-                        
-                        // Attach generic listener to mount checkbox and other triggers
+                        // Attach generic listener to everything triggering a price change (including new bouquet radios)
                         document.querySelectorAll('.price-trigger').forEach(el => {
                             el.addEventListener('change', calculateTotal);
                         });
                         
-                        // Initial calculation run
+                        // --- PREVIEW LOGIC ---
+                        const customNameInput = document.getElementById('custom-name-input');
+                        const previewNameOverlay = document.getElementById('preview-name-overlay');
+                        const previewPotImg = document.getElementById('preview-pot-img');
+                        const previewFlowers = document.getElementById('preview-flowers');
+                        
+                        // Parameterized coordinate arrays for SVG Engraving and Bouquets
+                        const flowerImageMap = {
+                            'qty_tulip': 'static/transparent_flower_tulip.png?v=1',
+                            'qty_rose': 'static/transparent_flower_rose.png?v=1',
+                            'qty_lily': 'static/transparent_flower_lily.png?v=1',
+                            'qty_sunflower': 'static/transparent_flower_sunflower.png?v=1'
+                        };
+                        
+                        const cvMatrix = {
+                            'classic_stone': {
+                                rim_y: 110,      // Top rim of cylinder
+                                center_y: 180,   // Middle of the flat pot face for text
+                                curve_strength: 5, // Extremely subtle curve for cylindrical structure
+                                width: 140,
+                                logo_y: 280      // Placement anchor for bottom banner
+                            },
+                            'white_marble': {
+                                rim_y: 110,
+                                center_y: 180,
+                                curve_strength: 5,
+                                width: 140,
+                                logo_y: 280
+                            },
+                            'obsidian_black': {
+                                rim_y: 110,
+                                center_y: 180,
+                                curve_strength: 5,
+                                width: 140,
+                                logo_y: 280
+                            },
+                            'weathered_bronze': {
+                                rim_y: 110,
+                                center_y: 180,
+                                curve_strength: 5,
+                                width: 140,
+                                logo_y: 280
+                            }
+                        };
+                        
+                        function renderPreview() {
+                            const customNameInput = document.getElementById('custom-name-input');
+                            const typographyGroup = document.getElementById('typography-group');
+                            
+                            const svgNameText = document.getElementById('svg-name-text');
+                            const svgNamePathLayer1 = document.getElementById('svg-name-path');
+                            const svgNamePathLayer2 = document.getElementById('svg-name-path-core');
+                            
+                            const svgHeaderText = document.getElementById('svg-header-text');
+                            const svgHeaderHighlight = document.getElementById('svg-header-highlight');
+                            
+                            const svgCurve = document.getElementById('pot-curve-path');
+                            const svgLogo = document.getElementById('svg-logo-image');
+                            const previewPotImg = document.getElementById('preview-pot-img');
+                            const previewFlowers = document.getElementById('preview-flowers');
+                            
+                            // 1. Determine Selected Pot
+                            const selectedPotEl = document.querySelector('input[name="pot_style"]:checked');
+                            let selectedPot = 'classic_stone';
+                            if (selectedPotEl) selectedPot = selectedPotEl.value;
+                            
+                            // Load physical specs for selected cylinder
+                            const specs = cvMatrix[selectedPot] || cvMatrix['classic_stone'];
+                            
+                            const textVal = customNameInput.value.trim().toUpperCase() || 'STEVE JONES';
+                            
+                            // Rebuild subtle path curve for the text
+                            const leftX = 150 - (specs.width / 2);
+                            const rightX = 150 + (specs.width / 2);
+                            const curveY = specs.center_y + specs.curve_strength; 
+                            svgCurve.setAttribute('d', `M ${leftX},${specs.center_y} Q 150,${curveY} ${rightX},${specs.center_y}`);
+                            
+                            // Adjust positioning for engraving layout
+                            svgHeaderText.setAttribute('dy', '-15');
+                            svgHeaderHighlight.setAttribute('dy', '-14'); // Offset 1px down for light catch
+                            
+                            svgNamePathLayer1.textContent = textVal;
+                            svgNamePathLayer2.textContent = textVal;
+                            
+                            const nameHighlight = document.getElementById('svg-name-highlight');
+                            nameHighlight.setAttribute('dy', '6'); // Highlight offset
+                            svgNameText.setAttribute('dy', '5'); // Core offset
+                            
+                            typographyGroup.style.display = 'block';
+                            
+                            svgLogo.setAttribute('y', specs.logo_y);
+                            
+                            // Adjust text colors dynamically based on material
+                            if (selectedPot === 'white_marble') {
+                                svgNameText.setAttribute('fill', 'rgba(40,40,40,0.8)');
+                            } else if (selectedPot === 'obsidian_black') {
+                                svgNameText.setAttribute('fill', 'rgba(190, 150, 40, 0.9)'); 
+                                svgHeaderText.setAttribute('fill', 'rgba(190, 150, 40, 0.8)'); 
+                            } else if (selectedPot === 'weathered_bronze') {
+                                svgNameText.setAttribute('fill', 'rgba(20,20,10,0.6)');
+                            } else {
+                                svgNameText.setAttribute('fill', 'rgba(20,20,20,0.7)');
+                            }
+                            
+                            // 3. Render Image Background
+                            let potImgSrc = `static/pot_${selectedPot}.png?v=4`;
+                            previewPotImg.src = potImgSrc;
+                            
+                            // 4. Smooth Shadow Gradient Masking into the Pot
+                            // We use a linear gradient so stems physically "fade" into the black inner shadows of the pots
+                            // We use a hard vector clip-path matching the curved oval of the front cylinder rim. 
+                            // This instantly severs the AI-generated PNG vases at the dirt line with zero opacity ghosting.
+                            previewFlowers.style.maskImage = 'none';
+                            previewFlowers.style.webkitMaskImage = 'none';
+                            previewFlowers.style.clipPath = "path('M -150,-150 L 450,-150 L 450,110 Q 150,135 -150,110 Z')";
+                            previewFlowers.style.webkitClipPath = "path('M -150,-150 L 450,-150 L 450,110 Q 150,135 -150,110 Z')";
+
+                            
+                            // 5. Render Pre-Arranged Bouquet directly
+                            previewFlowers.innerHTML = ''; // Clear container
+                            const selectedBouquetEl = document.querySelector('input[name="flower_bouquet"]:checked');
+                            let allFlowers = [];
+                            
+                            if (selectedBouquetEl && selectedBouquetEl.value !== 'none') {
+                                const bType = selectedBouquetEl.value;
+                                if (bType === 'classic_elegance') {
+                                    allFlowers = [flowerImageMap['qty_rose'], flowerImageMap['qty_rose'], flowerImageMap['qty_rose']];
+                                } else if (bType === 'sunset_radiance') {
+                                    allFlowers = [flowerImageMap['qty_lily'], flowerImageMap['qty_sunflower'], flowerImageMap['qty_sunflower']];
+                                } else if (bType === 'spring_mist') {
+                                    allFlowers = [flowerImageMap['qty_tulip'], flowerImageMap['qty_lily'], flowerImageMap['qty_tulip']];
+                                }
+                            }
+                            
+                            const totalFlowers = allFlowers.length;
+                            allFlowers.forEach((imgSrc, index) => {
+                                const img = document.createElement('img');
+                                img.src = imgSrc;
+                                
+                                // Organic Bouquet Clustering
+                                // Real bouquets are bundled. We want slight height variations and overlapping
+                                let angle = 0;
+                                let translateX = 0;
+                                let dropOffset = 0;
+                                if (totalFlowers > 1) {
+                                    // Generate a pseudo-random cluster feel based on index
+                                    const clusterFactor = (index % 3) - 1; // -1, 0, 1
+                                    angle = clusterFactor * 12 + (Math.random() * 5 - 2.5); 
+                                    translateX = clusterFactor * 15 + (Math.random() * 10 - 5); 
+                                    dropOffset = (index % 2) * 5 + Math.abs(clusterFactor) * 5; 
+                                }
+                                
+                                const absoluteRimBottom = 350 - specs.rim_y; 
+                                
+                                img.style.position = 'absolute';
+                                // Sink tightly into the new hard clip
+                                img.style.bottom = `${absoluteRimBottom - 35 - dropOffset}px`; 
+                                // Reset to clean, dense bouquet volume instead of explosive mega-sizing
+                                img.style.height = `${115 + (Math.random() * 15)}px`;
+                                img.style.width = 'auto';
+                                img.style.objectFit = 'contain';
+                                img.style.transform = `translateX(${translateX}px) rotate(${angle}deg)`;
+                                img.style.transformOrigin = "bottom center";
+                                
+                                let brightness = 1.0;
+                                if (totalFlowers > 1) {
+                                   brightness = 0.9 + Math.random() * 0.2; 
+                                }
+                                img.style.filter = `drop-shadow(1px 2px 4px rgba(0,0,0,0.8)) brightness(${brightness})`;
+                                img.style.zIndex = Math.floor(100 - Math.abs(angle)); 
+                                
+                                previewFlowers.appendChild(img);
+                            });
+                        }
+                        
+                        // Bind listeners specifically for preview
+                        customNameInput.addEventListener('input', renderPreview);
+                        document.querySelectorAll('input[name="pot_style"]').forEach(el => {
+                            el.addEventListener('change', renderPreview);
+                        });
+                        document.querySelectorAll('input[name="flower_bouquet"]').forEach(el => {
+                            el.addEventListener('change', renderPreview);
+                        });
+
+                        // Initial calculation and preview run
                         calculateTotal();
+                        renderPreview();
                     });
                 </script>
             </form>
+            </div>
         </div>
     </section>
 
@@ -550,6 +741,8 @@
 
     <script src="static/cms.js"></script>
 
+
+    <script src="static/analytics.js"></script>
 </body>
 
 </html>
