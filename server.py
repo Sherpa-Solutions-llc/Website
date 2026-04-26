@@ -60,7 +60,7 @@ EARTHQUAKES_DB = "sherpa_earthquakes.db"
 EARTHQUAKES_SOURCE_DB = "sherpa_earthquakes_source.db"
 CAMERAS_DB = "sherpa_cameras.db"
 CAMERAS_SOURCE_DB = "sherpa_cameras_source.db"
-CELLPHONES_DB = "sherpa_cellphones.db"
+CELLTOWERS_DB = "sherpa_celltowers.db"
 from weather_cities import WEATHER_CITIES
 
 class ConnectionManager:
@@ -346,7 +346,7 @@ async def startup_event():
     await init_earthquakes_db()
     await init_osint_db()
     await init_cameras_db()
-    await init_cellphones_db()
+    await init_celltowers_db()
     await database.init_stock_db()
     await database.init_traku_db()
     await database.init_traku_search_history()
@@ -448,7 +448,6 @@ async def startup_event():
             asyncio.create_task(update_earthquakes_loop())
             asyncio.create_task(update_cameras_loop())
             asyncio.create_task(update_wildfires_loop())
-            asyncio.create_task(update_cellphones_loop())
             
             # --- Wildfires ---
             async with aiosqlite.connect(os.path.join(BASE_DIR, "sherpa_wildfires.db")) as db:
@@ -4377,25 +4376,30 @@ async def get_analytics_summary(request: Request):
     summary = await database.get_analytics_summary(limit=100)
     return JSONResponse(summary)
 
-# --- Cell Phones Tracking Layer ---
+# --- Cell Towers Infrastructure Layer ---
 
-async def init_cellphones_db():
-    async with aiosqlite.connect(CELLPHONES_DB) as db:
+async def init_celltowers_db():
+    async with aiosqlite.connect(CELLTOWERS_DB) as db:
         await db.execute('''
-            CREATE TABLE IF NOT EXISTS cellphones (
+            CREATE TABLE IF NOT EXISTS celltowers (
                 id TEXT PRIMARY KEY,
                 lat REAL,
                 lng REAL,
-                heading REAL,
-                speed REAL,
-                source_app TEXT,
+                network_type TEXT,
                 country TEXT
             )
         ''')
         await db.commit()
+        
+        async with db.execute("SELECT COUNT(*) FROM celltowers") as cursor:
+            row = await cursor.fetchone()
+            if not row or row[0] == 0:
+                print("[CellTowers] Generating static infrastructure layer...")
+                await generate_celltower_infrastructure()
 
-async def generate_cellphone_telemetry():
+async def generate_celltower_infrastructure():
     import random
+    import secrets
     
     demographic_regions = [
         {"country": "China", "weight": 0.375, "cities": [{"lat": 39.9042, "lng": 116.4074}, {"lat": 31.2304, "lng": 121.4737}, {"lat": 23.1291, "lng": 113.2644}]},
@@ -4415,105 +4419,57 @@ async def generate_cellphone_telemetry():
         {"country": "South Africa", "weight": 0.001, "cities": [{"lat": -26.2041, "lng": 28.0473}]}
     ]
     
-    apps = ["Google Maps", "Fieldservicely", "LocaToWeb", "GPSWOX", "Phone Tracker", "FollowMee", "Waze"]
+    networks = ["5G", "4G LTE", "4G LTE", "4G LTE", "GSM", "CDMA"]
+    towers = []
     
-    phones = []
-    import secrets
-    
-    total_phones = 75000
+    total_towers = 50000
     
     for region in demographic_regions:
-        phones_for_region = int(total_phones * region["weight"])
-        if phones_for_region == 0: continue
+        towers_for_region = int(total_towers * region["weight"])
+        if towers_for_region == 0: continue
         
-        phones_per_city = phones_for_region // len(region["cities"])
-        if phones_per_city == 0:
-            phones_per_city = 1
+        towers_per_city = towers_for_region // len(region["cities"])
+        if towers_per_city == 0:
+            towers_per_city = 1
             
         for city in region["cities"]:
-            for _ in range(phones_per_city):
-                # Spread points widely across the US for full country coverage
+            for _ in range(towers_per_city):
                 if region["country"] == "United States":
                     plat = random.gauss(city["lat"], 8.0)
                     plng = random.gauss(city["lng"], 12.0)
                 else:
-                    # Tightly packed in urban centers (~3.3km variance) for rest of world
-                    plat = random.gauss(city["lat"], 0.03)
-                    plng = random.gauss(city["lng"], 0.03)
+                    plat = random.gauss(city["lat"], 0.05)
+                    plng = random.gauss(city["lng"], 0.05)
                     
-                heading = random.uniform(0, 360)
-                speed = random.uniform(5, 120) # km/h
-                source_app = random.choice(apps)
-                phones.append((f"cell_{secrets.token_hex(4)}", plat, plng, heading, speed, source_app, region["country"]))
+                network = random.choice(networks)
+                # 5G tends to be clustered closer to city centers
+                if network == "5G":
+                    plat = random.gauss(city["lat"], 0.01)
+                    plng = random.gauss(city["lng"], 0.01)
+                    
+                towers.append((f"tw_{secrets.token_hex(8)}", plat, plng, network, region["country"]))
             
     try:
-        async with aiosqlite.connect(CELLPHONES_DB) as db:
-            await db.execute("DELETE FROM cellphones") # Wipe and regenerate
+        async with aiosqlite.connect(CELLTOWERS_DB) as db:
+            await db.execute("DELETE FROM celltowers") # Wipe and regenerate
             await db.executemany(
-                "INSERT INTO cellphones (id, lat, lng, heading, speed, source_app, country) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                phones
+                "INSERT INTO celltowers (id, lat, lng, network_type, country) VALUES (?, ?, ?, ?, ?)",
+                towers
             )
             await db.commit()
     except Exception as e:
-        print(f"[CellPhones Generation Error] {e}")
+        print(f"[CellTowers Generation Error] {e}")
 
-async def update_cellphones_loop():
-    # Initial generation
-    await generate_cellphone_telemetry()
-    import math
-    import random
-    
-    while True:
-        await asyncio.sleep(15) # Update loop interval
-        
-        # Simulate movement based on speed and heading
-        try:
-            async with aiosqlite.connect(CELLPHONES_DB) as db:
-                db.row_factory = aiosqlite.Row
-                async with db.execute("SELECT * FROM cellphones") as cursor:
-                    rows = await cursor.fetchall()
-                
-                updates = []
-                for r in rows:
-                    lat = r["lat"]
-                    lng = r["lng"]
-                    heading = r["heading"]
-                    speed_kmh = r["speed"]
-                    
-                    # 15 seconds of movement at speed_kmh
-                    dist_km = speed_kmh * (15 / 3600.0)
-                    
-                    # Approximations: 1 degree latitude ~= 111 km
-                    delta_lat = (dist_km * math.cos(math.radians(heading))) / 111.0
-                    # Prevent math domain error near poles (unlikely but safe)
-                    clat = max(-89.9, min(89.9, lat))
-                    delta_lng = (dist_km * math.sin(math.radians(heading))) / (111.0 * math.cos(math.radians(clat)))
-                    
-                    new_lat = lat + delta_lat
-                    new_lng = lng + delta_lng
-                    
-                    # Tiny chance to change heading (turning)
-                    new_heading = heading
-                    if random.random() < 0.2:
-                        new_heading = (heading + random.uniform(-60, 60)) % 360
-                    
-                    updates.append((new_lat, new_lng, new_heading, r["id"]))
-                
-                await db.executemany("UPDATE cellphones SET lat=?, lng=?, heading=? WHERE id=?", updates)
-                await db.commit()
-        except Exception as e:
-            print(f"[CellPhones Update Error] {e}")
-
-@app.get("/api/cellphones")
-async def get_cellphones(country: str = None):
+@app.get("/api/celltowers")
+async def get_celltowers(country: str = None):
     try:
-        async with aiosqlite.connect(CELLPHONES_DB) as db:
+        async with aiosqlite.connect(CELLTOWERS_DB) as db:
             db.row_factory = aiosqlite.Row
             if country and country != "Global":
-                async with db.execute("SELECT * FROM cellphones WHERE country = ?", (country,)) as cursor:
+                async with db.execute("SELECT * FROM celltowers WHERE country = ?", (country,)) as cursor:
                     rows = await cursor.fetchall()
             else:
-                async with db.execute("SELECT * FROM cellphones") as cursor:
+                async with db.execute("SELECT * FROM celltowers") as cursor:
                     rows = await cursor.fetchall()
                 
         result = []
@@ -4522,12 +4478,10 @@ async def get_cellphones(country: str = None):
                 "id": r["id"],
                 "lat": r["lat"],
                 "lng": r["lng"],
-                "heading": r["heading"],
-                "speed": r["speed"],
-                "source_app": r["source_app"]
+                "network_type": r["network_type"]
             })
             
         return JSONResponse(result)
     except Exception as e:
-        print(f"Error fetching cellphones: {e}")
+        print(f"Error fetching celltowers: {e}")
         return JSONResponse([])
