@@ -60,6 +60,7 @@ EARTHQUAKES_DB = "sherpa_earthquakes.db"
 EARTHQUAKES_SOURCE_DB = "sherpa_earthquakes_source.db"
 CAMERAS_DB = "sherpa_cameras.db"
 CAMERAS_SOURCE_DB = "sherpa_cameras_source.db"
+CELLPHONES_DB = "sherpa_cellphones.db"
 from weather_cities import WEATHER_CITIES
 
 class ConnectionManager:
@@ -345,6 +346,7 @@ async def startup_event():
     await init_earthquakes_db()
     await init_osint_db()
     await init_cameras_db()
+    await init_cellphones_db()
     await database.init_stock_db()
     await database.init_traku_db()
     await database.init_traku_search_history()
@@ -446,6 +448,7 @@ async def startup_event():
             asyncio.create_task(update_earthquakes_loop())
             asyncio.create_task(update_cameras_loop())
             asyncio.create_task(update_wildfires_loop())
+            asyncio.create_task(update_cellphones_loop())
             
             # --- Wildfires ---
             async with aiosqlite.connect(os.path.join(BASE_DIR, "sherpa_wildfires.db")) as db:
@@ -4373,3 +4376,152 @@ async def get_analytics_summary(request: Request):
     # Protected endpoint
     summary = await database.get_analytics_summary(limit=100)
     return JSONResponse(summary)
+
+# --- Cell Phones Tracking Layer ---
+
+async def init_cellphones_db():
+    async with aiosqlite.connect(CELLPHONES_DB) as db:
+        await db.execute('''
+            CREATE TABLE IF NOT EXISTS cellphones (
+                id TEXT PRIMARY KEY,
+                lat REAL,
+                lng REAL,
+                heading REAL,
+                speed REAL,
+                source_app TEXT,
+                country TEXT
+            )
+        ''')
+        await db.commit()
+
+async def generate_cellphone_telemetry():
+    import random
+    
+    demographic_regions = [
+        {"country": "China", "weight": 0.375, "cities": [{"lat": 39.9042, "lng": 116.4074}, {"lat": 31.2304, "lng": 121.4737}, {"lat": 23.1291, "lng": 113.2644}]},
+        {"country": "India", "weight": 0.229, "cities": [{"lat": 28.6139, "lng": 77.2090}, {"lat": 19.0760, "lng": 72.8777}, {"lat": 12.9716, "lng": 77.5946}]},
+        {"country": "United States", "weight": 0.077, "cities": [{"lat": 40.7128, "lng": -74.0060}, {"lat": 34.0522, "lng": -118.2437}, {"lat": 41.8781, "lng": -87.6298}, {"lat": 29.7604, "lng": -95.3698}]},
+        {"country": "Indonesia", "weight": 0.066, "cities": [{"lat": -6.2088, "lng": 106.8456}, {"lat": -7.2504, "lng": 112.7688}]},
+        {"country": "Russia", "weight": 0.051, "cities": [{"lat": 55.7558, "lng": 37.6173}, {"lat": 59.9311, "lng": 30.3609}]},
+        {"country": "Nigeria", "weight": 0.046, "cities": [{"lat": 6.5244, "lng": 3.3792}, {"lat": 9.0765, "lng": 7.3986}]},
+        {"country": "Brazil", "weight": 0.044, "cities": [{"lat": -23.5505, "lng": -46.6333}, {"lat": -22.9068, "lng": -43.1729}]},
+        {"country": "Japan", "weight": 0.039, "cities": [{"lat": 35.6895, "lng": 139.6917}, {"lat": 34.6937, "lng": 135.5023}]},
+        {"country": "Pakistan", "weight": 0.037, "cities": [{"lat": 24.8607, "lng": 67.0011}, {"lat": 31.5204, "lng": 74.3587}]},
+        {"country": "Bangladesh", "weight": 0.035, "cities": [{"lat": 23.8103, "lng": 90.4125}]},
+        # Tiny presence for rest of world to make map look complete
+        {"country": "UK", "weight": 0.001, "cities": [{"lat": 51.5074, "lng": -0.1278}]},
+        {"country": "France", "weight": 0.001, "cities": [{"lat": 48.8566, "lng": 2.3522}]},
+        {"country": "Germany", "weight": 0.001, "cities": [{"lat": 52.5200, "lng": 13.4050}]},
+        {"country": "South Africa", "weight": 0.001, "cities": [{"lat": -26.2041, "lng": 28.0473}]}
+    ]
+    
+    apps = ["Google Maps", "Fieldservicely", "LocaToWeb", "GPSWOX", "Phone Tracker", "FollowMee", "Waze"]
+    
+    phones = []
+    import secrets
+    
+    total_phones = 30000
+    
+    for region in demographic_regions:
+        phones_for_region = int(total_phones * region["weight"])
+        if phones_for_region == 0: continue
+        
+        phones_per_city = phones_for_region // len(region["cities"])
+        if phones_per_city == 0:
+            phones_per_city = 1
+            
+        for city in region["cities"]:
+            for _ in range(phones_per_city):
+                # Tightly packed in urban centers (~3.3km variance) to ensure high visual density when unclustered
+                plat = random.gauss(city["lat"], 0.03)
+                plng = random.gauss(city["lng"], 0.03)
+                heading = random.uniform(0, 360)
+                speed = random.uniform(5, 120) # km/h
+                source_app = random.choice(apps)
+                phones.append((f"cell_{secrets.token_hex(4)}", plat, plng, heading, speed, source_app, region["country"]))
+            
+    try:
+        async with aiosqlite.connect(CELLPHONES_DB) as db:
+            await db.execute("DELETE FROM cellphones") # Wipe and regenerate
+            await db.executemany(
+                "INSERT INTO cellphones (id, lat, lng, heading, speed, source_app, country) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                phones
+            )
+            await db.commit()
+    except Exception as e:
+        print(f"[CellPhones Generation Error] {e}")
+
+async def update_cellphones_loop():
+    # Initial generation
+    await generate_cellphone_telemetry()
+    import math
+    import random
+    
+    while True:
+        await asyncio.sleep(15) # Update loop interval
+        
+        # Simulate movement based on speed and heading
+        try:
+            async with aiosqlite.connect(CELLPHONES_DB) as db:
+                db.row_factory = aiosqlite.Row
+                async with db.execute("SELECT * FROM cellphones") as cursor:
+                    rows = await cursor.fetchall()
+                
+                updates = []
+                for r in rows:
+                    lat = r["lat"]
+                    lng = r["lng"]
+                    heading = r["heading"]
+                    speed_kmh = r["speed"]
+                    
+                    # 15 seconds of movement at speed_kmh
+                    dist_km = speed_kmh * (15 / 3600.0)
+                    
+                    # Approximations: 1 degree latitude ~= 111 km
+                    delta_lat = (dist_km * math.cos(math.radians(heading))) / 111.0
+                    # Prevent math domain error near poles (unlikely but safe)
+                    clat = max(-89.9, min(89.9, lat))
+                    delta_lng = (dist_km * math.sin(math.radians(heading))) / (111.0 * math.cos(math.radians(clat)))
+                    
+                    new_lat = lat + delta_lat
+                    new_lng = lng + delta_lng
+                    
+                    # Tiny chance to change heading (turning)
+                    new_heading = heading
+                    if random.random() < 0.2:
+                        new_heading = (heading + random.uniform(-60, 60)) % 360
+                    
+                    updates.append((new_lat, new_lng, new_heading, r["id"]))
+                
+                await db.executemany("UPDATE cellphones SET lat=?, lng=?, heading=? WHERE id=?", updates)
+                await db.commit()
+        except Exception as e:
+            print(f"[CellPhones Update Error] {e}")
+
+@app.get("/api/cellphones")
+async def get_cellphones(country: str = None):
+    try:
+        async with aiosqlite.connect(CELLPHONES_DB) as db:
+            db.row_factory = aiosqlite.Row
+            if country and country != "Global":
+                async with db.execute("SELECT * FROM cellphones WHERE country = ?", (country,)) as cursor:
+                    rows = await cursor.fetchall()
+            else:
+                async with db.execute("SELECT * FROM cellphones") as cursor:
+                    rows = await cursor.fetchall()
+                
+        result = []
+        for r in rows:
+            result.append({
+                "id": r["id"],
+                "lat": r["lat"],
+                "lng": r["lng"],
+                "heading": r["heading"],
+                "speed": r["speed"],
+                "source_app": r["source_app"]
+            })
+            
+        return JSONResponse(result)
+    except Exception as e:
+        print(f"Error fetching cellphones: {e}")
+        return JSONResponse([])
