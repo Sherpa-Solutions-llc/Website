@@ -4420,7 +4420,7 @@ async def generate_cellphone_telemetry():
     phones = []
     import secrets
     
-    total_phones = 30000
+    total_phones = 75000
     
     for region in demographic_regions:
         phones_for_region = int(total_phones * region["weight"])
@@ -4432,9 +4432,15 @@ async def generate_cellphone_telemetry():
             
         for city in region["cities"]:
             for _ in range(phones_per_city):
-                # Tightly packed in urban centers (~3.3km variance) to ensure high visual density when unclustered
-                plat = random.gauss(city["lat"], 0.03)
-                plng = random.gauss(city["lng"], 0.03)
+                # Spread points widely across the US for full country coverage
+                if region["country"] == "United States":
+                    plat = random.gauss(city["lat"], 8.0)
+                    plng = random.gauss(city["lng"], 12.0)
+                else:
+                    # Tightly packed in urban centers (~3.3km variance) for rest of world
+                    plat = random.gauss(city["lat"], 0.03)
+                    plng = random.gauss(city["lng"], 0.03)
+                    
                 heading = random.uniform(0, 360)
                 speed = random.uniform(5, 120) # km/h
                 source_app = random.choice(apps)
