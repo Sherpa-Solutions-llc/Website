@@ -86,9 +86,7 @@ const scannersDataSource = new Cesium.CustomDataSource('scanners');
 const sarDataSource = new Cesium.CustomDataSource('sar');
 const wildfiresDataSource = new Cesium.CustomDataSource('wildfires');
 const deformationDataSource = new Cesium.CustomDataSource('deformation');
-const cellphonesDataSource = new Cesium.CustomDataSource('cellphones');
-const localCellphonesDataSource = new Cesium.CustomDataSource('localCellphones');
-
+let cellphonesBillboards;
 const cellphoneSvg = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"%3E%3Cpath fill="%2300e5ff" d="M16 64C16 28.7 44.7 0 80 0H304c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H80c-35.3 0-64-28.7-64-64V64zM224 448a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM304 64H80V384H304V64z"/%3E%3C/svg%3E`;
 
 // Active weather imagery layer (RainViewer) — stored outside entities so
@@ -331,8 +329,7 @@ async function initCesium() {
         await viewer.dataSources.add(sarDataSource);
         await viewer.dataSources.add(wildfiresDataSource);
         await viewer.dataSources.add(deformationDataSource);
-        await viewer.dataSources.add(cellphonesDataSource);
-        await viewer.dataSources.add(localCellphonesDataSource);
+        cellphonesBillboards = viewer.scene.primitives.add(new Cesium.BillboardCollection());
 
         // Setup Police Cluster Features
         policeDataSource.clustering.enabled = true;
@@ -632,52 +629,7 @@ async function initCesium() {
         };
         setupWildfireClustering(wildfiresDataSource);
 
-        // Setup Cellphones Clustering (Simulating 150M+ devices)
-        const setupCellphonesClustering = (dataSource) => {
-            dataSource.clustering.enabled = true;
-            dataSource.clustering.pixelRange = 80;
-            dataSource.clustering.minimumClusterSize = 2;
-            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                const realCount = clusteredEntities.length;
-                const simulatedCount = realCount * 5000; // ~5,000 multiplier to simulate scale
-                
-                let displayStr = simulatedCount.toString();
-                if (simulatedCount >= 1000000) {
-                    displayStr = (simulatedCount / 1000000).toFixed(1) + "M";
-                } else if (simulatedCount >= 1000) {
-                    displayStr = (simulatedCount / 1000).toFixed(0) + "K";
-                }
-
-                const fontSize = Math.floor(14 + (Math.log10(realCount) * 4));
-
-                cluster.label.show = true;
-                cluster.label.text = displayStr;
-                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.BLACK;
-                cluster.label.outlineColor = Cesium.Color.fromCssColorString('#00e5ff');
-                cluster.label.outlineWidth = 4;
-                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
-                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
-                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                
-                const pixelBase = isMobile ? 35 : 45;
-                const extraScale = Math.log10(realCount) * 0.25;
-                
-                cluster.billboard.show = true;
-                cluster.billboard.width = pixelBase + (extraScale * 10);
-                cluster.billboard.height = pixelBase + (extraScale * 10);
-                cluster.billboard.color = Cesium.Color.fromCssColorString('#00e5ff');
-                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-
-                const clusterPickId = clusteredEntities.map(e => e.id);
-                if (cluster.label) cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-            });
-        };
-        setupCellphonesClustering(cellphonesDataSource);
+        // Cellphones clustering removed for raw primitive performance
 
 
         viewer.targetFrameRate = 30;
@@ -3028,57 +2980,6 @@ if (viewer && viewer.camera) {
             updateFlightsLayer();
             updateHUDCounts();
         }
-        
-        // Dynamic Hyper-Density Spawner for Cell GPS
-        if (state.layers.cellphones) {
-            const height = viewer.camera.positionCartographic.height;
-            localCellphonesDataSource.entities.removeAll();
-            if (height < 500000) { // Zoomed in under 500km
-                const rect = viewer.camera.computeViewRectangle();
-                if (rect) {
-                    const west = Cesium.Math.toDegrees(rect.west);
-                    const south = Cesium.Math.toDegrees(rect.south);
-                    const east = Cesium.Math.toDegrees(rect.east);
-                    const north = Cesium.Math.toDegrees(rect.north);
-                    
-                    const apps = ["Google Maps", "Fieldservicely", "LocaToWeb", "GPSWOX", "Phone Tracker", "FollowMee", "Waze"];
-                    const filterSelect = document.getElementById('cellphone-app-filter');
-                    const appFilter = filterSelect ? filterSelect.value : 'all';
-                    
-                    localCellphonesDataSource.entities.suspendEvents();
-                    for (let i = 0; i < 3000; i++) {
-                        const srcApp = apps[Math.floor(Math.random() * apps.length)];
-                        if (appFilter !== 'all' && srcApp !== appFilter) continue;
-                        
-                        const lat = south + Math.random() * (north - south);
-                        const lng = west + Math.random() * (east - west);
-                        const randId = 'local_cell_' + Math.random().toString(36).substr(2, 9);
-                        
-                        localCellphonesDataSource.entities.add({
-                            id: randId,
-                            position: Cesium.Cartesian3.fromDegrees(lng, lat, 0),
-                            billboard: {
-                                image: cellphoneSvg,
-                                width: isMobile ? 14 : 20,
-                                height: isMobile ? 14 : 20,
-                                color: Cesium.Color.fromCssColorString('#00e5ff')
-                            },
-                            customData: {
-                                id: randId,
-                                type: 'cellphone',
-                                app: srcApp,
-                                source_app: srcApp,
-                                lat: lat,
-                                lng: lng,
-                                speed: Math.random() * 120,
-                                heading: Math.random() * 360
-                            }
-                        });
-                    }
-                    localCellphonesDataSource.entities.resumeEvents();
-                }
-            }
-        }
     });
 }
 
@@ -3838,14 +3739,11 @@ async function fetchCellPhones() {
 };
 
 function updateCellPhonesLayer() {
-    if (!viewer) return;
+    if (!viewer || !cellphonesBillboards) return;
     
-    cellphonesDataSource.entities.suspendEvents();
+    cellphonesBillboards.removeAll();
     
     if (!state.layers.cellphones) {
-        cellphonesDataSource.entities.removeAll();
-        localCellphonesDataSource.entities.removeAll();
-        cellphonesDataSource.entities.resumeEvents();
         return;
     }
     
@@ -3858,36 +3756,16 @@ function updateCellPhonesLayer() {
             filtered = filtered.filter(c => c.source_app === filterValue);
         }
         
-        const currentIds = new Set();
-        
         filtered.forEach(cell => {
-            currentIds.add(cell.id);
-            let entity = cellphonesDataSource.entities.getById(cell.id);
-            if (!entity) {
-                entity = cellphonesDataSource.entities.add({
-                    id: cell.id,
-                    position: Cesium.Cartesian3.fromDegrees(cell.lng, cell.lat, 0),
-                    billboard: {
-                        image: cellphoneSvg,
-                        width: isMobile ? 14 : 20,
-                        height: isMobile ? 14 : 20,
-                        color: Cesium.Color.fromCssColorString('#00e5ff')
-                    },
-                    customData: { ...cell, type: 'cellphone', app: cell.source_app }
-                });
-            } else {
-                entity.position = Cesium.Cartesian3.fromDegrees(cell.lng, cell.lat, 0);
-                entity.customData = { ...cell, type: 'cellphone', app: cell.source_app };
-            }
+            cellphonesBillboards.add({
+                position: Cesium.Cartesian3.fromDegrees(cell.lng, cell.lat, 0),
+                image: cellphoneSvg,
+                width: isMobile ? 14 : 20,
+                height: isMobile ? 14 : 20,
+                color: Cesium.Color.fromCssColorString('#00e5ff').withAlpha(0.7),
+                id: { customData: { ...cell, type: 'cellphone', app: cell.source_app } }
+            });
         });
-        
-        const entitiesToRemove = [];
-        cellphonesDataSource.entities.values.forEach(e => {
-            if (!currentIds.has(e.id)) entitiesToRemove.push(e);
-        });
-        entitiesToRemove.forEach(e => cellphonesDataSource.entities.remove(e));
     }
-    
-    cellphonesDataSource.entities.resumeEvents();
 };
 
