@@ -196,19 +196,19 @@
                 </div>
             </div>
 
-            <!-- Cell Phones -->
+            <!-- Cell Towers -->
             <div class="layer-row">
-                <div class="layer-item" id="layer-cellphones">
-                    <div class="layer-header" onclick="toggleLayerOptions('cellphones')">
-                        <div class="layer-icon" style="color: #00e5ff;"><i class="fa-solid fa-mobile-screen"></i></div>
+                <div class="layer-item" id="layer-celltowers">
+                    <div class="layer-header" onclick="toggleLayerOptions('celltowers')">
+                        <div class="layer-icon" style="color: #00e5ff;"><i class="fa-solid fa-tower-cell"></i></div>
                         <div class="layer-info">
-                            <h3 data-cms="cell-gps-header">Cell GPS</h3>
+                            <h3 data-cms="cell-towers-header">Cell Towers</h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
-                    <div class="layer-options-container" id="options-cellphones">
-                        <select id="cellphone-country-filter" class="hud-select" onchange="if(typeof window.fetchCellPhones === 'function') { window.state.cellphones = []; window.fetchCellPhones(); }" style="margin-bottom: 5px;">
+                    <div class="layer-options-container" id="options-celltowers">
+                        <select id="celltower-country-filter" class="hud-select" onchange="if(typeof window.fetchCellTowers === 'function') { window.state.celltowers = []; window.fetchCellTowers(); }" style="margin-bottom: 5px;">
                             <option value="Global">Country: Global (All)</option>
                             <option value="China">Country: China</option>
                             <option value="India">Country: India</option>
@@ -221,19 +221,17 @@
                             <option value="Pakistan">Country: Pakistan</option>
                             <option value="Bangladesh">Country: Bangladesh</option>
                         </select>
-                        <select id="cellphone-app-filter" class="hud-select" onchange="if(typeof window.updateCellPhonesLayer === 'function') window.updateCellPhonesLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
-                            <option value="all">App: All Trackers</option>
-                            <option value="Google Maps">Google Maps</option>
-                            <option value="Waze">Waze</option>
-                            <option value="FollowMee">FollowMee</option>
-                            <option value="Phone Tracker">Phone Tracker</option>
-                            <option value="LocaToWeb">LocaToWeb</option>
-                            <option value="GPSWOX">GPSWOX</option>
-                            <option value="Fieldservicely">Fieldservicely</option>
+                        <select id="celltower-network-filter" class="hud-select" onchange="if(typeof window.updateCellTowersLayer === 'function') window.updateCellTowersLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
+                            <option value="all">Network: All</option>
+                            <option value="5G">Network: 5G</option>
+                            <option value="LTE">Network: LTE</option>
+                            <option value="UMTS">Network: UMTS</option>
+                            <option value="GSM">Network: GSM</option>
+                            <option value="CDMA">Network: CDMA</option>
                         </select>
                     </div>
                 </div>
-                <div class="layer-toggle-btn" id="toggle-cellphones" onclick="toggleLayer('cellphones')">
+                <div class="layer-toggle-btn" id="toggle-celltowers" onclick="toggleLayer('celltowers')">
                     <i class="fa-solid fa-toggle-off"></i>
                 </div>
             </div>
@@ -478,7 +476,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 
     <!-- Application Script -->
-    <script defer src="static/live_earth.js?v=10049"></script>
+    <script defer src="static/live_earth.js?v=10050"></script>
     <!-- Version Footer -->
     <div style="position:fixed; bottom:4px; right:10px; font-size:8px; font-family:'Share Tech Mono',monospace; color:var(--hud-cyan); opacity:0.6; z-index:5; pointer-events:none; letter-spacing:1px;">v2.5</div>
 
