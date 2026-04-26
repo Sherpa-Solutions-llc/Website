@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/static/live_earth.css?v=10019">
+    <link rel="stylesheet" href="static/live_earth.css?v=10019">
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
@@ -40,7 +40,7 @@
     <header class="hud-header">
         <div class="hud-logo">
             <a href="/projects.html" style="color: inherit; text-decoration: none;" title="Back to Projects">
-                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 36px; vertical-align: middle; margin-right: 8px;"> <span style="color: #00e5ff; letter-spacing: 3px;">LIVE EARTH</span>
+                <img src="static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 36px; vertical-align: middle; margin-right: 8px;"> <span style="color: #00e5ff; letter-spacing: 3px;">LIVE EARTH</span>
             </a>
         </div>
 
@@ -85,17 +85,17 @@
                     <div class="layer-header" onclick="toggleLayerOptions('flights')">
                         <div class="layer-icon" style="color: white;"><i class="fa-solid fa-plane"></i></div>
                         <div class="layer-info">
-                            <h3>Aircraft</h3>
+                            <h3 data-cms="auto-live_earth-h3-9">Aircraft</h3>
                             <div class="layer-count" id="count-flights">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                     <div class="layer-options-container" id="options-flights">
                         <select id="flight-speed" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
-                            <option value="all" selected>Speed: All</option>
+                            <option value="all">Speed: All</option>
                             <option value="0-500">Speed: 0-500 km/h</option>
                             <option value="500-1000">Speed: 500-1000 km/h</option>
-                            <option value="1000+">Speed: Over 1000 km/h</option>
+                            <option value="1000+" selected>Speed: Over 1000 km/h</option>
                         </select>
                         <select id="flight-type" class="hud-select" onchange="if(typeof updateFlightsLayer==='function') updateFlightsLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
                             <option value="all">Type: All</option>
@@ -115,7 +115,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('military')">
                         <div class="layer-icon" style="color: orange;"><i class="fa-solid fa-fighter-jet"></i></div>
                         <div class="layer-info">
-                            <h3>Military</h3>
+                            <h3 data-cms="auto-live_earth-h3-10">Military <span id="last-update-military" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                             <div class="layer-count">24</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -140,7 +140,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('earthquakes')">
                         <div class="layer-icon" style="color: #ffa502;"><i class="fa-solid fa-wave-square"></i></div>
                         <div class="layer-info">
-                            <h3>Earthquakes</h3>
+                            <h3 data-cms="auto-live_earth-h3-11">Earthquakes <span id="last-update-earthquakes" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;">03/15/26 19:00:11</span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -164,7 +164,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('satellites')">
                         <div class="layer-icon" style="color: #2ed573;"><i class="fa-solid fa-satellite"></i></div>
                         <div class="layer-info">
-                            <h3>Satellites</h3>
+                            <h3 data-cms="auto-live_earth-h3-12">Satellites <span id="last-update-satellites" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;">03/15/26 19:00:12</span></h3>
                             <div class="layer-count">850</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -196,13 +196,55 @@
                 </div>
             </div>
 
+            <!-- Cell Phones -->
+            <div class="layer-row">
+                <div class="layer-item" id="layer-cellphones">
+                    <div class="layer-header" onclick="toggleLayerOptions('cellphones')">
+                        <div class="layer-icon" style="color: #00e5ff;"><i class="fa-solid fa-mobile-screen"></i></div>
+                        <div class="layer-info">
+                            <h3 data-cms="cell-gps-header">Cell GPS</h3>
+                            <div class="layer-count">0</div>
+                        </div>
+                        <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <div class="layer-options-container" id="options-cellphones">
+                        <select id="cellphone-country-filter" class="hud-select" onchange="if(typeof window.fetchCellPhones === 'function') { window.state.cellphones = []; window.fetchCellPhones(); }" style="margin-bottom: 5px;">
+                            <option value="Global">Country: Global (All)</option>
+                            <option value="China">Country: China</option>
+                            <option value="India">Country: India</option>
+                            <option value="United States">Country: United States</option>
+                            <option value="Indonesia">Country: Indonesia</option>
+                            <option value="Russia">Country: Russia</option>
+                            <option value="Nigeria">Country: Nigeria</option>
+                            <option value="Brazil">Country: Brazil</option>
+                            <option value="Japan">Country: Japan</option>
+                            <option value="Pakistan">Country: Pakistan</option>
+                            <option value="Bangladesh">Country: Bangladesh</option>
+                        </select>
+                        <select id="cellphone-app-filter" class="hud-select" onchange="if(typeof window.updateCellPhonesLayer === 'function') window.updateCellPhonesLayer(); if(typeof updateHUDCounts==='function') updateHUDCounts();">
+                            <option value="all">App: All Trackers</option>
+                            <option value="Google Maps">Google Maps</option>
+                            <option value="Waze">Waze</option>
+                            <option value="FollowMee">FollowMee</option>
+                            <option value="Phone Tracker">Phone Tracker</option>
+                            <option value="LocaToWeb">LocaToWeb</option>
+                            <option value="GPSWOX">GPSWOX</option>
+                            <option value="Fieldservicely">Fieldservicely</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layer-toggle-btn" id="toggle-cellphones" onclick="toggleLayer('cellphones')">
+                    <i class="fa-solid fa-toggle-off"></i>
+                </div>
+            </div>
+
             <!-- Shipping Traffic -->
             <div class="layer-row">
                 <div class="layer-item" id="layer-traffic">
                     <div class="layer-header" onclick="toggleLayerOptions('traffic')">
                         <div class="layer-icon" style="color: #ff6b81;"><i class="fa-solid fa-ship"></i></div>
                         <div class="layer-info">
-                            <h3>Vessels</h3>
+                            <h3 data-cms="auto-live_earth-h3-13">Vessels <span id="last-update-traffic" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -229,7 +271,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('weather')">
                         <div class="layer-icon" style="color: #a4b0be;"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
                         <div class="layer-info">
-                            <h3>Weather Radar</h3>
+                            <h3 data-cms="auto-live_earth-h3-14">Weather Radar <span id="last-update-weather" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;">03/15/26 19:00:11</span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -254,7 +296,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('cctv')">
                         <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-video"></i></div>
                         <div class="layer-info">
-                            <h3>CCTV</h3>
+                            <h3 data-cms="auto-live_earth-h3-15">CCTV <span id="last-update-cctv" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -281,7 +323,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('police')">
                         <div class="layer-icon" style="color: #0d47a1;"><i class="fa-solid fa-building-shield"></i></div>
                         <div class="layer-info">
-                            <h3>Police</h3>
+                            <h3 data-cms="auto-live_earth-h3-16">Police <span id="last-update-police" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;">03/15/26 19:00:12</span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -313,7 +355,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('scanners')">
                         <div class="layer-icon" style="color: #d32f2f;"><i class="fa-solid fa-walkie-talkie"></i></div>
                         <div class="layer-info">
-                            <h3>Radio</h3>
+                            <h3 data-cms="auto-live_earth-h3-17">Radio <span id="last-update-scanners" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;">03/15/26 19:00:11</span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -345,7 +387,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('sar')">
                         <div class="layer-icon" style="color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i></div>
                         <div class="layer-info">
-                            <h3>Space Radar (SAR)</h3>
+                            <h3 data-cms="auto-live_earth-h3-18">Space Radar (SAR) <span id="last-update-sar" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -368,7 +410,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('wildfires')">
                         <div class="layer-icon" style="color: #ff3838;"><i class="fa-solid fa-fire"></i></div>
                         <div class="layer-info">
-                            <h3>Wildfires</h3>
+                            <h3 data-cms="auto-live_earth-h3-19">Wildfires <span id="last-update-wildfires" style="font-size: 0.7em; font-weight: normal; color: #a0a0a0; font-family: 'Share Tech Mono', monospace;"></span></h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -391,7 +433,7 @@
                     <div class="layer-header" onclick="toggleLayerOptions('deformation')">
                         <div class="layer-icon" style="color: #e1b12c;"><i class="fa-solid fa-bridge"></i></div>
                         <div class="layer-info">
-                            <h3>Deformation</h3>
+                            <h3 data-cms="auto-live_earth-h3-20">Deformation</h3>
                             <div class="layer-count">0</div>
                         </div>
                         <div class="layer-chevron"><i class="fa-solid fa-chevron-down"></i></div>
@@ -436,11 +478,11 @@
     <script defer src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 
     <!-- Application Script -->
-    <script defer src="/static/live_earth.js?v=10039"></script>
+    <script defer src="static/live_earth.js?v=10047"></script>
     <!-- Version Footer -->
     <div style="position:fixed; bottom:4px; right:10px; font-size:8px; font-family:'Share Tech Mono',monospace; color:var(--hud-cyan); opacity:0.6; z-index:5; pointer-events:none; letter-spacing:1px;">v2.5</div>
 
-    <script src="/static/cms.js"></script>
+    <script src="static/cms.js"></script>
 
     <script src="static/analytics.js"></script>
 </body>
