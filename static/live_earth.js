@@ -30,13 +30,13 @@ const state = {
         earthquakes: false,
         traffic: false,
         weather: false,
+        celltowers: false,
         cctv: false,
         police: false,
         scanners: false,
         sar: false,
         wildfires: false,
-        deformation: false,
-        cellphones: false
+        deformation: false
     },
     dataSources: {
         flights: 'opensky',
@@ -60,10 +60,10 @@ const state = {
     cctv_cameras: [],
     police_data: [],
     scanners: [],
+    celltowers: [],
     sar: [],
     wildfires: [],
     deformation: [],
-    cellphones: [],
     target: null,
     lastFetchTime: 0
 };
@@ -86,8 +86,9 @@ const scannersDataSource = new Cesium.CustomDataSource('scanners');
 const sarDataSource = new Cesium.CustomDataSource('sar');
 const wildfiresDataSource = new Cesium.CustomDataSource('wildfires');
 const deformationDataSource = new Cesium.CustomDataSource('deformation');
-let cellphonesBillboards;
-const cellphoneSvg = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"%3E%3Cpath fill="%2300e5ff" d="M16 64C16 28.7 44.7 0 80 0H304c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H80c-35.3 0-64-28.7-64-64V64zM224 448a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM304 64H80V384H304V64z"/%3E%3C/svg%3E`;
+let celltowersPrimitives;
+// A simplified, solid rounded rectangle that looks like a cell tower dot to optimize rendering
+const cellphoneSvg = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"%3E%3Crect width="100" height="200" rx="30" ry="30" fill="%2300e5ff" /%3E%3C/svg%3E`;
 
 // Active weather imagery layer (RainViewer) — stored outside entities so
 // it persists across entity refresh calls
@@ -154,7 +155,7 @@ window.toggleLayer = function (layerName) {
         if (layerName === 'cctv' && state.cctv_cameras.length === 0) fetchCCTVs();
         if (layerName === 'police' && state.police_data.length === 0) fetchPolice();
         if (layerName === 'scanners' && state.scanners.length === 0) fetchScanners();
-        if (layerName === 'cellphones' && state.cellphones.length === 0) fetchCellPhones();
+        if (layerName === 'celltowers' && state.celltowers.length === 0) fetchCellTowers();
     } else {
         if (el) el.classList.remove('active');
         if (toggleBtn) toggleBtn.classList.remove('active');
@@ -172,7 +173,7 @@ window.toggleLayer = function (layerName) {
     else if (layerName === 'sar') window.updateSARLayer();
     else if (layerName === 'wildfires') window.updateWildfireLayer();
     else if (layerName === 'deformation') window.updateDeformationLayer();
-    else if (layerName === 'cellphones') window.updateCellPhonesLayer();
+    else if (layerName === 'celltowers') window.updateCellTowersLayer();
     updateHUDCounts();
 };
 
@@ -329,7 +330,8 @@ async function initCesium() {
         await viewer.dataSources.add(sarDataSource);
         await viewer.dataSources.add(wildfiresDataSource);
         await viewer.dataSources.add(deformationDataSource);
-        cellphonesBillboards = viewer.scene.primitives.add(new Cesium.BillboardCollection());
+        // Using BillboardCollection with an ultra-simple SVG for massive performance while retaining a phone shape
+        celltowersPrimitives = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
 
         // Setup Police Cluster Features
         policeDataSource.clustering.enabled = true;
@@ -718,8 +720,8 @@ async function initCesium() {
                             time: s.timestamp, anomaly_score: s.anomaly_score
                         }))
                     );
-                    if (state.layers.cellphones) allCandidates = allCandidates.concat(
-                        (state.cellphones || []).map(c => ({...c, type: 'cellphone', app: c.source_app}))
+                    if (state.layers.celltowers) allCandidates = allCandidates.concat(
+                        (state.celltowers || []).map(c => ({...c, type: 'celltower', network: c.network_type}))
                     );
                     let match = allCandidates.find(c => c.id === targetIdToLoad || ('vessel_' + c.id) === targetIdToLoad);
                     
@@ -1647,10 +1649,10 @@ function updateHUDCounts() {
         return (t.vesselType || 'other') === trafficType;
     });
 
-    const cellphoneApp = document.getElementById('cellphone-app-filter')?.value || 'all';
-    const visibleCellphones = (state.cellphones || []).filter(c => {
-        if (cellphoneApp === 'all') return true;
-        return c.source_app === cellphoneApp;
+    const celltowerNetwork = document.getElementById('celltower-network-filter')?.value || 'all';
+    const visibleCelltowers = (state.celltowers || []).filter(c => {
+        if (celltowerNetwork === 'all') return true;
+        return c.network_type === celltowerNetwork;
     });
 
     const counts = {
@@ -1666,7 +1668,7 @@ function updateHUDCounts() {
         deformation: (state.deformation || []).length,
         wildfires: (state.wildfires || []).length,
         sar: (state.sar_data || []).length,
-        cellphones: visibleCellphones.length > 0 ? (visibleCellphones.length * 5000).toLocaleString() : 0
+        celltowers: visibleCelltowers.length > 0 ? visibleCelltowers.length.toLocaleString() : 0
     };
 
     try {
@@ -1683,7 +1685,7 @@ function updateHUDCounts() {
             'layer-deformation': counts.deformation,
             'layer-wildfires': counts.wildfires,
             'layer-sar': counts.sar,
-            'layer-cellphones': counts.cellphones
+            'layer-celltowers': counts.celltowers
         };
         for (const [id, count] of Object.entries(hudMap)) {
             const el = document.getElementById(id);
@@ -2314,7 +2316,7 @@ function lockTarget(obj, forceShowPanel) {
     else if (obj.type === 'wildfire') zoomRange = 15000;
     else if (obj.type === 'sar') zoomRange = 200000;
     else if (obj.type === 'deformation') zoomRange = 1500;
-    else if (obj.type === 'cellphone') zoomRange = 304;
+    else if (obj.type === 'celltower') zoomRange = 304;
     else if (obj.alt > 0) zoomRange = obj.alt * 2 + 50000;
 
     let targetLat = obj.lat || 0;
@@ -2453,12 +2455,12 @@ function renderTargetDetails() {
 
     const html = `
         <div style="margin-bottom: 20px; text-align: center;">
-            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : (t.type === 'wildfire' ? '#ff3838' : (t.type === 'earthquake' ? '#ffd32a' : (t.type === 'scanner' ? '#d32f2f' : (t.type === 'sar' ? 'var(--hud-cyan)' : (t.type === 'cellphone' ? '#00e5ff' : 'var(--hud-cyan)')))))))};">
-                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (t.type === 'wildfire' ? 'fa-fire' : (t.type === 'earthquake' ? 'fa-house-crack' : (t.type === 'scanner' ? 'fa-walkie-talkie' : (t.type === 'sar' ? 'fa-satellite-dish' : (t.type === 'cellphone' ? 'fa-mobile-screen' : (isFlight ? 'fa-plane' : 'fa-satellite'))))))))}"></i>
+            <div style="font-size: 2rem; color: ${t.isMilitary ? 'var(--hud-pink)' : (t.type === 'cctv' ? '#7bed9f' : (t.type === 'vessel' ? '#ff6b81' : (t.type === 'wildfire' ? '#ff3838' : (t.type === 'earthquake' ? '#ffd32a' : (t.type === 'scanner' ? '#d32f2f' : (t.type === 'sar' ? 'var(--hud-cyan)' : (t.type === 'celltower' ? '#00e5ff' : 'var(--hud-cyan)')))))))};">
+                <i class="fa-solid ${t.isMilitary ? 'fa-fighter-jet' : (t.type === 'cctv' ? 'fa-video' : (t.type === 'vessel' ? 'fa-ship' : (t.type === 'wildfire' ? 'fa-fire' : (t.type === 'earthquake' ? 'fa-house-crack' : (t.type === 'scanner' ? 'fa-walkie-talkie' : (t.type === 'sar' ? 'fa-satellite-dish' : (t.type === 'celltower' ? 'fa-tower-cell' : (isFlight ? 'fa-plane' : 'fa-satellite'))))))))}"></i>
             </div>
-            <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.type === 'sar' ? 'SPACE RADAR SWATH' : (t.type === 'wildfire' ? 'THERMAL ANOMALY' : (t.type === 'earthquake' ? 'SEISMIC EVENT' : (t.type === 'cellphone' ? 'MOBILE TRACKER' : (t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN')))))}</h3>
+            <h3 style="font-family: 'Share Tech Mono'; font-size: 1.5rem; letter-spacing: 2px;">${t.type === 'sar' ? 'SPACE RADAR SWATH' : (t.type === 'wildfire' ? 'THERMAL ANOMALY' : (t.type === 'earthquake' ? 'SEISMIC EVENT' : (t.type === 'celltower' ? 'CELL TOWER INFRASTRUCTURE' : (t.callsign || t.title || (t.id ? t.id.toString().split('_')[0] : 'UNKNOWN')))))}</h3>
             <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px; text-transform: uppercase;">
-                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'wildfire' ? 'NASA FIRMS DETECTION' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : (t.type === 'scanner' ? 'LIVE AUDIO FEED' : (t.type === 'sar' ? 'SYNTHETIC APERTURE RADAR' : (t.type === 'cellphone' ? t.app : 'UNKNOWN ORIGIN'))))))}
+                ${t.country || t.subtype || (t.type === 'vessel' ? 'MARINE VESSEL' : (t.type === 'wildfire' ? 'NASA FIRMS DETECTION' : (t.type === 'earthquake' ? (t.place || t.title || 'UNKNOWN REGION') : (t.type === 'scanner' ? 'LIVE AUDIO FEED' : (t.type === 'sar' ? 'SYNTHETIC APERTURE RADAR' : (t.type === 'celltower' ? t.network : 'UNKNOWN ORIGIN'))))))}
             </div>
             ${t.signalLost ? `
             <div style="margin-top: 8px; padding: 4px 12px; display: inline-block; border-radius: 4px;
@@ -2665,21 +2667,17 @@ function renderTargetDetails() {
             ${t.type !== 'cctv' && t.type !== 'vessel' && t.type !== 'earthquake' && t.type !== 'scanner' && t.type !== 'wildfire' && !isTraffic ? `
             <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">IDENTIFIER</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${isFlight ? (t.id || 'N/A') : (t.id ? (t.type === 'cellphone' ? t.id.split('_')[1] : t.id.toString().split('_')[1]) : 'N/A')}</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace;">${isFlight ? (t.id || 'N/A') : (t.id ? (t.type === 'celltower' ? t.id.split('_')[1] : t.id.toString().split('_')[1]) : 'N/A')}</td>
             </tr>
             ` : ''}
-            ${t.type === 'cellphone' ? `
+            ${t.type === 'celltower' ? `
             <tr>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">SOURCE APP</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: #00e5ff; font-weight: bold;">${t.app}</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">NETWORK</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: #00e5ff; font-weight: bold;">${t.network}</td>
             </tr>
             <tr>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">SPEED</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${t.speed ? Math.round(t.speed) : 0} <span style="font-size: 0.7rem;">km/h</span></td>
-            </tr>
-            <tr>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">HEADING</td>
-                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${t.heading ? Math.round(t.heading) : 0}°</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0.7;">COUNTRY</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 1.1rem;">${t.country || 'Unknown'}</td>
             </tr>
             ` : ''}
             ${t.type === 'satellite' && t.status ? `
@@ -2930,7 +2928,7 @@ setInterval(fetchTraffic, 30000); // Poll AIS vessels every 30 seconds
 setInterval(fetchEarthquakes, 60000);
 setInterval(fetchWeather, 300000);
 setInterval(fetchCCTVs, 120000); // Refresh cameras every 2 minutes
-setInterval(fetchCellPhones, 15000); // Sync cell phone paths every 15 seconds
+// setInterval(fetchCellTowers, 15000); // Sync cell phone paths every 15 seconds
 
 // Kick off initial fetches immediately to populate the map faster
 async function initialBoot() {
@@ -2944,7 +2942,7 @@ async function initialBoot() {
     fetchSatellites();
     fetchEarthquakes();
     fetchWeather();
-    fetchCellPhones();
+    fetchCellTowers();
 }
 initialBoot();
 
@@ -3706,66 +3704,61 @@ function updateDeformationLayer() {
     deformationDataSource.entities.resumeEvents();
 };
 
-let _fetchingCellPhones = false;
-async function fetchCellPhones() {
-    if (_fetchingCellPhones) return;
-    _fetchingCellPhones = true;
+let _fetchingCellTowers = false;
+async function fetchCellTowers() {
+    if (_fetchingCellTowers) return;
+    _fetchingCellTowers = true;
     try {
-        const countryFilter = document.getElementById('cellphone-country-filter')?.value || 'Global';
+        const countryFilter = document.getElementById('celltower-country-filter')?.value || 'Global';
         const queryParams = countryFilter !== 'Global' ? `?country=${encodeURIComponent(countryFilter)}` : '';
-        const fetchTime = performance.now();
-        const res = await fetch(`${API_BASE}/api/cellphones${queryParams}`);
+        const res = await fetch(`${API_BASE}/api/celltowers${queryParams}`);
         if (!res.ok) throw new Error('API Error');
         const data = await res.json();
         
-        state.cellphones = (data || []).map(c => {
-            const prev = state.cellphones ? state.cellphones.find(old => old.id === c.id) : null;
-            return {
-                ...c,
-                fetchTime: fetchTime,
-                fetchDateMs: prev ? prev.fetchDateMs : null,
-                lastFetchTime: prev ? prev.lastFetchTime : null
-            };
-        });
+        state.celltowers = data || [];
         
-        window.updateLastFetchTime('cellphones');
+        window.updateLastFetchTime('celltowers');
         if (typeof updateHUDCounts === 'function') updateHUDCounts();
-        if (state.layers.cellphones) window.updateCellPhonesLayer();
+        if (state.layers.celltowers) window.updateCellTowersLayer();
     } catch(e) {
-        console.error("Cellphones fetch failed:", e);
+        console.error("Celltowers fetch failed:", e);
     } finally {
-        _fetchingCellPhones = false;
+        _fetchingCellTowers = false;
     }
 };
 
-function updateCellPhonesLayer() {
-    if (!viewer || !cellphonesBillboards) return;
+window.fetchCellTowers = fetchCellTowers;
+
+function updateCellTowersLayer() {
+    if (!viewer || !celltowersPrimitives) return;
     
-    cellphonesBillboards.removeAll();
+    celltowersPrimitives.removeAll();
     
-    if (!state.layers.cellphones) {
+    if (!state.layers.celltowers) {
         return;
     }
     
-    if (state.cellphones) {
-        const filterSelect = document.getElementById('cellphone-app-filter');
+    if (state.celltowers) {
+        const filterSelect = document.getElementById('celltower-network-filter');
         const filterValue = filterSelect ? filterSelect.value : 'all';
         
-        let filtered = state.cellphones;
+        let filtered = state.celltowers;
         if (filterValue !== 'all') {
-            filtered = filtered.filter(c => c.source_app === filterValue);
+            filtered = filtered.filter(c => c.network_type === filterValue);
         }
         
         filtered.forEach(cell => {
-            cellphonesBillboards.add({
+            celltowersPrimitives.add({
                 position: Cesium.Cartesian3.fromDegrees(cell.lng, cell.lat, 0),
-                image: cellphoneSvg,
-                width: isMobile ? 14 : 20,
-                height: isMobile ? 14 : 20,
-                color: Cesium.Color.fromCssColorString('#00e5ff').withAlpha(0.7),
-                id: { customData: { ...cell, type: 'cellphone', app: cell.source_app } }
+                pixelSize: isMobile ? 3 : 5,
+                color: Cesium.Color.fromCssColorString('#00e5ff').withAlpha(0.6),
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 1,
+                id: { customData: { ...cell, type: 'celltower', network: cell.network_type } }
             });
         });
     }
 };
+
+window.updateCellTowersLayer = updateCellTowersLayer;
 
