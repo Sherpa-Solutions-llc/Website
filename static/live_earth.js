@@ -3033,7 +3033,7 @@ if (viewer && viewer.camera) {
         if (state.layers.cellphones) {
             const height = viewer.camera.positionCartographic.height;
             localCellphonesDataSource.entities.removeAll();
-            if (height < 15000) { // Zoomed in under 15km
+            if (height < 500000) { // Zoomed in under 500km
                 const rect = viewer.camera.computeViewRectangle();
                 if (rect) {
                     const west = Cesium.Math.toDegrees(rect.west);
