@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Full Integration | DCSA Dashboard | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.4" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
+        /* Specific Styles for Integration Page */
+        .diagram-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 5rem;
+        }
+
+        .diagram-box {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .diagram-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .silo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .silo-item {
+            background: var(--bg-color);
+            border: 2px dashed rgba(0,0,0,0.2);
+            padding: 1.5rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            color: var(--text-dark);
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+        
+        :root[data-theme="dark"] .silo-item {
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .unified-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .unified-sources {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .unified-item {
+            background: var(--primary);
+            color: var(--text-light);
+            padding: 1rem 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .unified-core {
+            background: var(--accent);
+            color: #fff;
+            padding: 2rem;
+            border-radius: 50%;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 0 30px rgba(192, 108, 59, 0.4);
+            position: relative;
+            z-index: 2;
+            animation: pulseGlow 3s infinite;
+        }
+
+        .unified-core i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-stream {
+            position: absolute;
+            background: var(--accent);
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .stream-vertical {
+            width: 4px;
+            height: 60px;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, transparent, var(--accent));
+            animation: streamFlow 2s infinite linear;
+        }
+
+        @keyframes streamFlow {
+            0% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(192, 108, 59, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(192, 108, 59, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(192, 108, 59, 0); }
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--border-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: var(--surface-color);
+            border: 4px solid var(--accent);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .left { left: 0; }
+        .right { left: 50%; }
+
+        .left::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            right: 30px;
+            border: medium solid var(--surface-color);
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent var(--surface-color);
+        }
+
+        .right::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            left: 30px;
+            border: medium solid var(--surface-color);
+            border-width: 10px 10px 10px 0;
+            border-color: transparent var(--surface-color) transparent transparent;
+        }
+
+        .right::after { left: -10px; }
+
+        .timeline-content {
+            padding: 1.5rem;
+            background-color: var(--surface-color);
+            position: relative;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .timeline-date {
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media screen and (max-width: 768px) {
+            .diagram-container { grid-template-columns: 1fr; }
+            .timeline::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
+            .timeline-item::before {
+                left: 60px;
+                border: medium solid white;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent white transparent transparent;
+            }
+            .left::after, .right::after { left: 21px; }
+            .right { left: 0%; }
+        }
+    </style>
+</head>
+<body class="" style="background: linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92)), url('static/dcsa_sherpa_logo.png') no-repeat center center fixed; background-size: min(70vw, 65vh); background-color: var(--bg-color);">
+<header>
+<div class="logo-container">
+<a data-cms="auto-dcsa-full-integration-a-13" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_full_integration-img-1"></a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+<ul class="nav-links" id="nav-menu">
+<li data-cms="auto-dcsa-full-integration-li-23"><a data-cms="auto-dcsa-full-integration-a-14" href="index.html">Home</a></li>
+<li data-cms="auto-dcsa-full-integration-li-24"><a data-cms="auto-dcsa-full-integration-a-15" href="about.html">About Us</a></li>
+<li data-cms="auto-dcsa-full-integration-li-25"><a data-cms="auto-dcsa-full-integration-a-16" href="services.html">Our Services</a></li>
+<li data-cms="auto-dcsa-full-integration-li-26"><a class="active" data-cms="auto-dcsa-full-integration-a-17" href="projects.html">Projects</a></li>
+<li data-cms="auto-dcsa-full-integration-li-27"><a data-cms="auto-dcsa-full-integration-a-18" href="merchandise.html">Merchandise</a></li>
+<li data-cms="auto-dcsa-full-integration-li-28"><a data-cms="auto-dcsa-full-integration-a-19" href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" data-cms="auto-dcsa-full-integration-a-20" href="contact.html">Schedule Basecamp Consultation</a>
+</div>
+</header>
+<div class="page-header" style="background: transparent; padding: 6rem 5%;">
+<h1 data-cms="auto-dcsa-full-integration-h1-1" style="color: var(--text-light);"><i class="fa-solid fa-network-wired" style="color: var(--accent); margin-right: 1rem;"></i> Achieve Full Integration</h1>
+<p data-cms="auto-dcsa-full-integration-p-6" style="color: #ccc; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">Transitioning to a Unified Risk Environment (FY 2025–2030)</p>
+</div>
+<section class="content-block">
+<div class="content-container" style="max-width: 1200px;">
+<div class="diagram-container">
+<!-- Current State -->
+<div class="diagram-box">
+<div class="diagram-title">Current State: Siloed Architecture</div>
+<div class="silo-grid">
+<div class="silo-item">
+<i class="fa-solid fa-id-card-clip" style="font-size: 2rem; margin-bottom: 0.5rem; color: #888;"></i><br/>
+<strong>Personnel Vetting</strong>
+</div>
+<div class="silo-item">
+<i class="fa-solid fa-industry" style="font-size: 2rem; margin-bottom: 0.5rem; color: #888;"></i><br/>
+<strong>Industrial Security</strong>
+</div>
+<div class="silo-item">
+<i class="fa-solid fa-user-secret" style="font-size: 2rem; margin-bottom: 0.5rem; color: #888;"></i><br/>
+<strong>Counterintelligence</strong>
+</div>
+<div class="silo-item">
+<i class="fa-solid fa-graduation-cap" style="font-size: 2rem; margin-bottom: 0.5rem; color: #888;"></i><br/>
+<strong>Security Training</strong>
+</div>
+</div>
+<p data-cms="auto-dcsa-full-integration-p-7" style="text-align: center; margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">Data is compartmentalized, slowing down comprehensive risk analysis and cross-departmental insights.</p>
+</div>
+<!-- Goal State -->
+<div class="diagram-box">
+<div class="diagram-title">Goal State: Unified Risk Environment</div>
+<div class="unified-grid">
+<div class="unified-sources">
+<div class="unified-item"><i class="fa-solid fa-id-card-clip"></i><br/>Vetting</div>
+<div class="unified-item"><i class="fa-solid fa-industry"></i><br/>Industrial</div>
+<div class="unified-item"><i class="fa-solid fa-user-secret"></i><br/>CI Data</div>
+<div class="unified-item"><i class="fa-solid fa-graduation-cap"></i><br/>Training</div>
+</div>
+<div style="position: relative; width: 100%; height: 60px; display: flex; justify-content: center;">
+<div class="stream-vertical" style="left: 20%;"></div>
+<div class="stream-vertical" style="left: 40%;"></div>
+<div class="stream-vertical" style="left: 60%;"></div>
+<div class="stream-vertical" style="left: 80%;"></div>
+</div>
+<div class="unified-core">
+<i class="fa-solid fa-brain"></i>
+                            AI Risk Data Lake
+                        </div>
+</div>
+<p data-cms="auto-dcsa-full-integration-p-8" style="text-align: center; margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">Seamless data flow into a central repository enabling predictive analytics and faster decision-making.</p>
+</div>
+</div>
+<!-- Transition Timeline -->
+<h2 data-cms="auto-dcsa-full-integration-h2-2" style="color: var(--primary); font-size: 2.5rem; text-align: center; margin-bottom: 3rem;">Transition Plan &amp; Timeline</h2>
+<div class="timeline">
+<div class="timeline-item left">
+<div class="timeline-content">
+<div class="timeline-date">Phase 1: FY 2025–2026</div>
+<h3 data-cms="auto-dcsa-full-integration-h3-3" style="color: var(--primary); margin-bottom: 0.5rem;">Legacy System Consolidation</h3>
+<p data-cms="auto-dcsa-full-integration-p-9" style="color: var(--text-dark); margin: 0; font-size: 0.95rem;">Decommissioning 40+ legacy IT systems. Core deployment of the National Background Investigation Services (NBIS) platform begins handling all Tier 1-3 investigations.</p>
+</div>
+</div>
+<div class="timeline-item right">
+<div class="timeline-content">
+<div class="timeline-date">Phase 2: FY 2027–2028</div>
+<h3 data-cms="auto-dcsa-full-integration-h3-4" style="color: var(--primary); margin-bottom: 0.5rem;">Enterprise Data Lake Implementation</h3>
+<p data-cms="auto-dcsa-full-integration-p-10" style="color: var(--text-dark); margin: 0; font-size: 0.95rem;">Establishing the central repository. Initial integration of Industrial Security facility clearance data with Personnel Vetting continuous evaluation (TW 2.0) streams.</p>
+</div>
+</div>
+<div class="timeline-item left">
+<div class="timeline-content">
+<div class="timeline-date">Phase 3: FY 2029–2030</div>
+<h3 data-cms="auto-dcsa-full-integration-h3-5" style="color: var(--primary); margin-bottom: 0.5rem;">AI-Driven Risk Analysis</h3>
+<p data-cms="auto-dcsa-full-integration-p-11" style="color: var(--text-dark); margin: 0; font-size: 0.95rem;">Full operational capability. Machine learning algorithms process Counterintelligence threat vectors against cleared personnel and facilities in real-time.</p>
+</div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 4rem;">
+<a class="btn btn-primary" data-cms="auto-dcsa-full-integration-a-21" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
+</div>
+</div>
+</section>
+
+<script src="static/cms.js"></script>
+<script src="static/analytics.js"></script>
+</body>
+</html>
