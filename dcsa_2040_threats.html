@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>2040 Threat Landscapes | DCSA Dashboard | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.4" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .threat-card {
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .threat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(192, 108, 59, 0.15);
+            border-color: var(--accent);
+        }
+
+        .threat-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .threat-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .posture-container {
+            display: flex;
+            align-items: stretch;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .posture-box {
+            flex: 1;
+            padding: 2.5rem;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .posture-reactive {
+            background: rgba(0,0,0,0.02);
+            border: 2px dashed rgba(0,0,0,0.1);
+        }
+        
+        :root[data-theme="dark"] .posture-reactive {
+            background: rgba(255,255,255,0.02);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .posture-proactive {
+            background: linear-gradient(135deg, var(--surface-color), rgba(192,108,59,0.05));
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 30px rgba(192, 108, 59, 0.1);
+        }
+
+        .posture-header {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .posture-reactive .posture-header { color: #888; }
+        .posture-proactive .posture-header { color: var(--accent); }
+
+        .posture-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .posture-list li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .posture-reactive .posture-list li::before {
+            content: "\f00d"; /* fa-xmark */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #dc3545;
+        }
+
+        .posture-proactive .posture-list li::before {
+            content: "\f00c"; /* fa-check */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #28a745;
+        }
+        
+        .arrow-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--border-color);
+        }
+
+        @media screen and (max-width: 768px) {
+            .grid-2x2 { grid-template-columns: 1fr; }
+            .posture-container { flex-direction: column; }
+            .arrow-divider { transform: rotate(90deg); padding: 1rem 0; }
+        }
+    </style>
+</head>
+<body class="" style="background: linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92)), url('static/dcsa_sherpa_logo.png') no-repeat center center fixed; background-size: min(70vw, 65vh); background-color: var(--bg-color);">
+<header>
+<div class="logo-container">
+<a data-cms="auto-dcsa-2040-threats-a-11" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_2040_threats-img-1"></a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+<ul class="nav-links" id="nav-menu">
+<li data-cms="auto-dcsa-2040-threats-li-21"><a data-cms="auto-dcsa-2040-threats-a-12" href="index.html">Home</a></li>
+<li data-cms="auto-dcsa-2040-threats-li-22"><a data-cms="auto-dcsa-2040-threats-a-13" href="about.html">About Us</a></li>
+<li data-cms="auto-dcsa-2040-threats-li-23"><a data-cms="auto-dcsa-2040-threats-a-14" href="services.html">Our Services</a></li>
+<li data-cms="auto-dcsa-2040-threats-li-24"><a class="active" data-cms="auto-dcsa-2040-threats-a-15" href="projects.html">Projects</a></li>
+<li data-cms="auto-dcsa-2040-threats-li-25"><a data-cms="auto-dcsa-2040-threats-a-16" href="merchandise.html">Merchandise</a></li>
+<li data-cms="auto-dcsa-2040-threats-li-26"><a data-cms="auto-dcsa-2040-threats-a-17" href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" data-cms="auto-dcsa-2040-threats-a-18" href="contact.html">Schedule Basecamp Consultation</a>
+</div>
+</header>
+<div class="page-header" style="background: transparent; padding: 6rem 5%;">
+<h1 data-cms="auto-dcsa-2040-threats-h1-1" style="color: var(--text-light);"><i class="fa-solid fa-shield-virus" style="color: var(--accent); margin-right: 1rem;"></i> 2040 Threat Landscapes</h1>
+<p data-cms="auto-dcsa-2040-threats-p-4" style="color: #ccc; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">Proactively Anticipating and Managing Next-Generation Risks</p>
+</div>
+<section class="content-block">
+<div class="content-container" style="max-width: 1200px;">
+<h2 data-cms="auto-dcsa-2040-threats-h2-2" style="color: var(--primary); font-size: 2.5rem; text-align: center; margin-bottom: 1rem;">Emerging Technologies</h2>
+<p data-cms="auto-dcsa-2040-threats-p-5" style="color: var(--text-dark); text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem; opacity: 0.9;">The DCSA is institutionalizing innovation to combat complex, rapidly evolving technological vectors that challenge traditional security paradigms.</p>
+<div class="grid-2x2">
+<div class="threat-card">
+<i class="fa-solid fa-robot threat-icon"></i>
+<div class="threat-title">Adversarial AI &amp; ML</div>
+<p data-cms="auto-dcsa-2040-threats-p-6" style="color: var(--text-dark); font-size: 1rem; line-height: 1.6; margin: 0;">Automated cyber-attacks, deepfakes, and synthesized identities used to breach vetting protocols and conduct hyper-targeted spear-phishing against cleared personnel.</p>
+</div>
+<div class="threat-card">
+<i class="fa-solid fa-microchip threat-icon"></i>
+<div class="threat-title">Quantum Computing</div>
+<p data-cms="auto-dcsa-2040-threats-p-7" style="color: var(--text-dark); font-size: 1rem; line-height: 1.6; margin: 0;">The "harvest now, decrypt later" paradigm. DCSA is preparing the Defense Industrial Base for post-quantum cryptography to secure classified communications.</p>
+</div>
+<div class="threat-card">
+<i class="fa-solid fa-network-wired threat-icon"></i>
+<div class="threat-title">IoT &amp; Hyperconnectivity</div>
+<p data-cms="auto-dcsa-2040-threats-p-8" style="color: var(--text-dark); font-size: 1rem; line-height: 1.6; margin: 0;">Exponentially expanding attack surfaces in smart infrastructure, requiring continuous facility clearance monitoring beyond traditional physical boundaries.</p>
+</div>
+<div class="threat-card">
+<i class="fa-solid fa-user-ninja threat-icon"></i>
+<div class="threat-title">Next-Gen Insider Threats</div>
+<p data-cms="auto-dcsa-2040-threats-p-9" style="color: var(--text-dark); font-size: 1rem; line-height: 1.6; margin: 0;">Financial coercion via decentralized finance (crypto) and advanced psychological manipulation tactics deployed by foreign intelligence services.</p>
+</div>
+</div>
+<h2 data-cms="auto-dcsa-2040-threats-h2-3" style="color: var(--primary); font-size: 2.5rem; text-align: center; margin-top: 5rem; margin-bottom: 3rem;">The Posture Shift</h2>
+<div class="posture-container">
+<div class="posture-box posture-reactive">
+<div class="posture-header"><i class="fa-solid fa-clock-rotate-left"></i> Reactive Posture</div>
+<ul class="posture-list">
+<li data-cms="auto-dcsa-2040-threats-li-27">Periodic reinvestigations every 5-10 years</li>
+<li data-cms="auto-dcsa-2040-threats-li-28">Siloed reporting of security incidents</li>
+<li data-cms="auto-dcsa-2040-threats-li-29">Manual analysis of threat intelligence</li>
+<li data-cms="auto-dcsa-2040-threats-li-30">Facility inspections based on rigid schedules</li>
+</ul>
+</div>
+<div class="arrow-divider">
+<i class="fa-solid fa-angles-right"></i>
+</div>
+<div class="posture-box posture-proactive">
+<div class="posture-header"><i class="fa-solid fa-bolt"></i> Proactive Intelligence</div>
+<ul class="posture-list">
+<li data-cms="auto-dcsa-2040-threats-li-31">Continuous Evaluation (TW 2.0) with real-time alerts</li>
+<li data-cms="auto-dcsa-2040-threats-li-32">Unified data lake for cross-domain insights</li>
+<li data-cms="auto-dcsa-2040-threats-li-33">AI-driven predictive behavioral analytics</li>
+<li data-cms="auto-dcsa-2040-threats-li-34">Dynamic, risk-based facility oversight</li>
+</ul>
+</div>
+</div>
+<div style="text-align: center; margin-top: 4rem;">
+<a class="btn btn-primary" data-cms="auto-dcsa-2040-threats-a-19" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
+</div>
+</div>
+</section>
+
+<script src="static/cms.js"></script>
+<script src="static/analytics.js"></script>
+</body>
+</html>
