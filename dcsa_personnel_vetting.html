@@ -44,9 +44,9 @@
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-personnel-vetting-a-26" href="contact.html">Schedule Basecamp Consultation</a>
 </div>
 </header>
-<div class="page-header" style="background: transparent; padding: 6rem 5% 1rem 5%;">
-<h1 data-cms="auto-dcsa-personnel-vetting-h1-1" style="color: var(--text-dark);"><i class="fa-solid fa-id-card-clip" style="color: var(--accent); margin-right: 1rem;"></i> Personnel Vetting</h1>
-<p data-cms="auto-dcsa-personnel-vetting-p-8" style="color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">Personnel Vetting</p>
+<div class="page-header" style="background: transparent; padding: 12rem 5% 1rem 5%;">
+<h1 data-cms="auto-dcsa-personnel-vetting-h1-1" style="color: var(--primary); font-size: 3.5rem; font-weight: 800; margin-bottom: 0;"><i class="fa-solid fa-id-card-clip" style="color: var(--accent); margin-right: 1rem;"></i> Personnel Vetting</h1>
+<p data-cms="auto-dcsa-personnel-vetting-p-8" style="color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">National Security Clearances &amp; Continuous Vetting</p>
 </div>
 <section class="content-block" style="padding-top: 1rem;">
 <div class="content-container">
@@ -123,11 +123,11 @@
 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
 <h3 data-cms="auto-dcsa-personnel-vetting-h3-6" style="color: var(--primary); margin:0;"><i class="fa-solid fa-list-check" style="margin-right: 0.5rem;"></i> Recent Adjudications</h3>
 </div>
-<div style="max-height: 500px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
-<table style="width: 100%; border-collapse: collapse; text-align: left;">
+<div class="no-cms" style="max-height: 500px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+<table class="no-cms" style="width: 100%; border-collapse: collapse; text-align: left;">
 <thead style="position: sticky; top: 0; z-index: 10; background: var(--surface-color);">
 <tr style="background: rgba(0,0,0,0.05);">
-<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Subject ID</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Case ID</th>
 <th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Clearance Level</th>
 <th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Status</th>
 <th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Case Worker</th>
@@ -160,7 +160,7 @@
 <span data-cms="auto-dcsa-personnel-vetting-span-15" id="subj-status-badge"></span>
 </div>
 </div>
-<button onclick="closeSubjectModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-dark); opacity:0.5; flex-shrink:0;" title="Close">×</button>
+<button class="no-cms" onclick="closeSubjectModal()" style="background:none; border:none; font-size:1.1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); display:flex; align-items:center; gap:0.5rem; font-family:'Outfit',sans-serif; text-transform:uppercase; opacity:0.7; flex-shrink:0;" title="Close" aria-label="Close Case Details">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
 <!-- Modal Body -->
 <div style="padding:2rem; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
@@ -202,7 +202,7 @@
 <!-- Case Worker Contact Modal -->
 <div id="caseworker-modal" style="display:none; position:fixed; inset:0; z-index:10005; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
 <div style="background:var(--surface-color); border-radius:16px; padding:2.5rem; max-width:420px; width:90%; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color); animation: modalIn 0.25s ease;">
-<button onclick="closeModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-dark); opacity:0.6;" title="Close">×</button>
+<button class="no-cms" onclick="closeModal()" style="position:absolute; top:1.25rem; right:1.5rem; background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); opacity:0.6; display:flex; align-items:center; gap:0.4rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 <div style="text-align:center; margin-bottom:1.5rem;">
 <div id="modal-icon-wrap" style="width:80px; height:80px; border-radius:50%; background:rgba(211,84,0,0.1); display:inline-flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:0 0 0 6px rgba(211,84,0,0.05);">
 <i class="fa-solid fa-user-tie" id="modal-icon" style="font-size:2.2rem; color:var(--accent);"></i>
@@ -232,7 +232,7 @@
 <!-- Classified Password Modal -->
 <div id="password-modal" style="display:none; position:fixed; inset:0; z-index:10001; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
 <div style="background:var(--surface-color); border-radius:12px; padding:2.5rem; max-width:400px; width:90%; position:relative; box-shadow:0 0 40px rgba(220,53,69,0.2); border:1px solid #dc3545; text-align:center; animation: modalIn 0.2s ease;">
-<button onclick="closePasswordModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-dark); opacity:0.6;" title="Close">×</button>
+<button class="no-cms" onclick="closePasswordModal()" style="position:absolute; top:1.25rem; right:1.5rem; background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); opacity:0.6; display:flex; align-items:center; gap:0.4rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 <i class="fa-solid fa-lock" style="font-size:2.5rem; color:#dc3545; margin-bottom:1rem;"></i>
 <h3 data-cms="auto-dcsa-personnel-vetting-h3-7" style="color:#dc3545; font-family:'Outfit',sans-serif; font-size:1.4rem; margin-bottom:0.5rem; font-weight:800;">CLASSIFIED ACCESS</h3>
 <p data-cms="auto-dcsa-personnel-vetting-p-9" style="color:var(--text-dark); font-size:0.9rem; margin-bottom:1.5rem; opacity:0.8;">The requested artifact contains sensitive compartmented information. Please enter your authorization credential.</p>
@@ -248,7 +248,7 @@
 <i class="fa-solid fa-file-shield" style="color:var(--accent); font-size:1.2rem;"></i>
 <span data-cms="auto-dcsa-personnel-vetting-span-17" id="artifact-title" style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--primary); font-size:1.1rem;"></span>
 </div>
-<button onclick="closeArtifactModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-dark); opacity:0.6;">×</button>
+<button class="no-cms" onclick="closeArtifactModal()" style="background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); opacity:0.6; display:flex; align-items:center; gap:0.4rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
 <div style="flex:1; padding:2rem; overflow-y:auto; font-family:monospace; color:var(--text-dark); font-size:0.95rem; line-height:1.6;">
 <div style="text-align:center; opacity:0.3; margin-bottom:2rem; user-select:none;">
@@ -679,5 +679,6 @@
 
 <script src="static/cms.js"></script>
 <script src="static/analytics.js"></script>
+<script src="static/dcsa_demo.js"></script>
 </body>
 </html>
