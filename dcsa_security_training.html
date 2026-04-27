@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Security Training | DCSA Dashboard | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.4" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
+    .dashboard-bg {
+        background-color: var(--bg-color);
+        background-image: linear-gradient(rgba(5, 5, 5, 0.92), rgba(5, 5, 5, 0.92)), url('static/dcsa_sherpa_logo.png');
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: fixed;
+        background-size: min(70vw, 65vh);
+    }
+    html[data-theme="light"] .dashboard-bg {
+        background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('static/dcsa_sherpa_logo.png');
+    }
+</style>
+</head>
+<body class="dashboard-bg">
+<header>
+<div class="logo-container">
+<a data-cms="auto-dcsa-security-training-a-10" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_security_training-img-1"></a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+<ul class="nav-links" id="nav-menu">
+<li data-cms="auto-dcsa-security-training-li-23"><a data-cms="auto-dcsa-security-training-a-11" href="index.html">Home</a></li>
+<li data-cms="auto-dcsa-security-training-li-24"><a data-cms="auto-dcsa-security-training-a-12" href="about.html">About Us</a></li>
+<li data-cms="auto-dcsa-security-training-li-25"><a data-cms="auto-dcsa-security-training-a-13" href="services.html">Our Services</a></li>
+<li data-cms="auto-dcsa-security-training-li-26"><a class="active" data-cms="auto-dcsa-security-training-a-14" href="projects.html">Projects</a></li>
+<li data-cms="auto-dcsa-security-training-li-27"><a data-cms="auto-dcsa-security-training-a-15" href="merchandise.html">Merchandise</a></li>
+<li data-cms="auto-dcsa-security-training-li-28"><a data-cms="auto-dcsa-security-training-a-16" href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" data-cms="auto-dcsa-security-training-a-17" href="contact.html">Schedule Basecamp Consultation</a>
+</div>
+</header>
+<div class="page-header" style="background: transparent; padding: 6rem 5% 1rem 5%;">
+<h1 data-cms="auto-dcsa-security-training-h1-1" style="color: var(--text-dark);"><i class="fa-solid fa-graduation-cap" style="color: var(--accent); margin-right: 1rem;"></i> Security Training &amp; Education</h1>
+<p data-cms="auto-dcsa-security-training-p-7" style="color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">Security Training<br>Center for Development of Security Excellence (CDSE)</p>
+</div>
+<section class="content-block" style="padding-top: 1rem;">
+<div class="content-container">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-security-training-h3-2" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Active Enrollments</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">284,500</div>
+<div style="color: #28a745; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-users"></i> Across Gov &amp; Industry</div>
+</div>
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-security-training-h3-3" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Certifications Issued</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">12,940</div>
+<div style="color: #17a2b8; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-certificate"></i> SPēD Certifications YTD</div>
+</div>
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-security-training-h3-4" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Available Courses</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">350+</div>
+<div style="color: #ffc107; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-laptop-code"></i> eLearning modules online</div>
+</div>
+</div>
+<!-- Advanced Search Section -->
+<div style="background: var(--surface-color); padding: 1.5rem 2rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+<h3 data-cms="auto-dcsa-security-training-h3-5" style="color: var(--primary); margin-bottom: 1rem; font-size:1.1rem;"><i class="fa-solid fa-magnifying-glass" style="margin-right: 0.5rem;"></i> Advanced Training Search</h3>
+<div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
+<div style="flex:0 0 200px;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Search By</label>
+<select id="search-criteria" onchange="updateSearchUI()" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
+<option value="title">Course Title</option>
+<option value="code">Course Code</option>
+<option value="status">Status</option>
+<option value="agent">Resource Assigned</option>
+</select>
+</div>
+<!-- Dynamic Input Containers -->
+<div id="input-container-title" style="display:flex; flex:1;">
+<div style="flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Course Title</label>
+<input id="search-title" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. Cybersecurity Awareness" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
+</div>
+</div>
+<div id="input-container-code" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Course Code</label>
+<input id="search-code" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. CI117.16" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
+</div>
+<div id="input-container-status" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Status</label>
+<select id="search-status" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
+<option value="Compliant">Compliant</option>
+<option value="Mandatory">Mandatory</option>
+<option value="Action Needed">Action Needed</option>
+</select>
+</div>
+<div id="input-container-agent" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Resource Assigned</label>
+<select id="search-agent" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
+<option value="Training Dept.">Training Dept.</option>
+<option value="SA Davis">SA Davis</option>
+<option value="HR Manager Lee">HR Manager Lee</option>
+</select>
+</div>
+<div>
+<button onclick="executeSearch()" style="padding:0.75rem 2rem; background:var(--accent); color:#fff; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.95rem; transition:background 0.2s;">Search</button>
+</div>
+<div>
+<button onclick="resetSearch()" style="padding:0.75rem 1rem; background:transparent; color:var(--text-dark); border:1px solid var(--border-color); border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.95rem; transition:background 0.2s; opacity:0.7;" title="Clear Search"><i class="fa-solid fa-rotate-left"></i></button>
+</div>
+</div>
+</div>
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 4rem;">
+<div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+<h3 data-cms="auto-dcsa-security-training-h3-6" style="color: var(--primary); margin:0;"><i class="fa-solid fa-chalkboard-user" style="margin-right: 0.5rem;"></i> Top Required Training Modules</h3>
+</div>
+<table style="width: 100%; border-collapse: collapse; text-align: left;">
+<thead>
+<tr style="background: rgba(0,0,0,0.05);">
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Course Code</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Course Title</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Completion Rate</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Resource Assigned</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Status</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Due Date</th>
+</tr>
+</thead>
+<tbody id="training-tbody">
+</tbody>
+</table>
+</div>
+<div style="text-align: center;">
+<a class="btn btn-primary" data-cms="auto-dcsa-security-training-a-18" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
+</div>
+</div>
+</section>
+<!-- Course Modal -->
+<div id="course-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div style="background:var(--surface-color); border-radius:12px; width:90%; max-width:500px; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color); display:flex; flex-direction:column; overflow:hidden;">
+<div style="padding:1.5rem; border-bottom:2px solid var(--accent); display:flex; align-items:center; justify-content:space-between; background:var(--surface-color);">
+<div style="color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:1.5rem; font-weight:700; margin:0;"><i class="fa-solid fa-laptop-code" style="color:var(--accent); margin-right:0.5rem;"></i> Non-Compliant Personnel</div>
+<button onclick="closeCourseModal()" style="background:none; border:none; font-size:1.2rem; font-weight:bold; cursor:pointer; color:var(--text-dark); display:flex; align-items:center; gap:0.5rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
+</div>
+<div style="padding:2rem; display:flex; flex-direction:column; gap:1.5rem; background:var(--surface-color);">
+<div>
+<div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.6; font-weight:700; margin-bottom:0.2rem;">Course</div>
+<div id="course-title-display" style="font-size:1.1rem; color:var(--text-dark); font-weight:600;"></div>
+</div>
+<div>
+<div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.6; font-weight:700; margin-bottom:0.2rem;">Due Date</div>
+<div id="course-due" style="font-size:0.95rem; color:#dc3545; font-weight:bold;"></div>
+</div>
+<div>
+<div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.6; font-weight:700; margin-bottom:0.5rem;">Personnel Action Required</div>
+<ul id="non-compliant-list" style="margin:0; padding-left:1.5rem; color:var(--text-dark); line-height:1.6; font-size:0.95rem;"></ul>
+</div>
+</div>
+</div>
+</div>
+<!-- Agent Contact Modal -->
+<div id="agent-modal" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div style="background:var(--surface-color); border-radius:16px; padding:2.5rem; max-width:420px; width:90%; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color);">
+<button onclick="closeAgentModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-dark); opacity:0.6;" title="Close">×</button>
+<div style="text-align:center; margin-bottom:1.5rem;">
+<div id="agent-icon-wrap" style="width:80px; height:80px; border-radius:50%; background:var(--primary); display:inline-flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:0 0 0 6px rgba(45,63,46,0.15);">
+<i class="fa-solid fa-user-tie" id="agent-icon" style="font-size:2.2rem; color:var(--accent);"></i>
+</div>
+<div id="agent-name" style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:var(--primary);"></div>
+<div id="agent-title" style="font-size:0.95rem; color:var(--text-dark); opacity:0.7; margin-top:0.25rem;"></div>
+</div>
+<div style="border-top:1px solid var(--border-color); padding-top:1.5rem; display:flex; flex-direction:column; gap:1rem;">
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-building" style="color:var(--accent); width:20px; text-align:center;"></i>
+<span data-cms="auto-dcsa-security-training-span-9" id="agent-division" style="color:var(--text-dark); font-size:0.95rem;"></span>
+</div>
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-envelope" style="color:var(--accent); width:20px; text-align:center;"></i>
+<a data-cms="auto-dcsa-security-training-a-19" href="#" id="agent-email" style="color:var(--accent); font-size:0.95rem; text-decoration:none;"></a>
+</div>
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-phone" style="color:var(--accent); width:20px; text-align:center;"></i>
+<a data-cms="auto-dcsa-security-training-a-20" href="#" id="agent-phone" style="color:var(--text-dark); font-size:0.95rem; text-decoration:none;"></a>
+</div>
+</div>
+<a data-cms="auto-dcsa-security-training-a-21" href="#" id="agent-compose" style="display:block; margin-top:1.75rem; background:var(--accent); color:#fff; text-align:center; padding:0.85rem; border-radius:8px; text-decoration:none; font-family:'Outfit',sans-serif; font-weight:600; transition:background 0.2s;">
+<i class="fa-solid fa-envelope" style="margin-right:0.5rem;"></i>Send Message
+            </a>
+</div>
+</div>
+<style>
+        .course-link { color: var(--accent); text-decoration: none; cursor: pointer; border-bottom: 1px dashed var(--accent); padding-bottom: 2px; }
+        .course-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
+        .agent-link:hover { text-decoration: underline !important; }
+    </style>
+<script>
+        var agents = {
+            'SA Davis': { name:'SA Davis', title:'Western Region Field Agent', email:'s.davis@dcsa.mil', phone:'(571) 305-3333', div:'Industrial Security Directorate', icon:'fa-user-secret' },
+            'Training Dept.': { name:'CDSE Training Admin', title:'Education Resource Manager', email:'training@dcsa.mil', phone:'(571) 305-9999', div:'Center for Development of Security Excellence', icon:'fa-user-graduate' },
+            'HR Manager Lee': { name:'Manager Lee', title:'Human Resources Director', email:'k.lee@dcsa.mil', phone:'(571) 305-5555', div:'Human Resources Directorate', icon:'fa-user-tie' }
+        };
+
+        var courseDB = [
+            {
+                code: 'INT101.06',
+                title: 'Insider Threat Awareness',
+                pct: 95,
+                status: 'Mandatory', statusColor: '#28a745', statusIcon: 'fa-check',
+                agentKey: 'Training Dept.',
+                tooltip: 'Mandatory annual training covering the identification and reporting of insider threats, tailored for cleared personnel.',
+                dueDate: '2026-10-01',
+                nonCompliant: ['Dr. Aris Thorne', 'Eleanor Vance', 'Marcus Ren', 'Chloe Price']
+            },
+            {
+                code: 'CI117.16',
+                title: 'Cybersecurity Awareness',
+                pct: 82,
+                status: 'Action Needed', statusColor: '#ffc107', statusIcon: 'fa-triangle-exclamation',
+                agentKey: 'SA Davis',
+                tooltip: 'Comprehensive cybersecurity hygiene training focusing on phishing, malware, and safe classified network usage.',
+                dueDate: '2026-05-15',
+                nonCompliant: ['Lt. Cmdr. Shepard', 'Garrus Vakarian', 'Tali Zorah', 'Liara T\'Soni', 'Wrex', 'Ashley Williams', 'Kaidan Alenko']
+            },
+            {
+                code: 'SAP102.16',
+                title: 'Special Access Programs Orientation',
+                pct: 100,
+                status: 'Compliant', statusColor: '#28a745', statusIcon: 'fa-check',
+                agentKey: 'HR Manager Lee',
+                tooltip: 'Advanced indoctrination required for personnel nominated for Special Access Programs (SAP) or Sensitive Compartmented Information (SCI).',
+                dueDate: 'N/A (Upon Nomination)',
+                nonCompliant: []
+            },
+            {
+                code: 'SCI100.16',
+                title: 'SCI Security Refresher',
+                pct: 88,
+                status: 'Mandatory', statusColor: '#28a745', statusIcon: 'fa-check',
+                agentKey: 'Training Dept.',
+                tooltip: 'Annual refresher covering policies and procedures for handling Sensitive Compartmented Information.',
+                dueDate: '2026-12-01',
+                nonCompliant: ['John Doe', 'Jane Smith', 'Alice Vance']
+            },
+            {
+                code: 'IF103.16',
+                title: 'Derivative Classification',
+                pct: 75,
+                status: 'Action Needed', statusColor: '#ffc107', statusIcon: 'fa-triangle-exclamation',
+                agentKey: 'HR Manager Lee',
+                tooltip: 'Required for all cleared personnel who generate or derivatively classify national security information.',
+                dueDate: '2026-06-30',
+                nonCompliant: ['Agent K', 'Agent J', 'Frank Black']
+            },
+            {
+                code: 'IF105.16',
+                title: 'Marking Classified Information',
+                pct: 92,
+                status: 'Compliant', statusColor: '#28a745', statusIcon: 'fa-check',
+                agentKey: 'Training Dept.',
+                tooltip: 'Details the requirements for correctly marking classified and sensitive information.',
+                dueDate: '2026-08-15',
+                nonCompliant: []
+            },
+            {
+                code: 'CI116.16',
+                title: 'CI Awareness and Reporting',
+                pct: 60,
+                status: 'Action Needed', statusColor: '#ffc107', statusIcon: 'fa-triangle-exclamation',
+                agentKey: 'SA Davis',
+                tooltip: 'Explains the threat from foreign intelligence entities and the reporting requirements for cleared contractors.',
+                dueDate: '2026-05-01',
+                nonCompliant: ['Fox Mulder', 'Dana Scully', 'Walter Skinner']
+            }
+        ];
+
+        function updateSearchUI() {
+            var criteria = document.getElementById('search-criteria').value;
+            document.getElementById('input-container-title').style.display = (criteria === 'title') ? 'flex' : 'none';
+            document.getElementById('input-container-code').style.display = (criteria === 'code') ? 'flex' : 'none';
+            document.getElementById('input-container-status').style.display = (criteria === 'status') ? 'flex' : 'none';
+            document.getElementById('input-container-agent').style.display = (criteria === 'agent') ? 'flex' : 'none';
+        }
+
+        function executeSearch() {
+            var criteria = document.getElementById('search-criteria').value;
+            var filteredCourses = [];
+            
+            courseDB.forEach(function(c) {
+                var match = false;
+                
+                if (criteria === 'title') {
+                    var qTitle = document.getElementById('search-title').value.toLowerCase().trim();
+                    if (!qTitle || c.title.toLowerCase().startsWith(qTitle)) match = true;
+                } else if (criteria === 'code') {
+                    var qCode = document.getElementById('search-code').value.toLowerCase().trim();
+                    if (!qCode || c.code.toLowerCase().includes(qCode)) match = true;
+                } else if (criteria === 'status') {
+                    var qStatus = document.getElementById('search-status').value;
+                    if (c.status === qStatus) match = true;
+                } else if (criteria === 'agent') {
+                    var qAgent = document.getElementById('search-agent').value;
+                    if (c.agentKey === qAgent) match = true;
+                }
+                
+                if (match) filteredCourses.push(c);
+            });
+            renderTable(filteredCourses);
+        }
+        
+        function resetSearch() {
+            document.getElementById('search-title').value = '';
+            document.getElementById('search-code').value = '';
+            renderTable(courseDB);
+        }
+
+        function renderTable(dataToRender) {
+            var tbody = document.getElementById('training-tbody');
+            tbody.innerHTML = '';
+            
+            var initialItems = dataToRender.slice(0, 30);
+            var remainingItems = dataToRender.slice(30);
+            
+            function renderBatch(batch) {
+                var html = '';
+                batch.forEach(function(c) {
+                    var a = agents[c.agentKey];
+                    var agentHtml = '<a href="#" class="agent-link" onclick="showAgent(\''+a.name+'\', \''+a.title+'\', \''+a.email+'\', \''+a.phone+'\', \''+a.div+'\', \''+a.icon+'\'); return false;" style="color:var(--accent); text-decoration:none;"><i class="fa-solid '+a.icon+'" style="margin-right:0.3rem;"></i>'+a.name+'</a>';
+                    
+                    html += '<tr>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color); font-weight: bold;"><a class="course-link" title="'+c.tooltip.replace(/"/g, '&quot;')+'" onclick="showCourse(\''+c.code+'\')">'+c.code+'</a></td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+c.title+'</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">' +
+                            '<div style="width: 100%; background: #e9ecef; border-radius: 4px; overflow: hidden; height: 8px;">' +
+                                '<div style="width: '+c.pct+'%; background: '+c.statusColor+'; height: 100%;"></div>' +
+                            '</div>' +
+                            '<div style="font-size: 0.8rem; margin-top: 0.2rem;">'+c.pct+'%</div>' +
+                        '</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+agentHtml+'</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);"><span style="color: '+c.statusColor+';"><i class="fa-solid '+c.statusIcon+'"></i> '+c.status+'</span></td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+c.dueDate+'</td>' +
+                        '</tr>';
+                });
+                tbody.insertAdjacentHTML('beforeend', html);
+            }
+            
+            renderBatch(initialItems);
+            
+            if (remainingItems.length > 0) {
+                setTimeout(function() {
+                    renderBatch(remainingItems);
+                }, 100);
+            }
+        }
+        
+        renderTable(courseDB);
+
+        function showCourse(code) {
+            var c = courseDB.find(i => i.code === code);
+            if (!c) return;
+            document.getElementById('course-title-display').textContent = c.code + ': ' + c.title;
+            document.getElementById('course-due').textContent = c.dueDate;
+            
+            var list = document.getElementById('non-compliant-list');
+            list.innerHTML = '';
+            if (c.nonCompliant.length === 0) {
+                list.innerHTML = '<li style="list-style:none; color:#28a745; font-weight:bold;"><i class="fa-solid fa-check" style="margin-right:0.5rem;"></i>All assigned personnel are compliant.</li>';
+            } else {
+                c.nonCompliant.forEach(function(name) {
+                    list.innerHTML += '<li>' + name + '</li>';
+                });
+            }
+            document.getElementById('course-modal').style.display = 'flex';
+        }
+        function closeCourseModal() {
+            document.getElementById('course-modal').style.display = 'none';
+        }
+        document.getElementById('course-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeCourseModal();
+        });
+
+        function showAgent(name, title, email, phone, division, iconClass) {
+            document.getElementById('agent-name').textContent = name;
+            document.getElementById('agent-title').textContent = title;
+            document.getElementById('agent-email').textContent = email;
+            document.getElementById('agent-email').href = 'mailto:' + email;
+            document.getElementById('agent-phone').textContent = phone;
+            document.getElementById('agent-phone').href = 'tel:' + phone.replace(/[^0-9]/g,'');
+            document.getElementById('agent-division').textContent = division;
+            document.getElementById('agent-compose').href = 'mailto:' + email;
+            var icon = document.getElementById('agent-icon');
+            icon.className = 'fa-solid ' + iconClass;
+            document.getElementById('agent-modal').style.display = 'flex';
+        }
+        function closeAgentModal() {
+            document.getElementById('agent-modal').style.display = 'none';
+        }
+        document.getElementById('agent-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeAgentModal();
+        });
+    </script>
+
+<script src="static/cms.js"></script>
+<script src="static/analytics.js"></script>
+</body>
+</html>
