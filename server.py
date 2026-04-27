@@ -4373,7 +4373,20 @@ async def receive_analytics(payload: AnalyticsPayload, request: Request):
 
 @app.get("/api/analytics/summary")
 async def get_analytics_summary(request: Request):
-    # Protected endpoint
+    # If running locally, proxy the analytics summary from the live production environment
+    if request.url.hostname in ['localhost', '127.0.0.1']:
+        import urllib.request
+        import json
+        try:
+            req = urllib.request.Request("https://sherpa-solutions-api-production.up.railway.app/api/analytics/summary")
+            with urllib.request.urlopen(req, timeout=5) as response:
+                if response.status == 200:
+                    data = json.loads(response.read().decode())
+                    return JSONResponse(data)
+        except Exception as e:
+            print(f"Local proxy to live analytics failed: {e}")
+
+    # Protected endpoint (Production Database fallback)
     summary = await database.get_analytics_summary(limit=100)
     return JSONResponse(summary)
 
