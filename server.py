@@ -1373,6 +1373,27 @@ async def update_content(update: ContentUpdate, user: str = Depends(require_admi
     await database.update_content(update.element_id, update.html_content)
     return {"status": "success"}
 
+class DemoConfigUpdate(BaseModel):
+    text_content: str
+    actions_json: list
+    voice_uri: str = ""
+    voice_rate: float = 1.0
+    voice_volume: float = 1.0
+
+@app.get("/api/demo-config/{page_name}")
+async def get_demo_config_endpoint(page_name: str, response: Response):
+    config = await database.get_demo_config(page_name)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    if config:
+        return JSONResponse(config)
+    return JSONResponse({"text_content": "", "actions_json": [], "voice_uri": "", "voice_rate": 1.0, "voice_volume": 1.0})
+
+@app.post("/api/demo-config/{page_name}")
+async def update_demo_config_endpoint(page_name: str, update: DemoConfigUpdate, user: str = Depends(require_admin)):
+    await database.save_demo_config(page_name, update.text_content, update.actions_json, update.voice_uri, update.voice_rate, update.voice_volume)
+    return {"status": "success"}
+
+
 from fastapi import UploadFile, File
 import shutil
 import os
@@ -1451,13 +1472,19 @@ async def sync_progress(user: str = Depends(require_admin)):
 
 SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator']
 
-@app.get("/api/edit-page/{page_name}")
+@app.get("/api/edit-page/{page_name:path}")
 async def edit_page_view(page_name: str):
+    page_name = page_name.strip()
+    if page_name.endswith('.html'):
+        page_name = page_name[:-5]
+    if page_name.endswith('/'):
+        page_name = page_name[:-1]
+        
     if page_name not in SAFE_EDIT_PAGES:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail=f"Page '{page_name}' not in SAFE_EDIT_PAGES")
     html_path = os.path.join(BASE_DIR, f"{page_name}.html")
     if not os.path.exists(html_path):
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail=f"File '{html_path}' not found")
     with open(html_path, 'r', encoding='utf-8') as f:
         html = f.read()
 
@@ -1598,8 +1625,52 @@ async def edit_page_view(page_name: str):
                 _dirtyFields = {};
                 updateUI();
                 toast('\u2713 All changes saved!');
+            } else if (e.data.type === 'start-demo-recording') {
+                window.__demoRecordingMode = true;
+                document.body.style.cursor = 'crosshair';
+                toast('\u25cf Click an element to record it for the demo.', '#e74c3c');
+            } else if (e.data.type === 'stop-demo-recording') {
+                window.__demoRecordingMode = false;
+                document.body.style.cursor = 'default';
             }
         });
+
+        document.addEventListener('click', e => {
+            if (window.__demoRecordingMode) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let target = e.target;
+                let selector = '';
+                if (target.id && !target.id.startsWith('_cms')) {
+                    selector = '#' + target.id;
+                } else if (target.getAttribute('onclick')) {
+                    selector = `${target.tagName.toLowerCase()}[onclick="${target.getAttribute('onclick')}"]`;
+                } else if (target.className && typeof target.className === 'string') {
+                    let classes = target.className.split(' ').filter(c => c && !c.includes('cms')).join('.');
+                    selector = classes ? `${target.tagName.toLowerCase()}.${classes}` : target.tagName.toLowerCase();
+                } else {
+                    selector = target.tagName.toLowerCase();
+                }
+                
+                let actionType = 'click';
+                if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
+                    actionType = target.tagName === 'SELECT' ? 'select' : 'type';
+                }
+                
+                window.parent && window.parent.postMessage({ 
+                    type: 'demo-action-recorded', 
+                    selector: selector, 
+                    actionType: actionType, 
+                    scrollY: window.scrollY 
+                }, '*');
+                
+                window.__demoRecordingMode = false;
+                document.body.style.cursor = 'default';
+                toast('\u2713 Element selected!', '#2ecc71');
+                return false;
+            }
+        }, true);
 
         window.addEventListener('beforeunload', function (e) {
             if (Object.keys(_dirtyFields).length > 0) {
