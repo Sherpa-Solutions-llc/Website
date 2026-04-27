@@ -1,28 +1,28 @@
 :root {
-    --primary: #E0E6E0;
-    --secondary: #9DB581;
-    --accent: #D28052;
-    --bg-color: #0b0c0b;
-    --surface-color: #141714;
-    --text-dark: #FDFBF7;
+    --primary: #FF7A00; /* High-Visibility Orange */
+    --secondary: #0B0C0B; /* Pure Black */
+    --accent: #FF9E00; /* Brighter Orange for accents */
+    --bg-color: #050505; /* Near Black */
+    --surface-color: #111111;
+    --text-dark: #FFFFFF;
     --text-light: #000000;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --header-bg: rgba(11, 12, 11, 0.95);
-    --logo-filter: invert(1) hue-rotate(180deg) brightness(1.2);
+    --border-color: rgba(255, 122, 0, 0.3);
+    --header-bg: rgba(5, 5, 5, 0.95);
+    --logo-filter: none;
 
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 :root[data-theme="light"] {
-    --primary: #2D3F2E;
-    --secondary: #7A8E63;
-    --accent: #C06C3B;
-    --bg-color: #FDFBF7;
-    --surface-color: #FFFFFF;
-    --text-dark: #1A241A;
+    --primary: #FF7A00;
+    --secondary: #FFFFFF;
+    --accent: #FF9E00;
+    --bg-color: #FFFFFF;
+    --surface-color: #F8F8F8;
+    --text-dark: #1A1A1A;
     --text-light: #FFFFFF;
     --border-color: rgba(0, 0, 0, 0.1);
-    --header-bg: rgba(253, 251, 247, 0.95);
+    --header-bg: rgba(255, 255, 255, 0.95);
     --logo-filter: none;
 }
 
@@ -691,7 +691,18 @@ input:checked + .slider:after {
     border: 1px solid rgba(45, 63, 46, 0.2);
     border-radius: 8px;
     font-family: inherit;
+    background: var(--bg-color);
+    color: var(--text-dark);
     transition: var(--transition);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px var(--bg-color) inset !important;
+    -webkit-text-fill-color: var(--text-dark) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 .form-group input:focus,
@@ -3007,10 +3018,10 @@ header {
 [data-theme="dark"] .legend-box p {
     color: #000000 !important;
 }
-/* Fix: dropdown selects always use dark text regardless of theme */
+/* Fix: dropdown selects respect theme */
 select, select option {
-    color: #1a1a1a !important;
-    background-color: #ffffff !important;
+    color: var(--text-dark) !important;
+    background-color: var(--bg-color) !important;
 }
 
 /* Demo Toggle Button */
