@@ -12,7 +12,7 @@
 <link href="static/styles.css?v=1.4" rel="stylesheet"/>
 <script src="static/theme.js"></script>
 <style>
-        .auto-style-1 { background: transparent; padding: 6rem 5% 1rem 5%; }
+        .auto-style-1 { background: transparent; padding: 12rem 5% 1rem 5%; }
         .auto-style-2 { color: var(--text-dark); font-size: 4rem; line-height: 1.2; margin-bottom: 0.5rem; }
         .auto-style-3 { color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto; }
         .auto-style-4 { color: var(--primary); font-size: 2.5rem; margin-bottom: 2rem; }
@@ -107,13 +107,25 @@
 <li data-cms="auto-dcsa-dashboard-li-46"><a data-cms="auto-dcsa-dashboard-a-30" href="contact.html">Contact</a></li>
 </ul>
 <div class="header-actions">
+<div class="demo-btn-container" style="position: relative; display: inline-block; margin-right: 15px;" onmouseenter="document.getElementById('vol-slider-pop').style.opacity='1'; document.getElementById('vol-slider-pop').style.visibility='visible';" onmouseleave="document.getElementById('vol-slider-pop').style.opacity='0'; document.getElementById('vol-slider-pop').style.visibility='hidden';">
+    <button id="btn-demo-toggle" class="btn btn-outline" style="border: 1px solid var(--border-color); color: var(--text-dark); background: transparent; cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO</button>
+    <div id="vol-slider-pop" style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 10px; background: var(--surface-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100; opacity: 0; visibility: hidden; transition: all 0.2s ease;">
+        <div style="display: flex; align-items: center; gap: 8px; width: 140px;">
+            <i class="fa-solid fa-volume-low" style="color: var(--text-dark); opacity: 0.7; font-size: 0.9rem;"></i>
+            <input type="range" id="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" style="width: 100%; cursor: pointer;" onchange="updateDemoVolume(this.value)" oninput="updateDemoVolume(this.value)">
+            <span id="demo-vol-text" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">50%</span>
+        </div>
+        <div style="position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--border-color);"></div>
+        <div style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--surface-color);"></div>
+    </div>
+</div>
 <button aria-label="Toggle theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-dashboard-a-31" href="contact.html">Schedule Basecamp Consultation</a>
 </div>
 </header>
-<div class="page-header auto-style-1">
-<h1 class="auto-style-2" data-cms="auto-dcsa-dashboard-h1-1">DCSA Dashboard</h1>
-<p class="auto-style-3" data-cms="auto-dcsa-dashboard-p-9">Defense Counterintelligence and Security Agency&nbsp;<br><span style="color: rgb(255, 255, 255); font-size: 19.2px;">Securing the Future</span></p>
+<div class="page-header auto-style-1" style="padding-top: 13rem;">
+<h1 class="auto-style-2" data-cms="auto-dcsa-dashboard-h1-1" style="display: none;">DCSA Dashboard</h1>
+<h2 data-cms="auto-dcsa-dashboard-h2-9-new" style="color: var(--primary); font-size: 2.5rem; font-weight: 800; line-height: 1.2; max-width: 1000px; margin: 0 auto 1rem auto; text-align: center; position: relative; z-index: 10; text-shadow: 0 0 10px rgba(255,122,0,0.2); font-family: 'Outfit', sans-serif;">Defense Counterintelligence and Security Agency<br><span style="color: var(--primary) !important; font-size: 1.2rem; font-weight: 600; opacity: 0.9; display: inline-block; margin-top: 0.3rem;" data-cms="auto-dcsa_dashboard-span-3">Securing the Future</span></h2>
 </div>
 <section class="content-block" style="padding-top: 1rem;">
 <div class="content-container">
@@ -272,7 +284,30 @@
 </div>
 </section>
 
+<script>
+    let isDemoRunning = false;
+    let demoAudioUtterance = null;
+    let currentDemoVolume = 0.5;
+
+    function updateDemoVolume(val) {
+        currentDemoVolume = parseFloat(val);
+        document.getElementById('demo-vol-text').innerText = Math.round(currentDemoVolume * 100) + '%';
+    }
+
+    function toggleDemo() {
+        if (sessionStorage.getItem('dcsaDemoStep') !== null) {
+            sessionStorage.removeItem('dcsaDemoStep');
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            window.location.reload();
+        } else {
+            sessionStorage.setItem('dcsaDemoStep', 0);
+            sessionStorage.setItem('dcsaDemoVolume', currentDemoVolume);
+            window.location.reload();
+        }
+    }
+</script>
 <script src="static/cms.js"></script>
 <script src="static/analytics.js"></script>
+<script src="static/dcsa_demo.js"></script>
 </body>
 </html>
