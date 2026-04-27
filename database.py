@@ -39,6 +39,16 @@ async def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         ''')
+        
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS demo_configurations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            page_url TEXT UNIQUE NOT NULL,
+            text_content TEXT,
+            actions_json TEXT
+        )
+        ''')
+        
         await db.commit()
         
         # Seed the requested admin user
@@ -157,6 +167,35 @@ async def register_content_default(element_id, default_content):
 async def update_content(element_id, new_content):
     async with aiosqlite.connect(DB_NAME) as db:
         await db.execute('UPDATE content SET html_content = ? WHERE element_id = ?', (new_content, element_id))
+        await db.commit()
+
+async def get_demo_config(page_url: str):
+    async with aiosqlite.connect(DB_NAME) as db:
+        async with db.execute('SELECT text_content, actions_json, voice_uri, voice_rate, voice_volume FROM demo_configurations WHERE page_url = ?', (page_url,)) as cursor:
+            row = await cursor.fetchone()
+            if row:
+                return {
+                    "text_content": row[0],
+                    "actions_json": json.loads(row[1]) if row[1] else [],
+                    "voice_uri": row[2] if row[2] else "",
+                    "voice_rate": row[3] if row[3] is not None else 1.0,
+                    "voice_volume": row[4] if row[4] is not None else 1.0
+                }
+            return None
+
+async def save_demo_config(page_url: str, text_content: str, actions_json: list, voice_uri: str = "", voice_rate: float = 1.0, voice_volume: float = 1.0):
+    actions_str = json.dumps(actions_json)
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('''
+            INSERT INTO demo_configurations (page_url, text_content, actions_json, voice_uri, voice_rate, voice_volume)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(page_url) DO UPDATE SET 
+                text_content=excluded.text_content, 
+                actions_json=excluded.actions_json,
+                voice_uri=excluded.voice_uri,
+                voice_rate=excluded.voice_rate,
+                voice_volume=excluded.voice_volume
+        ''', (page_url, text_content, actions_str, voice_uri, voice_rate, voice_volume))
         await db.commit()
 
 # --- Stock Monitor Pro Database Functions ---
