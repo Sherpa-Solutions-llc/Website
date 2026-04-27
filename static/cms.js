@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.querySelectorAll('body *').forEach(el => {
             if (validTags.includes(el.tagName) && !el.hasAttribute('data-cms')) {
-                // Ignore elements within SVG/editor UI
-                if (el.closest('svg') || el.closest('.trail-svg') || el.closest('[id^="_cms_"]') || el.closest('.custom-modal')) return;
+                // Ignore elements within SVG/editor UI or elements explicitly marked with no-cms
+                if (el.closest('svg') || el.closest('.trail-svg') || el.closest('[id^="_cms_"]') || el.closest('.custom-modal') || el.closest('.no-cms')) return;
 
                 // Only target leaf nodes (no structural block children)
                 let hasBlockChildren = false;
@@ -48,8 +48,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                             el.src = content[key];
                         }
                     } else {
-                        // For everything else, replace the raw HTML only if it changed
-                        if (el.innerHTML !== content[key]) {
+                        // Use a temporary element to normalize the HTML from the DB
+                        // This prevents unnecessary DOM repaints and flashing caused by browser attribute formatting differences
+                        const temp = document.createElement(el.tagName);
+                        temp.innerHTML = content[key];
+                        if (el.innerHTML !== temp.innerHTML) {
                             el.innerHTML = content[key];
                         }
                     }
