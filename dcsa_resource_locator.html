@@ -28,7 +28,7 @@
             top: 0; left: 0; right: 0;
             padding: 1.5rem 2rem;
             background: linear-gradient(to bottom, rgba(5,5,5,0.9), transparent);
-            z-index: 100;
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -43,6 +43,7 @@
             margin: 0;
             display: flex;
             align-items: center;
+            pointer-events: auto;
         }
         .back-btn {
             pointer-events: auto;
@@ -285,16 +286,93 @@
         .popup-footer { padding: 1rem; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.5rem; }
         .popup-btn { flex: 1; text-align: center; padding: 0.5rem; border: 1px solid rgba(255,122,0,0.3); color: #ff7a00; text-decoration: none; font-size: 0.8rem; font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.2s; background: transparent; }
         .popup-btn:hover { background: rgba(255,122,0,0.1); }
+        
+        /* Leaflet Fixes */
+        .leaflet-container img {
+            max-width: none !important;
+            max-height: none !important;
+        }
+
+        /* Progress Overlay */
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 390px;
+            width: calc(100% - 390px);
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-hud {
+            width: 400px;
+            text-align: center;
+            padding: 2rem;
+            border: 1px solid rgba(255, 122, 0, 0.3);
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(255, 122, 0, 0.1);
+        }
+
+        .progress-hud h3 {
+            color: #ff7a00;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff7a00, #ff9e00);
+            box-shadow: 0 0 10px #ff7a00;
+            transition: width 0.1s ease-out;
+        }
+
+        .progress-status {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+        }
     </style>
+
 </link></head>
 <body class="">
-<div id="leafletContainer"></div>
-<div id="cesiumContainer"></div>
+<div id="leafletContainer" class="no-cms"></div>
+<div id="cesiumContainer" class="no-cms"></div>
+<div id="progressOverlay" class="progress-overlay" style="display: none;">
+    <div class="progress-hud">
+        <h3 id="progressText">PLOTTING GLOBAL ASSETS</h3>
+        <div class="progress-bar-track">
+            <div id="progressBarFill" class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-status">
+            <span id="progressStep">INITIALIZING ENGINE...</span>
+            <span id="progressPercent">0%</span>
+        </div>
+    </div>
+</div>
 <div class="reticle"></div>
 <div class="hud-header">
-<h1 class="hud-title" data-cms="auto-dcsa-resource-locator-h1-1"><i class="fa-solid fa-earth-americas" style="margin-right: 15px; font-size: 1.8rem;"></i> DCSA Global Asset Tracker</h1>
+<h1 class="hud-title" data-cms="auto-dcsa-resource-locator-h1-1"><i class="fa-solid fa-earth-americas" style="margin-right: 15px; font-size: 1.8rem;"></i> DCSA Global Asset</h1>
 <div style="display: flex; gap: 1rem;">
-<button class="back-btn" id="toggleViewBtn" style="cursor: pointer; background: transparent;"><i class="fa-solid fa-cube" style="margin-right: 0.5rem;"></i> SWITCH TO 3D</button>
+<button class="back-btn no-cms" id="toggleViewBtn" style="cursor: pointer; background: transparent;"><i class="fa-solid fa-cube" style="margin-right: 0.5rem;"></i> SWITCH TO 3D</button>
 <a class="back-btn" data-cms="auto-dcsa-resource-locator-a-4" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> EXIT LIVE VIEW</a>
 </div>
 </div>
@@ -499,5 +577,7 @@
 </div>
 </div>
 <script src="static/resource_locator.js"></script>
+<script src="static/dcsa_demo.js"></script>
+<script src="static/cms.js"></script>
 </body>
 </html>
