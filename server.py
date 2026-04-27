@@ -1484,17 +1484,18 @@ async def edit_page_view(page_name: str):
         
         #_cms_top_bar {
             position: fixed; top: 0; left: 0; width: 100%; height: 50px;
-            background: #1e2e1f; color: #fff; z-index: 2147483647;
+            background: var(--surface-color); color: var(--text-dark); z-index: 2147483647;
+            border-bottom: 2px solid var(--accent);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; font-family: 'Outfit','Inter',sans-serif;
-            box-sizing: border-box; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-sizing: border-box; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        #_cms_top_bar span { font-size: 14px; font-weight: 500; }
+        #_cms_top_bar span { font-size: 14px; font-weight: 600; color: var(--text-dark); }
         #_cms_top_save_btn {
-            background: #2ecc71; color: #fff; border: none; padding: 8px 16px;
+            background: var(--primary); color: var(--text-light); border: none; padding: 8px 16px;
             border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
-        #_cms_top_save_btn:hover:not([disabled]) { background: #27ae60; }
+        #_cms_top_save_btn:hover:not([disabled]) { background: var(--accent); color: white; }
         #_cms_top_save_btn[disabled] { opacity: 0.5; cursor: not-allowed; }
         body { margin-top: 50px !important; }
 
@@ -1541,12 +1542,12 @@ async def edit_page_view(page_name: str):
         #_cms_toast {
             position: fixed; bottom: 1.75rem; left: 50%;
             transform: translateX(-50%) translateY(90px);
-            background: #2ecc71; color: #fff;
+            background: var(--accent); color: white;
             padding: .65rem 2rem; border-radius: 50px;
             font-weight: 700; font-size: .88rem;
             z-index: 2147483647; transition: transform .3s ease;
             pointer-events: none; font-family: 'Outfit','Inter',sans-serif;
-            box-shadow: 0 4px 16px rgba(46,204,113,.45);
+            box-shadow: 0 4px 16px rgba(192,108,59,0.45);
         }
         #_cms_toast.show { transform: translateX(-50%) translateY(0); }
     </style>
@@ -1566,7 +1567,7 @@ async def edit_page_view(page_name: str):
         function toast(msg, color) {
             const t = document.getElementById('_cms_toast');
             t.textContent = msg;
-            t.style.background = color || '#2ecc71';
+            t.style.background = color || 'var(--accent)';
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 2600);
         }
