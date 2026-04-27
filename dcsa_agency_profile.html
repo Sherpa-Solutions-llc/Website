@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Elevate the Agency's Profile | DCSA Dashboard | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.4" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-box {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(192, 108, 59, 0.15);
+        }
+
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .network-container {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            position: relative;
+            margin-bottom: 4rem;
+            text-align: center;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .network-core {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            color: var(--text-light);
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 0 0 10px rgba(45, 63, 46, 0.2);
+            margin: 2rem auto;
+        }
+
+        .network-core i {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .network-nodes {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .node {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 250px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .node-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .node-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .node-desc {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 900px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .network-nodes { margin-top: 2rem; }
+        }
+    </style>
+</head>
+<body class="" style="background: linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92)), url('static/dcsa_sherpa_logo.png') no-repeat center center fixed; background-size: min(70vw, 65vh); background-color: var(--bg-color);">
+<header>
+<div class="logo-container">
+<a data-cms="auto-dcsa-agency-profile-a-7" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png"/></a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+<ul class="nav-links" id="nav-menu">
+<li data-cms="auto-dcsa-agency-profile-li-17"><a data-cms="auto-dcsa-agency-profile-a-8" href="index.html">Home</a></li>
+<li data-cms="auto-dcsa-agency-profile-li-18"><a data-cms="auto-dcsa-agency-profile-a-9" href="about.html">About Us</a></li>
+<li data-cms="auto-dcsa-agency-profile-li-19"><a data-cms="auto-dcsa-agency-profile-a-10" href="services.html">Our Services</a></li>
+<li data-cms="auto-dcsa-agency-profile-li-20"><a class="active" data-cms="auto-dcsa-agency-profile-a-11" href="projects.html">Projects</a></li>
+<li data-cms="auto-dcsa-agency-profile-li-21"><a data-cms="auto-dcsa-agency-profile-a-12" href="merchandise.html">Merchandise</a></li>
+<li data-cms="auto-dcsa-agency-profile-li-22"><a data-cms="auto-dcsa-agency-profile-a-13" href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" data-cms="auto-dcsa-agency-profile-a-14" href="contact.html">Schedule Basecamp Consultation</a>
+</div>
+</header>
+<div class="page-header" style="background: transparent; padding: 6rem 5%;">
+<h1 data-cms="auto-dcsa-agency-profile-h1-1" style="color: var(--text-light);"><i class="fa-solid fa-ranking-star" style="color: var(--accent); margin-right: 1rem;"></i> Elevate the Agency's Profile</h1>
+<p data-cms="auto-dcsa-agency-profile-p-4" style="color: #ccc; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">The Gold Standard of Integrated Security Services</p>
+</div>
+<section class="content-block">
+<div class="content-container" style="max-width: 1200px;">
+<h2 data-cms="auto-dcsa-agency-profile-h2-2" style="color: var(--primary); font-size: 2.5rem; text-align: center; margin-bottom: 3rem;">A Massive Footprint</h2>
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-value">95%</div>
+<div class="stat-label">Federal Background Investigations</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">10K+</div>
+<div class="stat-label">Cleared Defense Facilities</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">100+</div>
+<div class="stat-label">Federal Agency Partners</div>
+</div>
+</div>
+<h2 data-cms="auto-dcsa-agency-profile-h2-3" style="color: var(--primary); font-size: 2.5rem; text-align: center; margin-bottom: 1rem;">Strategic Partnership Network</h2>
+<p data-cms="auto-dcsa-agency-profile-p-5" style="color: var(--text-dark); text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem; opacity: 0.9;">DCSA does not operate in a vacuum. Elevating the agency's profile means forging seamless, transparent, and high-trust collaborations with external stakeholders.</p>
+<div class="network-container">
+<div class="network-core">
+<i class="fa-solid fa-shield-halved"></i>
+                    DCSA Core
+                </div>
+<div class="network-nodes">
+<div class="node">
+<i class="fa-solid fa-industry node-icon"></i>
+<div class="node-title">Defense Industrial Base</div>
+<div class="node-desc">Engaging with cleared contractors to ensure uncompromised supply chains and protect proprietary military technologies.</div>
+</div>
+<div class="node">
+<i class="fa-solid fa-building-columns node-icon"></i>
+<div class="node-title">Federal Agencies</div>
+<div class="node-desc">Providing continuous vetting reciprocity across the government, reducing redundant investigations and saving taxpayer dollars.</div>
+</div>
+<div class="node">
+<i class="fa-solid fa-satellite-dish node-icon"></i>
+<div class="node-title">Intelligence Community</div>
+<div class="node-desc">Seamless threat intelligence sharing to proactively identify espionage attempts and counterintelligence risks.</div>
+</div>
+<div class="node">
+<i class="fa-solid fa-landmark node-icon"></i>
+<div class="node-title">Congress &amp; Public</div>
+<div class="node-desc">Maintaining transparency through regular audits, congressional testimonies, and unclassified threat briefings.</div>
+</div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 4rem;">
+<a class="btn btn-primary" data-cms="auto-dcsa-agency-profile-a-15" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
+</div>
+</div>
+</section>
+
+<script src="static/cms.js"></script>
+<script src="static/analytics.js"></script>
+</body>
+</html>
