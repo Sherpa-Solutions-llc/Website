@@ -1,31 +1,28 @@
 :root {
-    --primary: #FF7A00; /* High-Visibility Orange */
-    --secondary: #0B0C0B; /* Pure Black */
-    --accent: #FF9E00; /* Brighter Orange for accents */
-    --bg-color: #050505; /* Near Black */
-    --surface-color: #111111;
-    --text-dark: #FFFFFF;
-    --text-light: #000000;
-    --border-color: rgba(255, 122, 0, 0.3);
-    --header-bg: rgba(5, 5, 5, 0.95);
+    --primary: #E0E6E0;      /* Light Sage Grey */
+    --secondary: #9DB581;    /* Pale Green */
+    --accent: #D28052;       /* Burnt Orange */
+    --bg-color: #0b0c0b;     /* Deep Forest Black */
+    --surface-color: #141714; /* Elevated Dark Surface */
+    --text-dark: #FDFBF7;    /* Primary White-ish Text */
+    --text-light: #000000;   /* Forced Black for light sections */
+    --header-bg: rgba(11, 12, 11, 0.95);
+    --border-color: rgba(224, 230, 224, 0.1);
     --logo-filter: none;
 
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 :root[data-theme="light"] {
-    --primary: #FF7A00;
-    --secondary: #FFFFFF;
-    --accent: #FF9E00;
-    --bg-color: #FFFFFF;
-    --surface-color: #F8F8F8;
-    --text-dark: #1A1A1A;
-    --text-light: #FFFFFF;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --header-bg: rgba(255, 255, 255, 0.95);
-    --logo-filter: none;
+    --primary: #2D3F2E;      /* Deep Evergreen */
+    --secondary: #4a5c4a;    /* Muted Forest Green */
+    --bg-color: #FDFBF7;     /* Warm Alabaster */
+    --surface-color: #f0f4f0; /* Soft Moss Surface */
+    --text-dark: #2D3F2E;    /* Dark Evergreen Text */
+    --text-light: #FDFBF7;   /* For dark cards in light mode */
+    --header-bg: rgba(253, 251, 247, 0.95);
+    --border-color: rgba(45, 63, 46, 0.1);
 }
-
 
 * {
     margin: 0;
@@ -54,14 +51,14 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 5%;
+    padding: 1rem 3%;
     background: var(--header-bg);
     backdrop-filter: blur(10px);
     position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     transition: var(--transition);
 }
 
@@ -76,7 +73,6 @@ header {
     object-fit: contain;
     border-radius: 8px;
     transition: var(--transition);
-    /* mix-blend-mode: multiply; */
     filter: var(--logo-filter);
 }
 
@@ -136,9 +132,8 @@ header {
 .btn-primary {
     background-color: var(--accent);
     color: var(--text-light);
-    box-shadow: 0 10px 20px rgba(192, 108, 59, 0.2);
+    box-shadow: 0 10px 20px rgba(210, 128, 82, 0.2);
 }
-
 
 .btn-secondary {
     background-color: var(--secondary);
@@ -154,81 +149,9 @@ header {
 }
 
 .btn-primary:hover {
-    background-color: #a85e33;
+    background-color: #a85522;
     transform: translateY(-3px);
-    box-shadow: 0 15px 25px rgba(192, 108, 59, 0.3);
-}
-
-.btn-outline {
-    background-color: transparent;
-    color: var(--primary);
-    border: 2px solid var(--primary);
-}
-
-.btn-outline:hover {
-    background-color: var(--primary);
-    color: var(--text-light);
-}
-
-/* Global Toggle Switch */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 28px;
-    margin-right: 15px;
-    flex-shrink: 0;
-}
-.switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #8b949e;
-    transition: .4s;
-    border-radius: 28px;
-    border: 1px solid var(--border-color);
-}
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 4px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-    z-index: 2;
-}
-.slider:after {
-    content: 'OFF';
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    font-family: 'Inter', sans-serif;
-    transition: .4s;
-    z-index: 1;
-}
-input:checked + .slider {
-    background-color: #28a745;
-    border-color: #28a745;
-}
-input:checked + .slider:before {
-    transform: translateX(30px);
-}
-input:checked + .slider:after {
-    content: 'ON';
-    left: 8px;
-    right: auto;
+    box-shadow: 0 15px 25px rgba(210, 128, 82, 0.3);
 }
 
 .hero {
@@ -241,7 +164,7 @@ input:checked + .slider:after {
     /* Fixed clipping with more top padding */
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg, var(--bg-color) 0%, #FFFFFF 100%);
+    background: linear-gradient(180deg, var(--bg-color) 0%, var(--surface-color) 100%);
 }
 
 .hero-shapes {
@@ -324,7 +247,7 @@ input:checked + .slider:after {
 
 .hero p {
     font-size: 1.35rem;
-    color: var(--text-dark);
+    color: #4a5c4a;
     margin: 0 auto 3rem;
     max-width: 750px;
 }
@@ -344,13 +267,13 @@ input:checked + .slider:after {
     gap: 0;
     flex-wrap: wrap;
     padding: 1.25rem 2rem;
-    background: var(--surface-color);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(8px);
     border-radius: 16px;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(45, 63, 46, 0.08);
     max-width: 700px;
     margin: 0 auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(45, 63, 46, 0.06);
 }
 
 .hero-stat {
@@ -369,8 +292,7 @@ input:checked + .slider:after {
 
 .stat-label {
     font-size: 0.75rem;
-    color: var(--text-dark);
-    opacity: 0.7;
+    color: #5a6d5a;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -388,7 +310,7 @@ input:checked + .slider:after {
 
 /* Generic Page Header */
 .page-header {
-    padding: 11.5rem 5% 3rem;
+    padding: 12rem 5% 5rem;
     background: linear-gradient(135deg, var(--bg-color) 0%, rgba(122, 142, 99, 0.1) 100%);
     text-align: center;
     position: relative;
@@ -396,13 +318,11 @@ input:checked + .slider:after {
 }
 
 .page-header h1 {
-    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-size: 4rem;
     color: var(--primary);
     margin-bottom: 1rem;
     position: relative;
     z-index: 2;
-    word-wrap: break-word;
-    /* Ensure long words break if they still overflow */
 }
 
 .page-header p {
@@ -437,7 +357,7 @@ input:checked + .slider:after {
 .features {
     padding: 4rem 5%;
     /* Reduced from 8rem */
-    background-color: var(--surface-color);
+    background-color: #FFFFFF;
 }
 
 .section-header {
@@ -471,8 +391,7 @@ input:checked + .slider:after {
     padding: 1.5rem 1.75rem;
     border-radius: 18px;
     transition: var(--transition);
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -546,7 +465,7 @@ input:checked + .slider:after {
 
 .feature-card p {
     font-size: 0.95rem;
-    color: var(--text-dark);
+    color: #5a6d5a;
     line-height: 1.6;
     margin: 0;
     transition: var(--transition);
@@ -567,13 +486,12 @@ input:checked + .slider:after {
 }
 
 .product-card {
-    background: var(--surface-color);
+    background: #FFFFFF;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     transition: var(--transition);
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     display: flex;
     flex-direction: column;
 }
@@ -667,7 +585,7 @@ input:checked + .slider:after {
 }
 
 .contact-form {
-    background: var(--surface-color);
+    background: #FFFFFF;
     padding: 3rem;
     border-radius: 24px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
@@ -691,18 +609,7 @@ input:checked + .slider:after {
     border: 1px solid rgba(45, 63, 46, 0.2);
     border-radius: 8px;
     font-family: inherit;
-    background: var(--bg-color);
-    color: var(--text-dark);
     transition: var(--transition);
-}
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active{
-    -webkit-box-shadow: 0 0 0 30px var(--bg-color) inset !important;
-    -webkit-text-fill-color: var(--text-dark) !important;
-    transition: background-color 5000s ease-in-out 0s;
 }
 
 .form-group input:focus,
@@ -712,12 +619,12 @@ input:-webkit-autofill:active{
     box-shadow: 0 0 0 3px rgba(192, 108, 59, 0.1);
 }
 
-/* Banner CTA — always dark, high contrast regardless of theme */
+/* Banner CTA */
 .cta-banner {
-    background: linear-gradient(135deg, #1a2e1a 0%, #0d1a0d 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #1e2b1f 100%);
     padding: 6rem 5%;
     text-align: center;
-    color: #ffffff;
+    color: var(--text-light);
     position: relative;
     overflow: hidden;
 }
@@ -728,10 +635,10 @@ input:-webkit-autofill:active{
     font-weight: 900;
     position: absolute;
     font-size: 40rem;
-    opacity: 0.04;
+    opacity: 0.03;
     top: -100px;
     right: -100px;
-    color: #ffffff;
+    color: var(--text-light);
     transform: rotate(-15deg);
     pointer-events: none;
 }
@@ -746,12 +653,11 @@ input:-webkit-autofill:active{
 .cta-content h2 {
     font-size: 3.5rem;
     margin-bottom: 1.5rem;
-    color: #ffffff !important;
 }
 
 .cta-content p {
     font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: var(--secondary);
     margin-bottom: 3rem;
 }
 
@@ -864,10 +770,6 @@ footer {
     .contact-layout {
         grid-template-columns: 1fr;
     }
-
-    .page-header {
-        padding: 5.5rem 5% 2rem;
-    }
 }
 
 /* Partnership Path */
@@ -887,7 +789,7 @@ footer {
 
 .partnership-text .lead {
     font-size: 1.2rem;
-    color: var(--text-dark);
+    color: #4a5c4a;
     margin-bottom: 3rem;
     line-height: 1.7;
 }
@@ -927,18 +829,17 @@ footer {
 }
 
 .step-content p {
-    color: var(--text-dark);
+    color: #5a6d5a;
     font-size: 1rem;
 }
 
 /* Case Study Card */
 .case-card {
-    background: var(--surface-color);
+    background: #ffffff;
     border-radius: 24px;
     padding: 3rem;
     box-shadow: 0 20px 50px rgba(45, 63, 46, 0.08);
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     position: relative;
     overflow: hidden;
 }
@@ -973,7 +874,7 @@ footer {
 }
 
 .case-card p {
-    color: var(--text-dark);
+    color: #5a6d5a;
     margin-bottom: 2rem;
     font-size: 1.05rem;
 }
@@ -997,7 +898,7 @@ footer {
 }
 
 .math-row span {
-    color: var(--text-dark);
+    color: #666;
 }
 
 .math-row strong {
@@ -1177,11 +1078,10 @@ footer {
     }
 }
 
-/* ---- CTA Form Section (Services Page) ---- */
+/* ---- CTA Form Section ---- */
 .cta-form-section {
-    background: linear-gradient(135deg, #1a2e1a 0%, #0d1a0d 100%);
-    /* Always dark, matches cta-banner */
-    color: #ffffff;
+    background: var(--primary);
+    color: #fff;
     padding: 4.5rem 1.5rem;
     text-align: center;
 }
@@ -1190,7 +1090,7 @@ footer {
     font-family: 'Outfit', sans-serif;
     font-size: 2.2rem;
     margin-bottom: 1.5rem;
-    color: #ffffff !important;
+    color: #fff;
 }
 
 .cta-form {
@@ -1238,20 +1138,7 @@ footer {
     transition: background 0.2s, transform 0.15s;
 }
 
-.cta-form .btn-secondary {
-    background-color: var(--secondary);
-    color: var(--text-light) !important;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background-color: var(--primary);
-    color: var(--text-light) !important;
-    transform: translateY(-3px);
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
-}
-
-.btn-primary:hover {
+.cta-form .btn-primary:hover {
     background: var(--accent-dark, #a85522);
     transform: scale(1.02);
 }
@@ -1259,8 +1146,8 @@ footer {
 .trust-bullets {
     font-size: 0.9rem;
     opacity: 0.85;
-    color: rgba(255, 255, 255, 0.85) !important;
-    /* Always light on dark bg */
+    letter-spacing: 0.03em;
+    color: #fff;
     margin-top: 0.5rem;
 }
 
@@ -1273,8 +1160,8 @@ footer {
 .hero-animation {
     width: 100%;
     max-width: 1400px;
-    margin: 0 auto 0;
-    /* Removed negative margin to prevent overlapping */
+    margin: -100px auto 0;
+    /* Pulse animation up into the text area */
     position: relative;
     z-index: 5;
     opacity: 0;
@@ -1307,8 +1194,7 @@ footer {
     top: 16px;
     right: 20px;
     z-index: 25;
-    background: rgba(255, 255, 255, 0.95);
-    /* Always white pill */
+    background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(74, 92, 74, 0.25);
@@ -1317,8 +1203,7 @@ footer {
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.06em;
-    color: #000000 !important;
-    /* Always black text */
+    color: var(--primary, #4a5c4a);
     white-space: nowrap;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
     animation: hintPulse 2.8s ease-in-out infinite;
@@ -1328,7 +1213,7 @@ footer {
 
 .trail-hint i {
     margin-right: 6px;
-    color: var(--accent);
+    color: var(--accent, #c0392b);
     font-size: 0.68rem;
 }
 
@@ -1402,9 +1287,8 @@ footer {
     bottom: calc(100% + 15px);
     left: 50%;
     transform: translateX(-50%);
-    background: #1a2e1a;
-    /* Always dark — readable in both themes */
-    color: #ffffff;
+    background: var(--primary);
+    color: white;
     padding: 1rem 1.5rem;
     border-radius: 8px;
     width: 240px;
@@ -1412,7 +1296,7 @@ footer {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
     pointer-events: none;
     z-index: 20;
 }
@@ -1425,7 +1309,7 @@ footer {
     margin-left: -8px;
     border-width: 8px;
     border-style: solid;
-    border-color: #1a2e1a transparent transparent transparent;
+    border-color: var(--primary) transparent transparent transparent;
 }
 
 .trail-node:hover .node-tooltip {
@@ -1469,33 +1353,16 @@ footer {
     margin: 0 0 0.3rem 0;
     font-family: 'Outfit', sans-serif;
     font-size: 1rem;
-    color: #ffffff !important;
 }
 
 .node-tooltip p {
     margin: 0;
     font-size: 0.75rem;
     opacity: 0.9;
-    color: #ffffff !important;
-}
-
-/* Light theme override: tooltip stays dark green — white text is always readable */
-body.light-theme .node-tooltip {
-    background: #1a2e1a;
-    color: #ffffff;
-}
-
-body.light-theme .node-tooltip::after {
-    border-color: #1a2e1a transparent transparent transparent;
-}
-
-body.light-theme .node-tooltip h4,
-body.light-theme .node-tooltip p {
-    color: #ffffff !important;
 }
 
 .node-label {
-    background: var(--surface-color);
+    background: white;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-weight: 700;
@@ -1541,24 +1408,12 @@ body.light-theme .node-tooltip p {
 }
 
 .node-flag {
-    color: #000;
-    font-size: 1.4rem;
-    filter: drop-shadow(0 4px 5px rgba(255, 255, 255, 0.3));
+    color: var(--primary);
+    font-size: 1.2rem;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.2));
     transition: transform 0.3s, color 0.3s;
-    /* Position flag so pole base sits ON the path line */
-    display: block;
-    line-height: 1;
 }
 
-/* Override the inline translate(-50%, -50%) so the bottom of the flag pole
-   (pole base) lands exactly on the path coordinate, not the flag's center */
-.ts-node {
-    transform: translate(-50%, -100%) !important;
-    text-decoration: none;
-    /* Remove browser default <a> underline */
-}
-
-/* When hovering, keep the upward offset and just scale */
 .trail-node:hover .node-flag {
     transform: scale(1.3);
     color: var(--accent);
@@ -1568,11 +1423,6 @@ body.light-theme .node-tooltip p {
     color: var(--accent);
     -webkit-text-stroke: 1px #000;
     paint-order: stroke fill;
-}
-
-/* Remove browser default <a> underline from orange partnership flags */
-.pp-node {
-    text-decoration: none;
 }
 
 
@@ -1585,12 +1435,11 @@ body.light-theme .node-tooltip p {
     position: absolute;
     bottom: 24px;
     right: 24px;
-    background: rgba(255, 255, 255, 0.97);
-    /* Always white — sits over the mountain canvas */
-    border: 1px solid rgba(45, 63, 46, 0.15);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(45, 63, 46, 0.1);
     border-radius: 12px;
     padding: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(45, 63, 46, 0.1);
     z-index: 20;
     backdrop-filter: blur(10px);
 }
@@ -1599,13 +1448,12 @@ body.light-theme .node-tooltip p {
     font-family: 'Outfit', sans-serif;
     font-size: 0.9rem;
     font-weight: 700;
-    color: var(--text-dark);
-    /* Theme-aware — readable on dark surface */
+    color: var(--primary, #2d3f2e);
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(45, 63, 46, 0.15);
     padding-bottom: 6px;
 }
 
@@ -1615,7 +1463,7 @@ body.light-theme .node-tooltip p {
 }
 
 .legend-box {
-    color: var(--text-dark) !important;
+    color: white;
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     width: 175px;
@@ -1630,26 +1478,22 @@ body.light-theme .node-tooltip p {
     margin: 0 0 0.25rem 0;
     font-family: 'Outfit', sans-serif;
     font-size: 0.85rem;
-    color: var(--text-dark) !important;
+    color: white;
 }
 
 .legend-box p {
     margin: 0;
     font-size: 0.7rem;
-    color: var(--text-dark) !important;
-    opacity: 0.85;
+    color: white;
+    opacity: 1;
 }
 
-/* Partnership path legend — orange accent strip on left, theme-aware card bg */
 .legend-accent {
-    background: var(--surface-color);
-    border-left: 5px solid var(--accent);
+    background: var(--accent);
 }
 
-/* Services path legend — green primary strip on left, theme-aware card bg */
 .legend-primary {
-    background: var(--surface-color);
-    border-left: 5px solid #2D3F2E;
+    background: var(--primary);
 }
 
 @media (max-width: 768px) {
@@ -1660,9 +1504,8 @@ body.light-theme .node-tooltip p {
         margin: 1.5rem auto 0;
         width: 100%;
         display: block;
-        background: var(--surface-color);
-        /* Theme-aware background */
-        border: 1px solid var(--border-color);
+        background: #f8f9f8;
+        border: 1px solid rgba(45, 63, 46, 0.05);
         border-radius: 16px;
         padding: 1rem;
         box-shadow: none;
@@ -1703,11 +1546,10 @@ body.light-theme .node-tooltip p {
 
 /* Trust Bar Styles */
 .trust-bar {
-    background: var(--surface-color);
-    /* Theme-aware */
+    background: #f8f9f8;
     padding: 2rem 5%;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    border-top: 1px solid rgba(45, 63, 46, 0.05);
+    border-bottom: 1px solid rgba(45, 63, 46, 0.05);
 }
 
 .trust-container {
@@ -1725,10 +1567,9 @@ body.light-theme .node-tooltip p {
     align-items: center;
     gap: 0.8rem;
     font-weight: 600;
-    color: var(--text-dark);
-    /* Readable in both themes */
+    color: var(--primary);
     font-size: 0.95rem;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 .cert-item i {
@@ -1739,7 +1580,7 @@ body.light-theme .node-tooltip p {
 /* Framework Section Styles */
 .framework-section {
     padding: 6rem 5%;
-    background: var(--surface-color);
+    background: white;
 }
 
 .framework-grid {
@@ -1755,11 +1596,10 @@ body.light-theme .node-tooltip p {
 .framework-step {
     position: relative;
     padding: 2.5rem;
-    background: var(--surface-color);
+    background: #ffffff;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(45, 63, 46, 0.05);
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -1794,14 +1634,13 @@ body.light-theme .node-tooltip p {
 /* Lead Gen Section Styles */
 .lead-gen-section {
     padding: 6rem 5%;
-    background: none;
-    /* Let it use body bg or a surface bg */
+    background: #f0f4f0;
 }
 
 .lead-gen-card {
     max-width: 1000px;
     margin: 0 auto;
-    background: var(--surface-color);
+    background: white;
     border-radius: 30px;
     display: flex;
     overflow: hidden;
@@ -1830,7 +1669,7 @@ body.light-theme .node-tooltip p {
 }
 
 .lead-gen-content p {
-    color: var(--text-dark);
+    color: #4a5c4a;
     margin-bottom: 2rem;
     font-size: 1.1rem;
 }
@@ -1870,7 +1709,7 @@ body.light-theme .node-tooltip p {
 
 .service-deep-dive {
     padding: 6rem 5%;
-    background: var(--surface-color);
+    background: white;
 }
 
 .deep-dive-grid {
@@ -1901,8 +1740,7 @@ body.light-theme .node-tooltip p {
 .model-section p {
     font-size: 1.15rem;
     line-height: 1.8;
-    color: var(--text-dark);
-    /* dynamic color */
+    color: #445544;
 }
 
 .model-section ul {
@@ -1931,8 +1769,7 @@ body.light-theme .node-tooltip p {
     background: #f8f9f8;
     padding: 2.5rem;
     border-radius: 20px;
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     margin-bottom: 2rem;
 }
 
@@ -1971,18 +1808,7 @@ body.light-theme .node-tooltip p {
 /* Insights Section Styles */
 .insights-section {
     padding: 6rem 5%;
-    background: var(--surface-color);
-    /* Dynamic theme color */
-}
-
-/* Section header inside insights uses text-dark for full legibility */
-.insights-section .section-header h2 {
-    color: var(--text-dark);
-}
-
-.insights-section .section-header p {
-    color: var(--text-dark);
-    opacity: 0.75;
+    background: #f8f9f8;
 }
 
 .insights-grid {
@@ -1994,11 +1820,10 @@ body.light-theme .node-tooltip p {
 }
 
 .insight-card {
-    background: var(--surface-color);
+    background: white;
     padding: 2.5rem;
     border-radius: 24px;
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -2029,7 +1854,7 @@ body.light-theme .node-tooltip p {
 }
 
 .insight-card p {
-    color: var(--text-dark);
+    color: #4a5c4a;
     line-height: 1.6;
     margin-bottom: 2rem;
     flex: 1;
@@ -2052,7 +1877,7 @@ body.light-theme .node-tooltip p {
 /* Testimonials Styles */
 .testimonials-section {
     padding: 6rem 5%;
-    background: var(--surface-color);
+    background: white;
 }
 
 .testimonials-grid {
@@ -2064,12 +1889,11 @@ body.light-theme .node-tooltip p {
 }
 
 .testimonial-card {
-    background: var(--surface-color);
+    background: #f8f9f8;
     padding: 3rem;
     border-radius: 30px;
     position: relative;
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
 }
 
 .quote-icon {
@@ -2100,16 +1924,14 @@ body.light-theme .node-tooltip p {
 
 .testimonial-author span {
     font-size: 0.9rem;
-    color: var(--text-dark);
+    color: #4a5c4a;
     opacity: 0.8;
 }
 
 /* Pricing Model Styles */
 .pricing-model-section {
     padding: 3.5rem 5%;
-    background: transparent;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    background: #f0f4f0;
 }
 
 .pricing-grid {
@@ -2124,14 +1946,13 @@ body.light-theme .node-tooltip p {
 .pricing-card {
     flex: 1;
     min-width: 280px;
-    background: var(--surface-color);
+    background: white;
     padding: 1.75rem 2rem;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 30px rgba(45, 63, 46, 0.07);
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
 }
 
 .pricing-card.teal-accent {
@@ -2171,16 +1992,15 @@ body.light-theme .node-tooltip p {
 .pricing-card li {
     padding: 0.5rem 0;
     font-size: 1rem;
-    color: var(--text-dark);
-    /* dynamic color */
-    border-bottom: 1px solid var(--border-color);
+    color: #445544;
+    border-bottom: 1px solid rgba(45, 63, 46, 0.05);
 }
 
 .pricing-footer {
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
-    color: var(--text-dark);
+    color: #4a5c4a;
     font-size: 1.1rem;
     line-height: 1.6;
 }
@@ -2200,6 +2020,17 @@ body.light-theme .node-tooltip p {
     cursor: pointer;
     transition: var(--transition);
     z-index: 1001;
+}
+
+/* Responsive Header Optimization */
+@media (max-width: 1400px) { .nav-links { gap: 1.2rem; } }
+@media (max-width: 1250px) { 
+    .nav-links { gap: 0.8rem; } 
+    .header-actions { gap: 0.5rem; flex-shrink: 0; white-space: nowrap; } 
+    #env-indicator { padding: 6px 10px !important; font-size: 11px !important; margin-right: 8px !important; } 
+}
+@media (max-width: 1100px) {
+    .nav-links { display: none !important; }
 }
 
 @media (max-width: 1024px) {
@@ -2225,19 +2056,11 @@ body.light-theme .node-tooltip p {
         top: 70px;
         left: -100%;
         width: 100%;
-        /* Use dvh (dynamic viewport height) which shrinks when Android URL bar is visible;
-           fall back to 100vh for older browsers */
-        height: calc(100dvh - 70px);
         height: calc(100vh - 70px);
-        /* fallback */
         background: var(--bg-color);
         flex-direction: column;
         align-items: center;
-        /* Tighter top padding + bottom safe-area for Samsung gesture bar */
-        padding-top: 1.5rem;
-        padding-bottom: max(1rem, env(safe-area-inset-bottom));
-        overflow-y: auto;
-        /* scroll if items don't fit */
+        padding-top: 2rem;
         transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 999;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -2249,16 +2072,15 @@ body.light-theme .node-tooltip p {
     }
 
     .nav-links li {
-        margin: 0.6rem 0;
-        /* was 1rem — tighter so all 5 links fit on small screens */
+        margin: 1rem 0;
         width: 100%;
         text-align: center;
     }
 
     .nav-links a {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
         display: block;
-        padding: 0.85rem 1rem;
+        padding: 1rem;
     }
 
     .nav-cta {
@@ -2435,149 +2257,10 @@ body.light-theme .node-tooltip p {
         gap: 1rem !important;
     }
 
-    /* Sherpa Method: stack to 1 column on mobile, tighter spacing */
+    /* Sherpa Method: collapse to 2 columns on tablet */
     .framework-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1.5rem !important;
-        margin-top: 2rem !important;
-    }
-
-    .framework-step {
-        padding: 1.5rem 1.25rem !important;
-    }
-
-    .framework-step h3 {
-        font-size: 1.1rem !important;
-        margin-bottom: 0.4rem !important;
-    }
-
-    .framework-step p {
-        font-size: 0.9rem !important;
-        line-height: 1.5 !important;
-    }
-
-    .step-num {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 1rem !important;
-        top: -16px !important;
-    }
-
-    /* Tighter section padding on mobile */
-    .framework-section {
-        padding: 2rem 5% !important;
-    }
-
-    /* Testimonials — smaller cards on mobile */
-    .testimonial-card {
-        padding: 1.5rem !important;
-        border-radius: 16px !important;
-    }
-
-    .quote-icon {
-        font-size: 1.8rem !important;
-        margin-bottom: 0.75rem !important;
-    }
-
-    .testimonial-card p {
-        font-size: 1rem !important;
-        margin-bottom: 1rem !important;
-    }
-
-    .testimonials-grid {
-        gap: 1.25rem !important;
-        margin-top: 2rem !important;
-    }
-
-    .testimonials-section {
-        padding: 2.5rem 5% !important;
-    }
-
-    /* ── Sherpa Insights ── */
-    .insights-section {
-        padding: 2.5rem 5% !important;
-    }
-
-    .insights-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1rem !important;
-        margin-top: 1.5rem !important;
-    }
-
-    .insight-card {
-        padding: 1.25rem !important;
-        border-radius: 16px !important;
-    }
-
-    .insight-card h3 {
-        font-size: 1.1rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-
-    .insight-card p {
-        font-size: 0.9rem !important;
-        margin-bottom: 1rem !important;
-    }
-
-    /* ── Lead Gen Section ── */
-    .lead-gen-section {
-        padding: 2.5rem 5% !important;
-    }
-
-    .lead-gen-card {
-        flex-direction: column !important;
-        border-radius: 16px !important;
-    }
-
-    .lead-gen-content {
-        padding: 1.5rem !important;
-    }
-
-    .lead-gen-content h2 {
-        font-size: 1.5rem !important;
-    }
-
-    .lead-gen-image {
-        display: none !important;
-        /* hide decorative image column on mobile */
-    }
-
-    .lead-gen-form {
-        flex-direction: column !important;
-        gap: 0.75rem !important;
-    }
-
-    /* ── Pricing Model ── */
-    .pricing-model-section {
-        padding: 2rem 5% !important;
-    }
-
-    .pricing-grid {
-        gap: 1rem !important;
-        margin: 1.25rem auto !important;
-    }
-
-    .pricing-card {
-        padding: 1.25rem 1.5rem !important;
-        min-width: unset !important;
-    }
-
-    /* ── Deep Dive ── */
-    .service-deep-dive {
-        padding: 2.5rem 5% !important;
-    }
-
-    .deep-dive-grid {
-        gap: 1.5rem !important;
-    }
-
-    /* ── Section headers ── */
-    .section-header {
-        margin-bottom: 0 !important;
-    }
-
-    .section-header p {
-        font-size: 0.95rem !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 2rem !important;
     }
 }
 
@@ -2608,7 +2291,10 @@ body.light-theme .node-tooltip p {
         gap: 0.5rem !important;
     }
 
-    /* framework-grid already 1 column from 768px rule above */
+    /* Sherpa Method: stack to 1 column on phone */
+    .framework-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 .service-detail {
@@ -2618,8 +2304,7 @@ body.light-theme .node-tooltip p {
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(45, 63, 46, 0.05);
     max-width: 1000px;
-    border: 1px solid var(--border-color);
-    /* Updated for dark mode */
+    border: 1px solid rgba(45, 63, 46, 0.05);
     position: relative;
 }
 
@@ -2672,29 +2357,24 @@ body.light-theme .node-tooltip p {
         margin: 0 auto;
     }
 }
-
 .service-detail {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
-
 .service-detail.visible {
     opacity: 1;
     transform: translateY(0);
 }
-
 .service-detail:nth-child(even) {
-    background: var(--surface-color);
+    background: #ffffff;
 }
-
 .accordion {
     margin-top: 1.5rem;
     border: 1px solid rgba(45, 63, 46, 0.1);
     border-radius: 8px;
     overflow: hidden;
 }
-
 .accordion-header {
     width: 100%;
     text-align: left;
@@ -2709,31 +2389,25 @@ body.light-theme .node-tooltip p {
     align-items: center;
     transition: background 0.3s ease;
 }
-
 .accordion-header:hover {
     background: rgba(45, 63, 46, 0.08);
 }
-
 .accordion-header .fa-chevron-down {
     transition: transform 0.3s ease;
 }
-
 .accordion-content {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-out;
-    background: var(--surface-color);
+    background: #fff;
 }
-
-.accordion-content>div {
+.accordion-content > div {
     padding: 0 1.5rem;
 }
-
 .accordion-content .service-subsection:first-child {
     padding-top: 1rem;
     margin-top: 0;
 }
-
 .accordion-content .service-subsection:last-child {
     padding-bottom: 1.5rem;
 }
@@ -2745,11 +2419,10 @@ body.light-theme .node-tooltip p {
     padding: 3.5rem;
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-    /* Parallax feel */
+    background-attachment: fixed; /* Parallax feel */
     position: relative;
     border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
     max-width: 1050px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ffffff;
@@ -2759,26 +2432,21 @@ body.light-theme .node-tooltip p {
 .service-detail-bg::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(10, 15, 12, 0.85);
-    /* Dark overlay */
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 15, 12, 0.85); /* Dark overlay */
     z-index: 1;
 }
 
 .service-detail-bg .service-detail-wrapper {
     position: relative;
     z-index: 2;
-    display: flex;
-    /* Kept flex in case we need it, but it's single column now */
+    display: flex; /* Kept flex in case we need it, but it's single column now */
 }
 
 /* Invert colors for readability on dark background */
 .service-detail-bg h3,
 .service-detail-bg h3 i,
-.service-detail-bg .service-subsection>strong {
+.service-detail-bg .service-subsection > strong {
     color: #ffffff !important;
 }
 
@@ -2809,246 +2477,4 @@ body.light-theme .node-tooltip p {
     background: rgba(192, 108, 59, 0.25);
     color: #ffffff;
     border-left: 4px solid var(--accent);
-}
-
-
-/* Theme Toggle Styling */
-.theme-toggle {
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    font-size: 1.25rem;
-    cursor: pointer;
-    margin-right: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    outline: none;
-}
-
-.theme-toggle:hover {
-    color: var(--accent);
-    transform: rotate(15deg);
-}
-
-header {
-    /* ensure header elements flow correctly */
-    align-items: center;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-}
-
-/* ============================================================
-   COMPREHENSIVE DARK MODE TEXT LEGIBILITY OVERRIDES
-   Applied globally to ensure all body text reads clearly
-   on dark backgrounds. These use CSS specificity to override
-   any hardcoded color values missed in the main stylesheet.
-   ============================================================ */
-
-:root body,
-:root p,
-:root li,
-:root span:not(.stat-number):not(.nav-cta):not(.hero-badge) {
-    color: var(--text-dark);
-}
-
-:root h1,
-:root h2,
-:root h3,
-:root h4,
-:root h5 {
-    color: var(--primary);
-}
-
-/* Section subtitles */
-:root .section-header p {
-    color: var(--secondary);
-    opacity: 0.95;
-}
-
-/* Testimonial quote text */
-:root .testimonial-card p {
-    color: var(--text-dark) !important;
-}
-
-:root .testimonial-author span {
-    color: var(--text-dark);
-    opacity: 0.75;
-}
-
-/* Framework steps body text */
-:root .framework-step p {
-    color: var(--text-dark);
-    opacity: 0.85;
-}
-
-/* Trust bar certifications — readable in both themes */
-:root .cert-item {
-    color: var(--text-dark);
-}
-
-/* Insights and article cards */
-:root .insight-card p,
-:root .insight-card h3 {
-    color: var(--text-dark);
-}
-
-/* Pricing footer note */
-:root .pricing-footer {
-    color: var(--text-dark);
-    opacity: 0.85;
-}
-
-/* Service sub-sections in the service detail blocks */
-:root .service-subsection p,
-:root .service-subsection li {
-    color: var(--text-dark);
-}
-
-/* Contact page, About page body text */
-:root .about-mission p,
-:root .team-member-bio,
-:root .page-header p {
-    color: var(--text-dark);
-}
-
-/* Math row labels (services page) */
-:root .math-row span {
-    color: var(--text-dark);
-}
-
-/* ---- Admin Login Footer Link (CMS-immune circled-A) ---- */
-#admin-login-link {
-    text-decoration: none;
-    margin-left: 12px;
-    opacity: 0.55;
-    transition: opacity 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border: 2px solid currentColor;
-    border-radius: 50%;
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: inherit;
-    vertical-align: middle;
-    line-height: 1;
-}
-
-#admin-login-link::after {
-    content: "A";
-}
-
-#admin-login-link:hover {
-    opacity: 1;
-}
-
-/* ============================================================
-   DARK MODE — Trail / Mountain Section Fixes
-   The SVG uses hardcoded black strokes and light sky gradients
-   that disappear on the near-black dark background.
-   ============================================================ */
-
-[data-theme="dark"] #ts-path {
-    stroke: #9DB581 !important;
-    /* light sage green — visible on dark background */
-}
-
-[data-theme="dark"] #partnership-path {
-    stroke: #9DB581 !important;
-    /* match ts-path green in dark mode */
-}
-
-[data-theme="dark"] .trail-container {
-    /* Add a subtle very-dark-green tint so the SVG mountains
-       have something to render against instead of pure black */
-    background: rgba(20, 35, 22, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-/* Trail-hint "SELECT A FLAG TO EXPLORE" pill — keep readable in dark */
-[data-theme="dark"] .trail-hint {
-    background: rgba(20, 35, 22, 0.92) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-[data-theme="dark"] .trail-hint i,
-[data-theme="dark"] .trail-hint span {
-    color: #ffffff !important;
-}
-
-/* Legend box borders in dark mode */
-[data-theme="dark"] .legend-accent {
-    border-left-color: var(--accent);
-}
-
-[data-theme="dark"] .legend-primary {
-    border-left-color: #2D3F2E;
-}
-
-/* Trail Paths legend ALWAYS uses a white background + black text so it reads
-   clearly over the SVG mountain canvas in both light and dark theme */
-[data-theme="dark"] .map-legend-frame {
-    background: rgba(255, 255, 255, 0.96) !important;
-    border-color: rgba(45, 63, 46, 0.2) !important;
-}
-
-[data-theme="dark"] .legend-title {
-    color: #1a2e1a !important;
-    border-bottom-color: rgba(45, 63, 46, 0.15) !important;
-}
-
-[data-theme="dark"] .legend-accent {
-    background: #ffffff !important;
-}
-
-[data-theme="dark"] .legend-primary {
-    background: #ffffff !important;
-}
-
-[data-theme="dark"] .legend-box,
-[data-theme="dark"] .legend-box h4,
-[data-theme="dark"] .legend-box p {
-    color: #000000 !important;
-}
-/* Fix: dropdown selects respect theme */
-select, select option {
-    color: var(--text-dark) !important;
-    background-color: var(--bg-color) !important;
-}
-
-/* Demo Toggle Button */
-.demo-btn {
-    background: transparent;
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    padding: 0.5rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-}
-.demo-btn:hover:not(.active) {
-    background: rgba(210, 128, 82, 0.1);
-}
-.demo-btn.active {
-    background: var(--accent);
-    color: white;
-    animation: demoPulse 2s infinite;
-}
-@keyframes demoPulse {
-    0% { box-shadow: 0 0 0 0 rgba(210, 128, 82, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(210, 128, 82, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(210, 128, 82, 0); }
 }
