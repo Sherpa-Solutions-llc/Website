@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
     <meta charset="UTF-8">
@@ -22,6 +22,27 @@
             --accent-green: #2ea043;
             --accent-red: #ff3b30;
             --accent-orange: #d17540;
+            
+            /* UI Elements */
+            --terminal-bg: #000000;
+            --terminal-border: #333333;
+            --input-bg: rgba(0,0,0,0.3);
+            --btn-text: #000000;
+        }
+
+        :root[data-theme="light"] {
+            /* Aligned to Sherpa Global Light Theme */
+            --bg-darker: #f0f4f0;
+            --bg-dark: #FDFBF7;
+            --border-color: rgba(45, 63, 46, 0.1);
+            --text-main: #2D3F2E;
+            --text-muted: #5a6d5a;
+            
+            /* UI Elements */
+            --terminal-bg: #e8ece8;
+            --terminal-border: rgba(45, 63, 46, 0.2);
+            --input-bg: rgba(255,255,255,0.8);
+            --btn-text: #ffffff;
         }
 
         body {
@@ -181,7 +202,7 @@
 
         .btn-scan {
             background: var(--accent-cyan);
-            color: #000;
+            color: var(--btn-text);
             border: none;
             padding: 0.6rem 1.5rem;
             border-radius: 4px;
@@ -299,9 +320,9 @@
         
         .form-control {
             width: 100%;
-            background: rgba(0,0,0,0.3);
+            background: var(--input-bg);
             border: 1px solid rgba(255,255,255,0.2);
-            color: white;
+            color: var(--text-main);
             padding: 0.7rem 1rem;
             border-radius: 4px;
             font-family: 'Inter', sans-serif;
@@ -341,8 +362,8 @@
 
         /* Terminal Log Stream Area */
         .terminal-window {
-            background: #000;
-            border: 1px solid #333;
+            background: var(--terminal-bg);
+            border: 1px solid var(--terminal-border);
             border-radius: 6px;
             padding: 1rem;
             height: 400px;
@@ -352,8 +373,8 @@
             line-height: 1.5;
         }
         .log-line { margin-bottom: 0.3rem; }
-        .log-time { color: #555; margin-right: 0.5rem; }
-        .log-info { color: #bbb; }
+        .log-time { color: var(--text-muted); margin-right: 0.5rem; }
+        .log-info { color: var(--text-main); }
         .log-highlight { color: var(--accent-cyan); }
         .log-success { color: var(--accent-green); }
         .log-warn { color: var(--accent-orange); }
@@ -811,6 +832,7 @@
                         <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-high"></i></span>
                     </div>
                 </div>
+                <button class="btn-refresh" id="theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark Mode" data-cms="header-theme-btn"><i class="fa-solid fa-moon"></i> Theme</button>
                 <button class="btn-refresh" onclick="openArchitectureModal()" data-cms="header-arch-btn"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
                 <button class="btn-refresh" onclick="openDocModal()" data-cms="header-doc-btn"><i class="fa-solid fa-book"></i> Documentation</button>
                 <a href="/projects.html" class="btn-refresh" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Exit</a>
@@ -2345,7 +2367,7 @@
 
 
     <script src="/static/cms.js"></script>
-
+    <script src="/static/theme.js"></script>
     <script src="static/analytics.js"></script>
 </body>
 </html>
