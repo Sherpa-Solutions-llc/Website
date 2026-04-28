@@ -557,9 +557,10 @@ function selectEmployee(emp, preventSync = false, preventFly = false) {
     document.getElementById('popNat').innerText = emp.nationality;
     document.getElementById('popManager').innerText = emp.manager;
     document.getElementById('popClearance').innerText = emp.clearance;
+    document.getElementById('popPhoneDetails').innerText = emp.phone || 'N/A';
 
     document.getElementById('popEmail').onclick = () => window.location.href = `mailto:${emp.email}`;
-    document.getElementById('popPhone').onclick = () => window.location.href = `tel:${emp.phone}`;
+    document.getElementById('popMessage').onclick = () => window.location.href = `sms:${emp.phone}`;
 
     // Fly camera precisely to the entity
     if (!preventFly) {
