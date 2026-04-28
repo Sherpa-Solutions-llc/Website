@@ -137,9 +137,9 @@ let totalWeight = cities.reduce((sum, city) => sum + city.weight, 0);
 
 function gaussianRandom() {
     let u = 0, v = 0;
-    while(u === 0) u = Math.random();
-    while(v === 0) v = Math.random();
-    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 }
 
 for (let i = mockEmployees.length + 1; i <= totalTarget; i++) {
@@ -153,10 +153,10 @@ for (let i = mockEmployees.length + 1; i <= totalTarget; i++) {
         }
         r -= c.weight;
     }
-    
+
     let lat = selectedCity.lat + gaussianRandom() * selectedCity.spread;
     let lng = selectedCity.lng + gaussianRandom() * selectedCity.spread;
-    
+
     mockEmployees.push({
         id: `EMP-${i.toString().padStart(5, '0')}`,
         firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
@@ -180,13 +180,13 @@ for (let i = mockEmployees.length + 1; i <= totalTarget; i++) {
 function initCesium() {
     document.getElementById('cesiumContainer').style.display = 'block';
     if (viewer) return; // already initialized
-    
+
     Cesium.Ion.defaultAccessToken = Cesium.Ion.defaultAccessToken; // Use default for demo
-    
+
     // Set default view to North America (USA focus)
     Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(-125.0, 20.0, -65.0, 55.0);
     Cesium.Camera.DEFAULT_VIEW_FACTOR = 0.5;
-    
+
     viewer = new Cesium.Viewer('cesiumContainer', {
         animation: false,
         baseLayerPicker: false,
@@ -206,31 +206,31 @@ function initCesium() {
             maximumLevel: 19
         }))
     });
-    
+
     // Add 3D Buildings for urban detail
     try {
         viewer.scene.primitives.add(Cesium.createOsmBuildings());
     } catch (e) {
         console.warn("Could not load 3D Buildings.", e);
     }
-    
+
     // Cinematic Post Processing (Disabled for lifelike realism)
     viewer.scene.highDynamicRange = true;
     const bloom = viewer.scene.postProcessStages.bloom;
     bloom.enabled = false;
-    
+
     // Remove credits for cleaner UI (Demo purposes)
     viewer.cesiumWidget.creditContainer.style.display = 'none';
-    
+
     // Plot Employees on Globe with Clustering
     employeeDataSource = new Cesium.CustomDataSource('employees');
     viewer.dataSources.add(employeeDataSource);
-    
+
     // Enable clustering
     employeeDataSource.clustering.enabled = true;
     employeeDataSource.clustering.pixelRange = 50;
     employeeDataSource.clustering.minimumClusterSize = 2;
-    
+
     // Setup Cluster Styling
     const pinBuilder = new Cesium.PinBuilder();
     const pinColor = Cesium.Color.fromCssColorString('#ff7a00');
@@ -239,33 +239,33 @@ function initCesium() {
         singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), pinColor, 48).toDataURL();
     }
     const pin10 = pinBuilder.fromText('10+', pinColor, 48).toDataURL();
-    
-    employeeDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+
+    employeeDataSource.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster) {
         cluster.label.show = false;
         cluster.billboard.show = true;
         cluster.billboard.id = cluster.label.id;
         cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
-        
+
         // Store references to the entities in this cluster for drill-down clicks
         cluster.billboard.clusteredEntities = clusteredEntities;
-    
+
         if (clusteredEntities.length >= 10) {
             cluster.billboard.image = pin10;
         } else {
             cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
         }
     });
-    
+
     // Suspend events while adding thousands of entities to prevent browser freeze
     employeeDataSource.entities.suspendEvents();
-    
+
     mockEmployees.forEach(emp => {
         // Determine color based on status
         let color = Cesium.Color.fromCssColorString('#ff7a00'); // Active
         if (emp.status.includes('REMOTE')) color = Cesium.Color.fromCssColorString('#8892b0'); // Remote/Grey
         if (emp.status.includes('TDY') || emp.status.includes('PCS')) color = Cesium.Color.fromCssColorString('#ffb86c'); // Orange/Warning
         if (emp.status.includes('OOO')) color = Cesium.Color.fromCssColorString('#ff5555'); // Red/Out
-    
+
         const entity = employeeDataSource.entities.add({
             id: emp.id,
             position: Cesium.Cartesian3.fromDegrees(emp.lng, emp.lat),
@@ -291,21 +291,21 @@ function initCesium() {
             },
             properties: emp
         });
-        
+
         employeeEntities[emp.id] = { entity, data: emp };
     });
-    
+
     employeeDataSource.entities.resumeEvents();
-    
+
     // Fly to initial global view
     viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(-40.0, 30.0, 20000000.0),
         duration: 3
     });
-    
-    
-    
-    
+
+
+
+
     // Add click handler inside init
     viewer.screenSpaceEventHandler.setInputAction(function onLeftClick(movement) {
         const pickedObject = viewer.scene.pick(movement.position);
@@ -336,28 +336,28 @@ function initLeaflet() {
     console.log("DCSA Engine: Initializing Tactical Overlay...");
     document.getElementById('leafletContainer').style.display = 'block';
     if (leafletMap) return;
-    
+
     if (typeof L === 'undefined') {
         console.error("DCSA Engine Error: Leaflet library not found.");
         return;
     }
-    
-    leafletMap = L.map('leafletContainer', {zoomControl: false}).setView([39.0, -95.0], 3);
-    
+
+    leafletMap = L.map('leafletContainer', { zoomControl: false }).setView([39.0, -95.0], 3);
+
     // Esri World Imagery (High-Res Color Map - Live Compatible)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
     }).addTo(leafletMap);
-    
+
     const canvasRenderer = L.canvas({ padding: 0.5 });
-    
+
     mockEmployees.forEach(emp => {
         let color = '#ff7a00';
         if (emp.status.includes('REMOTE')) color = '#8892b0';
         if (emp.status.includes('TDY') || emp.status.includes('PCS')) color = '#ffb86c';
         if (emp.status.includes('OOO')) color = '#ff5555';
-        
+
         const marker = L.circleMarker([emp.lat, emp.lng], {
             renderer: canvasRenderer,
             color: '#000',
@@ -366,11 +366,11 @@ function initLeaflet() {
             fillOpacity: 1,
             radius: 5
         }).addTo(leafletMap);
-        
+
         marker.on('click', () => selectEmployee(emp));
         employeeEntities[emp.id] = { leafletMarker: marker, data: emp };
     });
-    
+
     // Fix scrambled tiles by invalidating size after layout
     setTimeout(() => {
         leafletMap.invalidateSize();
@@ -393,7 +393,7 @@ document.querySelectorAll('.tab').forEach(tab => {
         // Remove active class from all tabs and panes
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        
+
         // Add active class to clicked tab and corresponding pane
         tab.classList.add('active');
         document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
@@ -410,16 +410,16 @@ function renderResults() {
     resultsList.innerHTML = '';
     const fq = locateSearchFirst.value.toLowerCase().trim();
     const lq = locateSearchLast.value.toLowerCase().trim();
-    
+
     // If search is empty, show history
     if (!fq && !lq) {
         let history = null;
         const stored = safeStorage.get('dcsaSearchHistory');
         if (stored) {
             try { history = JSON.parse(stored); }
-            catch(e) { history = null; }
+            catch (e) { history = null; }
         }
-        
+
         // Seed default mock searches to make the dashboard look lived-in
         if (!history || history.length < 10) {
             history = [
@@ -441,31 +441,31 @@ function renderResults() {
         title.style.cssText = "color: #ff7a00; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255, 122, 0, 0.3); padding-bottom: 0.5rem;";
         title.innerText = "Recent Searches";
         resultsList.appendChild(title);
-            
-            history.forEach(h => {
-                const div = document.createElement('div');
-                div.className = 'result-item';
-                div.innerHTML = `<div class="res-name"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px; color: #8892b0;"></i> ${h.f} ${h.l}</div>`;
-                div.addEventListener('click', () => {
-                    locateSearchFirst.value = h.f;
-                    locateSearchLast.value = h.l;
-                    renderResults();
-                    executeLocateSearchBtn.click();
-                });
-                resultsList.appendChild(div);
+
+        history.forEach(h => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `<div class="res-name"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px; color: #8892b0;"></i> ${h.f} ${h.l}</div>`;
+            div.addEventListener('click', () => {
+                locateSearchFirst.value = h.f;
+                locateSearchLast.value = h.l;
+                renderResults();
+                executeLocateSearchBtn.click();
             });
-        
+            resultsList.appendChild(div);
+        });
+
         return;
     }
-    
+
     let count = 0;
     const maxResults = 50; // Performance optimization
-    
+
     for (let i = 0; i < mockEmployees.length; i++) {
         const emp = mockEmployees[i];
         const matchesFirst = !fq || emp.firstName.toLowerCase().includes(fq);
         const matchesLast = !lq || emp.lastName.toLowerCase().includes(lq);
-        
+
         if (matchesFirst && matchesLast) {
             const div = document.createElement('div');
             div.className = 'result-item';
@@ -496,29 +496,29 @@ executeLocateSearchBtn.addEventListener('click', () => {
     const lq = locateSearchLast.value.trim();
     const fqLow = fq.toLowerCase();
     const lqLow = lq.toLowerCase();
-    
+
     if (fq || lq) {
         let history = [];
         const stored = safeStorage.get('dcsaSearchHistory');
         if (stored) {
             try { history = JSON.parse(stored); }
-            catch(e) { history = []; }
+            catch (e) { history = []; }
         }
-        
+
         // Don't add duplicates consecutively
         if (history.length === 0 || history[0].f !== fq || history[0].l !== lq) {
-            history.unshift({f: fq, l: lq});
+            history.unshift({ f: fq, l: lq });
             history = history.slice(0, 10); // Keep last 10 searches
             safeStorage.set('dcsaSearchHistory', JSON.stringify(history));
         }
     }
-    
+
     const emp = mockEmployees.find(e => {
         const matchesFirst = !fqLow || e.firstName.toLowerCase().includes(fqLow);
         const matchesLast = !lqLow || e.lastName.toLowerCase().includes(lqLow);
         return matchesFirst && matchesLast;
     });
-    
+
     if (emp) {
         selectEmployee(emp);
     } else {
@@ -542,7 +542,7 @@ function selectEmployee(emp, preventSync = false, preventFly = false) {
     } else {
         profilePicContainer.innerHTML = `<i class="fa-solid fa-user"></i>`;
     }
-    
+
     // Status color
     let statusColor = '#ff7a00';
     if (emp.status.includes('REMOTE')) statusColor = '#8892b0';
@@ -557,7 +557,7 @@ function selectEmployee(emp, preventSync = false, preventFly = false) {
     document.getElementById('popNat').innerText = emp.nationality;
     document.getElementById('popManager').innerText = emp.manager;
     document.getElementById('popClearance').innerText = emp.clearance;
-    
+
     document.getElementById('popEmail').onclick = () => window.location.href = `mailto:${emp.email}`;
     document.getElementById('popPhone').onclick = () => window.location.href = `tel:${emp.phone}`;
 
@@ -625,10 +625,10 @@ function refreshAssetSelector(firstQuery = '', lastQuery = '') {
     while (assetSelector.options.length > 1) {
         assetSelector.remove(1);
     }
-    
+
     const fq = firstQuery.toLowerCase();
     const lq = lastQuery.toLowerCase();
-    
+
     const filteredEmployees = mockEmployees.filter(emp => {
         const matchesFirst = !fq || emp.firstName.toLowerCase().includes(fq);
         const matchesLast = !lq || emp.lastName.toLowerCase().includes(lq);
@@ -654,7 +654,7 @@ function handleManageFilter() {
         const lq = manageSearchLast.value.toLowerCase();
         const matchesFirst = !fq || emp.firstName.toLowerCase().includes(fq);
         const matchesLast = !lq || emp.lastName.toLowerCase().includes(lq);
-        
+
         if (!emp || !(matchesFirst && matchesLast)) {
             assetSelector.value = 'NEW';
             clearForm();
@@ -691,7 +691,7 @@ function clearForm() {
     managerInput.value = '';
     emailInput.value = '';
     phoneInput.value = '';
-    
+
     addAssetBtn.style.display = 'block';
     updateAssetBtn.style.display = 'none';
     deleteAssetBtn.style.display = 'none';
@@ -705,20 +705,20 @@ function populateForm(emp) {
     stationInput.value = emp.dutyStation || '';
     customLocationInput.value = `${emp.lat}, ${emp.lng}`;
     clearanceInput.value = emp.clearance || '';
-    
+
     // Find matching status option
-    for(let i=0; i<dutyStatusSelect.options.length; i++) {
-        if(dutyStatusSelect.options[i].text === emp.status || dutyStatusSelect.options[i].value === emp.status) {
+    for (let i = 0; i < dutyStatusSelect.options.length; i++) {
+        if (dutyStatusSelect.options[i].text === emp.status || dutyStatusSelect.options[i].value === emp.status) {
             dutyStatusSelect.selectedIndex = i;
             break;
         }
     }
-    
+
     scheduleInput.value = emp.schedule || '';
     managerInput.value = emp.manager || '';
     emailInput.value = emp.email || '';
     phoneInput.value = emp.phone || '';
-    
+
     addAssetBtn.style.display = 'none';
     updateAssetBtn.style.display = 'block';
     deleteAssetBtn.style.display = 'block';
@@ -728,7 +728,7 @@ function handleAssetSelection(preventFly = false) {
     // If called via event listener, preventFly will be an Event object (truthy)
     // We only want to prevent flying if preventFly is explicitly true
     const actuallyPreventFly = preventFly === true;
-    
+
     const val = assetSelector.value;
     if (val === 'NEW' || !val) {
         clearForm();
@@ -775,7 +775,7 @@ function showSuccessMsg(msg) {
 // CREATE
 addAssetBtn.addEventListener('click', () => {
     const { lat, lng } = parseLocation();
-    
+
     const newEmp = {
         id: `EMP-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
         firstName: fNameInput.value || 'Unknown',
@@ -792,9 +792,9 @@ addAssetBtn.addEventListener('click', () => {
         email: emailInput.value || 'unknown@dcsa.mil',
         phone: phoneInput.value || 'N/A'
     };
-    
+
     mockEmployees.push(newEmp);
-    
+
     // Add to map
     const color = getColorForStatus(newEmp.status);
     const entity = employeeDataSource.entities.add({
@@ -820,7 +820,7 @@ addAssetBtn.addEventListener('click', () => {
         }
     });
     employeeEntities[newEmp.id] = { entity, data: newEmp };
-    
+
     refreshAssetSelector();
     renderResults(); // refresh search
     clearForm();
@@ -832,12 +832,12 @@ addAssetBtn.addEventListener('click', () => {
 updateAssetBtn.addEventListener('click', () => {
     const empId = assetSelector.value;
     if (empId === 'NEW') return;
-    
+
     const emp = mockEmployees.find(e => e.id === empId);
     if (!emp) return;
-    
+
     const { lat, lng } = parseLocation();
-    
+
     emp.firstName = fNameInput.value;
     emp.lastName = lNameInput.value;
     emp.department = deptInput.value;
@@ -850,7 +850,7 @@ updateAssetBtn.addEventListener('click', () => {
     emp.manager = managerInput.value;
     emp.email = emailInput.value;
     emp.phone = phoneInput.value;
-    
+
     // Update map entity
     const entityData = employeeEntities[empId];
     if (entityData && entityData.entity) {
@@ -860,12 +860,12 @@ updateAssetBtn.addEventListener('click', () => {
         entityData.entity.label.fillColor = color;
         entityData.entity.label.text = `${emp.lastName}, ${emp.firstName.charAt(0)}.\n[${emp.department}]`;
     }
-    
+
     refreshAssetSelector();
     assetSelector.value = empId; // re-select
     renderResults();
     showSuccessMsg('ASSET RECORD UPDATED.');
-    
+
     viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(emp.lng, emp.lat, 50000.0),
         duration: 2.0
@@ -876,19 +876,19 @@ updateAssetBtn.addEventListener('click', () => {
 deleteAssetBtn.addEventListener('click', () => {
     const empId = assetSelector.value;
     if (empId === 'NEW') return;
-    
+
     const index = mockEmployees.findIndex(e => e.id === empId);
     if (index > -1) {
         mockEmployees.splice(index, 1);
     }
-    
+
     // Remove from map
     const entityData = employeeEntities[empId];
     if (entityData && entityData.entity) {
         employeeDataSource.entities.remove(entityData.entity);
         delete employeeEntities[empId];
     }
-    
+
     refreshAssetSelector();
     renderResults();
     clearForm();
@@ -902,7 +902,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const query = urlParams.get('search');
     const fname = urlParams.get('first_name');
     const lname = urlParams.get('last_name');
-    
+
     if (fname || lname) {
         if (fname) locateSearchFirst.value = fname;
         if (lname) locateSearchLast.value = lname;
@@ -929,18 +929,18 @@ if (toggleViewBtn) {
                 const bar = document.getElementById('progressBarFill');
                 const percent = document.getElementById('progressPercent');
                 const step = document.getElementById('progressStep');
-                
+
                 overlay.style.display = 'flex';
                 toggleViewBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right: 0.5rem;"></i> LOADING 3D...';
-                
+
                 let progress = 0;
                 const interval = setInterval(() => {
                     progress += Math.random() * 5;
                     if (progress > 95) progress = 95; // Wait at 95% until actually ready
-                    
+
                     bar.style.width = progress + '%';
                     percent.innerText = Math.floor(progress) + '%';
-                    
+
                     if (progress < 30) step.innerText = 'INITIALIZING ENGINE...';
                     else if (progress < 60) step.innerText = 'FETCHING GEOSPATIAL DATA...';
                     else step.innerText = 'PLOTTING GLOBAL ASSETS...';
@@ -951,7 +951,7 @@ if (toggleViewBtn) {
                     bar.style.width = '100%';
                     percent.innerText = '100%';
                     step.innerText = 'SYNCHRONIZATION COMPLETE';
-                    
+
                     setTimeout(() => {
                         overlay.style.display = 'none';
                         document.getElementById('leafletContainer').style.display = 'none';
