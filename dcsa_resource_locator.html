@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
+<head><link href="/static/extracted_dcsa.css" rel="stylesheet"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>DCSA Resource Locator</title>
@@ -10,10 +10,10 @@
 <!-- FontAwesome -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <!-- LeafletJS (High Performance 2D) -->
-<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Shared Styles -->
-<link href="static/styles.css?v=2.0" rel="stylesheet"/>
+<link href="static/styles.css?v=2.0" rel="stylesheet">
 <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: #050505; }
         
@@ -73,6 +73,7 @@
             width: 350px;
             bottom: 20px;
             background: rgba(10, 15, 25, 0.85);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 122, 0, 0.3);
             border-radius: 8px;
@@ -201,8 +202,9 @@
             background-position: right 1rem center;
             background-size: 1em;
             padding-right: 2.5rem;
-            appearance: none;
             -webkit-appearance: none;
+            appearance: none;
+            
         }
         select.form-control option {
             background-color: #0b0c0b;
@@ -257,6 +259,7 @@
             font-family: 'Inter', sans-serif;
             z-index: 100;
             box-shadow: 0 0 30px rgba(255, 122, 0, 0.15);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
         .popup-header {
@@ -301,9 +304,10 @@
             width: calc(100% - 390px);
             height: 100%;
             background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             z-index: 1000;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
         }
@@ -351,42 +355,41 @@
             font-size: 0.8rem;
         }
     </style>
-
 </link></head>
 <body class="">
-<div id="leafletContainer" class="no-cms"></div>
-<div id="cesiumContainer" class="no-cms"></div>
-<div id="progressOverlay" class="progress-overlay" style="display: none;">
-    <div class="progress-hud">
-        <h3 id="progressText">PLOTTING GLOBAL ASSETS</h3>
-        <div class="progress-bar-track">
-            <div id="progressBarFill" class="progress-bar-fill"></div>
-        </div>
-        <div class="progress-status">
-            <span id="progressStep">INITIALIZING ENGINE...</span>
-            <span id="progressPercent">0%</span>
-        </div>
-    </div>
+<div class="no-cms" id="leafletContainer"></div>
+<div class="no-cms" id="cesiumContainer"></div>
+<div class="progress-overlay clean-style-0" id="progressOverlay">
+<div class="progress-hud">
+<h3 id="progressText">PLOTTING GLOBAL ASSETS</h3>
+<div class="progress-bar-track">
+<div class="progress-bar-fill" id="progressBarFill"></div>
+</div>
+<div class="progress-status">
+<span id="progressStep">INITIALIZING ENGINE...</span>
+<span id="progressPercent">0%</span>
+</div>
+</div>
 </div>
 <div class="reticle"></div>
 <div class="hud-header">
 <h1 class="hud-title" data-cms="auto-dcsa-resource-locator-h1-1"><i class="fa-solid fa-earth-americas" style="margin-right: 15px; font-size: 1.8rem;"></i> DCSA Global Asset</h1>
-<div style="display: flex; gap: 1rem;">
-<button class="back-btn no-cms" id="toggleViewBtn" style="cursor: pointer; background: transparent;"><i class="fa-solid fa-cube" style="margin-right: 0.5rem;"></i> SWITCH TO 3D</button>
+<div class="clean-style-2">
+<button class="back-btn no-cms clean-style-3" id="toggleViewBtn"><i class="fa-solid fa-cube clean-style-4"></i> SWITCH TO 3D</button>
 <a class="back-btn" data-cms="auto-dcsa-resource-locator-a-4" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> EXIT LIVE VIEW</a>
 </div>
 </div>
 <div class="side-panel">
 <div class="panel-tabs">
-<div class="tab active" data-tab="search"><i class="fa-solid fa-satellite-dish" style="margin-right: 5px;"></i> LOCATE</div>
-<div class="tab" data-tab="manage"><i class="fa-solid fa-location-crosshairs" style="margin-right: 5px;"></i> MANAGE ASSETS</div>
+<div class="tab active" data-tab="search"><i class="fa-solid fa-satellite-dish clean-style-6"></i> LOCATE</div>
+<div class="tab" data-tab="manage"><i class="fa-solid fa-location-crosshairs clean-style-7"></i> MANAGE ASSETS</div>
 </div>
 <div class="panel-content">
 <!-- Search Pane -->
 <div class="tab-pane active" id="tab-search">
-<div style="margin-bottom: 2rem;">
-<label style="color: #ff7a00; font-weight: bold; margin-bottom: 0.8rem; display: block; text-transform: uppercase; letter-spacing: 1px;">Search By Name</label>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+<div class="clean-style-8">
+<label class="clean-style-9">Search By Name</label>
+<div class="clean-style-10">
 <div class="search-box">
 <i class="fa-solid fa-user"></i>
 <input id="locateSearchFirst" placeholder="First Name..." type="text"/>
@@ -396,19 +399,19 @@
 <input id="locateSearchLast" placeholder="Last Name..." type="text"/>
 </div>
 </div>
-<button class="btn-submit" id="executeLocateSearchBtn" style="width: 100%; padding: 0.8rem; background: rgba(255,122,0,0.1); border: 1px solid #ff7a00; color: #ff7a00;" type="button"><i class="fa-solid fa-satellite-dish" style="margin-right: 8px;"></i> EXECUTE SEARCH</button>
+<button class="btn-submit clean-style-11" id="executeLocateSearchBtn" type="button"><i class="fa-solid fa-satellite-dish clean-style-12"></i> EXECUTE SEARCH</button>
 </div>
-<label style="color: #8892b0; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.8rem; display: block; text-transform: uppercase; letter-spacing: 1px;">Search Results</label>
+<label class="clean-style-13">Search Results</label>
 <div id="resultsList">
 <!-- Results populated by JS -->
 </div>
 </div>
 <!-- Manage Pane -->
 <div class="tab-pane" id="tab-manage">
-<p data-cms="auto-dcsa-resource-locator-p-3" style="font-size: 0.9rem; color: #8892b0; margin-top: 0; margin-bottom: 1.5rem; line-height: 1.5;">Add new resources or edit/delete existing global assets.</p>
-<div style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,122,0,0.3); padding-bottom: 1.5rem;">
-<label style="color: #ff7a00; font-weight: bold; margin-bottom: 0.8rem; display: block; text-transform: uppercase; letter-spacing: 1px;">Search By Name</label>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+<p class="clean-style-14" data-cms="auto-dcsa-resource-locator-p-3">Add new resources or edit/delete existing global assets.</p>
+<div class="clean-style-15">
+<label class="clean-style-16">Search By Name</label>
+<div class="clean-style-17">
 <div class="search-box">
 <i class="fa-solid fa-user"></i>
 <input id="manageSearchFirst" placeholder="First Name..." type="text"/>
@@ -418,17 +421,17 @@
 <input id="manageSearchLast" placeholder="Last Name..." type="text"/>
 </div>
 </div>
-<button class="btn-submit" id="executeSearchBtn" style="width: 100%; padding: 0.8rem; background: rgba(255,122,0,0.1); border: 1px solid #ff7a00; color: #ff7a00;" type="button"><i class="fa-solid fa-satellite-dish" style="margin-right: 8px;"></i> EXECUTE SEARCH</button>
+<button class="btn-submit clean-style-18" id="executeSearchBtn" type="button"><i class="fa-solid fa-satellite-dish clean-style-19"></i> EXECUTE SEARCH</button>
 </div>
-<div class="form-group" style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,122,0,0.3); padding-bottom: 1.5rem;">
+<div class="form-group clean-style-20">
 <label>Select Asset to Manage</label>
-<select class="form-control" id="assetSelector" style="border-color: #ff7a00; color: #ff7a00; font-weight: bold;">
+<select class="form-control clean-style-21" id="assetSelector">
 <option value="NEW">[+] CREATE NEW ASSET</option>
 <!-- Options populated by JS -->
 </select>
 </div>
 <form id="statusForm">
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<div class="clean-style-22">
 <div class="form-group">
 <label>First Name</label>
 <input class="form-control" id="fName" type="text"/>
@@ -450,7 +453,7 @@
 <option value="Insider Threat Program">Insider Threat Program</option>
 </select>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<div class="clean-style-23">
 <div class="form-group">
 <label>Duty Station</label>
 <select class="form-control" id="station">
@@ -469,7 +472,7 @@
 <input class="form-control" id="customLocation" placeholder="e.g. 38.89, -77.03" type="text"/>
 </div>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<div class="clean-style-24">
 <div class="form-group">
 <label>Clearance</label>
 <select class="form-control" id="clearance">
@@ -491,7 +494,7 @@
 </select>
 </div>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<div class="clean-style-25">
 <div class="form-group">
 <label>Schedule</label>
 <select class="form-control" id="schedule">
@@ -509,7 +512,7 @@
 <input class="form-control" id="manager" type="text"/>
 </div>
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<div class="clean-style-26">
 <div class="form-group">
 <label>Email</label>
 <input class="form-control" id="email" type="text"/>
@@ -521,12 +524,12 @@
 </div>
 <!-- Hidden input for Nationality -->
 <input id="nationality" type="hidden" value="United States"/>
-<div id="actionButtons" style="display: flex; gap: 1rem; margin-top: 1rem;">
+<div class="clean-style-27" id="actionButtons">
 <button class="btn-submit" id="addAssetBtn" type="button">ADD NEW ASSET</button>
-<button class="btn-submit" id="updateAssetBtn" style="display: none;" type="button">UPDATE ASSET</button>
-<button class="btn-submit" id="deleteAssetBtn" style="display: none; background: #ff5555; color: #fff;" type="button">DELETE</button>
+<button class="btn-submit clean-style-28" id="updateAssetBtn" type="button">UPDATE ASSET</button>
+<button class="btn-submit clean-style-29" id="deleteAssetBtn" type="button">DELETE</button>
 </div>
-<div id="saveMsg" style="color: #ff7a00; font-size: 0.85rem; margin-top: 1rem; text-align: center; display: none; font-family: 'Share Tech Mono', monospace;">TRANSMISSION LOGGED SUCESSFULLY.</div>
+<div class="clean-style-30" id="saveMsg">TRANSMISSION LOGGED SUCESSFULLY.</div>
 </form>
 </div>
 </div>
@@ -567,7 +570,7 @@
 </div>
 <div class="grid-item">
 <div class="meta-label">Clearance</div>
-<div class="meta-val" id="popClearance" style="color: #ffb86c;">TS/SCI</div>
+<div class="meta-val clean-style-31" id="popClearance">TS/SCI</div>
 </div>
 </div>
 </div>
