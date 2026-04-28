@@ -89,12 +89,12 @@
                     <svg class="trail-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
                         <defs>
                             <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stop-color="#E8F1F5"></stop>
-                                <stop offset="100%" stop-color="#FFFFFF"></stop>
+                                <stop offset="0%" stop-color="var(--sky-top, #E8F1F5)"></stop>
+                                <stop offset="100%" stop-color="var(--sky-bottom, #FFFFFF)"></stop>
                             </linearGradient>
                             <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#FFD6A5"></stop>
-                                <stop offset="100%" stop-color="#FF9E79"></stop>
+                                <stop offset="0%" stop-color="var(--sun-1, #FFD6A5)"></stop>
+                                <stop offset="100%" stop-color="var(--sun-2, #FF9E79)"></stop>
                             </linearGradient>
                             <linearGradient id="mountainBase" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" stop-color="rgba(122, 142, 99, 0.15)"></stop>
@@ -127,7 +127,7 @@
                         <circle cx="200" cy="150" r="60" fill="url(#sunGrad)" filter="url(#softGlow)" opacity="0.8"></circle>
 
                         <!-- Birds in the Distance -->
-                        <g fill="#4a5c4a" opacity="0.6">
+                        <g fill="var(--text-dark, #4a5c4a)" opacity="0.6">
                             <path d="M 600 120 Q 610 110 620 120 Q 610 115 600 120 Z"></path>
                             <path d="M 620 120 Q 630 110 640 120 Q 630 115 620 120 Z"></path>
 
@@ -159,7 +159,7 @@
                         <path id="partnership-path" d="M100,550 L400,100" stroke="var(--accent)" stroke-width="4" stroke-dasharray="6,6" fill="none" filter="url(#glow)"></path>
 
                         <!-- The Winding Traditional Services Path -->
-                        <path id="ts-path" d="M100,550 C 250,550 250,450 459,450 C 600,450 650,320 750,280 C 800,280 930,250 950,200" stroke="#000000" stroke-width="4" stroke-dasharray="6,6" fill="none" opacity="0.75"></path>
+                        <path id="ts-path" d="M100,550 C 250,550 250,450 459,450 C 600,450 650,320 750,280 C 800,280 930,250 950,200" stroke="var(--text-dark, #000000)" stroke-width="4" stroke-dasharray="6,6" fill="none" opacity="0.75"></path>
                     </svg>
 
                     <!-- Partnership Summit Node -->
