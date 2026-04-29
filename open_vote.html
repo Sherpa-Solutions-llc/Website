@@ -13,10 +13,10 @@
     <!-- D3 & TopoJSON for Maps -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
-    <script src="//unpkg.com/globe.gl"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="static/open_vote.css?v=11">
+    <link rel="stylesheet" href="static/open_vote.css?v=12">
     <style>
         #virtual-cursor {
             position: fixed;
@@ -59,24 +59,24 @@
 
     <!-- Header -->
     <header class="app-header">
-        <a href="#" class="logo-area" title="Count My Vote" style="display: flex; align-items: center; text-decoration: none;" onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/' : (window.location.hostname.includes('sherpa') ? '/open_vote.html' : '/'); return false;">
-            <img src="static/open-vote-transparent.png?v=8" alt="Open Vote" style="height: 60px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"> 
+        <a href="#" class="logo-area auto-style-42954e36" title="Count My Vote"  onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/' : (window.location.hostname.includes('sherpa') ? '/open_vote.html' : '/'); return false;">
+            <img src="static/open-vote-transparent.png?v=8" alt="Open Vote" class="auto-style-218bcfc2" > 
         </a>
         
         <div class="header-controls">
-            <button id="demo-mode-btn" class="btn" style="background: rgba(0, 210, 255, 0.1); border-color: #00d2ff; color: #00d2ff; font-weight: bold; margin-right: 15px; transition: all 0.2s ease;" title="Toggle Demo Mode">
+            <button id="demo-mode-btn" class="btn auto-style-d4bd9058"  title="Toggle Demo Mode">
                 <i class="fa-solid fa-play"></i> DEMO OFF
             </button>
-            <input type="range" id="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" title="Demo Voice Volume" style="display: none; width: 60px; margin-right: 15px; cursor: pointer; accent-color: #00d2ff;">
+            <input type="range" id="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" title="Demo Voice Volume" class="auto-style-141f85f6" >
             
-            <div id="global-id-status" class="status-badge" style="color: var(--accent-red); margin-right: 1rem;">
+            <div id="global-id-status" class="status-badge auto-style-c6fd9d96" >
                 <div class="pulse-dot"></div>
-                <span style="font-family: 'Share Tech Mono'; font-size: 0.9rem;">ID UNVERIFIED</span>
+                <span class="auto-style-03369ddc" >ID UNVERIFIED</span>
             </div>
-            <a href="#" onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/next_steps.html' : (window.location.hostname.includes('sherpa') ? '/next_steps.html' : 'https://www.sherpa-solutions-llc.com/next_steps.html'); return false;" class="btn" style="background: rgba(255, 171, 0, 0.1); border-color: #ffab00; color: #ffab00; font-weight: bold; margin-right: 15px; text-decoration: none;" title="View Production Logistics & Next Steps">
+            <a href="#" onclick="window.location.href = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '/next_steps.html' : (window.location.hostname.includes('sherpa') ? '/next_steps.html' : 'https://www.sherpa-solutions-llc.com/next_steps.html'); return false;" class="btn auto-style-9db4b5e5"  title="View Production Logistics & Next Steps">
                 <i class="fa-solid fa-list-check"></i> NEXT STEPS
             </a>
-            <button class="btn" id="btn-admin" onclick="openAdminModal()" style="display:none;">
+            <button class="btn auto-style-93b8ea5b" id="btn-admin" onclick="openAdminModal()" >
                 <i class="fa-solid fa-screwdriver-wrench"></i> Admin Panel
             </button>
             <script>
@@ -92,11 +92,11 @@
         
         <!-- Left Panel: Active Polls -->
         <aside class="panel left-panel">
-            <div class="panel-header" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; padding-bottom: 0.5rem;">
-                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+            <div class="panel-header auto-style-f12cbf8b" >
+                <div class="auto-style-5bb3f2d0" >
                     <h2><i class="fa-solid fa-list-check"></i> Active Ballots</h2>
                 </div>
-                <input type="text" id="poll-search-input" placeholder="Search Jurisdiction / Poll..." onkeyup="filterPolls()" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.85rem;">
+                <input type="text" id="poll-search-input" placeholder="Search Jurisdiction / Poll..." onkeyup="filterPolls()" class="auto-style-0f472fc5"  title="Search Polls">
             </div>
             <div class="panel-content">
                 <div class="poll-list" id="poll-list">
@@ -108,8 +108,8 @@
         <!-- Center Panel: Live Dashboard -->
         <section class="panel center-panel">
             <div class="panel-header">
-                <h2><i class="fa-solid fa-chart-line"></i> Global Consensus Intelligence <span id="dashboard-region-label" style="opacity: 0.5; font-weight: 300;">| All Regions</span></h2>
-                <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem;">
+                <h2><i class="fa-solid fa-chart-line"></i> Global Consensus Intelligence <span id="dashboard-region-label" class="auto-style-ed271a68" >| All Regions</span></h2>
+                <div class="auto-style-044fc85b" >
                     <i class="fa-solid fa-satellite-dish"></i> LIVE TELEMETRY
                 </div>
             </div>
@@ -121,61 +121,61 @@
                         <div class="stat-value" id="stat-total">142,593</div>
                         <div class="stat-label">Total Votes</div>
                     </div>
-                    <div class="stat-box" style="padding: 1rem; align-items: stretch; justify-content: space-around;">
-                        <div class="tacho-row" style="margin-bottom: 0.4rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px;">
-                                <span style="font-family: 'Inter', sans-serif;">GEN-Z VELOCITY</span>
-                                <span id="vel-genz" style="color: var(--accent-glow); font-family: 'Share Tech Mono'; font-weight: bold;">2,400/min</span>
+                    <div class="stat-box auto-style-0790fb3b" >
+                        <div class="tacho-row auto-style-e54710e4" >
+                            <div class="auto-style-78289fb0" >
+                                <span class="auto-style-39ece075" >GEN-Z VELOCITY</span>
+                                <span id="vel-genz" class="auto-style-79ce3468" >2,400/min</span>
                             </div>
-                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-                                <div id="bar-genz" style="height: 100%; width: 85%; background: linear-gradient(90deg, transparent, var(--accent-glow)); box-shadow: 0 0 8px var(--accent-glow); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            <div class="auto-style-de3d5150" >
+                                <div id="bar-genz" class="auto-style-4cb57aca" ></div>
                             </div>
                         </div>
-                        <div class="tacho-row" style="margin-bottom: 0.4rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px;">
-                                <span style="font-family: 'Inter', sans-serif;">MILLENNIAL VELOCITY</span>
-                                <span id="vel-mil" style="color: var(--accent-blue); font-family: 'Share Tech Mono'; font-weight: bold;">1,800/min</span>
+                        <div class="tacho-row auto-style-e54710e4" >
+                            <div class="auto-style-78289fb0" >
+                                <span class="auto-style-39ece075" >MILLENNIAL VELOCITY</span>
+                                <span id="vel-mil" class="auto-style-cd491c24" >1,800/min</span>
                             </div>
-                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-                                <div id="bar-mil" style="height: 100%; width: 65%; background: linear-gradient(90deg, transparent, var(--accent-blue)); box-shadow: 0 0 8px var(--accent-blue); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            <div class="auto-style-de3d5150" >
+                                <div id="bar-mil" class="auto-style-34e582ff" ></div>
                             </div>
                         </div>
                         <div class="tacho-row">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 3px;">
-                                <span style="font-family: 'Inter', sans-serif;">BOOMER VELOCITY</span>
-                                <span id="vel-boom" style="color: var(--accent-red); font-family: 'Share Tech Mono'; font-weight: bold;">1,200/min</span>
+                            <div class="auto-style-78289fb0" >
+                                <span class="auto-style-39ece075" >BOOMER VELOCITY</span>
+                                <span id="vel-boom" class="auto-style-05efb865" >1,200/min</span>
                             </div>
-                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-                                <div id="bar-boom" style="height: 100%; width: 45%; background: linear-gradient(90deg, transparent, var(--accent-red)); box-shadow: 0 0 8px var(--accent-red); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            <div class="auto-style-de3d5150" >
+                                <div id="bar-boom" class="auto-style-65b76fd0" ></div>
                             </div>
                         </div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value" id="stat-nodes" style="color: var(--accent-green); font-size: 1rem; line-height: 1.2; word-break: break-word;">Loading...</div>
-                        <div class="stat-label" style="margin-top: 0.5rem;">Score</div>
+                        <div class="stat-value auto-style-5a8443f4" id="stat-nodes" >Loading...</div>
+                        <div class="stat-label auto-style-f8a7328a" >Score</div>
                     </div>
                 </div>
 
                 <!-- Demographic Lenses -->
-                <div class="demographic-filters" style="display: flex; gap: 0.5rem; margin-bottom: 2.5rem; overflow-x: auto; padding-bottom: 5px;">
+                <div class="demographic-filters auto-style-94cc3eb5" >
                     <button class="demo-pill active" onclick="setDemographicFilter('all', this)">All Demographics</button>
                     <button class="demo-pill" onclick="setDemographicFilter('genz', this)">Gen Z (18-27)</button>
                     <button class="demo-pill" onclick="setDemographicFilter('boomer', this)">Baby Boomers</button>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1rem;">
-                    <h3 id="current-poll-title" style="font-size: 1.5rem; font-weight: 600;">Loading Results...</h3>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn view-tab-btn active" id="btn-view-bar" onclick="switchView('bar')" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; border-color: rgba(255,255,255,0.2);">
+                <div class="auto-style-2f1900e7" >
+                    <h3 id="current-poll-title" class="auto-style-6e3e9e7c" >Loading Results...</h3>
+                    <div class="auto-style-5fa1c6fb" >
+                        <button class="btn view-tab-btn active auto-style-560f1a06" id="btn-view-bar" onclick="switchView('bar')" >
                             <i class="fa-solid fa-chart-column"></i> Bar Chart
                         </button>
-                        <button class="btn view-tab-btn" id="btn-view-3d" onclick="switchView('3d')" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; background: transparent; border-color: rgba(255,255,255,0.2);">
+                        <button class="btn view-tab-btn auto-style-af0e6b39" id="btn-view-3d" onclick="switchView('3d')" >
                             <i class="fa-solid fa-earth-americas"></i> 3D Globe
                         </button>
-                        <button class="btn view-tab-btn" id="btn-view-2d" onclick="switchView('2d')" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; background: transparent; border-color: rgba(255,255,255,0.2);">
+                        <button class="btn view-tab-btn auto-style-af0e6b39" id="btn-view-2d" onclick="switchView('2d')" >
                             <i class="fa-solid fa-map"></i> 2D Map
                         </button>
-                        <button class="btn" id="btn-cyber-radar" onclick="toggleCyberRadar()" style="font-size: 0.8rem; padding: 0.3rem 0.6rem; background: rgba(255, 0, 0, 0.1); border-color: rgba(255, 0, 0, 0.5); color: #ff4444; margin-left: 10px;">
+                        <button class="btn auto-style-70e43035" id="btn-cyber-radar" onclick="toggleCyberRadar()" >
                             <i class="fa-solid fa-satellite-dish"></i> CYBER RADAR
                         </button>
                     </div>
@@ -188,77 +188,77 @@
                 </div>
 
                 <!-- Geospatial Map Container -->
-                <div class="chart-container hidden" id="map-view" style="position: relative; height: 350px; background: rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05);">
+                <div class="chart-container hidden auto-style-2a2bc353" id="map-view" >
                     <svg id="interactive-map" width="100%" height="100%"></svg>
                     <!-- Loading state for maps -->
-                    <div id="map-loading" style="position: absolute; color: var(--accent-glow); font-family: 'Share Tech Mono';">
+                    <div id="map-loading" class="auto-style-b31cdb3c" >
                         <i class="fa-solid fa-circle-notch fa-spin"></i> INITIALIZING GEOSPATIAL ENGINE...
                     </div>
                     
                     <!-- Mempool Stream Terminal -->
-                    <div id="mempool-terminal" style="position: absolute; bottom: 10px; right: 10px; width: 220px; height: 110px; background: rgba(13, 17, 23, 0.85); border: 1px solid rgba(0, 210, 255, 0.4); border-radius: 4px; z-index: 20; color: var(--accent-glow); font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; padding: 6px; overflow: hidden; pointer-events: none; opacity: 0.9; box-shadow: 0 0 10px rgba(0, 210, 255, 0.1); transition: all 0.3s ease;">
-                        <div style="border-bottom: 1px solid rgba(0,210,255,0.3); margin-bottom: 4px; padding-bottom: 2px; font-weight: bold; display: flex; justify-content: space-between; font-size: 0.65rem;">
-                            <span><i class="fa-solid fa-satellite-dish" style="margin-right: 4px;"></i> LIVE MEMPOOL</span>
-                            <span id="mempool-status" style="color: var(--text-secondary);"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                    <div id="mempool-terminal" class="auto-style-4aea185f" >
+                        <div class="auto-style-2d09054d" >
+                            <span><i class="fa-solid fa-satellite-dish auto-style-8190fa45" ></i> LIVE MEMPOOL</span>
+                            <span id="mempool-status" class="auto-style-35042dad" ><i class="fa-solid fa-circle-notch fa-spin"></i></span>
                         </div>
-                        <div id="mempool-stream" style="display: flex; flex-direction: column; justify-content: flex-end; height: 75px; overflow: hidden; gap: 2px;">
+                        <div id="mempool-stream" class="auto-style-f3b82dff" >
                         </div>
                     </div>
                     
                     <!-- Node Drilldown Modal -->
-                    <div id="node-drilldown-modal" style="position: absolute; top: 10px; left: 10px; width: 260px; pointer-events: none; opacity: 0; background: rgba(13, 17, 23, 0.95); border: 1px solid var(--accent-green); border-radius: 6px; padding: 12px; z-index: 25; font-family: 'Share Tech Mono', monospace; color: var(--text-primary); transition: opacity 0.3s ease; box-shadow: 0 0 20px rgba(0, 255, 0, 0.15);">
-                        <div style="font-size: 0.85rem; font-weight: bold; color: var(--accent-green); border-bottom: 1px dashed var(--accent-green); margin-bottom: 8px; padding-bottom: 4px;">
-                            <i class="fa-solid fa-server" style="margin-right: 5px;"></i> CITIZEN NODE INSPECTOR
+                    <div id="node-drilldown-modal" class="auto-style-34144e4d" >
+                        <div class="auto-style-2851f16a" >
+                            <i class="fa-solid fa-server auto-style-c02c7d9c" ></i> CITIZEN NODE INSPECTOR
                         </div>
-                        <div style="font-size: 0.7rem; color: var(--text-secondary); display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                            <div style="color: var(--text-secondary);">NODE ID:</div>
-                            <div id="node-id-display" style="color: #fff;">0x...</div>
-                            <div style="color: var(--text-secondary);">UPTIME:</div>
-                            <div id="node-uptime-display" style="color: #fff;">99.98%</div>
-                            <div style="color: var(--text-secondary);">HASHRATE:</div>
-                            <div id="node-hashrate-display" style="color: #fff;">14.2 TH/s</div>
-                            <div style="color: var(--text-secondary);">LOCAL BLOCKS:</div>
-                            <div id="node-blocks-display" style="color: #fff;">0</div>
+                        <div class="auto-style-5068db3c" >
+                            <div class="auto-style-35042dad" >NODE ID:</div>
+                            <div id="node-id-display" class="auto-style-421b9989" >0x...</div>
+                            <div class="auto-style-35042dad" >UPTIME:</div>
+                            <div id="node-uptime-display" class="auto-style-421b9989" >99.98%</div>
+                            <div class="auto-style-35042dad" >HASHRATE:</div>
+                            <div id="node-hashrate-display" class="auto-style-421b9989" >14.2 TH/s</div>
+                            <div class="auto-style-35042dad" >LOCAL BLOCKS:</div>
+                            <div id="node-blocks-display" class="auto-style-421b9989" >0</div>
                         </div>
-                        <div style="margin-top: 8px; font-size: 0.65rem; color: var(--accent-glow); text-align: center;">STATUS: SECURE & SYNCED</div>
+                        <div class="auto-style-ead1f70c" >STATUS: SECURE & SYNCED</div>
                     </div>
                     <!-- Tooltip -->
-                    <div id="map-tooltip" style="position: absolute; opacity: 0; pointer-events: none; background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10; font-family: 'Inter', sans-serif; min-width: 200px;">
-                        <h4 id="tt-title" style="margin-bottom: 0.5rem; font-size: 0.9rem; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 0.2rem;">Region</h4>
-                        <div id="tt-data" style="font-size: 0.8rem; line-height: 1.4;"></div>
+                    <div id="map-tooltip" class="auto-style-fe5797ec" >
+                        <h4 id="tt-title" class="auto-style-bf6c9216" >Region</h4>
+                        <div id="tt-data" class="auto-style-20607739" ></div>
                     </div>
                 </div>
 
                 <!-- 2D SVG Map Container -->
-                <div class="chart-container hidden" id="svg-map-view" style="position: relative; height: 350px; background: rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(255,255,255,0.05); padding: 1rem;">
-                    <select id="svg-country-select" onchange="render2DMap()" style="align-self: flex-start; margin-bottom: 0.5rem; background: var(--bg-surface); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem; border-radius: 4px; font-family: 'Inter', sans-serif; z-index: 10;">
+                <div class="chart-container hidden auto-style-551ab43b" id="svg-map-view" >
+                    <select id="svg-country-select" onchange="render2DMap()" class="auto-style-44beb415"  title="Select View">
                         <option value="US">United States</option>
                         <option value="Global">Global Perspective</option>
                         <option value="UK">United Kingdom</option>
                         <option value="France">France</option>
                     </select>
-                    <div id="svg-map-render-target" style="flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                        <div style="color: var(--text-secondary); font-family: 'Share Tech Mono';">
+                    <div id="svg-map-render-target" class="auto-style-45a0a555" >
+                        <div class="auto-style-63a5b345" >
                             <i class="fa-solid fa-circle-notch fa-spin"></i> PREPARING 2D MAPPING...
                         </div>
                     </div>
                 </div>
                 
                 <!-- Historical Replay Timeline Scrubber -->
-                <div id="timeline-scrubber-container" style="margin-top: 1rem; width: 100%; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0,210,255,0.1); border-radius: 6px; padding: 10px; display: flex; align-items: center; gap: 15px;">
-                    <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-blue);"></i>
-                    <input type="range" id="historical-scrubber" min="0" max="100" value="100" style="flex: 1; height: 4px; background: var(--bg-primary); appearance: none; outline: none; border-radius: 2px;">
-                    <span id="historical-time-display" style="font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--accent-glow); width: 120px; text-align: right;">LIVE</span>
+                <div id="timeline-scrubber-container" class="auto-style-cca65478" >
+                    <i class="fa-solid fa-clock-rotate-left auto-style-3a0c4733" ></i>
+                    <input type="range" id="historical-scrubber" min="0" max="100" value="100" class="auto-style-df89cbfc"  title="Historical Timeline Scrubber">
+                    <span id="historical-time-display" class="auto-style-a32e7c59" >LIVE</span>
                 </div>
                 
-                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.85rem; text-align: center;">
-                    <i class="fa-solid fa-lock" style="color: var(--accent-green);"></i> Data secured via Zero-Knowledge Proofs. Individually verifiable, globally anonymous.
+                <p class="auto-style-63689c65" >
+                    <i class="fa-solid fa-lock auto-style-2ebc0af6" ></i> Data secured via Zero-Knowledge Proofs. Individually verifiable, globally anonymous.
                 </p>
 
                 <!-- Jurisdiction Breakdown List Box -->
-                <div id="us-state-breakdown" class="hidden" style="margin-top: 2rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem;">
-                    <h4 id="breakdown-header-title" style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;"><i class="fa-solid fa-map-location-dot"></i> Live Jurisdiction Analysis</h4>
-                    <div id="state-list-scroll" style="max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+                <div id="us-state-breakdown" class="hidden auto-style-f6a037b9" >
+                    <h4 id="breakdown-header-title" class="auto-style-9ee4485b" ><i class="fa-solid fa-map-location-dot"></i> Live Jurisdiction Analysis</h4>
+                    <div id="state-list-scroll" class="auto-style-b59d9a74" >
                         <!-- JS Injected State Rows -->
                     </div>
                 </div>
@@ -273,13 +273,13 @@
                     <i class="fa-solid fa-shield-halved"></i> 1 Person = 1 Vote
                 </div>
                 
-                <h3 style="margin-bottom: 1rem; font-size: 1.3rem;">Cast Your Ballot</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">
+                <h3 class="auto-style-58048b10" >Cast Your Ballot</h3>
+                <p class="auto-style-d0d88624" >
                     Your identity will be verified to prevent duplicate voting, but your selection remains completely unlinked and mathematically private.
                 </p>
                 
                 <button id="verify-btn" class="vote-action-btn" onclick="startVerificationProcess()">
-                    <i class="fa-solid fa-fingerprint" style="margin-right: 0.5rem;"></i> Identity Verification
+                    <i class="fa-solid fa-fingerprint auto-style-1e5c8846" ></i> Identity Verification
                 </button>
 
                 <ul class="security-list">
@@ -289,61 +289,61 @@
                 </ul>
             </div>
 
-            <div id="right-panel-verified" class="action-card hidden" style="border-color: rgba(63, 185, 80, 0.4);">
-                <div class="security-badge" style="background: rgba(63, 185, 80, 0.1); border-color: rgba(63, 185, 80, 0.3); color: var(--accent-green);">
+            <div id="right-panel-verified" class="action-card hidden auto-style-13efb9ad" >
+                <div class="security-badge auto-style-a80f90dc" >
                     <i class="fa-solid fa-check-double"></i> ID Secured
                 </div>
                 
-                <h3 style="margin-bottom: 1rem; font-size: 1.3rem; color: var(--accent-green);">Identity Verified</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">
+                <h3 class="auto-style-c01955ea" >Identity Verified</h3>
+                <p class="auto-style-d0d88624" >
                     Your unique biometric token has been securely generated. You may now cast your ballot.
                 </p>
                 
-                <div style="padding: 1.5rem; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-arrow-left" style="color: var(--accent-glow); margin-bottom: 1rem; display: block; font-size: 1.5rem;"></i>
-                    <p style="font-size: 0.85rem; color: var(--text-primary);">Select an active poll from the left menu to cast your vote.</p>
+                <div class="auto-style-5873f398" >
+                    <i class="fa-solid fa-arrow-left auto-style-3d855ddc" ></i>
+                    <p class="auto-style-e0c26993" >Select an active poll from the left menu to cast your vote.</p>
                 </div>
             </div>
 
-            <div id="right-panel-receipt" class="action-card hidden" style="border-color: var(--accent-glow); background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(13, 17, 23, 0.95)); box-shadow: 0 0 20px rgba(0, 210, 255, 0.15), inset 0 0 15px rgba(0, 210, 255, 0.1); position: relative; overflow: hidden;">
+            <div id="right-panel-receipt" class="action-card hidden auto-style-7e068c5e" >
                 <!-- Holographic Glare -->
-                <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 60%); transform: rotate(30deg); pointer-events: none; animation: hologramScroll 6s infinite linear;"></div>
+                <div class="auto-style-9feb26ad" ></div>
                 
                 <style>
                     @keyframes hologramScroll { 0% { transform: translateY(-50%) rotate(30deg); } 100% { transform: translateY(50%) rotate(30deg); } }
                     @keyframes spinSlow { 100% { transform: rotate(360deg); } }
                 </style>
 
-                <div class="security-badge" style="background: rgba(0, 210, 255, 0.15); border-color: rgba(0, 210, 255, 0.4); color: var(--accent-glow); display: inline-flex; margin-bottom: 1rem; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
-                    <i class="fa-solid fa-cube fa-spin" style="margin-right: 0.4rem; animation-duration: 4s;"></i> Proof of Democracy
+                <div class="security-badge auto-style-c060df1f" >
+                    <i class="fa-solid fa-cube fa-spin auto-style-042326b8" ></i> Proof of Democracy
                 </div>
                 
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;">BALLOT SECURED</h3>
-                <p style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+                <h3 class="auto-style-efb01648" >BALLOT SECURED</h3>
+                <p class="auto-style-7e381d2b" >
                     Your identity is detached. Your vote is mathematically irrefutable on the public ledger.
                 </p>
                 
                 <!-- 3D Spinning Emblem -->
-                <div style="text-align: center; margin: 1.5rem 0;">
-                    <div style="width: 70px; height: 70px; margin: 0 auto; border-radius: 50%; border: 2px dashed rgba(0, 210, 255, 0.5); animation: spinSlow 15s linear infinite; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 20px rgba(0,210,255,0.1), 0 0 20px rgba(0,210,255,0.1);">
-                        <i class="fa-solid fa-diagram-project" style="font-size: 1.8rem; color: var(--accent-glow); text-shadow: 0 0 15px var(--accent-glow);"></i>
+                <div class="auto-style-e7d6e157" >
+                    <div class="auto-style-63b397e6" >
+                        <i class="fa-solid fa-diagram-project auto-style-491f80a3" ></i>
                     </div>
                 </div>
                 
-                <div style="padding: 0.8rem; background: rgba(0,0,0,0.6); border-radius: 6px; border: 1px solid rgba(0,210,255,0.2); margin-bottom: 1.5rem; position: relative; z-index: 2;">
-                    <span style="font-size: 0.65rem; color: var(--accent-glow); text-transform: uppercase; letter-spacing: 1px;">Zero-Knowledge Hash</span>
-                    <div id="receipt-hash-display" style="font-family: 'Share Tech Mono'; color: #fff; font-size: 0.8rem; word-break: break-all; margin-top: 0.3rem;">
+                <div class="auto-style-3ca686a7" >
+                    <span class="auto-style-0cbaac05" >Zero-Knowledge Hash</span>
+                    <div id="receipt-hash-display" class="auto-style-4d2fc573" >
                         0x...
                     </div>
-                    <div id="receipt-time-display" style="font-family: 'Share Tech Mono'; color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 0.5rem; text-align: right;"></div>
+                    <div id="receipt-time-display" class="auto-style-b0c13abe" ></div>
                 </div>
 
-                <a href="#" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just secured my ballot on the zero-fee decentralized mesh. Unhackable. Verifiable. Where\'s yours? %23Count-My-Vote'), '_blank'); return false;" class="vote-action-btn" style="background: rgba(29, 161, 242, 0.1); border: 1px solid #1da1f2; color: #1da1f2; margin-bottom: 0.8rem; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; z-index: 2;">
-                    <i class="fa-brands fa-twitter" style="margin-right: 0.5rem;"></i> Share Verification
+                <a href="#" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just secured my ballot on the zero-fee decentralized mesh. Unhackable. Verifiable. Where\'s yours? %23Count-My-Vote'), '_blank'); return false;" class="vote-action-btn auto-style-996b30d3" >
+                    <i class="fa-brands fa-twitter auto-style-1e5c8846" ></i> Share Verification
                 </a>
 
-                <button class="vote-action-btn" onclick="openAuditLedger()" style="background: transparent; border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); font-size: 0.85rem; padding: 0.8rem; position: relative; z-index: 2;">
-                    <i class="fa-solid fa-server" style="margin-right: 0.5rem;"></i> Internal Audit Ledger
+                <button class="vote-action-btn auto-style-1b0a1bc3" onclick="openAuditLedger()" >
+                    <i class="fa-solid fa-server auto-style-1e5c8846" ></i> Internal Audit Ledger
                 </button>
             </div>
         </aside>
@@ -351,10 +351,10 @@
     </main>
 
     <!-- Footer: Built by a Sherpa -->
-    <footer style="position: fixed; bottom: 15px; right: 25px; z-index: 100;">
-        <a href="https://www.sherpa-solutions-llc.com" target="_blank" style="text-decoration: none; color: rgba(255, 255, 255, 0.7); display: flex; flex-direction: column; align-items: flex-end; gap: 4px; transition: all 0.3s ease;" onmouseover="this.style.color='#fff'; this.style.transform='scale(1.05)'" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)'; this.style.transform='scale(1)'">
-            <span style="font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px;">Built by a Sherpa</span>
-            <img src="static/sherpa_logo.png" alt="Sherpa Solutions" style="height: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+    <footer class="auto-style-613e5fba" >
+        <a href="https://www.sherpa-solutions-llc.com" target="_blank" rel="noopener noreferrer" class="auto-style-a2c8239e" >
+            <span class="auto-style-24650ab5" >Built by a Sherpa</span>
+            <img src="static/sherpa_logo.png" alt="Sherpa Solutions" class="auto-style-8546ef68" >
         </a>
     </footer>
 
@@ -362,18 +362,18 @@
 
     <!-- Verification Method Selection Modal -->
     <div class="modal-overlay" id="id-method-modal">
-        <div class="modal-content" style="max-width: 600px; text-align: center; padding: 2rem;">
-            <div class="modal-header" style="padding: 0 0 1rem 0; border: none;">
+        <div class="modal-content auto-style-692da2d0" >
+            <div class="modal-header auto-style-91325ab0" >
                 <h2><i class="fa-solid fa-shield-halved"></i> Select Verification Method</h2>
-                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+                <button class="close-modal" onclick="closeModals()" title="Close Modal" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; text-align: left;">
+            <p class="auto-style-e6440c3d" >
                 To ensure absolute integrity and prevent duplicate voting, you must verify your identity. The AI verification engine will instantly cross-reference our global registry to confirm you are a real human and have not already cast a ballot.
             </p>
             
-            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 2rem; text-align: left;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--text-primary);">1. Select your legal jurisdiction:</label>
-                <select id="user-country-select" style="width: 100%; padding: 0.8rem; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; margin-bottom: 1rem; font-family: 'Inter', sans-serif;" onchange="document.getElementById('user-state-select').style.display = this.value === 'US' ? 'block' : 'none';">
+            <div class="auto-style-b3ddd149" >
+                <label class="auto-style-7d941553" >1. Select your legal jurisdiction:</label>
+                <select id="user-country-select" class="auto-style-d1179f79"  onchange="document.getElementById('user-state-select').style.display = this.value === 'US' ? 'block' : 'none';" title="Select Country">
                     <option value="" disabled selected>-- Select Country --</option>
                     <option value="US">United States</option>
                     <option value="UK">United Kingdom</option>
@@ -381,7 +381,7 @@
                     <option value="Global">Unlisted (Global Only)</option>
                 </select>
                 
-                <select id="user-state-select" style="width: 100%; padding: 0.8rem; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; margin-bottom: 1rem; font-family: 'Inter', sans-serif; display: none;">
+                <select id="user-state-select" class="auto-style-9f54d765"  title="Select State">
                     <option value="" disabled selected>-- Select US State --</option>
                     
                     <option value="California">California</option>
@@ -437,15 +437,15 @@
                     <option value="Wyoming">Wyoming</option>
                 </select>
 
-                <div style="display: flex; align-items: center; gap: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem;">
-                    <input type="checkbox" id="vpn-simulator-toggle" style="accent-color: var(--accent-red); width: 1.2rem; height: 1.2rem; cursor: pointer;">
-                    <label for="vpn-simulator-toggle" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">
+                <div class="auto-style-e0d415e4" >
+                    <input type="checkbox" id="vpn-simulator-toggle" class="auto-style-b07797a8" >
+                    <label for="vpn-simulator-toggle" class="auto-style-33d016c9" >
                         Simulate mismatched IP address (VPN Router Active)
                     </label>
                 </div>
             </div>
 
-            <label style="display: block; margin-bottom: 1rem; font-weight: 500; font-size: 0.9rem; color: var(--text-primary); text-align: left;">2. Select Biometric Vector:</label>
+            <label class="auto-style-aa37df70" >2. Select Biometric Vector:</label>
             <div class="method-grid">
                 <div class="method-card" onclick="selectIdMethod('face')">
                     <i class="fa-solid fa-face-viewfinder"></i>
@@ -468,12 +468,12 @@
 
     <!-- Biometric Scan Modal -->
     <div class="modal-overlay" id="biometric-modal">
-        <div class="modal-content" style="max-width: 500px; text-align: center; padding: 2rem;">
+        <div class="modal-content auto-style-5dc7cadc" >
             
             <!-- Step 1: Capture Phase -->
             <div id="biometric-step-1">
-                <h2 style="margin-bottom: 0.5rem;" id="biometric-title">Identity Verification</h2>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;" id="biometric-desc">Please place your finger on the sensor</p>
+                <h2 class="auto-style-ac79cce7"  id="biometric-title">Identity Verification</h2>
+                <p class="auto-style-d0d88624"  id="biometric-desc">Please place your finger on the sensor</p>
                 
                 <!-- Dynamic Capture Container (Defaults to Fingerprint) -->
                 <div id="capture-container">
@@ -484,48 +484,48 @@
                     </div>
                 </div>
                 
-                <div class="scan-status" id="scan-status" style="margin-top: 1rem; font-family: 'Share Tech Mono';">AWAITING INPUT...</div>
+                <div class="scan-status auto-style-5098fb27" id="scan-status" >AWAITING INPUT...</div>
 
                 <!-- Simulation Controls (for Demo/Prototype purposes) -->
-                <div id="simulation-controls" style="margin-top: 1.5rem; display: none;">
-                    <button id="sim-capture-btn" class="btn" style="background: var(--surface-light); color: var(--accent-glow);">
+                <div id="simulation-controls" class="auto-style-97797313" >
+                    <button id="sim-capture-btn" class="btn auto-style-79e73451" >
                         <i class="fa-solid fa-camera"></i> Begin Capture
                     </button>
                     <!-- HIDDEN mock file input for ID -->
-                    <input type="file" id="sim-id-upload" accept="image/*" style="display: none;">
+                    <input type="file" id="sim-id-upload" accept="image/*" class="auto-style-224b51a7"  title="Upload ID Document">
                 </div>
 
-                <div id="ip-mismatch-warning" class="hidden" style="margin-top: 1.5rem; padding: 1rem; background: rgba(248, 81, 73, 0.1); border: 1px solid var(--accent-red); border-radius: 6px; color: var(--accent-red); font-size: 0.9rem;">
+                <div id="ip-mismatch-warning" class="hidden auto-style-387abd23" >
                     <i class="fa-solid fa-triangle-exclamation"></i> <strong>IP / LOCATION MISMATCH</strong><br>
                     Your connection origin does not match your declared jurisdiction. Please disconnect your VPN or Proxy to proceed.
                 </div>
             </div>
 
             <!-- Step 2: PII Data Entry Form -->
-            <div id="biometric-step-2" style="display: none; text-align: left;">
-                <h2 style="margin-bottom: 0.5rem; color: var(--accent-glow);"><i class="fa-solid fa-clipboard-check"></i> Registration File</h2>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Cross-referencing vector against centralized civil registry. Please confirm your Personally Identifiable Information.</p>
+            <div id="biometric-step-2" class="auto-style-280bab33" >
+                <h2 class="auto-style-481625ae" ><i class="fa-solid fa-clipboard-check"></i> Registration File</h2>
+                <p class="auto-style-0c49e54e" >Cross-referencing vector against centralized civil registry. Please confirm your Personally Identifiable Information.</p>
                 
                 <form id="voter-pii-form" onsubmit="submitRegistration(event)">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Full Legal Name</label>
-                        <input type="text" id="pii-name" required placeholder="John Doe" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif;">
+                    <div class="auto-style-4986ecf7" >
+                        <label class="auto-style-0a957aaa" >Full Legal Name</label>
+                        <input type="text" id="pii-name" required placeholder="John Doe" class="auto-style-ec736fb8"  title="Full Name">
                     </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Registered Residential Address</label>
-                        <input type="text" id="pii-address" required placeholder="123 Civic Ave, Springfield" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif;">
+                    <div class="auto-style-4986ecf7" >
+                        <label class="auto-style-0a957aaa" >Registered Residential Address</label>
+                        <input type="text" id="pii-address" required placeholder="123 Civic Ave, Springfield" class="auto-style-ec736fb8"  title="Address">
                     </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">Social Security / National Identity Number</label>
-                        <input type="password" id="pii-ssn" required placeholder="XXX-XX-XXXX" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: 'Inter', sans-serif;">
-                        <span style="font-size: 0.7rem; color: var(--accent-red); margin-top: 0.3rem; display: block;">* Used strictly for duplicate prevention hash-generation.</span>
+                    <div class="auto-style-d3297f95" >
+                        <label class="auto-style-0a957aaa" >Social Security / National Identity Number</label>
+                        <input type="password" id="pii-ssn" required placeholder="XXX-XX-XXXX" class="auto-style-ec736fb8"  title="SSN">
+                        <span class="auto-style-b5a9b00e" >* Used strictly for duplicate prevention hash-generation.</span>
                     </div>
 
-                    <button type="submit" id="pii-submit-btn" class="vote-action-btn" style="width: 100%;">
-                        <i class="fa-solid fa-server" style="margin-right: 0.5rem;"></i> Submit to Registrar
+                    <button type="submit" id="pii-submit-btn" class="vote-action-btn auto-style-199b6f0e" >
+                        <i class="fa-solid fa-server auto-style-1e5c8846" ></i> Submit to Registrar
                     </button>
                     
-                    <div id="pii-error-msg" style="color: var(--accent-red); margin-top: 1rem; font-size: 0.85rem; text-align: center; display: none;"></div>
+                    <div id="pii-error-msg" class="auto-style-e6ce2390" ></div>
                 </form>
             </div>
 
@@ -537,20 +537,20 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="ballot-title">Cast Vote</h2>
-                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+                <button class="close-modal" onclick="closeModals()" title="Close Modal" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <p style="margin-bottom: 1.5rem; color: var(--text-secondary);" id="ballot-desc">Select your choice below.</p>
+                <p class="auto-style-4c484954"  id="ballot-desc">Select your choice below.</p>
                 
                 <div class="ballot-options" id="ballot-options">
                     <!-- JS Injected -->
                 </div>
 
-                <div id="vote-encrypt-status" class="hidden" style="text-align: center; margin-bottom: 1rem; color: var(--accent-green); font-family: 'Share Tech Mono';">
+                <div id="vote-encrypt-status" class="hidden auto-style-34cc7d79" >
                     <i class="fa-solid fa-circle-notch fa-spin"></i> Encrypting Ballot Payload...
                 </div>
 
-                <button class="vote-action-btn" id="submit-vote-btn" onclick="submitVote()" disabled style="opacity: 0.5;">
+                <button class="vote-action-btn auto-style-0dbc0f09" id="submit-vote-btn" onclick="submitVote()" disabled >
                     Authorize & Submit Entry
                 </button>
             </div>
@@ -559,22 +559,22 @@
 
     <!-- Admin Panel Modal -->
     <div class="modal-overlay" id="admin-modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content auto-style-4d1e5c7d" >
             <div class="modal-header">
                 <h2><i class="fa-solid fa-screwdriver-wrench"></i> Administrative Console</h2>
-                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+                <button class="close-modal" onclick="closeModals()" title="Close Modal" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                    <button class="btn btn-primary" style="flex: 1; justify-content: center;">Add New Poll</button>
-                    <button class="btn" style="flex: 1; justify-content: center;">Manage Users</button>
+                <div class="auto-style-2745f0c7" >
+                    <button class="btn btn-primary auto-style-8194adc3" >Add New Poll</button>
+                    <button class="btn auto-style-8194adc3" >Manage Users</button>
                 </div>
 
-                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px;">
-                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: var(--accent-glow);">Create New Poll</h3>
+                <div class="auto-style-e07143f2" >
+                    <h3 class="auto-style-4c415cf3" >Create New Poll</h3>
                     <div class="form-group">
                         <label>Category</label>
-                        <select id="admin-poll-category">
+                        <select id="admin-poll-category" title="Poll Category">
                             <option>Political Initiative</option>
                             <option>Referendum</option>
                             <option>Approval Rating</option>
@@ -582,15 +582,15 @@
                     </div>
                     <div class="form-group">
                         <label>Title</label>
-                        <input type="text" id="admin-poll-title" placeholder="e.g., Global Legalization of Marijuana">
+                        <input type="text" id="admin-poll-title" placeholder="e.g., Global Legalization of Marijuana" title="Poll Title">
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <input type="text" id="admin-poll-desc" placeholder="e.g., Should this be passed?">
+                        <input type="text" id="admin-poll-desc" placeholder="e.g., Should this be passed?" title="Poll Description">
                     </div>
                     <div class="form-group">
                         <label>Region</label>
-                        <select id="admin-poll-region">
+                        <select id="admin-poll-region" title="Poll Region">
                             <option value="Global">Global</option>
                             <option value="US">United States</option>
                             <option value="UK">United Kingdom</option>
@@ -599,10 +599,10 @@
                     </div>
                     <div class="form-group">
                         <label>Options (Comma separated)</label>
-                        <input type="text" id="admin-poll-options" placeholder="Approve, Reject, Abstain">
+                        <input type="text" id="admin-poll-options" placeholder="Approve, Reject, Abstain" title="Poll Options">
                     </div>
-                    <button class="btn btn-primary" id="admin-save-btn" style="width: 100%; justify-content: center; margin-top: 1rem;" onclick="adminSavePoll()">Deploy to Network</button>
-                    <div id="admin-msg" style="color: var(--accent-green); margin-top: 1rem; text-align: center; display: none;"></div>
+                    <button class="btn btn-primary auto-style-b0e0ad8a" id="admin-save-btn"  onclick="adminSavePoll()">Deploy to Network</button>
+                    <div id="admin-msg" class="auto-style-a05400fa" ></div>
                 </div>
             </div>
         </div>
@@ -610,19 +610,19 @@
 
     <!-- Audit Ledger Modal -->
     <div class="modal-overlay" id="audit-modal">
-        <div class="modal-content" style="max-width: 700px; background: rgba(13, 17, 23, 0.95); border-color: var(--accent-blue);">
-            <div class="modal-header" style="border-bottom-color: rgba(88, 166, 255, 0.2);">
-                <h2 style="color: var(--text-primary);"><i class="fa-solid fa-server" style="color: var(--accent-blue);"></i> Public Ledger Node <span style="font-size: 0.8rem; opacity:0.5; margin-left: 10px;">v4.1.2_SYNC</span></h2>
-                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-content auto-style-43625bff" >
+            <div class="modal-header auto-style-19a8c14b" >
+                <h2 class="auto-style-b25d56ee" ><i class="fa-solid fa-server auto-style-3a0c4733" ></i> Public Ledger Node <span class="auto-style-471da4a8" >v4.1.2_SYNC</span></h2>
+                <button class="close-modal" onclick="closeModals()" title="Close Modal" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="modal-body" style="padding: 0;">
-                <div style="background: #000; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-                    <div style="font-family: 'Share Tech Mono'; font-size: 0.85rem; color: var(--accent-green);">NETWORK: SECURE</div>
-                    <div style="font-family: 'Inter'; font-size: 0.8rem; display: flex; gap: 1rem;">
-                        <span>Your Receipt: <strong id="audit-my-hash" style="color: var(--accent-glow);">N/A</strong></span>
+            <div class="modal-body auto-style-b662f26b" >
+                <div class="auto-style-780b824c" >
+                    <div class="auto-style-2b63f4d4" >NETWORK: SECURE</div>
+                    <div class="auto-style-8c01b683" >
+                        <span>Your Receipt: <strong id="audit-my-hash" class="auto-style-58810c87" >N/A</strong></span>
                     </div>
                 </div>
-                <div id="ledger-terminal" style="height: 350px; overflow-y: auto; background: #06080a; padding: 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                <div id="ledger-terminal" class="auto-style-dcf53c3c" >
                     <!-- JS Injected Terminal Lines -->
                 </div>
             </div>
@@ -631,21 +631,21 @@
 
     <!-- Thank You Modal -->
     <div class="modal-overlay" id="thank-you-modal">
-        <div class="modal-content" style="max-width: 500px; text-align: center; border-color: var(--accent-green);">
-            <div class="modal-header" style="border: none; justify-content: flex-end; padding-bottom: 0;">
-                <button class="close-modal" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-content auto-style-2f9d23cc" >
+            <div class="modal-header auto-style-8a26b33d" >
+                <button class="close-modal" onclick="closeModals()" title="Close Modal" aria-label="Close Modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="modal-body" style="padding-top: 0;">
-                <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: var(--accent-green); margin-bottom: 1rem;"></i>
-                <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Thank You For Voting!</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 2rem;">Your voice has been successfully recorded and mathematically secured on the Open Vote global registry.</p>
-                <div style="background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.1); padding: 1rem; border-radius: 6px; margin-bottom: 2rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Your Cryptographic Receipt</span>
-                    <div id="thank-you-hash-display" style="font-family: 'Share Tech Mono'; color: var(--accent-glow); font-size: 0.85rem; word-break: break-all;">
+            <div class="modal-body auto-style-25e52174" >
+                <i class="fa-solid fa-circle-check auto-style-7f24f9dc" ></i>
+                <h2 class="auto-style-5f619e51" >Thank You For Voting!</h2>
+                <p class="auto-style-f2c2e7a0" >Your voice has been successfully recorded and mathematically secured on the Open Vote global registry.</p>
+                <div class="auto-style-6f47f203" >
+                    <span class="auto-style-f5d4a540" >Your Cryptographic Receipt</span>
+                    <div id="thank-you-hash-display" class="auto-style-fe793159" >
                         0x...
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="closeModals()" style="width: 100%; justify-content: center;">Return to Dashboard</button>
+                <button class="btn btn-primary auto-style-4ca20278" onclick="closeModals()" >Return to Dashboard</button>
             </div>
         </div>
     </div>
