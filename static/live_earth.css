@@ -59,7 +59,7 @@ html {
     padding: 0 2rem;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
     border-bottom: 1px solid var(--hud-border);
-    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
 }
 
 .hud-logo {
@@ -73,6 +73,30 @@ html {
     align-items: center;
     gap: 10px;
 }
+.hud-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+.hud-logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    margin-right: 15px;
+}
+.hud-logo-text {
+    color: var(--hud-cyan);
+    text-shadow: var(--hud-glow);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.header-center-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
 .hud-search {
     position: relative;
@@ -84,7 +108,7 @@ html {
     background: rgba(0, 50, 100, 0.2);
     border: 1px solid var(--hud-border);
     border-radius: 20px;
-    padding: 8px 50px 8px 35px; /* Added extra right padding for the GO button */
+    padding: 8px 15px 8px 35px; /* Removed extra right padding because GO button is extracted */
     color: #fff;
     font-family: 'Inter', sans-serif;
     outline: none;
@@ -106,15 +130,11 @@ html {
 }
 
 .search-btn {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
     background: rgba(0, 210, 255, 0.1);
     color: var(--hud-cyan);
     border: 1px solid rgba(0, 210, 255, 0.3);
     border-radius: 15px;
-    padding: 4px 12px;
+    padding: 6px 16px;
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.75rem;
     font-weight: bold;
@@ -146,7 +166,6 @@ html {
 
 /* Demo Toggle Button */
 .demo-btn {
-    margin-left: 10px;
     padding: 6px 14px;
     background: rgba(255, 71, 87, 0.15);
     border: 1px solid var(--hud-pink);
@@ -192,7 +211,6 @@ html {
 
 .demo-volume-slider {
     width: 80px;
-    margin-left: 10px;
     accent-color: var(--hud-cyan);
     cursor: pointer;
     display: none; /* Hidden until Demo is ON */
@@ -253,7 +271,7 @@ html {
     background: var(--hud-bg);
     border: 1px solid var(--hud-border);
     border-radius: 8px;
-    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -283,6 +301,11 @@ html {
 .panel-right {
     right: 20px;
     width: 280px;
+}
+
+#target-panel {
+    display: none;
+    transform: translateX(120%);
 }
 
 .panel-title {
@@ -349,7 +372,6 @@ html {
 
 .layer-options-container {
     padding: 0 10px 10px 56px;
-    display: flex;
     flex-direction: column;
     gap: 6px;
     display: none;
@@ -461,11 +483,23 @@ html {
 }
 
 .layer-info h3 {
+    display: flex;
+    flex-direction: column;
     font-size: 0.95rem;
-    margin-bottom: 1px;
+    margin-bottom: 2px;
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.5px;
+    gap: 2px;
+}
+
+.layer-info h3 span {
+    font-size: 0.65em;
+    font-weight: 500;
+    color: #a0a0a0;
+    font-family: 'Share Tech Mono', monospace;
+    display: block;
+    line-height: 1;
 }
 
 .layer-info p {
@@ -529,7 +563,7 @@ html {
     background: var(--hud-bg) !important;
     border: 1px solid var(--hud-cyan) !important;
     border-radius: 4px !important;
-    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important; backdrop-filter: blur(4px) !important;
     box-shadow: var(--hud-glow) !important;
     pointer-events: none;
     font-family: 'Inter', sans-serif !important;
@@ -555,8 +589,8 @@ html {
     border-radius: 4px;
     cursor: pointer;
     outline: none;
-    appearance: none;
     -webkit-appearance: none;
+    appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300d2ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 8px center;
@@ -691,7 +725,6 @@ html {
         overflow-y: auto;
         overflow-x: hidden;
         padding: 6px;
-        -webkit-overflow-scrolling: touch;
         flex: 1;
         min-height: 0;
     }
@@ -850,7 +883,6 @@ html {
         overflow-y: auto;
         flex: 1;
         min-height: 0;
-        -webkit-overflow-scrolling: touch;
         padding-bottom: 20px;
     }
 }
@@ -899,3 +931,14 @@ html {
 #virtual-cursor.clicking::after {
     color: var(--hud-cyan);
 }
+
+/* Auto-extracted inline styles for live_earth.html */
+.auto-style-2272b6e1 { width: 100%; padding: 10px; background: transparent; border: 1px solid var(--hud-border); color: #fff; margin-top: 15px; cursor: pointer; border-radius: 4px; }
+.auto-style-5bbec2fa { font-size: 3rem; margin-bottom: 1rem; color: var(--hud-cyan); }
+.auto-style-f6234f9f { color: white; }
+.auto-style-b4b63308 { color: #00e5ff; }
+.auto-style-9ea485ed { position:fixed; bottom:4px; right:10px; font-size:8px; font-family:'Share Tech Mono',monospace; color:var(--hud-cyan); opacity:0.6; z-index:5; pointer-events:none; letter-spacing:1px; }
+.auto-style-7d2d11b9 { margin-bottom: 5px; }
+.auto-style-c6235d4d { display: flex; gap: 10px; align-items: center; }
+
+.auto-style-024d664b { font-size: 0.75em; font-weight: bold; color: #00e5ff !important; font-family: 'Share Tech Mono', monospace; margin-left: 10px; opacity: 0.9; }
