@@ -1470,7 +1470,14 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
-SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator']
+SAFE_EDIT_PAGES = [
+    'index', 'about', 'services', 'projects', 'contact', 'merchandise',
+    'merch_shirts', 'merch_pens', 'merch_backpacks', 'backpack_nomatic_bag', 'backpack_nomatic_pack', 'backpack_pd_30l', 'backpack_pd_45l',
+    'service_infrastructure', 'service_cybersecurity', 'service_data_analytics', 'service_program_recovery', 'service_quality_assessment', 'service_strategy_development',
+    'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody',
+    'open_vote', 'seo_sniper', 'brand_monitor', 'food_globe', 'fun_e_stick', 'arbitrage', 'b2b_leads', 'launchpad', 'marion_va', 'train_your_brain', 'view_candidates', 'osint_api_docs', 'avatar',
+    'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator'
+]
 
 @app.get("/api/edit-page/{page_name:path}")
 async def edit_page_view(page_name: str):
@@ -1510,10 +1517,10 @@ async def edit_page_view(page_name: str):
         }
         
         #_cms_top_bar {
-            position: fixed; top: 0; left: 0; width: 100%; height: 50px;
+            position: fixed; top: 0; left: 0; width: 100%; min-height: 50px;
             background: var(--surface-color); color: var(--text-dark); z-index: 2147483647;
             border-bottom: 2px solid var(--accent);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; flex-direction: column;
             padding: 0 20px; font-family: 'Outfit','Inter',sans-serif;
             box-sizing: border-box; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
@@ -1580,8 +1587,14 @@ async def edit_page_view(page_name: str):
     </style>
 
     <div id="_cms_top_bar">
-        <span>Editing <span id="_cms_mod_count" style="color:#c06c3b; font-weight:700;">0</span> pending changes</span>
-        <button id="_cms_top_save_btn" disabled><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 50px; flex-shrink: 0;">
+            <span>Editing <span id="_cms_mod_count" style="color:#c06c3b; font-weight:700;">0</span> pending changes</span>
+            <button id="_cms_top_save_btn" disabled><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+        </div>
+        <div id="_demo_action_log" style="display: none; width: 100%; height: 110px; overflow-y: auto; border-top: 1px solid rgba(0,0,0,0.1); padding: 5px 0 10px 0; font-size: 12px; color: #555;">
+            <strong style="color: var(--accent);">Recorded Actions (Demo Mode):</strong>
+            <ul id="_demo_action_list" style="margin: 5px 0 0 25px; padding: 0; font-family: monospace; line-height: 1.4;"></ul>
+        </div>
     </div>
 
     <script>
@@ -1628,10 +1641,14 @@ async def edit_page_view(page_name: str):
             } else if (e.data.type === 'start-demo-recording') {
                 window.__demoRecordingMode = true;
                 document.body.style.cursor = 'crosshair';
+                document.getElementById('_demo_action_log').style.display = 'block';
+                document.body.style.setProperty('margin-top', '160px', 'important');
                 toast('\u25cf Click an element to record it for the demo.', '#e74c3c');
             } else if (e.data.type === 'stop-demo-recording') {
                 window.__demoRecordingMode = false;
                 document.body.style.cursor = 'default';
+                document.getElementById('_demo_action_log').style.display = 'none';
+                document.body.style.setProperty('margin-top', '50px', 'important');
             }
         });
 
@@ -1656,6 +1673,16 @@ async def edit_page_view(page_name: str):
                 let actionType = 'click';
                 if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
                     actionType = target.tagName === 'SELECT' ? 'select' : 'type';
+                }
+                
+                // Add to log
+                let list = document.getElementById('_demo_action_list');
+                if (list) {
+                    let li = document.createElement('li');
+                    li.innerText = `[${actionType.toUpperCase()}] ${selector}`;
+                    list.appendChild(li);
+                    let logContainer = document.getElementById('_demo_action_log');
+                    logContainer.scrollTop = logContainer.scrollHeight;
                 }
                 
                 window.parent && window.parent.postMessage({ 
@@ -2630,9 +2657,15 @@ async def fetch_flights_loop():
                             elif mach is not None: vel = mach * 340
                             else: vel = 0.8 * 340
                             
+                            alt_ft = a.get("alt_baro")
+                            if isinstance(alt_ft, (int, float)):
+                                alt_m = alt_ft * 0.3048 # ADSB.lol uses feet; convert to meters for consistency
+                            else:
+                                alt_m = 0 if alt_ft == "ground" else 10000 # Default fallback
+                            
                             states.append([
                                 a.get("hex", "UNKNOWN"), a.get("flight", ""), "Unknown",
-                                None, None, a.get("lon"), a.get("lat"), a.get("alt_baro", 10000),
+                                None, None, a.get("lon"), a.get("lat"), alt_m,
                                 False, vel, a.get("track", 0)
                             ])
             except Exception as e:
@@ -2667,15 +2700,25 @@ async def fetch_flights_loop():
                     await db.execute("DELETE FROM flights")
                     insert_data = []
                     for s in states:
-                        if len(s) >= 11:
+                        if len(s) >= 11 and s[5] is not None and s[6] is not None:
+                            # Filter out planes on ground to ensure everything 'appears to be flying'
+                            if s[8]: continue 
+                            
+                            # Ensure velocity is never None/0 to prevent 'floating' static planes
+                            vel = s[9]
+                            if vel is None or vel == 0:
+                                vel = 0.8 * 340 # Default to Mach 0.8 (approx 272 m/s)
+                                
                             insert_data.append((
-                                s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bool(s[8]), s[9], s[10]
+                                s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bool(s[8]), vel, s[10] or 0
                             ))
-                    await db.executemany('''
-                        INSERT INTO flights 
-                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', insert_data)
+                    
+                    if insert_data:
+                        await db.executemany('''
+                            INSERT INTO flights 
+                            (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', insert_data)
                     
                     current_time = int(time.time())
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
@@ -2685,20 +2728,21 @@ async def fetch_flights_loop():
                 # 2. Update MAIN DB Atomically
                 async with aiosqlite.connect(FLIGHTS_DB) as db:
                     await db.execute("DELETE FROM flights")
-                    await db.executemany('''
-                        INSERT INTO flights 
-                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', insert_data)
+                    if insert_data:
+                        await db.executemany('''
+                            INSERT INTO flights 
+                            (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', insert_data)
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
                     await db.commit()
-                print(f"Background Scraper: Successfully stored {len(states)} flights in SQLite database.")
+                print(f"Background Scraper: Successfully stored {len(insert_data)} flying aircraft in SQLite database.")
             except Exception as e:
                 import traceback
                 print(f"Background Scraper DB Save Failed: [{type(e).__name__}] {repr(e)}")
                 traceback.print_exc()
-        await asyncio.sleep(3600)   # 1 hour polling restriction
+        await asyncio.sleep(30)   # 30 second real-time polling frequency
 
 # --- ADSB.LOL CORS PROXIES ---
 @app.get("/api/proxy/adsblol/ladd")
@@ -2744,7 +2788,7 @@ async def proxy_live_flight(icao24: str):
                     else: vel = 250.0  # Safe default ~500 knots
 
                     alt_raw = a.get("alt_baro", 10000)
-                    alt = alt_raw if isinstance(alt_raw, (int, float)) else 10000
+                    alt = (alt_raw if isinstance(alt_raw, (int, float)) else 10000) * 0.3048
 
                     return JSONResponse({
                         "lat": a.get("lat"),
@@ -2875,15 +2919,20 @@ async def fetch_military_flights_loop():
                     await db.execute("DELETE FROM flights")
                     insert_data = []
                     for s in states:
-                        if len(s) >= 11:
+                        if len(s) >= 11 and s[5] is not None and s[6] is not None:
+                            if s[8]: continue # Skip ground units
+                            vel = s[9]
+                            if vel is None or vel == 0: vel = 0.8 * 340
                             insert_data.append((
-                                s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bool(s[8]), s[9], s[10]
+                                s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bool(s[8]), vel, s[10] or 0
                             ))
-                    await db.executemany('''
-                        INSERT INTO flights 
-                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', insert_data)
+                    
+                    if insert_data:
+                        await db.executemany('''
+                            INSERT INTO flights 
+                            (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', insert_data)
                     
                     current_time = int(time.time())
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
@@ -2893,22 +2942,23 @@ async def fetch_military_flights_loop():
                 # 2. Update MAIN DB Atomically
                 async with aiosqlite.connect(MILITARY_FLIGHTS_DB) as db:
                     await db.execute("DELETE FROM flights")
-                    await db.executemany('''
-                        INSERT INTO flights 
-                        (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', insert_data)
+                    if insert_data:
+                        await db.executemany('''
+                            INSERT INTO flights 
+                            (icao24, callsign, country, time_position, last_contact, lng, lat, alt, on_ground, velocity, heading)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', insert_data)
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('fetch_time', ?)", (str(current_time),))
                     await db.execute("INSERT OR REPLACE INTO flight_metadata (key, value) VALUES ('source_time', ?)", (str(source_time),))
                     await db.commit()
-                print(f"Background Scraper: Successfully stored {len(states)} military flights.")
+                print(f"Background Scraper: Successfully stored {len(insert_data)} flying military aircraft.")
             except Exception as e:
                 import traceback
                 print(f"Military Scraper DB Save Failed: [{type(e).__name__}] {repr(e)}")
         else:
             print("[Military Flights] Could not fetch flights from source, preserving old DB state.")
 
-        await asyncio.sleep(3600)   # 1 hour polling restriction
+        await asyncio.sleep(30)   # 30 second real-time polling frequency
 
 @app.get("/api/military-flights")
 async def get_military_flights():
