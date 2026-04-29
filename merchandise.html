@@ -18,10 +18,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="static/styles.css?v=1.2" rel="stylesheet">
     <script src="static/theme.js"></script>
-<style id="antigravity-scroll-lock-style">
-  html:root body.antigravity-scroll-lock {
-    overflow: hidden !important;
-  }
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
 </style>    
 </head>
 
@@ -43,7 +49,7 @@
             <li data-cms="auto-merchandise-li-8"><a class="active" href="merchandise.html" data-cms="auto-merchandise-a-9">Merchandise</a></li>
             <li data-cms="auto-merchandise-li-10"><a href="contact.html" data-cms="auto-merchandise-a-11">Contact</a></li>
         </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
+        <div class="header-actions"><button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button></div>
         <a class="btn btn-primary nav-cta" href="contact.html" data-cms="auto-merchandise-a-12">Schedule Basecamp Consultation</a>
     </header>
     <div class="page-header">
@@ -52,26 +58,26 @@
         </p>
     </div>
     <section class="content-block">
-        <h2 class="section-title" style="text-align: center; margin-bottom: 2rem; color: var(--primary);" data-cms="auto-merchandise-h2-13">Shop by
+        <h2 class="section-title auto-style-3f8d3ec8"  data-cms="auto-merchandise-h2-13">Shop by
             Category</h2>
-        <div class="store-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-            <div class="product-card" onclick="window.location.href='merch_backpacks.html'" style="cursor: pointer;">
-                <div class="product-img"><img alt="Premium Travel Backpacks" src="static/merch_backpack.png" style="object-fit: contain; aspect-ratio: 1; background: #fff;" data-cms="auto-merchandise-img-14"></div>
-                <div class="product-info" style="text-align: center;">
+        <div class="store-grid auto-style-8fa92262" >
+            <div class="product-card auto-style-24b531c6" onclick="window.location.href='merch_backpacks.html'" >
+                <div class="product-img"><img alt="Premium Travel Backpacks" src="static/merch_backpack.png" class="auto-style-8bb806e5"  data-cms="auto-merchandise-img-14"></div>
+                <div class="product-info auto-style-cdd8ca06" >
                     <h3 class="product-title" data-cms="auto-merchandise-h3-15">Premium Travel Backpacks</h3>
                     <a class="btn btn-outline product-btn" href="merch_backpacks.html" data-cms="auto-merchandise-a-16">View Collection</a>
                 </div>
             </div>
-            <div class="product-card" onclick="window.location.href='merch_shirts.html'" style="cursor: pointer;">
-                <div class="product-img"><img alt="Corporate Apparel" src="static/merch_shirt_button_user.png?v=1772648820" style="object-fit: contain; aspect-ratio: 1; background: #fff;" data-cms="auto-merchandise-img-17"></div>
-                <div class="product-info" style="text-align: center;">
+            <div class="product-card auto-style-24b531c6" onclick="window.location.href='merch_shirts.html'" >
+                <div class="product-img"><img alt="Corporate Apparel" src="static/merch_shirt_button_user.png?v=1772648820" class="auto-style-8bb806e5"  data-cms="auto-merchandise-img-17"></div>
+                <div class="product-info auto-style-cdd8ca06" >
                     <h3 class="product-title" data-cms="auto-merchandise-h3-18">Corporate Apparel</h3>
                     <a class="btn btn-outline product-btn" href="merch_shirts.html" data-cms="auto-merchandise-a-19">View Collection</a>
                 </div>
             </div>
-            <div class="product-card" onclick="window.location.href='merch_pens.html'" style="cursor: pointer;">
-                <div class="product-img"><img alt="Executive Accessories" src="static/merch_pen.png?v=3" style="object-fit: contain; aspect-ratio: 1; background: #fff;" data-cms="auto-merchandise-img-20"></div>
-                <div class="product-info" style="text-align: center;">
+            <div class="product-card auto-style-24b531c6" onclick="window.location.href='merch_pens.html'" >
+                <div class="product-img"><img alt="Executive Accessories" src="static/merch_pen.png?v=3" class="auto-style-8bb806e5"  data-cms="auto-merchandise-img-20"></div>
+                <div class="product-info auto-style-cdd8ca06" >
                     <h3 class="product-title" data-cms="auto-merchandise-h3-21">Executive Accessories</h3>
                     <a class="btn btn-outline product-btn" href="merch_pens.html" data-cms="auto-merchandise-a-22">View Collection</a>
                 </div>
@@ -90,12 +96,12 @@
         </div>
     </section>
     <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+        <div class="hero-badge auto-style-772d7868" ><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
         <p data-cms="auto-merchandise-p-24">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
     </footer>
     <script src="static/cms.js"></script>
 
 
-<div id="preact-border-shadow-host" popover="manual" style="border: none; padding: 0px; margin: 0px; inset: 0px; position: fixed; width: 100vw; height: 100vh; background: transparent; pointer-events: none;"></div>
     <script src="static/analytics.js"></script>
-</body></html>
+</body>
+</html>
