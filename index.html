@@ -17,10 +17,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css?v=2.0">
     <script src="static/theme.js"></script>
-<style id="antigravity-scroll-lock-style">
-  html:root body.antigravity-scroll-lock {
-    overflow: hidden !important;
-  }
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
 </style></head>
 
 <body class="">
@@ -42,7 +48,7 @@
             <li data-cms="auto-index-li-8"><a href="merchandise.html" data-cms="auto-index-a-9">Merchandise</a></li>
             <li data-cms="auto-index-li-10"><a href="contact.html" data-cms="auto-index-a-11">Contact</a></li>
         </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button><a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-index-a-12">Schedule
+        <div class="header-actions"><button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button><a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-index-a-12">Schedule
                 Basecamp Consultation</a></div>
     </header>
 
@@ -163,73 +169,85 @@
                     </svg>
 
                     <!-- Partnership Summit Node -->
-                    <a href="services.html#sherpa-advantage" class="trail-node partnership-summit" style="left: 40%; top: 16%; transform: translate(-50%, -50%);">
+                    <a href="services.html#sherpa-advantage" class="trail-node partnership-summit auto-style-65cf0509" >
+                        <div class="node-tooltip">
+                            <h4>Shared Success</h4>
+                        </div>
                         <div class="node-icon"><i class="fa-solid fa-flag"></i></div>
                     </a>
 
 
                     <!-- Partnership Path Nodes (Intermediate) -->
-                    <a href="services.html#sherpa-advantage" class="trail-node pp-node" style="left: 17.50%; top: 72.91%; transform: translate(-50%, -50%);">
+                    <a href="services.html#sherpa-advantage" class="trail-node pp-node auto-style-6fb3987a" >
+                        <div class="node-tooltip">
+                            <h4>Zero-Cost Assessment</h4>
+                        </div>
                         <i class="fa-solid fa-flag node-flag pp-flag"></i>
                     </a>
-                    <a href="services.html#sherpa-advantage" class="trail-node pp-node" style="left: 25.00%; top: 54.17%; transform: translate(-50%, -50%);">
+                    <a href="services.html#sherpa-advantage" class="trail-node pp-node auto-style-d01b71c0" >
+                        <div class="node-tooltip">
+                            <h4>Strategic Planning</h4>
+                        </div>
                         <i class="fa-solid fa-flag node-flag pp-flag"></i>
                     </a>
-                    <a href="services.html#sherpa-advantage" class="trail-node pp-node" style="left: 32.50%; top: 35.42%; transform: translate(-50%, -50%);">
+                    <a href="services.html#sherpa-advantage" class="trail-node pp-node auto-style-cae0abe2" >
+                        <div class="node-tooltip">
+                            <h4>Performance-Based Execution</h4>
+                        </div>
                         <i class="fa-solid fa-flag node-flag pp-flag"></i>
                     </a>
 
                     <!-- Traditional Services Nodes (7 waypoints) -->
                     <!-- Approximate percentages corresponding to the SVG curve -->
                     <!-- Base camp -->
-                    <a href="index.html" class="trail-node ts-node" data-idx="0" style="left: 10.00%; top: 91.67%; transform: translate(-50%, -50%);">
+                    <a href="index.html" class="trail-node ts-node auto-style-986d7bd3" data-idx="0" >
                         <div class="node-label">Basecamp</div>
                     </a>
-                    <a href="services.html#service-cloud-strategy" class="trail-node ts-node" data-idx="1" style="left: 21.8689%; top: 86.7861%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip" style="">
+                    <a href="services.html#service-cloud-strategy" class="trail-node ts-node auto-style-a15db620" data-idx="1" >
+                        <div class="node-tooltip auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-26">Cloud Strategy</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
-                    <a href="services.html#service-digital-transformation" class="trail-node ts-node" data-idx="2" style="left: 32.8872%; top: 77.8679%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip" style="">
+                    <a href="services.html#service-digital-transformation" class="trail-node ts-node auto-style-bf1181cc" data-idx="2" >
+                        <div class="node-tooltip auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-27">Digital Transformation</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
-                    <a href="services.html#service-cybersecurity-strategy" class="trail-node ts-node" data-idx="3" style="left: 46.8786%; top: 74.8701%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip" style="">
+                    <a href="services.html#service-cybersecurity-strategy" class="trail-node ts-node auto-style-d38bfc15" data-idx="3" >
+                        <div class="node-tooltip auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-28">Cybersecurity Strategy</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
-                    <a href="services.html#service-it-project-management" class="trail-node ts-node" data-idx="4" style="left: 59.0558%; top: 67.2378%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip" style="">
+                    <a href="services.html#service-it-project-management" class="trail-node ts-node auto-style-a8426bbd" data-idx="4" >
+                        <div class="node-tooltip auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-29">IT Project Management</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
-                    <a href="services.html#service-program-recovery" class="trail-node ts-node" data-idx="5" style="left: 69.7449%; top: 51.7966%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip" style="">
+                    <a href="services.html#service-program-recovery" class="trail-node ts-node auto-style-8b79a09c" data-idx="5" >
+                        <div class="node-tooltip auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-30">Program Recovery</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
-                    <a href="services.html#service-ai-automation" class="trail-node ts-node" data-idx="6" style="left: 82.944%; top: 44.6684%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip" style="">
+                    <a href="services.html#service-ai-automation" class="trail-node ts-node auto-style-e1bcfd53" data-idx="6" >
+                        <div class="node-tooltip auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-31">AI &amp; Automation</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
-                    <a href="services.html#service-strategic-ascent" class="trail-node ts-node" data-idx="7" style="left: 91.7014%; top: 38.9466%; transform: translate(-50%, -50%);">
-                        <div class="node-tooltip tooltip-left-limit" style="">
+                    <a href="services.html#service-strategic-ascent" class="trail-node ts-node auto-style-267adae9" data-idx="7" >
+                        <div class="node-tooltip tooltip-left-limit auto-style-9eecb7db" >
                             <h4 data-cms="auto-index-h4-32">Strategic Ascent</h4>
                         </div>
                         <i class="fa-solid fa-flag node-flag"></i>
                     </a>
 
                     <!-- Animated Followers Container -->
-                    <div id="followers-container"><div class="walking-sherpa" style="color: var(--accent); z-index: 20; display: block; left: 28.155%; top: 46.2793%; transform: translate(-50%, -100%) scaleX(1) scale(1); margin-top: -4.85579px;"><i class="fa-solid fa-person-hiking"></i></div><div class="walking-sherpa" style="color: rgb(233, 30, 99); z-index: 15; display: block; left: 27.0622%; top: 49.0111%; transform: translate(-50%, -100%) scaleX(1) scale(0.850804); margin-top: -4.85579px;"><i class="fa-solid fa-person-dress"></i></div><div class="walking-sherpa" style="color: var(--accent); z-index: 20; display: block; left: 24.4202%; top: 84.5684%; transform: translate(-50%, -100%) scaleX(1) scale(1); margin-top: -4.85579px;"><i class="fa-solid fa-person-hiking"></i></div><div class="walking-sherpa" style="color: rgb(25, 118, 210); z-index: 15; display: block; left: 21.302%; top: 87.3684%; transform: translate(-50%, -100%) scaleX(1) scale(0.77581); margin-top: -4.85579px;"><i class="fa-solid fa-person-walking"></i></div><div class="walking-sherpa" style="color: rgb(233, 30, 99); z-index: 15; display: block; left: 19.3643%; top: 88.822%; transform: translate(-50%, -100%) scaleX(1) scale(0.78683); margin-top: -4.85579px;"><i class="fa-solid fa-person-dress"></i></div></div>
+                    <div id="followers-container"><div class="walking-sherpa auto-style-afd84a86" ><i class="fa-solid fa-person-hiking"></i></div><div class="walking-sherpa auto-style-f25f28b4" ><i class="fa-solid fa-person-dress"></i></div><div class="walking-sherpa auto-style-8545c7d1" ><i class="fa-solid fa-person-hiking"></i></div><div class="walking-sherpa auto-style-aeecf23a" ><i class="fa-solid fa-person-walking"></i></div><div class="walking-sherpa auto-style-1019d179" ><i class="fa-solid fa-person-dress"></i></div></div>
                 </div>
                 <!-- Interactive Hint overlay on the graphic -->
                 <div class="trail-hint"><i class="fa-solid fa-flag"></i> Select A Flag To Explore</div>
@@ -317,6 +335,7 @@
 
                     // Nodes mapped to their approximate path fractions
                     const tsNodes = [
+                        { frac: 0.0, el: document.querySelectorAll('.ts-node')[0] },  // Basecamp
                         { frac: 0.13, el: document.querySelectorAll('.ts-node')[1] }, // Cloud Strategy
                         { frac: 0.26, el: document.querySelectorAll('.ts-node')[2] }, // Digital Transformation
                         { frac: 0.41, el: document.querySelectorAll('.ts-node')[3] }, // Cybersecurity
@@ -324,6 +343,13 @@
                         { frac: 0.70, el: document.querySelectorAll('.ts-node')[5] }, // Program Recovery
                         { frac: 0.85, el: document.querySelectorAll('.ts-node')[6] }, // AI & Automation
                         { frac: 0.95, el: document.querySelectorAll('.ts-node')[7] }  // Strategic Ascent
+                    ];
+
+                    const ppNodes = [
+                        { frac: 0.25, el: document.querySelectorAll('.pp-node')[0] },
+                        { frac: 0.50, el: document.querySelectorAll('.pp-node')[1] },
+                        { frac: 0.75, el: document.querySelectorAll('.pp-node')[2] },
+                        { frac: 1.0,  el: document.querySelector('.partnership-summit') }
                     ];
 
                     // Snap each flag node pixel-perfectly onto the SVG path using
@@ -337,28 +363,27 @@
                         const ctm = svg.getScreenCTM();
                         if (!ctm) return;
 
-                        const totalLen = tsPath.getTotalLength();
+                        const tsTotalLen = tsPath.getTotalLength();
+                        const ppTotalLen = ppPath.getTotalLength();
 
-                        tsNodes.forEach(({ frac, el }) => {
-                            if (!el) return;
-                            // Get the point on the bezier at this fraction
-                            const pt = tsPath.getPointAtLength(frac * totalLen);
-
-                            // Convert SVG coordinates → screen coordinates via CTM
+                        function positionNode(node, pathEl, totalLen) {
+                            if (!node.el) return;
+                            const pt = pathEl.getPointAtLength(node.frac * totalLen);
+                            
                             const svgPt = svg.createSVGPoint();
                             svgPt.x = pt.x;
                             svgPt.y = pt.y;
                             const screenPt = svgPt.matrixTransform(ctm);
 
-                            // Convert screen coords → % relative to the trail-container
                             const leftPct = ((screenPt.x - containerRect.left) / containerRect.width) * 100;
                             const topPct = ((screenPt.y - containerRect.top) / containerRect.height) * 100;
 
-                            el.style.left = leftPct + '%';
-                            el.style.top = topPct + '%';
-                            // transform is handled by CSS: translate(-50%, -100%)
-                            // which plants the flag pole base exactly on the path point
-                        });
+                            node.el.style.left = leftPct + '%';
+                            node.el.style.top = topPct + '%';
+                        }
+
+                        tsNodes.forEach(node => positionNode(node, tsPath, tsTotalLen));
+                        ppNodes.forEach(node => positionNode(node, ppPath, ppTotalLen));
                     }
 
                     // Run immediately and re-run on resize so flags stay on the line
@@ -666,10 +691,10 @@
                 <p data-cms="auto-index-p-67">Discover the exact steps to implement AI in your organization without the usual risks and high costs.
                 </p>
                 <form class="lead-gen-form" id="roadmap-form">
-                    <input type="email" id="roadmap-email" placeholder="Enter your business email" required="">
+                    <input type="email" id="roadmap-email" placeholder="Enter your business email" title="Business Email" required="">
                     <button type="submit" class="btn btn-primary" data-cms="auto-index-button-68">Get the Roadmap <i class="fa-solid fa-file-arrow-down"></i></button>
                 </form>
-                <p id="roadmap-msg" style="display:none; margin-top:1rem; font-weight:600;"></p>
+                <p id="roadmap-msg" class="auto-style-4a7f54ca" ></p>
                 <script>
                     document.getElementById('roadmap-form').addEventListener('submit', async function (e) {
                         e.preventDefault();
@@ -724,12 +749,11 @@
     </section>
 
     <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+        <div class="hero-badge auto-style-772d7868" ><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
         <p data-cms="auto-index-p-70">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
     </footer>
     <script src="static/cms.js"></script>
 
 
-<div id="preact-border-shadow-host" popover="manual" style="border: none; padding: 0px; margin: 0px; inset: 0px; position: fixed; width: 100vw; height: 100vh; background: transparent; pointer-events: none;"></div>
     <script src="static/analytics.js"></script>
 </body></html>
