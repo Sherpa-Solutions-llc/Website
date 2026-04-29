@@ -1,3 +1,4 @@
+/* global URLSearchParams */
 // Mock Employee Data
 const mockEmployees = [
     {
@@ -91,7 +92,6 @@ let viewer = null;
 let leafletMap = null;
 let employeeDataSource = null;
 let is3DMode = false;
-let hasLoaded3D = false; // Track if 3D has been initialized this session
 let employeeEntities = {};
 
 // DCSA has approximately 15,000 employees
@@ -417,7 +417,7 @@ function renderResults() {
         const stored = safeStorage.get('dcsaSearchHistory');
         if (stored) {
             try { history = JSON.parse(stored); }
-            catch (e) { history = null; }
+            catch (e) { history = null; console.debug('History parse error', e); }
         }
 
         // Seed default mock searches to make the dashboard look lived-in
@@ -502,7 +502,7 @@ executeLocateSearchBtn.addEventListener('click', () => {
         const stored = safeStorage.get('dcsaSearchHistory');
         if (stored) {
             try { history = JSON.parse(stored); }
-            catch (e) { history = []; }
+            catch (e) { history = []; console.debug('History parse error', e); }
         }
 
         // Don't add duplicates consecutively
