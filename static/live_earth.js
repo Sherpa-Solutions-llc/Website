@@ -70,871 +70,173 @@ const state = {
 
 let _fetchingSatellites = false;
 let _fetchingEarthquakes = false;
-let _fetchingPolice = false;
-let _fetchingScanners = false;
 
-// Global DataSources for efficient entity tracking
-const flightsDataSource = new Cesium.CustomDataSource('flights');
-const militaryDataSource = new Cesium.CustomDataSource('military');
-const satellitesDataSource = new Cesium.CustomDataSource('satellites');
-const earthquakesDataSource = new Cesium.CustomDataSource('earthquakes');
-const cctvDataSource = new Cesium.CustomDataSource('cctvs');
-const shippingDataSource = new Cesium.CustomDataSource('shipping');
-const weatherDataSource = new Cesium.CustomDataSource('weather');
-const policeDataSource = new Cesium.CustomDataSource('police');
-const scannersDataSource = new Cesium.CustomDataSource('scanners');
-const sarDataSource = new Cesium.CustomDataSource('sar');
-const wildfiresDataSource = new Cesium.CustomDataSource('wildfires');
-const deformationDataSource = new Cesium.CustomDataSource('deformation');
-let celltowersPrimitives;
-// A simplified, solid rounded rectangle that looks like a cell tower dot to optimize rendering
-const cellphoneSvg = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"%3E%3Crect width="100" height="200" rx="30" ry="30" fill="%2300e5ff" /%3E%3C/svg%3E`;
+// Initialize Cesium Viewer
+viewerInitPromise = new Promise((resolve) => {
+    try {
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .cesium-widget-credits { display: none !important; }
+            .cesium-viewer-bottom { display: none !important; }
+        `;
+        document.head.appendChild(style);
 
-// Active weather imagery layer (RainViewer) — stored outside entities so
-// it persists across entity refresh calls
-let _weatherImageryLayer = null;
-let _weatherLastType = null; // track which layer type is currently applied
-
-// Clock Update
-setInterval(() => {
-    const now = new Date();
-    document.getElementById('clock-display').innerHTML = now.toISOString().replace('T', '<br>').replace('Z', ' UTC');
-}, 1000);
-
-// Unify Layout: Move toggle buttons inside layer headers so they are embedded directly in the card panel for all devices
-document.querySelectorAll('.layer-row').forEach(row => {
-    const toggleBtn = row.querySelector('.layer-toggle-btn');
-    const header = row.querySelector('.layer-header');
-    if (toggleBtn && header) {
-        // Move the toggle button into the header (before the chevron)
-        toggleBtn.style.cssText = 'flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:rgba(0,20,30,0.8); border:1px solid rgba(0,210,255,0.3); border-radius:6px; cursor:pointer; margin-left:auto;';
-        const chevron = header.querySelector('.layer-chevron');
-        if (chevron) {
-            header.insertBefore(toggleBtn, chevron);
-        } else {
-            header.appendChild(toggleBtn);
-        }
-        // Prevent toggle click from also expanding the layer options
-        toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
+        viewer = new Cesium.Viewer('globe-container', {
+            animation: false,
+            baseLayerPicker: false,
+            fullscreenButton: false,
+            geocoder: false,
+            homeButton: false,
+            infoBox: false,
+            sceneModePicker: false,
+            selectionIndicator: false,
+            timeline: false,
+            navigationHelpButton: false,
+            shouldAnimate: true,
+            scene3DOnly: true,
+            baseLayer: new Cesium.ImageryLayer(new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                maximumLevel: 19
+            }))
         });
+
+        viewer.scene.globe.enableLighting = true;
+        viewer.scene.globe.showWaterEffect = true;
+        viewer.scene.screenSpaceCameraController.zoomFactor = 12.0;
+        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#000005');
+
+        resolve(viewer);
+    } catch (e) {
+        console.error("Cesium Initialization failed:", e);
     }
 });
 
-// Layer Toggles
-window.toggleLayerOptions = function(layerName) {
-    const el = document.getElementById(`layer-${layerName}`);
+// ----- DATA SOURCES -----
+let flightsDataSource = new Cesium.CustomDataSource('flights');
+let militaryDataSource = new Cesium.CustomDataSource('military');
+let satellitesDataSource = new Cesium.CustomDataSource('satellites');
+let earthquakesDataSource = new Cesium.CustomDataSource('earthquakes');
+let trafficDataSource = new Cesium.CustomDataSource('traffic');
+let cctvDataSource = new Cesium.CustomDataSource('cctv');
+let weatherDataSource = new Cesium.CustomDataSource('weather');
+let scannersDataSource = new Cesium.CustomDataSource('scanners');
+let policeDataSource = new Cesium.CustomDataSource('police');
+let sarDataSource = new Cesium.CustomDataSource('sar');
+let wildfiresDataSource = new Cesium.CustomDataSource('wildfires');
+let deformationDataSource = new Cesium.CustomDataSource('deformation');
+
+viewerInitPromise.then((v) => {
+    v.dataSources.add(flightsDataSource);
+    v.dataSources.add(militaryDataSource);
+    v.dataSources.add(satellitesDataSource);
+    v.dataSources.add(earthquakesDataSource);
+    v.dataSources.add(trafficDataSource);
+    v.dataSources.add(cctvDataSource);
+    v.dataSources.add(weatherDataSource);
+    v.dataSources.add(scannersDataSource);
+    v.dataSources.add(policeDataSource);
+    v.dataSources.add(sarDataSource);
+    v.dataSources.add(wildfiresDataSource);
+    v.dataSources.add(deformationDataSource);
+
+    // --- INTERACTION HANDLER ---
+    const handler = new Cesium.ScreenSpaceEventHandler(v.scene.canvas);
+    
+    // Single click to Lock Target
+    handler.setInputAction((click) => {
+        const pickedObject = v.scene.pick(click.position);
+        if (Cesium.defined(pickedObject) && pickedObject.id) {
+            const entity = pickedObject.id;
+            let found = null;
+            
+            // Search all active datasets for this ID
+            const allDatasets = [
+                ...state.flights, ...state.satellites, ...state.earthquakes,
+                ...state.traffic, ...state.cctv_cameras, ...state.police_data,
+                ...state.scanners, ...state.sar, ...state.wildfires, ...state.deformation
+            ];
+            
+            found = allDatasets.find(d => d.id === entity.id);
+            
+            if (found) {
+                console.log("[Interaction] Locking target via single-click:", found.id);
+                lockTarget(found, true);
+            }
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    // Single click to just select/highlight (optional, keeping it simple for now)
+});
+
+// ----- ASSETS (SVGs) -----
+window.airplaneSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik00NDggMzM2di00MEwyODggMTkyVjc5LjJjMC0xNy43LTE0LjgtMzEuMi0zMi0zMS4ycy0zMiAxMy41LTMyIDMxLjJWMTkyTDY0IDI5NnY0MGwxNjAtNDh2MTEzLjZsLTQ4IDMxLjJWNDY0bDgwLTE2IDgwIDE2di0zMS4ybC00OC0zMS4yVjI4OGwxNjAgNDh6Ii8+PC9zdmc+';
+window.militaryAirplaneSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9Im9yYW5nZSIgZD0iTTQ0OCAzMzZ2LTQwTDI4OCAxOTJWNzkuMmMwLTE3LjctMTQuOC0zMS4yLTMyLTMxLjJzLTMyIDEzLjUtMzIgMzEuMlYxOTJMNjQgMjk2djQwbDE2MC00OHYxMTMuNmwtNDggMzEuMlY0NjRsODAtMTYgODAgMTZ2LTMxLjJsLTQ4LTMxLjJWMjg4bDE2MCA0OHoiLz48L3N2Zz4=';
+window.satelliteSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMyZWQ1NzMiIGQ9Ik0yMzMgN2MtOS40LTkuNC0yNC42LTkuNC0zMy45IDBsLTk2IDk2Yy05LjQgOS40LTkuNCAyNC42IDAgMzMuOWw4OS40IDg5LjQtMTUuNSAxNS41QzE1Mi4zIDIzMC40IDEyNC45IDIyNCA5NiAyMjRjLTMxLjcgMC02MS41IDcuNy04Ny44IDIxLjJjLTkgNC43LTEwLjMgMTYuNy0zLjEgMjMuOEwxMTIuNyAzNzYuNyA5Ni4zIDM5My4xYy0yLjYtLjctNS40LTEuMS04LjMtMS4xYy0xNy43IDAtMzIgMTQuMy0zMiAzMnMxNC4zIDMyIDMyIDMyczMyLTE0LjMgMzItMzJjMC0yLjktLjQtNS42LTEuMS04LjNsMTYuNC0xNi40TDI0Mi45IDUwNi45YzcuMiA3LjIgMTkuMiA1LjkgMjMuOC0zLjFDMjgwLjMgNDc3LjUgMjg4IDQ0Ny43IDI4OCA0MTZjMC0yOC45LTYuNC01Ni4zLTE3LjgtODAuOWwxNS41LTE1LjVMMzc1IDQwOWM5LjQgOS40IDI0LjYgOS40IDMzLjkgMGw5Ni05NmM5LjQtOS40IDkuNC0yNC42IDAtMzMuOWwtODkuNC04OS40IDU1LTU1YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zbC00OC00OGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBsLTU1IDU1TDIzMyA3em0xNTkgMzUxbC03Mi40LTcyLjQgNjIuMS02Mi4xTDQ1NC4xIDI5NiAzOTIgMzU4LjF6TTIyNi4zIDE5Mi40TDE1My45IDEyMCAyMTYgNTcuOWw3Mi40IDcyLjQtNjIuMSA2Mi4xeiIvPjwvc3ZnPg==';
+window.shipSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNmZjZiODEiIGQ9Ik0xOTIgMzJjMC0xNy43IDE0LjMtMzIgMzItMzJMMzUyIDBjMTcuNyAwIDMyIDE0LjMgMzIgMzJsMCAzMiA0OCAwYzI2LjUgMCA0OCAyMS41IDQ4IDQ4bDAgMTI4IDQ0LjQgMTQuOGMyMy4xIDcuNyAyOS41IDM3LjUgMTEuNSA1My45bC0xMDEgOTIuNmMtMTYuMiA5LjQtMzQuNyAxNS4xLTUwLjkgMTUuMWMtMTkuNiAwLTQwLjgtNy43LTU5LjItMjAuM2MtMjIuMS0xNS41LTUxLjYtMTUuNS03My43IDBjLTE3LjEgMTEuOC0zOCAyMC4zLTU5LjIgMjAuM2MtMTYuMiAwLTM0LjctNS43LTUwLjktMTUuMWwtMTAxLTkyLjZjLTE4LTE2LjUtMTEuNi00Ni4yIDExLjUtNTMuOUw5NiAyNDBsMC0xMjhjMC0yNi41IDIxLjUtNDggNDgtNDhsNDggMCAwLTMyek0xNjAgMjE4LjdsMTA3LjgtMzUuOWMxMy4xLTQuNCAyNy4zLTQuNCA0MC41IDBMNDE2IDIxOC43bDAtOTAuNy0yNTYgMCAwIDkwLjd6TTMwNi41IDQyMS45QzMyOSA0MzcuNCAzNTYuNSA0NDggMzg0IDQ0OGMyNi45IDAgNTUuNC0xMC44IDc3LjUtMjYuMWMwIDAgMCAwIDAgMGMxMS45LTguNSAyOC4xLTcuOCAzOS4yIDEuN2MxNC40IDExLjkgMzIuNSAyMSA1MC42IDI1LjJjMTcuMiA0IDI3LjkgMjEuMiAyMy45IDM4LjRzLTIxLjIgMjcuOS0zOC40IDIzLjljLTI0LjUtNS43LTQ0LjktMTYuNS01OC4yLTI1QzQ0OS41IDUwMS43IDQxNyA1MTIgMzg0IDUxMmMtMzEuOSAwLTYwLjYtOS45LTgwLjQtMTguOWMtNS44LTIuNy0xMS4xLTUuMy0xNS42LTcuN2MtNC41IDIuNC05LjcgNS4xLTE1LjYgNy43Yy0xOS44IDktNDguNSAxOC45LTgwLjQgMTguOWMtMzMgMC02NS41LTEwLjMtOTQuNS0yNS44Yy0xMy40IDguNC0zMy43IDE5LjMtNTguMiAyNWMtMTcuMiA0LTM0LjQtNi43LTM4LjQtMjMuOXM2LjctMzQuNCAyMy45LTM4LjRjMTguMS00LjIgMzYtMTMuMyA1MC42LTI1LjJjMTEuMS05LjQgMjcuMy0xMC4xIDM5LjItMS43YzAgMCAwIDAgMCAwQzEzNi43IDQzNy4yIDE2NS4xIDQ0OCAxOTIgNDQ4YzI3LjUgMCA1NS0xMC42IDc3LjUtMjYuMWMxMS4xLTcuOSAyNS45LTcuOSAzNyAwemwiLz48L3N2Zz4=';
+window.cctvSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NGwyNTYgMGMzNS4zIDAgNjQgMjguNyA2NCA2NGwwIDI1NmMwIDM1LjMtMjguNyA2NC02NCA2NEw2NCA0NDhjLTM1LjMgMC02NC0yOC43LTY0LTY0TDAgMTI4ek01NTkuMSA5OS44YzEwLjQgNS42IDE2LjkgMTYuNCAxNi45IDI4LjJsMCAyNTZjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xbDAtMTcuMSAwLTEyOCAwLTE3LjEgMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi40LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=';
+window.wildfireSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNmZjQ1MDAiIGQ9Ik0zMjMuNSA1MS4yYy0yMC44LTIwLjktNTUuMi0yMC45LTc2IDBMMTkzLjQgOTUuNGMtMjAuOCAyMC44LTIwLjggNTUuMiAwIDc2bDgwLjYgODAuNmMtOC40IDExLjctMTQuOCAyNC43LTE5IDM4LjRMOTcuNCAyMDcuMmMtMTAuNS0xMC40LTI3LjQtMTAuNC0zNy45IDBMNy45IDI2Ny40Yy0xMC41IDEwLjUtMTAuNSAyNy40IDAgMzcuOWw4MC42IDgwLjZjMTAuNSAxMC41IDI3LjQgMTAuNSAzNy45IDBMMTUzLjIgMzI3Yy0yIDExLjQtMy4yIDIzLjEtMy4yIDM1YzAgNzUuMSAzNC42IDE0Mi4xIDg4LjggMTg2LjRjMTIuMiAxMC4xIDMwLjEgOS4yIDQwLjctMi4xbDI0LTQ4YzEwLjYtMTEuMyAxMC42LTI5LjYgMC00MC45bC0yNC00OGMtMjIuNi0yMi42LTM1LjItNTIuNy0zNS4yLTg0LjRjMC0zMS43IDEyLjYtNjEuOCAzNS4yLTg0LjRsNDgtNDhjMjIuNi0yMi42IDUyLjctMzUuMiA4NC40LTM1LjJjMzEuNyAwIDYxLjggMTIuNiA4NC40IDM1LjJsNDggNDhjMTEuMyAxMC42IDI5LjYgMTAuNiA0MC45IDBsNDgtNDhjMTEuMy0xMC42IDExLjMtMjkuNiAwLTQwLjlsLTQ4LTQ4Yy0yMi42LTIyLjYtNTIuNy0zNS4yLTg0LjQtMzUuMnoiLz48L3N2Zz4=';
+window.scannerSvg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNkMzJmMmYiIGQ9Ik0xMTIgMjRjMC0xMy4zLTEwLjctMjQtMjQtMjRTNjQgMTAuNyA2NCAyNGwwIDcyTDQ4IDk2QzIxLjUgOTYgMCAxMTcuNSAwIDE0NEwwIDMwMC4xYzAgMTIuNyA1LjEgMjQuOSAxNC4xIDMzLjlsMy45IDMuOWM5IDkgMTQuMSAyMS4yIDE0LjEgMzMuOUwzMiA0NjRjMCAyNi41IDIxLjUgNDggNDggNDhsMjI0IDBjMjYuNSAwIDQ4LTIxLjUgNDgtNDhsMC05Mi4xYzAtMTIuNyA1LjEtMjQuOSAxNC4xLTMzLjlsMy45LTMuOWM5LTkgMTQuMS0yMS4yIDE0LjEtMzMuOUwzOCQgMTQ0YzAtMjYuNS0yMS41LTQ4LTQ4LTQ4bC0xNiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC0zMiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC00OCAwIDAtNzJ6bTAgMTM2bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnptMCA2NGwxNjAgMGM4LjggMCAxNiA3LjIgMTYgMTZzLTcuMiAxNi0xNiAxNmwtMTYwIDBjLTguOCAwLTE2LTcuMi0xNi0xNnM3LjItMTYgMTYtMTZ6bTAgNjRsMTYwIDBjOC44IDAgMTYgNy4yIDE2IDE2cy03LjIgMTYtMTYgMTZsLTE2MCAwYy04LjggMC0xNi03LjItMTYtMTZzNy4yLTE2IDE2LTE2em0wIDY0bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnoiLz48L3N2Zz4=';
+
+// ----- UTILITIES -----
+window.toggleLayer = function(layerId) {
+    state.layers[layerId] = !state.layers[layerId];
+    const el = document.getElementById(`toggle-${layerId}`);
     if (el) {
-        el.classList.toggle('expanded');
+        if (state.layers[layerId]) {
+            el.classList.add('active');
+            el.innerHTML = '<i class="fa-solid fa-toggle-on"></i>';
+        } else {
+            el.classList.remove('active');
+            el.innerHTML = '<i class="fa-solid fa-toggle-off"></i>';
+        }
     }
-};
-
-window.toggleLayer = function (layerName) {
-    state.layers[layerName] = !state.layers[layerName];
     
-    const el = document.getElementById(`layer-${layerName}`);
-    const toggleBtn = document.getElementById(`toggle-${layerName}`);
+    // Refresh the corresponding layer visuals
+    if (layerId === 'flights' || layerId === 'military') updateFlightsLayer();
+    else if (layerId === 'satellites') updateSatellitesLayer();
+    else if (layerId === 'earthquakes') updateEarthquakesLayer();
+    else if (layerId === 'traffic') updateShippingLayer();
+    else if (layerId === 'weather') updateWeatherLayer();
+    else if (layerId === 'cctv') updateCCTVLayer();
+    else if (layerId === 'scanners') updateScannersLayer();
+    else if (layerId === 'sar') if(typeof updateSARLayer === 'function') updateSARLayer();
+    else if (layerId === 'wildfires') if(typeof updateWildfireLayer === 'function') updateWildfireLayer();
+    else if (layerId === 'deformation') if(typeof updateDeformationLayer === 'function') updateDeformationLayer();
     
-    let toggleIcon = null;
-    if (toggleBtn) {
-        toggleIcon = toggleBtn.querySelector('i');
-    } else if (el) {
-        toggleIcon = el.querySelector('.layer-toggle i');
-    }
-
-    if (state.layers[layerName]) {
-        if (el) el.classList.add('active');
-        if (toggleBtn) toggleBtn.classList.add('active');
-        if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-on';
-        
-        // Trigger fetch if we have no data yet
-        if (layerName === 'satellites' && state.satellites.length === 0) fetchSatellites();
-        if (layerName === 'earthquakes' && state.earthquakes.length === 0) fetchEarthquakes();
-        if (layerName === 'weather' && state.weatherData.length === 0) fetchWeather();
-        if (layerName === 'traffic' && state.traffic.length === 0) fetchTraffic();
-        if (layerName === 'cctv' && state.cctv_cameras.length === 0) fetchCCTVs();
-        if (layerName === 'police' && state.police_data.length === 0) fetchPolice();
-        if (layerName === 'scanners' && state.scanners.length === 0) fetchScanners();
-        if (layerName === 'celltowers' && state.celltowers.length === 0) fetchCellTowers();
-    } else {
-        if (el) el.classList.remove('active');
-        if (toggleBtn) toggleBtn.classList.remove('active');
-        if (toggleIcon) toggleIcon.className = 'fa-solid fa-toggle-off';
-    }
-
-    if (layerName === 'flights' || layerName === 'military') updateFlightsLayer();
-    else if (layerName === 'satellites') updateSatellitesLayer();
-    else if (layerName === 'earthquakes') updateEarthquakesLayer();
-    else if (layerName === 'weather') updateWeatherLayer();
-    else if (layerName === 'traffic') updateShippingLayer();
-    else if (layerName === 'cctv') updateCCTVLayer();
-    else if (layerName === 'police') updatePoliceLayer();
-    else if (layerName === 'scanners') updateScannersLayer();
-    else if (layerName === 'sar') window.updateSARLayer();
-    else if (layerName === 'wildfires') window.updateWildfireLayer();
-    else if (layerName === 'deformation') window.updateDeformationLayer();
-    else if (layerName === 'celltowers') window.updateCellTowersLayer();
     updateHUDCounts();
 };
 
-// Panel Collapse Toggle
-window.toggleLayersPanel = function () {
+window.toggleLayersPanel = function() {
     const panel = document.getElementById('layers-panel');
     const icon = document.getElementById('layers-toggle-icon');
-    
-    if (panel.classList.contains('collapsed')) {
-        panel.classList.remove('collapsed');
-        icon.className = 'fa-solid fa-chevron-down';
-    } else {
-        panel.classList.add('collapsed');
-        icon.className = 'fa-solid fa-chevron-up';
-    }
-};
-
-window.toggleSettingsPanel = function() {
-    const modal = document.getElementById('settings-modal');
-    if (!modal) return;
-    if (modal.style.display === 'none') {
-        modal.style.display = 'flex';
-    } else {
-        modal.style.display = 'none';
-    }
-};
-
-// Bind settings toggles
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.getElementById('settings-toggle-btn');
-    const closeBtn = document.getElementById('close-settings-btn');
-    if (toggleBtn) toggleBtn.addEventListener('click', window.toggleSettingsPanel);
-    if (closeBtn) closeBtn.addEventListener('click', window.toggleSettingsPanel);
-
-    // Bind Data Source Checkers
-    const bindSource = (layerName, fetchFunc) => {
-        const el = document.getElementById(`setting-source-${layerName}`);
-        if(el) {
-            el.addEventListener('change', (e) => {
-                state.dataSources[layerName] = e.target.value;
-                console.log(`[Settings] Changed ${layerName} source to:`, e.target.value);
-                
-                // --- Dynamic Speed Filter Adjustments ---
-                if (layerName === 'flights') {
-                    const speedSelect = document.getElementById('flight-speed');
-                    if (speedSelect) {
-                        if (e.target.value === 'opensky') {
-                            speedSelect.value = 'all';
-                        } else if (e.target.value === 'adsblol') {
-                            speedSelect.value = 'all';
-                        }
-                        // Fire the layer redraw immediately so the speed syncs
-                        if (typeof updateFlightsLayer === 'function') updateFlightsLayer();
-                    }
-                }
-
-                // Wipe local cache array
-                state[layerName] = [];
-                // Force engine to re-draw and re-fetch if active
-                if (state.layers[layerName]) {
-                    fetchFunc();
-                }
-            });
+    if (panel) {
+        panel.classList.toggle('collapsed');
+        if (icon) {
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-right');
         }
-    };
-
-    bindSource('flights', window.fetchFlights);
-    bindSource('military', window.updateFlightsLayer); // Shares fetch with civilian usually
-    bindSource('earthquakes', window.fetchEarthquakes);
-    bindSource('satellites', window.fetchSatellites);
-    bindSource('traffic', window.fetchTraffic);
-    bindSource('weather', window.fetchWeather);
-    bindSource('cctv', window.fetchCCTVs);
-    bindSource('wildfires', window.fetchWildfires);
-    bindSource('sar', window.fetchSAR);
-    bindSource('deformation', window.fetchDeformation);
-});
-
-window.setSystemOffline = function() {
-    const indicator = document.getElementById('system-status-indicator');
-    const text = document.getElementById('system-status-text');
-    if (indicator) indicator.classList.add('offline');
-    if (text) text.innerText = 'SYSTEM OFFLINE';
+    }
 };
 
-window.updateLastFetchTime = function(layerName) {
-    const el = document.getElementById(`last-update-${layerName}`);
+window.toggleLayerOptions = function(layerId) {
+    const container = document.getElementById(`options-${layerId}`);
+    if (container) {
+        container.style.display = (container.style.display === 'block') ? 'none' : 'block';
+    }
+};
+
+
+window.updateLastFetchTime = function(layerId) {
+    const el = document.getElementById(`last-update-${layerId}`);
     if (el) {
         const now = new Date();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const yy = String(now.getFullYear()).slice(-2);
-        const time = now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        el.innerText = `${mm}/${dd}/${yy} ${time}`;
-    }
-};
-
-// ----- CESIUM INITIALIZATION -----
-// Safety fallback: ensure overlay is dismissed after 10s even if initial fetches hang
-setTimeout(() => {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay && overlay.style.display !== 'none') {
-        console.warn('[Safety] Forcing overlay dismissal after 10s timeout.');
-        overlay.style.display = 'none';
-    }
-}, 10000);
-
-// --- CESIUM INITIALIZATION ---
-
-async function initCesium() {
-    if (typeof Cesium === 'undefined') {
-        console.error("Cesium library failed to load.");
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) overlay.innerHTML = '<div style="color:red; font-size:2rem; font-family:sans-serif;">FATAL: CESIUM LIBRARY NOT LOADED</div>';
-        return;
-    }
-
-    try {
-        console.log('[Cesium] Initializing Viewer (Async)...');
-        
-        // Reverted to constructor format for compatibility with Cesium 1.104
-        const imageryProvider = new Cesium.ArcGisMapServerImageryProvider({
-            url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
-            enablePickFeatures: false
-        });
-
-        viewer = new Cesium.Viewer('globe-container', {
-            imageryProvider: imageryProvider,
-            shouldAnimate: true, // Forces JulianDate to tick forward even if animation UI is hidden
-            animation: false,
-            timeline: false,
-            infoBox: false,
-            selectionIndicator: false,
-            navigationHelpButton: false,
-            baseLayerPicker: false,
-            geocoder: false,
-            homeButton: false,
-            sceneModePicker: false,
-            fullscreenButton: false,
-            scene3DOnly: true,
-            requestRenderMode: false // Disable to ensure smooth initial rendering
-        });
-
-        // Setup DataSources
-        await viewer.dataSources.add(flightsDataSource);
-        await viewer.dataSources.add(militaryDataSource);
-        await viewer.dataSources.add(satellitesDataSource);
-        await viewer.dataSources.add(earthquakesDataSource);
-        await viewer.dataSources.add(cctvDataSource);
-        await viewer.dataSources.add(shippingDataSource);
-        await viewer.dataSources.add(weatherDataSource);
-        await viewer.dataSources.add(policeDataSource);
-        await viewer.dataSources.add(scannersDataSource);
-        await viewer.dataSources.add(sarDataSource);
-        await viewer.dataSources.add(wildfiresDataSource);
-        await viewer.dataSources.add(deformationDataSource);
-        // Using BillboardCollection with an ultra-simple SVG for massive performance while retaining a phone shape
-        celltowersPrimitives = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
-
-        // Setup Police Cluster Features
-        policeDataSource.clustering.enabled = true;
-        policeDataSource.clustering.pixelRange = 130; // Increased massively so 4x scaled shields absorb each other rather than drawing on top of each other!
-        policeDataSource.clustering.minimumClusterSize = 2;
-        policeDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-            const count = clusteredEntities.length;
-            const extraScale = Math.log10(count) * 0.075;
-            const baseScale = isMobile ? 0.80 : 1.04; // 2x larger again per user request (clusters only)
-            const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
-
-            cluster.label.show = true;
-            cluster.label.text = count.toLocaleString();
-            cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-            cluster.label.fillColor = Cesium.Color.BLACK; // Black text for contrast against blue shield
-            cluster.label.outlineColor = Cesium.Color.WHITE;
-            cluster.label.outlineWidth = 2; // Thinner outline for better legibility when small
-            cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-            cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-            cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            
-            // Adjust offset to sit right in the center of the shield body
-            // Shield is a 0.25 scaled SVG, usually about ~40-50px tall. The origin is CENTER.
-            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); 
-            cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
-            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-
-            cluster.billboard.show = true;
-            cluster.billboard.image = policeSvg;
-            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-            cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
-            cluster.billboard.disableDepthTestDistance = 0;
-            cluster.billboard.scale = baseScale + extraScale;
-
-            
-            
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-        });
-
-        // Setup Shipping Cluster Features
-        shippingDataSource.clustering.enabled = true;
-        shippingDataSource.clustering.pixelRange = 40;
-        shippingDataSource.clustering.minimumClusterSize = 2;
-        shippingDataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-            const count = clusteredEntities.length;
-            const extraScale = Math.log10(count) * 0.075;
-            const baseScale = isMobile ? 0.20 : 0.26; // Dialed back: ~1/3rd smaller than the 0.40 size
-            // Proportionally shrink font bounds to smoothly fill the dialed-back hull
-            const fontSize = count > 99 ? 18 : (count > 9 ? 20 : 22);
-
-            cluster.label.show = true;
-            cluster.label.text = count.toLocaleString();
-            cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-            cluster.label.fillColor = Cesium.Color.BLACK;
-            cluster.label.outlineColor = Cesium.Color.WHITE;
-            cluster.label.outlineWidth = 3;
-            cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-            cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-            cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 5); 
-            cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -100.0);
-            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-            
-            cluster.billboard.show = true;
-            cluster.billboard.image = shipSvg;
-            cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-            cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
-            // Provide occlusion instead of letting clusters bleed through earth
-            cluster.billboard.disableDepthTestDistance = 0;
-            cluster.billboard.scale = baseScale + extraScale;
-            
-            
-            
-            
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-        });
-
-        // Setup Flights Cluster Features
-        const setupFlightClustering = (dataSource, color) => {
-            dataSource.clustering.enabled = true;
-            dataSource.clustering.pixelRange = 40;
-            dataSource.clustering.minimumClusterSize = 2;
-
-            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.4;
-                const baseScale = isMobile ? 0.70 : 0.90;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
-
-                cluster.label.show = true;
-                cluster.label.text = count.toLocaleString();
-                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                
-                cluster.label.fillColor = Cesium.Color.BLACK;
-                cluster.label.outlineColor = Cesium.Color.WHITE;
-                cluster.label.outlineWidth = 4;
-                
-                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
-                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
-                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                
-                cluster.billboard.show = true;
-                cluster.billboard.image = airplaneSvg;
-                cluster.billboard.color = color;
-                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
-                cluster.billboard.disableDepthTestDistance = 0;
-                cluster.billboard.scale = baseScale + extraScale;
-                // Keep clusters flat/unrotated since they represent many different headings
-                cluster.billboard.alignedAxis = new Cesium.Cartesian3(0, 0, -1);
-                
-                
-                
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-            });
-        };
-
-        setupFlightClustering(flightsDataSource, Cesium.Color.WHITE);
-        setupFlightClustering(militaryDataSource, Cesium.Color.ORANGE);
-
-        // Setup CCTV Clustering
-        const setupCCTVClustering = (dataSource) => {
-            dataSource.clustering.enabled = true;
-            dataSource.clustering.pixelRange = 40;
-            dataSource.clustering.minimumClusterSize = 2;
-            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.4;
-                const baseScale = isMobile ? 0.7 : 0.9;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
-
-                cluster.label.show = true;
-                cluster.label.text = count.toLocaleString();
-                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.WHITE;
-                cluster.label.outlineColor = Cesium.Color.BLACK;
-                cluster.label.outlineWidth = 5;
-                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
-                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
-                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                
-                cluster.billboard.show = true;
-                cluster.billboard.image = cctvSvg;
-                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
-                cluster.billboard.disableDepthTestDistance = 0;
-                cluster.billboard.scale = baseScale + extraScale;
-                
-                
-                
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-            });
-        };
-        setupCCTVClustering(cctvDataSource);
-
-        // Setup Scanners Clustering
-        const setupScannersClustering = (dataSource) => {
-            dataSource.clustering.enabled = true;
-            dataSource.clustering.pixelRange = 40;
-            dataSource.clustering.minimumClusterSize = 2;
-            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.4;
-                const baseScale = isMobile ? 0.35 : 0.45;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
-
-                cluster.label.show = true;
-                cluster.label.text = count.toLocaleString();
-                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.BLACK;
-                cluster.label.outlineColor = Cesium.Color.WHITE;
-                cluster.label.outlineWidth = 3;
-                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // Center in the scanner icon
-                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
-                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                
-                cluster.billboard.show = true;
-                cluster.billboard.image = scannerSvg;
-                cluster.billboard.color = Cesium.Color.RED;
-                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.billboard.heightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
-                cluster.billboard.disableDepthTestDistance = 0;
-                cluster.billboard.scale = baseScale + extraScale;
-                
-                
-                
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-            });
-        };
-        setupScannersClustering(scannersDataSource);
-
-        // Setup Earthquake Clustering
-        const setupEarthquakeClustering = (dataSource) => {
-            dataSource.clustering.enabled = true;
-            dataSource.clustering.pixelRange = 40;
-            dataSource.clustering.minimumClusterSize = 2;
-            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.2;
-                const baseScale = isMobile ? 0.35 : 0.45;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
-
-                cluster.label.show = true;
-                cluster.label.text = count.toLocaleString();
-                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.BLACK;
-                cluster.label.outlineColor = Cesium.Color.WHITE;
-                cluster.label.outlineWidth = 4;
-                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
-                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
-                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                
-                const pixelBase = isMobile ? 30 : 40;
-                cluster.point.show = true;
-                cluster.point.color = Cesium.Color.fromHsl(0.16, 1.0, 0.5, 0.9);
-                cluster.point.pixelSize = pixelBase + (Math.log10(count) * 20);
-                cluster.point.outlineColor = Cesium.Color.YELLOW;
-                cluster.point.outlineWidth = 2;
-                cluster.point.disableDepthTestDistance = 0;
-                
-                
-                
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-            });
-        };
-        setupEarthquakeClustering(earthquakesDataSource);
-
-        // Setup Wildfire Clustering
-        const setupWildfireClustering = (dataSource) => {
-            dataSource.clustering.enabled = true;
-            dataSource.clustering.pixelRange = 40;
-            dataSource.clustering.minimumClusterSize = 2;
-            dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                const count = clusteredEntities.length;
-                const extraScale = Math.log10(count) * 0.2;
-                const baseScale = isMobile ? 0.35 : 0.45;
-                const fontSize = Math.floor(14 + (Math.log10(count) * 4));
-
-                cluster.label.show = true;
-                cluster.label.text = count.toLocaleString();
-                cluster.label.font = `bold ${fontSize}px "Share Tech Mono"`;
-                cluster.label.fillColor = Cesium.Color.BLACK;
-                cluster.label.outlineColor = Cesium.Color.WHITE;
-                cluster.label.outlineWidth = 4;
-                cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-                cluster.label.verticalOrigin = Cesium.VerticalOrigin.CENTER;
-                cluster.label.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
-                cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0);
-                cluster.label.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50.0);
-                cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                
-                const pixelBase = isMobile ? 30 : 40;
-                cluster.billboard.show = true;
-                cluster.billboard.image = wildfireSvg;
-                cluster.billboard.width = pixelBase + (Math.log10(count) * 20);
-                cluster.billboard.height = pixelBase + (Math.log10(count) * 20);
-                cluster.billboard.disableDepthTestDistance = 0;
-                
-                // IMPORTANT: The crash check "id = clusteredEntities"
-                // Only assign id to label to prevent Cesium recursive kd-tree billboard array length bug
-                
-                const clusterPickId = cluster.label.text + '-' + (clusteredEntities[0] ? clusteredEntities[0].id : Math.random());
-                cluster.label.id = clusterPickId;
-                if (cluster.billboard) cluster.billboard.id = clusterPickId;
-                if (cluster.point) cluster.point.id = clusterPickId;
-            });
-        };
-        setupWildfireClustering(wildfiresDataSource);
-
-        // Cellphones clustering removed for raw primitive performance
-
-
-        viewer.targetFrameRate = 30;
-        if (isMobile) viewer.resolutionScale = 0.75;
-        viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-
-        // Setup Handlers
-        const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-        if (!isMobile) {
-            handler.setInputAction(function (movement) {
-                const pickedObject = viewer.scene.pick(movement.position);
-                document.body.style.cursor = (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.customData) ? 'pointer' : 'default';
-            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-        }
-        handler.setInputAction(function (movement) {
-            const pickedObject = viewer.scene.pick(movement.position);
-            if (Cesium.defined(pickedObject) && pickedObject.id) {
-
-                // --- GEOMETRIC LABEL DETECTION (for mobile flights) ---
-                // The callsign label is rendered 22px ABOVE the aircraft billboard.
-                // If the user clicked above the entity's screen center, they clicked the label.
-                // If at or below, they clicked the aircraft icon.
-                let isLabelClick = false;
-                if (isMobile && !Array.isArray(pickedObject.id) && pickedObject.id.position) {
-                    const entity = pickedObject.id;
-                    const entityPos3D = entity.position.getValue(viewer.clock.currentTime);
-                    if (entityPos3D) {
-                        const entityScreenPos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, entityPos3D);
-                        if (entityScreenPos) {
-                            // Label is at pixelOffset (0, -22) above the billboard center
-                            // If click Y is above the entity's screen Y, it's a label click
-                            isLabelClick = movement.position.y < entityScreenPos.y;
-                        }
-                    }
-                }
-                
-                let targetIdToLoad = null;
-
-                // If pickedObject.id is an Array, this is a Cesium Cluster!
-                if (Array.isArray(pickedObject.id)) {
-                    const clusteredEntities = pickedObject.id;
-                    if (clusteredEntities.length > 0) {
-                        // Pick a random entity directly from the native Cesium cluster payload
-                        const randEntity = clusteredEntities[Math.floor(Math.random() * clusteredEntities.length)];
-                        if (randEntity.customData) {
-                            lockTarget(randEntity.customData, false);
-                            return;
-                        }
-                        targetIdToLoad = randEntity.id || randEntity;
-                    }
-                } else {
-                    // It's a single entity pick
-                    if (pickedObject.id.customData) {
-                        lockTarget(pickedObject.id.customData, isLabelClick);
-                        return; // Fast exit if customData survived
-                    } else {
-                        targetIdToLoad = pickedObject.id.id || pickedObject.id;
-                    }
-                }
-
-                if (targetIdToLoad) {
-                    // Safe Fallback: Assemble all candidates and lock via ID
-                    let allCandidates = [];
-                    if (state.layers.traffic) allCandidates = allCandidates.concat((state.traffic || []).map(t => ({...t, type: 'vessel'})));
-                    if (state.layers.flights) allCandidates = allCandidates.concat((state.flights || []).map(f => ({...f, type: 'flight'})));
-                    if (state.layers.military) allCandidates = allCandidates.concat((state.military || []).map(f => ({...f, type: 'flight', isMilitary: true})));
-                    if (state.layers.cctv) allCandidates = allCandidates.concat((state.cctv_cameras || []).map(c => ({...c, type: 'cctv'})));
-                    if (state.layers.wildfires) allCandidates = allCandidates.concat(
-                        (state.wildfires || []).map(w => ({
-                            type: 'wildfire', id: w.id, title: 'THERMAL ANOMALY',
-                            lat: w.lat, lng: w.lng, brightness: w.brightness, confidence: w.confidence
-                        }))
-                    );
-                    if (state.layers.earthquakes) allCandidates = allCandidates.concat(
-                        (state.earthquakes || []).map(q => ({
-                            type: 'earthquake', id: q.id, title: q.properties?.title || 'Earthquake', 
-                            lat: q.geometry.coordinates[1], lng: q.geometry.coordinates[0], depth: q.geometry.coordinates[2],
-                            mag: q.properties?.mag || 1, time: q.properties?.time, 
-                            felt: q.properties?.felt, tsunami: q.properties?.tsunami, place: q.properties?.place || q.properties?.flynn_region
-                        }))
-                    );
-                    if (state.layers.sar) allCandidates = allCandidates.concat(
-                        (state.sar_data || []).map(s => ({
-                            type: 'sar', id: s.id, title: s.mission || 'Sentinel-1 Swath',
-                            lat: s.geometry[0][1], lng: s.geometry[0][0],
-                            time: s.timestamp, anomaly_score: s.anomaly_score
-                        }))
-                    );
-                    if (state.layers.celltowers) allCandidates = allCandidates.concat(
-                        (state.celltowers || []).map(c => ({...c, type: 'celltower', network: c.network_type}))
-                    );
-                    let match = allCandidates.find(c => c.id === targetIdToLoad || ('vessel_' + c.id) === targetIdToLoad);
-                    
-                    // If targetIdToLoad was a cluster compound ID (e.g. "124-fire_abc"), try peeling the count prefix off.
-                    if (!match && typeof targetIdToLoad === 'string' && targetIdToLoad.includes('-')) {
-                        const extractedId = targetIdToLoad.substring(targetIdToLoad.indexOf('-') + 1);
-                        match = allCandidates.find(c => c.id === extractedId || ('vessel_' + c.id) === extractedId || ('wildfire_' + c.id) === extractedId);
-                    }
-
-                    if (match) {
-                        lockTarget(match, isLabelClick);
-                    } else {
-                        console.warn("Could not resolve backing data for target:", targetIdToLoad);
-                    }
-                }
-                
-                // CRITICAL FIX: Even with `selectionIndicator: false`, Cesium natively tries to render 
-                // a "selected state" duplicate of the billboard over the original entity when clicked.
-                // We must forcibly clear the native selection state immediately to prevent visual ghosting/doubling.
-                setTimeout(() => { viewer.selectedEntity = undefined; }, 10);
-            }
-        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        
-        console.log('[Cesium] Viewer Ready.');
-        
-        // ----- HUD UPDATER -----
-        // Update target HUD panel continuously if active
-        viewer.scene.preUpdate.addEventListener(function (scene, time) {
-            if (state.target && document.getElementById('target-panel').style.display !== 'none') {
-                // ONLY update the HUD constantly for moving targets like flights
-                if (state.target.type === 'flight') {
-                    renderTargetDetails();
-                }
-            }
-        });
-
-        // Initial data sync - Force background fetches unconditionally so HUD metrics parse correctly
-        fetchFlights();
-        fetchSatellites();
-        fetchEarthquakes();
-        fetchCCTVs();
-        fetchTraffic();
-        fetchWildfires();
-        fetchSAR();
-        fetchDeformation();
-        fetchPolice();
-        fetchScanners();
-        if (state.layers.weather) updateWeatherLayer();
-        if (state.layers.flights || state.layers.military) updateFlightsLayer();
-        
-        // Ensure UI displays current empty counts immediately while waiting for fetches
-        updateHUDCounts();
-        
-    } catch (initErr) {
-        console.error("CRITICAL FATAL CESIUM INIT ERROR:", initErr);
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) overlay.style.display = 'none';
-    }
-}
-
-// Start initialization immediately
-viewerInitPromise = initCesium();
-
-
-// ----- AIRPLANE ICON GENERATOR -----
-// Base64 encoded SVG to avoid Cesium "Error loading image" bug
-const airplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik00NDggMzM2di00MEwyODggMTkyVjc5LjJjMC0xNy43LTE0LjgtMzEuMi0zMi0zMS4ycy0zMiAxMy41LTMyIDMxLjJWMTkyTDY0IDI5NnY0MGwxNjAtNDh2MTEzLjZsLTQ4IDMxLjJWNDY0bDgwLTE2IDgwIDE2di0zMS4ybC00OC0zMS4yVjI4OGwxNjAgNDh6Ii8+PC9zdmc+`;
-const wildfireSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxMiIgZmlsbD0iI2ZmMzgzOCIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=`;
-const militaryAirplaneSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9Im9yYW5nZSIgZD0iTTQ0OCAzMzZ2LTQwTDI4OCAxOTJWNzkuMmMwLTE3LjctMTQuOC0zMS4yLTMyLTMxLjJzLTMyIDEzLjUtMzIgMzEuMlYxOTJMNjQgMjk2djQwbDE2MC00OHYxMTMuNmwtNDggMzEuMlY0NjRsODAtMTYgODAgMTZ2LTMxLjJsLTQ4LTMxLjJWMjg4bDE2MCA0OHoiLz48L3N2Zz4=`;
-const satelliteSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMyZWQ1NzMiIGQ9Ik05OCA2MmwtODggODhDLTIuNSAxNjIuNS0zLjMgMTgyLjggNS44IDE5NC4ybDU2LjUgNzAuNkwxOCAzMTAuNmMtNy45IDcuOS03LjkgMjAuNiAwIDI4LjVsNzAuOSA3MC45YzcuOSA3LjkgMjAuNiA3LjkgMjguNSAwbDQ1LjgtNDUuOCA3MC42IDU2LjVjMTEuNCA5LjEgMzEuOCA4LjMgNDQuMy00LjJsODgtODhjMTIuNS0xMi41IDEyLjUtMzIuOCAwLTQ1LjNMMTQzLjMgNjJjLTEyLjUtMTIuNS0zMi44LTEyLjUtNDUuMyAwek0xMjggMTYwYy0xNy43IDAtMzItMTQuMy0zMi0zMnMxNC4zLTMyIDMyLTMyIDMyIDE0LjMgMzIgMzItMTQuMyAzMi0zMiAzMnptMzQ0LTk2Yy0xMy4zIDAtMjQgMTAuNy0yNCAyNHMxMC43IDI0IDI0IDI0IDI0LTEwLjcgMjQtMjQtMTAuNy0yNC0yNC0yNHptMCA5NmMtMTMuMyAwLTI0IDEwLjctMjQgMjRzMTAuNyAyNCAyNCAyNCAyNC0xMC43IDI0LTI0LTEwLjctMjQtMjQtMjR6bTAgOTZjLTEzLjMgMC0yNCAxMC43LTI0IDI0czEwLjcgMjQgMjQgMjQgMjQtMTAuNyAyNC0yNC0xMC43LTI0LTI0LTI0eiIvPjwvc3ZnPg==`;
-const rawShipSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="#ff6b81" d="M192 32c0-17.7 14.3-32 32-32L352 0c17.7 0 32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 128 44.4 14.8c23.1 7.7 29.5 37.5 11.5 53.9l-101 92.6c-16.2 9.4-34.7 15.1-50.9 15.1c-19.6 0-40.8-7.7-59.2-20.3c-22.1-15.5-51.6-15.5-73.7 0c-17.1 11.8-38 20.3-59.2 20.3c-16.2 0-34.7-5.7-50.9-15.1l-101-92.6c-18-16.5-11.6-46.2 11.5-53.9L96 240l0-128c0-26.5 21.5-48 48-48l48 0 0-32zM160 218.7l107.8-35.9c13.1-4.4 27.3-4.4 40.5 0L416 218.7l0-90.7-256 0 0 90.7zM306.5 421.9C329 437.4 356.5 448 384 448c26.9 0 55.4-10.8 77.4-26.1c0 0 0 0 0 0c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 501.7 417 512 384 512c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7c-19.8 9-48.5 18.9-80.4 18.9c-33 0-65.5-10.3-94.5-25.8c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.4 27.3-10.1 39.2-1.7c0 0 0 0 0 0C136.7 437.2 165.1 448 192 448c27.5 0 55-10.6 77.5-26.1c11.1-7.9 25.9-7.9 37 0z"/></svg>`;
-const shipSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(rawShipSvg);
-const cctvSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGZpbGw9IiMwMGQyZmYiIGQ9Ik0wIDEyOEMwIDkyLjcgMjguNyA2NCA2NCA2NEgzMjBjMzUuMyAwIDY0IDI4LjcgNjQgNjRWMzg0YzAgMzUuMy0yOC43IDY0LTY0IDY0SDY0Yy0zNS4zIDAtNjQtMjguNy02NC02NFYxMjh6TTU1OS4xIDk5LjhjMTAuNCA1LjYgMTYuOSAxNi40IDE2LjkgMjguMlYzODRjMCAxMS44LTYuNSAyMi42LTE2LjkgMjguMnMtMjMgNS0zMi45LTEuNmwtOTYtNjRMNDE2IDMzNy4xVjMyMCAxOTIgMTc0LjlsMTQuMi05LjUgOTYtNjRjOS44LTYuNSAyMi41LTcuMiAzMi45LTEuNnoiLz48L3N2Zz4=`;
-const policeSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiMwZDQ3YTEiIGQ9Ik0yNTYgMGM0LjYgMCA5LjIgMSAxMy40IDIuOUw0NTcuNyA4Mi44YzIyIDkuMyAzOC40IDMxIDM4LjMgNTcuMmMtLjUgOTkuMi00MS4zIDI4MC43LTIxMy42IDM2My4yYy0xNi43IDgtMzYuMSA4LTUyLjggMEM1Ny4zIDQyMC43IDE2LjUgMjM5LjIgMTYgMTQwYy0uMS0yNi4yIDE2LjMtNDcuOSAzOC4zLTU3LjJMMjQyLjcgMi45QzI0Ni44IDEgMjUxLjQgMCAyNTYgMHoiLz48L3N2Zz4=`;
-const scannerSvg = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIiB3aWR0aD0iMzIiIGhlaWdodD0iMzIiPjxwYXRoIGZpbGw9IiNkMzJmMmYiIGQ9Ik0xMTIgMjRjMC0xMy4zLTEwLjctMjQtMjQtMjRTNjQgMTAuNyA2NCAyNGwwIDcyTDQ4IDk2QzIxLjUgOTYgMCAxMTcuNSAwIDE0NEwwIDMwMC4xYzAgMTIuNyA1LjEgMjQuOSAxNC4xIDMzLjlsMy45IDMuOWM5IDkgMTQuMSAyMS4yIDE0LjEgMzMuOUwzMiA0NjRjMCAyNi41IDIxLjUgNDggNDggNDhsMjI0IDBjMjYuNSAwIDQ4LTIxLjUgNDgtNDhsMC05Mi4xYzAtMTIuNyA1LjEtMjQuOSAxNC4xLTMzLjlsMy45LTMuOWM5LTkgMTQuMS0yMS4yIDE0LjEtMzMuOUwzODQgMTQ0YzAtMjYuNS0yMS41LTQ4LTQ4LTQ4bC0xNiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC0zMiAwYzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMybC00OCAwIDAtNzJ6bTAgMTM2bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnptMCA2NGwxNjAgMGM4LjggMCAxNiA3LjIgMTYgMTZzLTcuMiAxNi0xNiAxNmwtMTYwIDBjLTguOCAwLTE2LTcuMi0xNi0xNnM3LjItMTYgMTYtMTZ6bTAgNjRsMTYwIDBjOC44IDAgMTYgNy4yIDE2IDE2cy03LjIgMTYtMTYgMTZsLTE2MCAwYy04LjggMC0xNi03LjItMTYtMTZzNy4yLTE2IDE2LTE2em0wIDY0bDE2MCAwYzguOCAwIDE2IDcuMiAxNiAxNnMtNy4yIDE2LTE2IDE2bC0xNjAgMGMtOC44IDAtMTYtNy4yLTE2LTE2czcuMi0xNiAxNi0xNnoiLz48L3N2Zz4=`;
-
-// ----- NEW DATA FETCHING (Police & Scanners) -----
-async function fetchPolice() {
-    if (_fetchingPolice) return;
-    _fetchingPolice = true;
-    try {
-        const res = await fetch(`${API_BASE}/api/police-data`);
-        if (!res.ok) throw new Error('API Error');
-        const data = await res.json();
-        state.police_data = []; // Explicit clear
-        state.police_data = data || [];
-        window.updateLastFetchTime('police');
-        updateHUDCounts();
-        populatePoliceDropdowns();
-        if (state.layers.police) updatePoliceLayer();
-    } catch (e) { console.error('Police fetch failed', e); }
-    finally { _fetchingPolice = false; }
-}
-
-// --- Cascading Police Dropdown Filters ---
-function populatePoliceDropdowns() {
-    const data = state.police_data || [];
-    const sourceEl = document.getElementById('setting-source-police');
-    const countryEl = document.getElementById('police-country-filter');
-    const stateEl = document.getElementById('police-state-filter');
-    const cityEl = document.getElementById('police-city-filter');
-    const stationEl = document.getElementById('police-station-filter');
-    if (!countryEl) return;
-
-    const countries = [...new Set(data.map(s => s.country).filter(Boolean))].sort();
-    countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
-    stateEl.innerHTML = '<option value="all">All States</option>';
-    cityEl.innerHTML = '<option value="all">All Cities</option>';
-    stationEl.innerHTML = '<option value="all">All Stations</option>';
-}
-
-window.filterPoliceDropdowns = function(level) {
-    const data = state.police_data || [];
-    const sourceEl = document.getElementById('setting-source-police');
-    const countryEl = document.getElementById('police-country-filter');
-    const stateEl = document.getElementById('police-state-filter');
-    const cityEl = document.getElementById('police-city-filter');
-    const stationEl = document.getElementById('police-station-filter');
-    if (!countryEl) return;
-
-    const selSource = sourceEl ? sourceEl.value : 'all';
-    const selCountry = countryEl.value;
-    const selState = stateEl.value;
-    const selCity = cityEl.value;
-
-    let filtered = data;
-    if (selSource !== 'all') filtered = filtered.filter(s => (s.source || 'arcgis') === selSource);
-
-    if (level === 'source') {
-        const countries = [...new Set(filtered.map(s => s.country).filter(Boolean))].sort();
-        countryEl.innerHTML = '<option value="all">All Countries</option>' + countries.map(c => `<option value="${c}">${c}</option>`).join('');
-        stateEl.innerHTML = '<option value="all">All States</option>';
-        cityEl.innerHTML = '<option value="all">All Cities</option>';
-        stationEl.innerHTML = '<option value="all">All Stations</option>';
-    }
-
-    if (selCountry !== 'all') filtered = filtered.filter(s => s.country === selCountry);
-
-    if (level === 'country') {
-        const states = [...new Set(filtered.map(s => s.state).filter(Boolean))].sort();
-        stateEl.innerHTML = '<option value="all">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
-        cityEl.innerHTML = '<option value="all">All Cities</option>';
-        stationEl.innerHTML = '<option value="all">All Stations</option>';
-    }
-
-    if (level === 'country' || level === 'state') {
-        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
-        if (level === 'state') {
-            const cities = [...new Set(filtered.map(s => s.city).filter(Boolean))].sort();
-            cityEl.innerHTML = '<option value="all">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
-            stationEl.innerHTML = '<option value="all">All Stations</option>';
-        }
-    }
-
-    if (level === 'city' || level === 'station') {
-        if (selState !== 'all') filtered = filtered.filter(s => s.state === selState);
-        if (selCity !== 'all') filtered = filtered.filter(s => s.city === selCity);
-        if (level === 'city') {
-            stationEl.innerHTML = '<option value="all">All Stations</option>' + filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-        }
-    }
-
-    // Re-render map markers with the current filter selection
-    if (state.layers.police) updatePoliceLayer();
-};
-
-function getFilteredPolice() {
-    let filtered = state.police_data || [];
-    const sourceEl = document.getElementById('setting-source-police');
-    const countryEl = document.getElementById('police-country-filter');
-    const stateEl = document.getElementById('police-state-filter');
-    const cityEl = document.getElementById('police-city-filter');
-    const stationEl = document.getElementById('police-station-filter');
-
-    if (sourceEl && sourceEl.value !== 'all') filtered = filtered.filter(s => (s.source || 'arcgis') === sourceEl.value);
-    if (countryEl && countryEl.value !== 'all') filtered = filtered.filter(s => s.country === countryEl.value);
-    if (stateEl && stateEl.value !== 'all') filtered = filtered.filter(s => s.state === stateEl.value);
-    if (cityEl && cityEl.value !== 'all') filtered = filtered.filter(s => s.city === cityEl.value);
-    if (stationEl && stationEl.value !== 'all') filtered = filtered.filter(s => s.id === stationEl.value);
-    return filtered;
-}
-
-function updatePoliceLayer() {
-    if (!viewer) return;
-    if (state.layers.police) {
-        const filtered = getFilteredPolice();
-        policeDataSource.entities.removeAll(); // Ensure Cluster manager sees this event clearly before suspending!
-        policeDataSource.entities.suspendEvents();
-        filtered.forEach(p => {
-            policeDataSource.entities.add({
-                id: 'police_' + p.id,
-                position: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, 0),
-                billboard: {
-                    image: policeSvg,
-                    scale: isMobile ? 0.70 : 0.90, // Doubled from 0.35 : 0.45 per user request
-                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                    disableDepthTestDistance: Number.POSITIVE_INFINITY
-                },
-                customData: {
-                    type: 'police', id: p.id, title: p.name || 'Police Station',
-                    lat: p.lat, lng: p.lng,
-                    address: p.address || '', phone: p.phone || '',
-                    country: p.country, state: p.state, city: p.city
-                }
-            });
-        });
-        policeDataSource.entities.resumeEvents();
+        const str = now.toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'2-digit'}) + ' ' + now.toLocaleTimeString('en-US', {hour12:false});
+        el.textContent = str;
+        el.style.display = 'inline'; // Ensure it's not hidden
     } else {
-        policeDataSource.entities.removeAll();
+        console.warn(`[HUD] Timestamp element missing for layer: ${layerId}`);
     }
-    viewer.scene.requestRender();
-}
+};
 
 async function fetchScanners() {
     if (_fetchingScanners) return;
@@ -1057,7 +359,7 @@ function updateScannersLayer() {
                     scale: isMobile ? 0.42 : 0.54,
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                    disableDepthTestDistance: 0
                 },
                 customData: {
                     type: 'scanner', id: s.id, title: s.name || 'Scanner',
@@ -1121,7 +423,7 @@ async function fetchFlights() {
                     null,                   // [4] last_contact
                     a.lon,                  // [5] longitude
                     a.lat,                  // [6] latitude
-                    (typeof a.alt_baro === 'number' ? a.alt_baro : 10000), // [7] baro_altitude
+                    (typeof a.alt_baro === 'number' ? a.alt_baro * 0.3048 : 10000), // [7] baro_altitude
                     false,                  // [8] on_ground
                     trueVel,                // [9] velocity (m/s)
                     a.track || 0,           // [10] true_track
@@ -1150,7 +452,7 @@ async function fetchFlights() {
                             (a.flight || '').trim() || 'UNKNOWN', 
                             'Unknown', 
                             null, null,
-                            a.lon, a.lat, (typeof a.alt_baro === 'number' ? a.alt_baro : 10000), false, vel, a.track || 0
+                            a.lon, a.lat, (typeof a.alt_baro === 'number' ? a.alt_baro * 0.3048 : 10000), false, vel, a.track || 0
                         ];
                     });
                     console.log(`[Flights] Fetched ${militaryStates.length} military states from ADSB.lol`);
@@ -1165,10 +467,12 @@ async function fetchFlights() {
 
         const oldFlightsMap = new Map(state.flights.map(f => [f.id, f]));
         
-        // Tag and merge arrays
-        activeStates.forEach(s => s.is_mil_source = false);
-        militaryStates.forEach(s => s.is_mil_source = true);
-        const allStates = activeStates.concat(militaryStates);
+        // De-duplicate by ID, prioritizing military source for tagging
+        const allStatesMap = new Map();
+        activeStates.forEach(s => { s.is_mil_source = false; allStatesMap.set(s[0], s); });
+        militaryStates.forEach(s => { s.is_mil_source = true; allStatesMap.set(s[0], s); });
+        
+        const allStates = Array.from(allStatesMap.values());
 
         state.flights = allStates
             .filter(s => s[5] !== null && s[6] !== null)
@@ -1246,8 +550,17 @@ async function fetchFlights() {
                         oldFlight.startLng = startLng;
                         
                         // The mathematically perfect speed to reach destination exactly when next data arrives
-                        oldFlight.computedVelocity = distanceMeters / 10.0; 
+                        // Our server polls every 30 seconds, so we integrate over that window for perfect smoothness.
+                        oldFlight.computedVelocity = distanceMeters / 30.0; 
                         oldFlight.computedHeading = Cesium.Math.toDegrees(brng); 
+                        
+                        // Update UI fields too so the panel shows the latest live telemetry
+                        oldFlight.velocity = s[9] || 0;
+                        oldFlight.heading = s[10] || 0;
+                        
+                        // IMPORTANT: Update coordinates to the latest API positions
+                        oldFlight.lat = targetLat;
+                        oldFlight.lng = targetLng;
                         
                         // Retain true API properties for UI filtering and visual nose rotation
                         oldFlight.trueVelocity = s[9] || 0;
@@ -1673,7 +986,7 @@ function updateHUDCounts() {
 
     try {
         const hudMap = {
-            'count-flights': counts.flights,
+            'layer-flights': counts.flights,
             'layer-military': counts.military,
             'layer-satellites': counts.satellites,
             'layer-earthquakes': counts.earthquakes,
@@ -1700,9 +1013,9 @@ function updateFlightsLayer() {
     if (typeof viewer === 'undefined' || !viewer) return;
     
     if (state.layers.flights || state.layers.military) {
-        const flightsSpeed = document.getElementById('flight-speed')?.value || 'all';
+        const flightsSpeed = document.getElementById('flight-speed')?.value || '1000+';
         const flightsType = document.getElementById('flight-type')?.value || 'all';
-        const militarySpeed = document.getElementById('military-speed')?.value || 'all';
+        const militarySpeed = document.getElementById('military-speed')?.value || '1000+';
         const visibleFlights = (state.flights || []).filter(f => !f.isMilitary && filterBySpeed(f, flightsSpeed) && filterByType(f, flightsType));
         const visibleMilitary = (state.flights || []).filter(f => f.isMilitary && filterBySpeed(f, militarySpeed));
 
@@ -1727,13 +1040,17 @@ function updateFlightsLayer() {
                                     f.lastFetchTime = f.fetchTime;
                                 }
                                 const dt = (frameTimeMs - f.fetchDateMs) / 1000;
-                                const dist = (f.velocity || 0) * dt;
-                                const bearing = f.heading || 0;
+                                // Use the computed velocity/heading for pixel-perfect smoothing between data points
+                                const velocity = f.computedVelocity || f.velocity || 0;
+                                const bearing = f.computedHeading || f.heading || 0;
+                                const dist = velocity * dt;
+                                
                                 const R = 6371000;
                                 const lat1 = Cesium.Math.toRadians(f.lat);
                                 const lon1 = Cesium.Math.toRadians(f.lng);
                                 const lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist / R) + Math.cos(lat1) * Math.sin(dist / R) * Math.cos(Cesium.Math.toRadians(bearing)));
                                 const lon2 = lon1 + Math.atan2(Math.sin(Cesium.Math.toRadians(bearing)) * Math.sin(dist / R) * Math.cos(lat1), Math.cos(dist / R) - Math.sin(lat1) * Math.sin(lat2));
+                                
                                 if (isNaN(lat2) || isNaN(lon2)) return Cesium.Cartesian3.fromDegrees(f.lng, f.lat, f.alt || 10000);
                                 return Cesium.Cartesian3.fromRadians(lon2, lat2, f.alt || 10000);
                             } catch(e) { return Cesium.Cartesian3.fromDegrees(0, 0, 10000); }
@@ -1747,7 +1064,7 @@ function updateFlightsLayer() {
                             }, false),
                             rotation: 0,
                             alignedAxis: new Cesium.CallbackProperty(() => f.alignedAxis || Cesium.Cartesian3.ZERO, false),
-                            disableDepthTestDistance: Number.POSITIVE_INFINITY // Prevents disappearing when camera zooms closely
+                            disableDepthTestDistance: 0 // Respect globe depth to hide distant aircraft
                         },
                         label: {
                             text: f.callsign || '',
@@ -1763,7 +1080,7 @@ function updateFlightsLayer() {
                             backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
                             backgroundPadding: new Cesium.Cartesian2(6, 3),
                             distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 500000),
-                            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                            disableDepthTestDistance: 0,
                             eyeOffset: new Cesium.Cartesian3(0, 0, -10),
                             show: true
                         },
@@ -1995,7 +1312,7 @@ function updateShippingLayer() {
                         backgroundColor: new Cesium.Color(0.0, 0.05, 0.1, 0.7),
                         backgroundPadding: new Cesium.Cartesian2(6, 3),
                         distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 500000),
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                        disableDepthTestDistance: 0,
                         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                         show: true
                     },
@@ -2185,6 +1502,9 @@ async function fetchFlightRoute(target) {
                 if (data.origin && data.destination) {
                     target.origin = data.origin;
                     target.destination = data.destination;
+                    if (state.target && state.target.id === target.id) {
+                        renderTargetDetails(target);
+                    }
                     return;
                 }
             }
@@ -2196,6 +1516,9 @@ async function fetchFlightRoute(target) {
         const route = getMockRoute(target.callsign);
         target.origin = route.origin;
         target.destination = route.destination;
+        if (state.target && state.target.id === target.id) {
+            renderTargetDetails(target);
+        }
     }, 400);
 }
 
@@ -2249,6 +1572,10 @@ function lockTarget(obj, forceShowPanel) {
                     obj.velocity = data.velocity;
                     obj.heading = data.heading;
                     obj.velocityKmH = data.velocity * 3.6;
+                    
+                    // Clear the global interpolation values to favor the new high-precision live telemetry
+                    obj.computedVelocity = null;
+                    obj.computedHeading = null;
                     
                     // SNAP! Reset the extrapolation clock. Cesium's CallbackProperty will effortlessly
                     // sweep from this exact coordinate forwarding using the new live velocity!
@@ -2317,7 +1644,8 @@ function lockTarget(obj, forceShowPanel) {
     else if (obj.type === 'sar') zoomRange = 200000;
     else if (obj.type === 'deformation') zoomRange = 1500;
     else if (obj.type === 'celltower') zoomRange = 304;
-    else if (obj.alt > 0) zoomRange = obj.alt * 2 + 50000;
+    else if (obj.type === 'flight' || obj.type === 'military') zoomRange = (obj.alt || 10000) + 12000;
+    else if (obj.alt > 0) zoomRange = obj.alt + 10000;
 
     let targetLat = obj.lat || 0;
     let targetLng = obj.lng || 0;
@@ -2361,6 +1689,20 @@ function lockTarget(obj, forceShowPanel) {
                     roll: 0.0
                 },
                 complete: () => {
+                    // Sync camera to the exact current position of the entity to correct for travel during the flyTo duration
+                    const currentEntityPos = liveEntity.position.getValue(viewer.clock.currentTime);
+                    if (currentEntityPos) {
+                        const carto = Cesium.Cartographic.fromCartesian(currentEntityPos);
+                        viewer.camera.setView({
+                            destination: Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, zoomRange),
+                            orientation: {
+                                heading: 0.0,
+                                pitch: -Cesium.Math.PI_OVER_TWO,
+                                roll: 0.0
+                            }
+                        });
+                    }
+
                     // Start a lightweight camera follow (no trackedEntity)
                     if (window._followListener) {
                         viewer.scene.preRender.removeEventListener(window._followListener);
@@ -2922,12 +2264,13 @@ document.getElementById('target-search-btn').addEventListener('click', function 
 
 // Boot Sequence
 // Set up intervals independent of layers so data is fresh when toggled
-setInterval(fetchFlights, 900000); // Poll flights every 15 minutes to allow native extrapolation
+setInterval(fetchFlights, 30000); // Poll flights every 30 seconds for live updates
 setInterval(fetchSatellites, 30000);
 setInterval(fetchTraffic, 30000); // Poll AIS vessels every 30 seconds
 setInterval(fetchEarthquakes, 60000);
 setInterval(fetchWeather, 300000);
 setInterval(fetchCCTVs, 120000); // Refresh cameras every 2 minutes
+setInterval(fetchScanners, 60000); // Sync scanners every minute
 // setInterval(fetchCellTowers, 15000); // Sync cell phone paths every 15 seconds
 
 // Kick off initial fetches immediately to populate the map faster
@@ -2942,7 +2285,7 @@ async function initialBoot() {
     fetchSatellites();
     fetchEarthquakes();
     fetchWeather();
-    fetchCellTowers();
+    fetchScanners();
 }
 initialBoot();
 
@@ -3704,61 +3047,6 @@ function updateDeformationLayer() {
     deformationDataSource.entities.resumeEvents();
 };
 
-let _fetchingCellTowers = false;
-async function fetchCellTowers() {
-    if (_fetchingCellTowers) return;
-    _fetchingCellTowers = true;
-    try {
-        const countryFilter = document.getElementById('celltower-country-filter')?.value || 'Global';
-        const queryParams = countryFilter !== 'Global' ? `?country=${encodeURIComponent(countryFilter)}` : '';
-        const res = await fetch(`${API_BASE}/api/celltowers${queryParams}`);
-        if (!res.ok) throw new Error('API Error');
-        const data = await res.json();
-        
-        state.celltowers = data || [];
-        
-        window.updateLastFetchTime('celltowers');
-        if (typeof updateHUDCounts === 'function') updateHUDCounts();
-        if (state.layers.celltowers) window.updateCellTowersLayer();
-    } catch(e) {
-        console.error("Celltowers fetch failed:", e);
-    } finally {
-        _fetchingCellTowers = false;
-    }
-};
 
-window.fetchCellTowers = fetchCellTowers;
 
-function updateCellTowersLayer() {
-    if (!viewer || !celltowersPrimitives) return;
-    
-    celltowersPrimitives.removeAll();
-    
-    if (!state.layers.celltowers) {
-        return;
-    }
-    
-    if (state.celltowers) {
-        const filterSelect = document.getElementById('celltower-network-filter');
-        const filterValue = filterSelect ? filterSelect.value : 'all';
-        
-        let filtered = state.celltowers;
-        if (filterValue !== 'all') {
-            filtered = filtered.filter(c => c.network_type === filterValue);
-        }
-        
-        filtered.forEach(cell => {
-            celltowersPrimitives.add({
-                position: Cesium.Cartesian3.fromDegrees(cell.lng, cell.lat, 0),
-                pixelSize: isMobile ? 3 : 5,
-                color: Cesium.Color.fromCssColorString('#00e5ff').withAlpha(0.6),
-                outlineColor: Cesium.Color.BLACK,
-                outlineWidth: 1,
-                id: { customData: { ...cell, type: 'celltower', network: cell.network_type } }
-            });
-        });
-    }
-};
-
-window.updateCellTowersLayer = updateCellTowersLayer;
 
