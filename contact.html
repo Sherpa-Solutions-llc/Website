@@ -16,12 +16,18 @@
     <!-- Modern Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css?v=1.2">
+    <link rel="stylesheet" href="static/styles.css?v=1.3">
     <script src="static/theme.js"></script>
-<style id="antigravity-scroll-lock-style">
-  html:root body.antigravity-scroll-lock {
-    overflow: hidden !important;
-  }
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
 </style>    
 </head>
 
@@ -44,73 +50,35 @@
             <li data-cms="auto-contact-li-8"><a href="merchandise.html" data-cms="auto-contact-a-9">Merchandise</a></li>
             <li data-cms="auto-contact-li-10"><a href="contact.html" class="active" data-cms="auto-contact-a-11">Contact</a></li>
         </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button><a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-contact-a-12">Schedule
+        <div class="header-actions"><button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button><a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-contact-a-12">Schedule
                 Basecamp Consultation</a></div>
     </header>
 
 
     <!-- Emergency Contact Modal -->
-    <div id="emergency-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:24px; padding:3rem 2.5rem; max-width:480px; width:90%; text-align:center; position:relative; animation:emergModalIn 0.3s ease;">
-            <div style="width:72px; height:72px; background:#dc2626; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
-                <i class="fa-solid fa-phone" style="font-size:2rem; color:#fff;"></i>
+    <div id="emergency-modal" class="emergency-modal-overlay">
+        <div class="emergency-modal-content">
+            <div class="emergency-icon-wrapper">
+                <i class="fa-solid fa-phone emergency-icon"></i>
             </div>
-            <h2 style="color:#991b1b; font-family:'Outfit',sans-serif; font-size:1.6rem; margin-bottom:0.5rem;" data-cms="auto-contact-h2-13">🚨
+            <h2 class="emergency-title" data-cms="auto-contact-h2-13">🚨
                 Emergency Line — 24/7</h2>
-            <p style="color:#4a4a4a; margin-bottom:0.5rem; font-size:1rem;" data-cms="auto-contact-p-14">A Sherpa is always on standby. Call us
+            <p class="emergency-desc" data-cms="auto-contact-p-14">A Sherpa is always on standby. Call us
                 anytime — day or night.</p>
-            <a href="tel:6146158798" style="display:block; font-size:2.4rem; font-weight:800; color:#dc2626; font-family:'Outfit',sans-serif; text-decoration:none; margin:1.5rem 0; letter-spacing:1px;" data-cms="auto-contact-a-15">614-615-8798</a>
-            <p style="font-size:0.85rem; color:#888; margin-bottom:1.75rem;" data-cms="auto-contact-p-16">Tap the number above to call directly from
+            <a href="tel:6146158798" class="emergency-phone" data-cms="auto-contact-a-15">614-615-8798</a>
+            <p class="emergency-subtext" data-cms="auto-contact-p-16">Tap the number above to call directly from
                 your device.</p>
-            <button onclick="document.getElementById('emergency-modal').style.display='none'" style="background:#dc2626; color:#fff; border:none; border-radius:50px; padding:0.75rem 2.5rem; font-size:1rem; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; transition:background 0.2s;" data-cms="auto-contact-button-17">Close</button>
+            <button onclick="document.getElementById('emergency-modal').style.display='none'" class="emergency-close-btn" data-cms="auto-contact-button-17">Close</button>
         </div>
     </div>
 
-    <!-- Emergency Button Banner -->
-    <div style="background:#fff0f0; border-bottom:2px solid #fca5a5; padding:1.5rem 5% 1.25rem; margin-top:178px; display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; overflow:visible;">
-        <span style="font-weight:600; color:#7f1d1d; font-size:0.95rem;" data-cms="auto-contact-span-18">Is your project in crisis? Don't wait.</span>
-        <button id="emergency-btn" onclick="document.getElementById('emergency-modal').style.display='flex'" style="background:#dc2626; color:#fff; border:none; border-radius:50px; padding:0.65rem 1.75rem; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; display:flex; align-items:center; gap:0.6rem; letter-spacing:0.02em;" data-cms="auto-contact-button-19">
-            <i class="fa-solid fa-circle-exclamation"></i> Emergency Contact — 24/7
-        </button>
-    </div>
+    <!-- Emergency Floating Button -->
+    <button id="emergency-btn" class="emergency-fab" onclick="document.getElementById('emergency-modal').style.display='flex'">
+        <i class="fa-solid fa-phone-volume"></i>
+        <span class="emergency-fab-text">Emergency 24/7</span>
+    </button>
 
-    <style>
-        @keyframes emergPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
-                transform: scale(1);
-            }
-
-            50% {
-                box-shadow: 0 0 0 14px rgba(220, 38, 38, 0);
-                transform: scale(1.04);
-            }
-        }
-
-        @keyframes emergModalIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        #emergency-btn {
-            animation: emergPulse 1.6s ease-in-out infinite;
-        }
-
-        #emergency-btn:hover {
-            background: #b91c1c !important;
-        }
-    </style>
-
-    <div class="page-header">
+    <div class="page-header contact-page-header">
         <h1 data-cms="contact-page-head">Contact Us</h1>
         <p data-cms="contact-page-sub">Reach out to the team at Basecamp. We are ready to assist you.</p>
     </div>
@@ -119,7 +87,7 @@
         <div class="contact-layout">
             <div class="contact-info">
                 <h3 data-cms="contact-get-in-touch">Get In Touch</h3>
-                <p data-cms="contact-get-in-touch-desc" style="color: var(--secondary); margin-bottom: 2rem;">
+                <p data-cms="contact-get-in-touch-desc" class="auto-style-4bcaafc8" >
                     Whether you are an established enterprise looking for a strategic pivot, or an ambitious startup
                     ready to scale, we have the resources to guide you. Drop us a message to schedule an initial
                     consultation.
@@ -130,8 +98,8 @@
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                        <strong data-cms="contact-hq-head" style="display:block; color:var(--primary); margin-bottom: 0.2rem;">Headquarters</strong>
-                        <span data-cms="contact-hq-address" style="color: #4a5c4a;">Gas City, Indiana 46933
+                        <strong data-cms="contact-hq-head" class="auto-style-c90fb378" >Headquarters</strong>
+                        <span data-cms="contact-hq-address" class="auto-style-e7ecf015" >Gas City, Indiana 46933
 </span>
                     </div>
                 </div>
@@ -141,8 +109,8 @@
                         <i class="fa-solid fa-phone"></i>
                     </div>
                     <div>
-                        <strong data-cms="contact-phone-head" style="display:block; color:var(--primary); margin-bottom: 0.2rem;">Phone</strong>
-                        <span data-cms="contact-phone-number" style="color: #4a5c4a;">(614) 615-8798</span>
+                        <strong data-cms="contact-phone-head" class="auto-style-c90fb378" >Phone</strong>
+                        <span data-cms="contact-phone-number" class="auto-style-e7ecf015" >(614) 615-8798</span>
                     </div>
                 </div>
 
@@ -151,8 +119,8 @@
                         <i class="fa-solid fa-envelope"></i>
                     </div>
                     <div>
-                        <strong data-cms="contact-email-head" style="display:block; color:var(--primary); margin-bottom: 0.2rem;">Email</strong>
-                        <span data-cms="contact-email-address" style="color: #4a5c4a;">Basecamp@sherpa-solutions-llc.com</span>
+                        <strong data-cms="contact-email-head" class="auto-style-c90fb378" >Email</strong>
+                        <span data-cms="contact-email-address" class="auto-style-e7ecf015" >Basecamp@sherpa-solutions-llc.com</span>
                     </div>
                 </div>
             </div>
@@ -175,14 +143,14 @@
                         <label for="message">Message</label>
                         <textarea id="message" name="message" rows="5" placeholder="How can our guides help you?" required=""></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;" data-cms="auto-contact-button-20">Send Message</button>
+                    <button type="submit" class="btn btn-primary auto-style-b0e0ad8a"  data-cms="auto-contact-button-20">Send Message</button>
                 </form>
             </div>
         </div>
     </section>
 
     <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+        <div class="hero-badge auto-style-772d7868" ><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
         <p data-cms="auto-contact-p-21">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
     </footer>
 
@@ -231,6 +199,6 @@
     </script>
 
 
-<div id="preact-border-shadow-host" popover="manual" style="border: none; padding: 0px; margin: 0px; inset: 0px; position: fixed; width: 100vw; height: 100vh; background: transparent; pointer-events: none;"></div>
     <script src="static/analytics.js"></script>
-</body></html>
+</body>
+</html>
