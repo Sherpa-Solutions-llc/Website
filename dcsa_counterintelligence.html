@@ -33,7 +33,7 @@
     .sc-extract-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
     .sc-extract-7 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent); }
     .sc-extract-8 { color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-    .sc-extract-9 { font-size: 3rem; font-weight: 800; color: var(--primary); }
+    .sc-extract-9 { font-size: 3rem; font-weight: 800; color: var(--accent); }
     .sc-extract-10 { color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem; }
     .sc-extract-11 { color: #ffc107; font-size: 0.9rem; margin-top: 0.5rem; }
     .sc-extract-12 { color: #28a745; font-size: 0.9rem; margin-top: 0.5rem; }
@@ -59,7 +59,7 @@
     .sc-extract-32 { background: rgba(0,0,0,0.1); }
     .sc-extract-33 { padding: 1rem; border-bottom: 2px solid var(--border-color); }
     .sc-extract-34 { text-align: center; }
-    .sc-extract-35 { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
+    .sc-extract-35 { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
     .sc-extract-36 { background:var(--surface-color); border-radius:12px; width:90%; max-width:600px; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color); display:flex; flex-direction:column; overflow:hidden; }
     .sc-extract-37 { padding:1.5rem; border-bottom:2px solid var(--accent); display:flex; align-items:center; justify-content:space-between; background:var(--surface-color); }
     .sc-extract-38 { color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:1.5rem; font-weight:700; margin:0; }
@@ -72,7 +72,7 @@
     .sc-extract-45 { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; display: inline-block; }
     .sc-extract-46 { font-size:0.95rem; color:var(--text-dark); line-height:1.5; background:rgba(0,0,0,0.05); padding:1rem; border-radius:6px; border:1px solid var(--border-color); }
     .sc-extract-47 { font-size:0.95rem; color:var(--text-dark); font-weight:600; }
-    .sc-extract-48 { display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
+    .sc-extract-48 { display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.6); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
     .sc-extract-49 { background:var(--surface-color); border-radius:16px; padding:2.5rem; max-width:420px; width:90%; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color); }
     .sc-extract-50 { position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-dark); opacity:0.6; }
     .sc-extract-51 { text-align:center; margin-bottom:1.5rem; }
@@ -110,12 +110,12 @@
 <li data-cms="auto-dcsa-counterintelligence-li-29"><a data-cms="auto-dcsa-counterintelligence-a-17" href="contact.html">Contact</a></li>
 </ul>
 <div class="header-actions">
-<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"><i class="fa-solid fa-sun"></i></button>
+<button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-counterintelligence-a-18" href="contact.html">Schedule Basecamp Consultation</a>
 </div>
 </header>
 <div class="page-header sc-extract-1" >
-<h1 class="sc-extract-2" data-cms="auto-dcsa-counterintelligence-h1-1" style="color: var(--primary); font-size: 3.5rem; font-weight: 800; margin-bottom: 0;"><i class="fa-solid fa-user-secret sc-extract-3"></i> Counterintelligence</h1>
+<h1 class="sc-extract-2 auto-style-d8936d92" data-cms="auto-dcsa-counterintelligence-h1-1" ><i class="fa-solid fa-user-secret sc-extract-3"></i> Counterintelligence</h1>
 <p class="sc-extract-4" data-cms="auto-dcsa-counterintelligence-p-7" >Foreign Intelligence Entities &amp; Insider Threat Mitigation</p>
 </div>
 <section class="content-block sc-extract-5" >
@@ -277,11 +277,11 @@
 </div>
 <div class="sc-extract-57" >
 <i class="fa-solid fa-envelope sc-extract-58" ></i>
-<a class="sc-extract-60" data-cms="auto-dcsa-counterintelligence-a-20" href="#" id="agent-email" ></a>
+<a class="sc-extract-60" data-cms="auto-dcsa-counterintelligence-a-20" href="#" id="agent-email" aria-label="Email" title="Email"></a>
 </div>
 <div class="sc-extract-57" >
 <i class="fa-solid fa-phone sc-extract-58" ></i>
-<a class="sc-extract-61" data-cms="auto-dcsa-counterintelligence-a-21" href="#" id="agent-phone" ></a>
+<a class="sc-extract-61" data-cms="auto-dcsa-counterintelligence-a-21" href="#" id="agent-phone" aria-label="Phone" title="Phone"></a>
 </div>
 </div>
 <a class="sc-extract-62" data-cms="auto-dcsa-counterintelligence-a-22" href="#" id="agent-compose" >
@@ -357,7 +357,7 @@
                     html += '<tr>' +
                         '<td class="sc-extract-66" ><a class="incident-link" onclick="showIncident(\''+inc.id+'\')">'+inc.id+'</a></td>' +
                         '<td class="sc-extract-67" >'+inc.vector+'</td>' +
-                        '<td class="sc-extract-67" ><span class="sc-extract-68" style="background: '+inc.riskBg+'; color: '+inc.riskColor+'; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">'+inc.risk+'</span></td>' +
+                        '<td class="sc-extract-67" ><span class="sc-extract-68 auto-style-33c3ab3a" >'+inc.risk+'</span></td>' +
                         '<td class="sc-extract-67" >'+agentHtml+'</td>' +
                         '<td class="sc-extract-67" >'+inc.action+'</td>' +
                         '</tr>';
