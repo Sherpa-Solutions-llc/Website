@@ -26,7 +26,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css?v=1.4">
     <script src="static/theme.js"></script>
-    
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 
 <body class="">
@@ -49,8 +59,7 @@
             <li data-cms="auto-projects-li-11"><a href="contact.html" data-cms="auto-projects-a-12">Contact</a></li>
         </ul>
         <div class="header-actions">
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i
-                    class="fa-solid fa-sun"></i></button>
+            <button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
             <a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-projects-a-13">Schedule Basecamp Consultation</a>
         </div>
     </header>
@@ -62,14 +71,14 @@
 
     <section class="content-block">
         <div class="content-container">
-            <h2 data-cms="projects-intro-head" style="color: var(--primary); font-size: 2.5rem; margin-bottom: 2rem;">Real Impact. Verifiable Results.</h2>
+            <h2 data-cms="projects-intro-head" class="auto-style-612c606b" >Real Impact. Verifiable Results.</h2>
             <p data-cms="projects-intro-desc"
-                style="font-size: 1.1rem; color: var(--text-dark); margin-bottom: 2rem; line-height: 1.8;">
+                class="auto-style-1b989c5c" >
                 At Sherpa Solutions, we measure our success strictly by the measurable financial and operational gains we secure for our partners. Below is a selection of our recent project successes. Our shared-risk model ensures that we only succeed when our clients achieve true, lasting impact.
             </p>
 
-            <div class="store-grid" style="margin-top: 4rem;">
-                <a href="train_your_brain.html" class="product-card" style="text-decoration: none;" data-cms="fixed-train-brain-a">
+            <div class="store-grid auto-style-e4a16c37" >
+                <a href="train_your_brain.html" class="product-card auto-style-8354e9b3"  data-cms="fixed-train-brain-a">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/train_your_brain_thumb.png" alt="Train Your Brain" style="object-fit: cover; width: 100%; height: 100%; object-position: center;" data-cms="fixed-train-brain-img">
                     </div>
@@ -84,7 +93,7 @@
                     </div>
                 </a>
 
-                <a href="marion_va.html" class="product-card" style="text-decoration: none;" data-cms="project-link-marion-va">
+                <a href="marion_va.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-marion-va">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/marion_va_thumb.png" alt="Marion VA Medical Center Locator" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-marion-va-img">
                     </div>
@@ -98,7 +107,7 @@
                         </div>
                     </div>
                 </a>
-                <a href="launchpad.html" class="product-card" style="text-decoration: none;" data-cms="project-link-launchpad">
+                <a href="launchpad.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-launchpad">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/launchpad_thumb.png" alt="Sherpa Launchpad - Done For You Business Platform" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-img-launchpad">
                     </div>
@@ -113,7 +122,7 @@
                     </div>
                 </a>
 
-                <a href="live_earth.html" class="product-card" style="text-decoration: none;" data-cms="project-link-live-earth">
+                <a href="live_earth.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-live-earth">
                     <div class="product-img" style="height: 240px; background: #000; padding: 0;">
                         <img src="static/live_earth_thumb.png" alt="Live Earth CCTV Integration" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-img-live-earth">
                     </div>
@@ -130,7 +139,7 @@
                     </div>
                 </a>
 
-                <a href="food_globe.html" class="product-card" style="text-decoration: none;" data-cms="project-link-food-globe">
+                <a href="food_globe.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-food-globe">
                     <div class="product-img" style="height: 240px; background: #0b110b; padding: 0;">
                         <img src="static/food_globe_thumb.png" alt="HarvestTracker Dashboard" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-img-harvesttracker">
                     </div>
@@ -145,7 +154,7 @@
                     </div>
                 </a>
 
-                <a href="productivity_agent.html" class="product-card" style="text-decoration: none;" data-cms="project-link-productivity-agent">
+                <a href="productivity_agent.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-productivity-agent">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/productivity_agent_thumbnail.png" alt="Productivity Agent Multi-Agent System" style="object-fit: cover; width: 100%; height: 100%; object-position: top;" data-cms="project-card-img-productivity-agent">
                     </div>
@@ -160,7 +169,7 @@
                     </div>
                 </a>
 
-                <a href="osint_api.html" class="product-card" style="text-decoration: none;" data-cms="project-link-osint-api">
+                <a href="osint_api.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-osint-api">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/osint_api_thumbnail.png" alt="Sherpa OSINT API" style="object-fit: cover; width: 100%; height: 100%; object-position: center;" data-cms="project-card-img-osint-api">
                     </div>
@@ -175,7 +184,7 @@
                     </div>
                 </a>
 
-                <a href="skip_tracer.html" class="product-card" style="text-decoration: none;" data-cms="project-link-skip-tracer">
+                <a href="skip_tracer.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-skip-tracer">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/traku_thumb.png" alt="Traku Skip Tracer" style="object-fit: cover; width: 100%; height: 100%; object-position: center;" data-cms="project-card-img-traku">
                     </div>
@@ -190,7 +199,7 @@
                     </div>
                 </a>
 
-                <a href="stock_agent.html" class="product-card" style="text-decoration: none;" data-cms="project-link-stock-agent">
+                <a href="stock_agent.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-stock-agent">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/stock_monitor_thumb.png" alt="Stock Monitor Pro" style="object-fit: cover; width: 100%; height: 100%; object-position: center;" data-cms="project-card-img-stock-monitor">
                     </div>
@@ -205,7 +214,7 @@
                     </div>
                 </a>
 
-                <a href="freeme.html" class="product-card" style="text-decoration: none;" data-cms="project-link-freeme">
+                <a href="freeme.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-freeme">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/freeme_thumbnail.png" alt="FreeMe - AI Personal Data Removal" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-img-freeme">
                     </div>
@@ -220,7 +229,7 @@
                     </div>
                 </a>
 
-                <a href="avitar.html" class="product-card" style="text-decoration: none;" data-cms="project-card-avatar-link">
+                <a href="avitar.html" class="product-card auto-style-8354e9b3"  data-cms="project-card-avatar-link">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="/static/avatar_thumbnail.webp" alt="AI Avatar Agent" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-avatar-img">
                     </div>
@@ -236,7 +245,7 @@
                 </a>
 
                 <!-- SerpApi Projects -->
-                <a href="b2b_leads.html" class="product-card" style="text-decoration: none;" data-cms="project-link-b2b-leads">
+                <a href="b2b_leads.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-b2b-leads">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/b2b_leads_thumb.png" alt="B2B Lead Generation" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-img-b2b-leads">
                     </div>
@@ -251,7 +260,7 @@
                     </div>
                 </a>
 
-                <a href="seo_sniper.html" class="product-card" style="text-decoration: none;" data-cms="project-link-seo-sniper">
+                <a href="seo_sniper.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-seo-sniper">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/seo_sniper_thumb.png" alt="SEO Sniper" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-img-seo-sniper">
                     </div>
@@ -266,7 +275,7 @@
                     </div>
                 </a>
 
-                <a href="arbitrage.html" class="product-card" style="text-decoration: none;" data-cms="project-link-arbitrage">
+                <a href="arbitrage.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-arbitrage">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/arbitrage_thumb.png" alt="Arbitrage Monitor" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-arbitrage-img">
                     </div>
@@ -281,7 +290,7 @@
                     </div>
                 </a>
 
-                <a href="brand_monitor.html" class="product-card" style="text-decoration: none;" data-cms="project-link-brand-monitor">
+                <a href="brand_monitor.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-brand-monitor">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/brand_monitor_thumb.png" alt="Brand Manager" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-brandmon-img">
                     </div>
@@ -296,7 +305,7 @@
                     </div>
                 </a>
 
-                <a href="open_vote.html" class="product-card" style="text-decoration: none;" data-cms="project-link-open-vote">
+                <a href="open_vote.html" class="product-card auto-style-8354e9b3"  data-cms="project-link-open-vote">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/open_vote_thumb.png" alt="Open Vote - Secure Global Voting Platform" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-openvote-img">
                     </div>
@@ -311,7 +320,7 @@
                     </div>
                 </a>
 
-                <a href="heavenly_melody.html" class="product-card" style="text-decoration: none;" data-cms="project-card-heavenly-melody-link">
+                <a href="heavenly_melody.html" class="product-card auto-style-8354e9b3"  data-cms="project-card-heavenly-melody-link">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/heavenly_melody_showcase.jpg" alt="Heavenly Melody - Memorial LED Flower Pot" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-heavenly-melody-img">
                     </div>
@@ -326,7 +335,7 @@
                     </div>
                 </a>
 
-                <a href="fun_e_stick.html" class="product-card" style="text-decoration: none;" data-cms="project-card-funestick-link-v2">
+                <a href="fun_e_stick.html" class="product-card auto-style-8354e9b3"  data-cms="project-card-funestick-link-v2">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/fun_e_stick_product.png" alt="Fun E Stick Interactive Popsicle" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-fun-e-stick-img">
                     </div>
@@ -341,7 +350,7 @@
                     </div>
                 </a>
 
-                <a href="dcsa_dashboard.html" class="product-card" style="text-decoration: none;" data-cms="project-card-dcsa-link">
+                <a href="dcsa_dashboard.html" class="product-card auto-style-8354e9b3"  data-cms="project-card-dcsa-link">
                     <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
                         <img src="static/dcsa_sherpa_logo.png" alt="DCSA Dashboard" style="object-fit: cover; width: 100%; height: 100%; object-position: center;" data-cms="project-card-dcsa-img">
                     </div>
@@ -368,7 +377,7 @@
     </section>
 
     <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i
+        <div class="hero-badge auto-style-772d7868" ><i
                 class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
         <p data-cms="auto-projects-p-15">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success. <a href="/login.html" id="admin-login-link" title="Admin Login"></a></p>
     </footer>
