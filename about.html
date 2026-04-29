@@ -20,10 +20,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static/styles.css?v=1.4">
     <script src="static/theme.js"></script>
-<style id="antigravity-scroll-lock-style">
-  html:root body.antigravity-scroll-lock {
-    overflow: hidden !important;
-  }
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
 </style>    
 </head>
 
@@ -46,7 +52,7 @@
             <li data-cms="auto-about-li-8"><a href="merchandise.html" data-cms="auto-about-a-9">Merchandise</a></li>
             <li data-cms="auto-about-li-10"><a href="contact.html" data-cms="auto-about-a-11">Contact</a></li>
         </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button><a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-about-a-12">Schedule
+        <div class="header-actions"><button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button><a href="contact.html" class="btn btn-primary nav-cta" data-cms="auto-about-a-12">Schedule
                 Basecamp Consultation</a></div>
     </header>
 
@@ -57,25 +63,25 @@
 
     <section class="content-block">
         <div class="content-container">
-            <h2 data-cms="about-mission-head" style="color: var(--primary); font-size: 2.5rem; margin-bottom: 2rem;">Our
+            <h2 data-cms="about-mission-head" class="auto-style-612c606b">Our
                 Mission</h2>
-            <p data-cms="about-mission-desc" style="font-size: 1.1rem; color: var(--text-dark); margin-bottom: 2rem; line-height: 1.8;">
+            <p data-cms="about-mission-desc" class="auto-style-1b989c5c">
                 At Sherpa Solutions LLC, we believe that scaling a business shouldn't feel like navigating a treacherous
                 mountain alone. Our mission is to provide the critical strategic planning, robust technological
                 infrastructure, and hands-on operational support needed to help our clients reach their highest
                 potential.
             </p>
 
-            <h2 data-cms="about-philosophy-head" style="color: var(--primary); font-size: 2.5rem; margin-bottom: 2rem; margin-top: 4rem;">The Sherpa
+            <h2 data-cms="about-philosophy-head" class="auto-style-570e2d6a">The Sherpa
                 Philosophy</h2>
-            <p data-cms="about-philosophy-desc" style="font-size: 1.1rem; color: var(--text-dark); margin-bottom: 2rem; line-height: 1.8;">
+            <p data-cms="about-philosophy-desc" class="auto-style-1b989c5c">
                 Just like the expert mountaineers of the Himalayas, true Sherpas don't climb the mountain for you—they
                 carry the heavy cognitive load, map the safest and most efficient routes, and provide the unyielding
                 support necessary for <span class="accent-text">you</span> to plant your flag at the summit. We apply
                 this exact philosophy to enterprise strategy and consulting.
             </p>
 
-            <div class="features-grid" style="margin-top: 4rem;">
+            <div class="auto-style-e4a16c37 features-grid">
                 <div class="feature-card">
                     <div class="feature-card-header">
                         <div class="feature-icon-wrapper">
@@ -103,44 +109,44 @@
     </section>
 
     <!-- Basecamp Location Section -->
-    <section class="content-block" style="background: var(--surface-color); padding: 3rem 5%; border-top: 1px solid var(--border-color);">
+    <section class="auto-style-abdf4feb content-block">
         <div class="content-container">
-            <h2 style="color: var(--text-dark); font-size: 2rem; margin-bottom: 0.5rem;" data-cms="about-contact-head">
+            <h2 class="auto-style-5bd64c82" data-cms="about-contact-head">
                 Basecamp Location</h2>
-            <p style="font-size: 1rem; color: var(--text-dark); opacity: 0.8; margin-bottom: 1.5rem; line-height: 1.7; max-width: 680px;" data-cms="about-contact-desc">
+            <p class="auto-style-93262cb7" data-cms="about-contact-desc">
                 Whether you are an established enterprise looking for a strategic pivot, or an ambitious startup ready
                 to scale, we have the resources to guide you. Drop us a message to schedule an initial consultation.
             </p>
 
-            <div class="contact-layout" style="max-width: 700px; margin: 0; grid-template-columns: 1fr; gap: 0.5rem;">
+            <div class="auto-style-556af5b8 contact-layout">
 
-                <div class="contact-item" style="margin-bottom: 0.75rem;">
+                <div class="auto-style-77a3ec23 contact-item">
                     <div class="contact-icon">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                        <strong style="display:block; color:var(--text-dark); margin-bottom: 0.2rem;" data-cms="auto-about-strong-14">Basecamp Location</strong>
-                        <span style="color: var(--accent);" data-cms="auto-about-span-15">Gas City, Indiana 46933<br></span>
+                        <strong class="auto-style-035b5210" data-cms="auto-about-strong-14">Basecamp Location</strong>
+                        <span class="auto-style-6eb4b668" data-cms="auto-about-span-15">Gas City, Indiana 46933<br></span>
                     </div>
                 </div>
 
-                <div class="contact-item" style="margin-bottom: 0.75rem;">
+                <div class="auto-style-77a3ec23 contact-item">
                     <div class="contact-icon">
                         <i class="fa-solid fa-phone"></i>
                     </div>
                     <div>
-                        <strong style="display:block; color:var(--text-dark); margin-bottom: 0.2rem;" data-cms="auto-about-strong-16">Phone</strong>
-                        <a href="mailto:basecamp@sherpa-solutions-llc.com" style="color: var(--accent); text-decoration: none;" data-cms="auto-about-a-17">614-615-8798</a>
+                        <strong class="auto-style-035b5210" data-cms="auto-about-strong-16">Phone</strong>
+                        <a href="mailto:basecamp@sherpa-solutions-llc.com" class="auto-style-bd04ff7a" data-cms="auto-about-a-17">614-615-8798</a>
                     </div>
                 </div>
 
-                <div class="contact-item" style="margin-bottom: 0;">
+                <div class="auto-style-c42e0ec4 contact-item">
                     <div class="contact-icon">
                         <i class="fa-solid fa-envelope"></i>
                     </div>
                     <div>
-                        <strong style="display:block; color:var(--text-dark); margin-bottom: 0.2rem;" data-cms="auto-about-strong-18">Email</strong>
-                        <a href="mailto:basecamp@sherpa-solutions-llc.com" style="color: var(--accent); text-decoration: none;" data-cms="auto-about-a-19">basecamp@sherpa-solutions-llc.com</a>
+                        <strong class="auto-style-035b5210" data-cms="auto-about-strong-18">Email</strong>
+                        <a href="mailto:basecamp@sherpa-solutions-llc.com" class="auto-style-bd04ff7a" data-cms="auto-about-a-19">basecamp@sherpa-solutions-llc.com</a>
                     </div>
                 </div>
 
@@ -159,13 +165,13 @@
     </section>
 
     <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
-        <p class="no-cms">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success<a href="/login.html" id="admin-login-link" class="no-cms" title="Admin Login" style="text-decoration: none; color: inherit; cursor: default;">.</a></p>
+        <div class="auto-style-772d7868 hero-badge"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+        <p class="no-cms">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success<a href="/login.html" id="admin-login-link" class="auto-style-0ad1065e no-cms" title="Admin Login">.</a></p>
     </footer>
 
     <script src="static/cms.js"></script>
 
 
-<div id="preact-border-shadow-host" popover="manual" style="border: none; padding: 0px; margin: 0px; inset: 0px; position: fixed; width: 100vw; height: 100vh; background: transparent; pointer-events: none;"></div>
+
     <script src="static/analytics.js"></script>
 </body></html>
