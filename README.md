@@ -1,8 +1,8 @@
-# Sherpa Solutions: Software Revision 2
+# Sherpa Solutions: Version 1.0
 
 Welcome to the official repository for the **Sherpa Solutions LLC** platform.
 
-![Software Revision 2](https://img.shields.io/badge/Revision-2.0-orange?style=for-the-badge) ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi) ![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat&logo=railway)
+![Version 1.0](https://img.shields.io/badge/Version-1.0-orange?style=for-the-badge) ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi) ![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat&logo=railway)
 
 ## Overview
 Sherpa Solutions LLC provides navigational expertise, operational infrastructure, and steadfast support to help enterprises scale in demanding landscapes. **Software Revision 2** completely scales out our interactive global capability, introducing a hybrid static-dynamic hosting architecture to power the real-time *Live Earth* intelligence dashboard.
