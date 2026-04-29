@@ -1,187 +1,371 @@
 <!DOCTYPE html>
 
+
+
 <html data-theme="light" lang="en">
+
 <head>
+
 <link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+
 <meta charset="utf-8"/>
+
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
 <title>DCSA Dashboard | Sherpa Solutions</title>
+
 <!-- Modern Fonts -->
+
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+
 <link href="static/styles.css?v=1.4" rel="stylesheet"/>
+
 <script src="static/theme.js"></script>
+
 <style>
+
         .auto-style-1 { background: transparent; padding: 12rem 5% 1rem 5%; }
+
         .auto-style-2 { color: var(--text-dark); font-size: 4rem; line-height: 1.2; margin-bottom: 0.5rem; }
+
         .auto-style-3 { color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto; }
+
         .auto-style-4 { color: var(--primary); font-size: 2.5rem; margin-bottom: 2rem; }
+
         .dashboard-bg {
+
             background-color: var(--bg-color);
+
             background-image: linear-gradient(rgba(5, 5, 5, 0.92), rgba(5, 5, 5, 0.92)), url('static/dcsa_sherpa_logo.png');
+
             background-repeat: no-repeat;
+
             background-position: center center;
+
             background-attachment: fixed;
+
             background-size: min(70vw, 65vh);
+
         }
+
         html[data-theme="light"] .dashboard-bg {
+
             background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('static/dcsa_sherpa_logo.png');
+
         }
+
         .auto-style-5 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 4rem; }
+
         .auto-style-6 { text-decoration: none; color: inherit; display: block; transition: transform 0.3s ease; }
+
         .auto-style-7 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; }
-        .auto-style-8 { font-size: 2.5rem; color: var(--primary) !important; margin-bottom: 1rem; text-align: center; }
+
+        .auto-style-8 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; text-align: center; }
+
         .auto-style-9 { color: var(--text-dark); margin: 0; text-align: center; }
+
         .auto-style-10 { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+
         .auto-style-11 { font-size: 0.75rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+
         .auto-style-12 { color: var(--accent); font-size: 1.5rem; font-weight: 800; }
+
         .auto-style-13 { text-decoration: none; color: inherit; display: block; transition: transform 0.3s ease; }
+
         .auto-style-14 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; }
-        .auto-style-15 { font-size: 2.5rem; color: var(--primary) !important; margin-bottom: 1rem; text-align: center; }
+
+        .auto-style-15 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; text-align: center; }
+
         .auto-style-16 { color: var(--text-dark); margin: 0; text-align: center; }
+
         .auto-style-17 { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+
         .auto-style-18 { font-size: 0.75rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+
         .auto-style-19 { color: var(--accent); font-size: 1.5rem; font-weight: 800; }
+
         .auto-style-20 { text-decoration: none; color: inherit; display: block; transition: transform 0.3s ease; }
+
         .auto-style-21 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; }
-        .auto-style-22 { font-size: 2.5rem; color: var(--primary) !important; margin-bottom: 1rem; text-align: center; }
+
+        .auto-style-22 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; text-align: center; }
+
         .auto-style-23 { color: var(--text-dark); margin: 0; text-align: center; }
+
         .auto-style-24 { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+
         .auto-style-25 { font-size: 0.75rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+
         .auto-style-26 { color: var(--accent); font-size: 1.5rem; font-weight: 800; }
+
         .auto-style-27 { text-decoration: none; color: inherit; display: block; transition: transform 0.3s ease; }
+
         .auto-style-28 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; }
-        .auto-style-29 { font-size: 2.5rem; color: var(--primary) !important; margin-bottom: 1rem; text-align: center; }
+
+        .auto-style-29 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; text-align: center; }
+
         .auto-style-30 { color: var(--text-dark); margin: 0; text-align: center; }
+
         .auto-style-31 { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+
         .auto-style-32 { font-size: 0.75rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+
         .auto-style-33 { color: var(--accent); font-size: 1.5rem; font-weight: 800; }
+
         .auto-style-34 { border: 0; border-top: 1px solid var(--border-color); margin-bottom: 4rem; }
+
         .auto-style-35 { color: var(--primary); font-size: 2.5rem; margin-bottom: 1rem; }
+
         .auto-style-36 { color: var(--text-dark); font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; }
+
         .auto-style-37 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4rem; }
+
         .auto-style-38 { text-decoration: none; color: inherit; display: block; }
+
         .auto-style-39 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; transition: transform 0.3s ease; }
+
         .auto-style-40 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; display: block; text-align: center; }
+
         .auto-style-41 { color: var(--text-dark); margin: 0; text-align: center; font-size: 1.25rem; font-family: 'Outfit', sans-serif; font-weight: bold; }
+
         .auto-style-42 { text-decoration: none; color: inherit; display: block; }
+
         .auto-style-43 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; transition: transform 0.3s ease; }
+
         .auto-style-44 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; display: block; text-align: center; }
+
         .auto-style-45 { color: var(--text-dark); margin: 0; text-align: center; font-size: 1.25rem; font-family: 'Outfit', sans-serif; font-weight: bold; }
+
         .auto-style-46 { text-decoration: none; color: inherit; display: block; }
+
         .auto-style-47 { background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); height: 100%; transition: transform 0.3s ease; }
+
         .auto-style-48 { font-size: 2.5rem; color: var(--accent) !important; margin-bottom: 1rem; display: block; text-align: center; }
+
         .auto-style-49 { color: var(--text-dark); margin: 0; text-align: center; font-size: 1.25rem; font-family: 'Outfit', sans-serif; font-weight: bold; }
+
         .auto-style-50 { border: 0; border-top: 1px solid var(--border-color); margin-bottom: 4rem; }
+
         .auto-style-51 { color: var(--primary); font-size: 2.5rem; margin-bottom: 1rem; }
+
         .auto-style-52 { color: var(--accent); margin-right: 1rem; }
+
         .auto-style-53 { color: var(--text-dark); font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; }
+
         .auto-style-54 { background: var(--surface-color); padding: 3rem; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; text-align: center; }
+
         .auto-style-55 { width: 100%; max-width: 600px; position: relative; margin-bottom: 2rem; }
+
         .auto-style-56 { display: flex; position: relative; }
+
         .auto-style-57 { width: 100%; padding: 1.2rem 2rem; padding-left: 3rem; border-radius: 50px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-dark); font-size: 1.1rem; outline: none; transition: box-shadow 0.3s ease; }
+
         .auto-style-58 { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--text-dark); opacity: 0.5; }
+
         .auto-style-59 { position: absolute; right: 5px; top: 5px; bottom: 5px; border-radius: 50px; padding: 0 2rem; border: none; cursor: pointer; }
+
         .auto-style-60 { display: flex; align-items: center; gap: 1rem; color: var(--text-dark); opacity: 0.7; margin-bottom: 2rem; }
+
         .auto-style-61 { width: 50px; border: 0; border-top: 1px solid var(--border-color); }
+
         .auto-style-62 { width: 50px; border: 0; border-top: 1px solid var(--border-color); }
+
         .auto-style-63 { font-size: 1.2rem; padding: 1rem 3rem; border-radius: 8px; display: inline-flex; align-items: center; background: var(--surface-color); border: 2px solid var(--primary); color: var(--primary); transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255, 122, 0, 0.2); font-weight: bold; }
+
         .auto-style-64 { margin-right: 0.8rem; }
+
         .auto-style-65 { margin-top: 4rem; text-align: center; }
+
         .auto-style-66 { margin-right: 0.5rem; }
+
         .auto-style-67 { display: inline-flex; margin-bottom: 1rem; }
+
     </style>
+
 </head>
+
 <body class="dashboard-bg">
+
 <header>
+
 <div class="logo-container">
+
 <a data-cms="auto-dcsa-dashboard-a-24" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_dashboard-img-1"></a>
+
 </div>
+
 <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+
 <ul class="nav-links" id="nav-menu">
+
 <li data-cms="auto-dcsa-dashboard-li-41"><a data-cms="auto-dcsa-dashboard-a-25" href="index.html">Home</a></li>
+
 <li data-cms="auto-dcsa-dashboard-li-42"><a data-cms="auto-dcsa-dashboard-a-26" href="about.html">About Us</a></li>
+
 <li data-cms="auto-dcsa-dashboard-li-43"><a data-cms="auto-dcsa-dashboard-a-27" href="services.html">Our Services</a></li>
+
 <li data-cms="auto-dcsa-dashboard-li-44"><a class="active" data-cms="auto-dcsa-dashboard-a-28" href="projects.html">Projects</a></li>
+
 <li data-cms="auto-dcsa-dashboard-li-45"><a data-cms="auto-dcsa-dashboard-a-29" href="merchandise.html">Merchandise</a></li>
+
 <li data-cms="auto-dcsa-dashboard-li-46"><a data-cms="auto-dcsa-dashboard-a-30" href="contact.html">Contact</a></li>
+
 </ul>
+
 <div class="header-actions">
-<div class="demo-btn-container" style="position: relative; display: inline-block; margin-right: 15px;" onmouseenter="document.getElementById('vol-slider-pop').style.opacity='1'; document.getElementById('vol-slider-pop').style.visibility='visible';" onmouseleave="document.getElementById('vol-slider-pop').style.opacity='0'; document.getElementById('vol-slider-pop').style.visibility='hidden';">
-    <button id="btn-demo-toggle" class="btn btn-outline" style="border: 1px solid var(--border-color); color: var(--text-dark); background: transparent; cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO</button>
-    <div id="vol-slider-pop" style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 10px; background: var(--surface-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100; opacity: 0; visibility: hidden; transition: all 0.2s ease;">
-        <div style="display: flex; align-items: center; gap: 8px; width: 140px;">
-            <i class="fa-solid fa-volume-low" style="color: var(--text-dark); opacity: 0.7; font-size: 0.9rem;"></i>
-            <input type="range" id="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" style="width: 100%; cursor: pointer;" onchange="updateDemoVolume(this.value)" oninput="updateDemoVolume(this.value)">
-            <span id="demo-vol-text" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">50%</span>
+
+<div class="auto-style-c5a7c370 demo-btn-container" onmouseenter="document.getElementById('vol-slider-pop').style.opacity='1'; document.getElementById('vol-slider-pop').style.visibility='visible';" onmouseleave="document.getElementById('vol-slider-pop').style.opacity='0'; document.getElementById('vol-slider-pop').style.visibility='hidden';">
+
+    <button id="btn-demo-toggle" class="auto-style-795a32e6 btn btn-outline" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO</button>
+
+    <div id="vol-slider-pop" class="auto-style-fe19427c">
+
+        <div class="auto-style-e56c6980">
+
+            <i class="auto-style-9433061e fa-solid fa-volume-low"></i>
+
+            <input title="Demo Volume Slider" type="range" id="demo-volume-slider" min="0" max="1" step="0.1" value="0.5" class="auto-style-e348370d" onchange="updateDemoVolume(this.value)" oninput="updateDemoVolume(this.value)">
+
+            <span id="demo-vol-text" class="auto-style-b3b150e3">50%</span>
+
         </div>
-        <div style="position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--border-color);"></div>
-        <div style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid var(--surface-color);"></div>
+
+        <div class="auto-style-0460c97c"></div>
+
+        <div class="auto-style-8d749e45"></div>
+
     </div>
+
 </div>
-<button aria-label="Toggle theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+
+<button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
+
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-dashboard-a-31" href="contact.html">Schedule Basecamp Consultation</a>
+
 </div>
+
 </header>
-<div class="page-header auto-style-1" style="padding-top: 13rem;">
-<h1 class="auto-style-2" data-cms="auto-dcsa-dashboard-h1-1" style="display: none;">DCSA Dashboard</h1>
-<h2 data-cms="auto-dcsa-dashboard-h2-9-new" style="color: var(--primary); font-size: 2.5rem; font-weight: 800; line-height: 1.2; max-width: 1000px; margin: 0 auto 1rem auto; text-align: center; position: relative; z-index: 10; text-shadow: 0 0 10px rgba(255,122,0,0.2); font-family: 'Outfit', sans-serif;">Defense Counterintelligence and Security Agency<br><span style="color: var(--primary) !important; font-size: 1.2rem; font-weight: 600; opacity: 0.9; display: inline-block; margin-top: 0.3rem;" data-cms="auto-dcsa_dashboard-span-3">Securing the Future</span></h2>
+
+<div class="auto-style-9f59e9a9 page-header auto-style-1">
+
+<h1 class="auto-style-224b51a7 auto-style-2" data-cms="auto-dcsa-dashboard-h1-1">DCSA Dashboard</h1>
+
+<h2 data-cms="auto-dcsa-dashboard-h2-9-new" class="auto-style-ccc0450a">Defense Counterintelligence and Security Agency<br><span style="color: var(--primary) !important; font-size: 1.2rem; font-weight: 600; opacity: 0.9; display: inline-block; margin-top: 0.3rem;" data-cms="auto-dcsa_dashboard-span-3">Securing the Future</span></h2>
+
 </div>
-<section class="content-block" style="padding-top: 1rem;">
+
+<section class="auto-style-caa45fcf content-block">
+
 <div class="content-container">
+
 <h2 class="auto-style-4" data-cms="auto-dcsa-dashboard-h2-2">The 4 Core Mission Objectives</h2>
+
 <style>
+
                 .service-card { position: relative; overflow: visible; }
+
                 .desc-callout {
+
                     position: absolute;
+
                     top: 100%;
+
                     left: 50%;
+
                     transform: translateX(-50%) translateY(10px);
+
                     background: var(--surface-color);
+
                     color: var(--text-dark);
+
                     border: 1px solid var(--border-color);
+
                     padding: 1.2rem;
+
                     border-radius: 8px;
+
                     width: 280px;
+
                     opacity: 0;
+
                     visibility: hidden;
+
                     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
                     z-index: 100;
+
                     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+
                     text-align: center;
+
                     font-size: 0.95rem;
+
                     line-height: 1.6;
+
                     pointer-events: none;
+
                     margin: 0;
+
                 }
+
                 .desc-callout::after {
+
                     content: '';
+
                     position: absolute;
+
                     bottom: 100%;
+
                     left: 50%;
+
                     margin-left: -10px;
+
                     border-width: 10px;
+
                     border-style: solid;
+
                     border-color: transparent transparent var(--surface-color) transparent;
+
                 }
+
                 .desc-callout::before {
+
                     content: '';
+
                     position: absolute;
+
                     bottom: 100%;
+
                     left: 50%;
+
                     margin-left: -11px;
+
                     border-width: 11px;
+
                     border-style: solid;
+
                     border-color: transparent transparent var(--border-color) transparent;
+
                     z-index: -1;
+
                 }
+
                 .service-card:hover .desc-callout {
+
                     opacity: 1;
+
                     visibility: visible;
+
                     transform: translateX(-50%) translateY(15px);
+
                 }
+
             </style>
+
 <div class="auto-style-5">
+
 <a class="auto-style-6" data-cms="auto-dcsa-dashboard-a-32" href="dcsa_personnel_vetting.html" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <div class="service-card auto-style-7">
 <div class="auto-style-8"><i class="fa-solid fa-id-card-clip"></i></div>
@@ -193,6 +377,7 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-10">To ensure that only trustworthy individuals have access to sensitive information. The DCSA conducts the vast majority of background investigations and continuous vetting for the federal government and contractors.</p>
 </div>
 </a>
+
 <a class="auto-style-13" data-cms="auto-dcsa-dashboard-a-33" href="dcsa_industrial_security.html" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <div class="service-card auto-style-14">
 <div class="auto-style-15"><i class="fa-solid fa-industry"></i></div>
@@ -204,6 +389,7 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-11">To protect national security by overseeing thousands of cleared defense contractors through the National Industrial Security Program (NISP).</p>
 </div>
 </a>
+
 <a class="auto-style-20" data-cms="auto-dcsa-dashboard-a-34" href="dcsa_counterintelligence.html" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <div class="service-card auto-style-21">
 <div class="auto-style-22"><i class="fa-solid fa-user-secret"></i></div>
@@ -215,6 +401,7 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-12">To actively identify, assess, and neutralize threats posed by foreign intelligence entities or malicious internal actors to prevent the theft of critical U.S. technology.</p>
 </div>
 </a>
+
 <a class="auto-style-27" data-cms="auto-dcsa-dashboard-a-35" href="dcsa_security_training.html" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <div class="service-card auto-style-28">
 <div class="auto-style-29"><i class="fa-solid fa-graduation-cap"></i></div>
@@ -226,11 +413,17 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-13">To build and maintain a highly skilled national security workforce by providing specialized training and certifications to security professionals.</p>
 </div>
 </a>
+
 </div>
+
 <hr class="auto-style-34"/>
+
 <h2 class="auto-style-35" data-cms="auto-dcsa-dashboard-h2-3">Long-Term Strategic Priorities</h2>
+
 <p class="auto-style-36" data-cms="auto-dcsa-dashboard-p-14">In addition to their daily operations, the DCSA's current strategic plan outlines three forward-looking objectives (FY 2025–2030) to prepare for future threats:</p>
+
 <div class="auto-style-37">
+
 <a class="auto-style-38" data-cms="auto-dcsa-dashboard-a-36" href="dcsa_full_integration.html">
 <div class="service-card auto-style-39" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <span class="fa-solid fa-network-wired auto-style-40" data-cms="auto-dcsa-dashboard-span-20"></span>
@@ -238,6 +431,7 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-15">To transition from siloed departments into a fully integrated agency where vetting, industrial security, and counterintelligence data are seamlessly shared to make smarter, faster risk decisions.</p>
 </div>
 </a>
+
 <a class="auto-style-42" data-cms="auto-dcsa-dashboard-a-37" href="dcsa_2040_threats.html">
 <div class="service-card auto-style-43" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <span class="fa-solid fa-shield-virus auto-style-44" data-cms="auto-dcsa-dashboard-span-21"></span>
@@ -245,6 +439,7 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-16">To institutionalize innovation and data integration so the agency can proactively anticipate and manage risks posed by emerging technologies, rather than just reacting to them.</p>
 </div>
 </a>
+
 <a class="auto-style-46" data-cms="auto-dcsa-dashboard-a-38" href="dcsa_agency_profile.html">
 <div class="service-card auto-style-47" onmouseout="this.style.transform='translateY(0)'" onmouseover="this.style.transform='translateY(-5px)'">
 <span class="fa-solid fa-ranking-star auto-style-48" data-cms="auto-dcsa-dashboard-span-22"></span>
@@ -252,62 +447,120 @@
 <p class="desc-callout" data-cms="auto-dcsa-dashboard-p-17">To establish the DCSA as the premier, recognized provider of integrated security services, improving their engagement and collaboration with external partners and industry stakeholders.</p>
 </div>
 </a>
+
 </div>
+
 <hr class="auto-style-50"/>
+
 <h2 class="auto-style-51" data-cms="auto-dcsa-dashboard-h2-4"><i class="fa-solid fa-earth-americas auto-style-52"></i>Resource Locator</h2>
+
 <p class="auto-style-53" data-cms="auto-dcsa-dashboard-p-18">Search for DCSA personnel globally or visualize real-time resource distribution using the Live Earth view.</p>
+
 <div class="auto-style-54">
+
 <div class="auto-style-55">
-<form action="dcsa_resource_locator.html" method="GET" style="display: flex; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 50px; padding: 5px; position: relative; width: 100%; max-width: 700px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-    <div style="display: flex; flex: 1; align-items: center; border-right: 1px solid rgba(255,255,255,0.1);">
-        <i class="fa-solid fa-user" style="padding-left: 1.5rem; color: var(--text-dark); opacity: 0.5;"></i>
-        <input name="first_name" placeholder="First Name..." type="text" style="width: 100%; background: transparent; border: none; color: var(--text-dark); padding: 1rem 1rem; outline: none; font-size: 1.1rem;" />
+
+<form action="dcsa_resource_locator.html" method="GET" class="auto-style-36be3fe4">
+
+    <div class="auto-style-1d1a010e">
+
+        <i class="auto-style-8966aefd fa-solid fa-user"></i>
+
+        <input title="Input Field" name="first_name" placeholder="First Name..." type="text" class="auto-style-9159f2a7" />
+
     </div>
-    <div style="display: flex; flex: 1; align-items: center; padding-right: 130px;">
-        <input name="last_name" placeholder="Last Name..." type="text" style="width: 100%; background: transparent; border: none; color: var(--text-dark); padding: 1rem 1.5rem; outline: none; font-size: 1.1rem;" />
+
+    <div class="auto-style-da92ad68">
+
+        <input title="Input Field" name="last_name" placeholder="Last Name..." type="text" class="auto-style-c2726122" />
+
     </div>
-    <button class="btn btn-primary" type="submit" style="position: absolute; right: 5px; top: 5px; bottom: 5px; border-radius: 50px; padding: 0 2rem; border: none; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif;">Search</button>
+
+    <button class="auto-style-7deb5387 btn btn-primary" type="submit">Search</button>
+
 </form>
+
 </div>
+
 <div class="auto-style-60">
+
 <hr class="auto-style-61"/>
+
 <span data-cms="auto-dcsa-dashboard-span-23">OR</span>
+
 <hr class="auto-style-62"/>
+
 </div>
+
 <a class="btn btn-primary" data-cms="auto-dcsa-dashboard-a-39" href="dcsa_resource_locator.html">
 <i class="fa-solid fa-satellite-dish auto-style-64"></i> Open Live View
                 </a>
+
 </div>
+
 <div class="auto-style-65">
+
 <a class="btn btn-primary" data-cms="auto-dcsa-dashboard-a-40" href="projects.html"><i class="fa-solid fa-arrow-left auto-style-66"></i> Back to Projects</a>
+
 </div>
+
 </div>
+
 </section>
 
+
+
 <script>
+
     let isDemoRunning = false;
+
     let demoAudioUtterance = null;
+
     let currentDemoVolume = 0.5;
 
+
+
     function updateDemoVolume(val) {
+
         currentDemoVolume = parseFloat(val);
+
         document.getElementById('demo-vol-text').innerText = Math.round(currentDemoVolume * 100) + '%';
+
     }
 
+
+
     function toggleDemo() {
+
         if (sessionStorage.getItem('dcsaDemoStep') !== null) {
+
             sessionStorage.removeItem('dcsaDemoStep');
+
             if (window.speechSynthesis) window.speechSynthesis.cancel();
+
             window.location.reload();
+
         } else {
+
             sessionStorage.setItem('dcsaDemoStep', 0);
+
             sessionStorage.setItem('dcsaDemoVolume', currentDemoVolume);
+
             window.location.reload();
+
         }
+
     }
+
 </script>
+
 <script src="static/cms.js"></script>
+
 <script src="static/analytics.js"></script>
+
 <script src="static/dcsa_demo.js"></script>
+
 </body>
+
 </html>
+
