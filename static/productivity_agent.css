@@ -146,8 +146,8 @@ body {
 /* Glassmorphism Classes */
 .glass-card {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
     padding: 1.5rem;
@@ -156,6 +156,7 @@ body {
 
 .glass-header {
     background: var(--header-bg);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--glass-border);
     border-radius: 16px;
@@ -181,8 +182,8 @@ body {
     font-weight: 800;
     letter-spacing: -0.5px;
     background: linear-gradient(90deg, #e6edf3, #8b949e);
-    background-clip: text;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -330,6 +331,7 @@ h2 {
     font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.2s;
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
 
@@ -765,6 +767,7 @@ textarea:focus {
 .timestamp {
     color: var(--text-secondary);
     margin-right: 0.5rem;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -816,7 +819,7 @@ textarea:focus {
     .left-panel,
     .right-panel {
         height: auto;
-        min-height: auto;
+        min-height: 0;
         gap: 1.5rem;
     }
 
