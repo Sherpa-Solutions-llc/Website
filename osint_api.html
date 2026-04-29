@@ -34,7 +34,7 @@
             <li><a href="osint_api_docs.html">Documentation</a></li>
         </ul>
         <div class="header-actions">
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+            <button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
             <a href="#pricing" class="btn btn-primary nav-cta">Get API Key</a>
         </div>
     </header>
@@ -91,7 +91,7 @@
             </div>
             <div class="terminal-input-row">
                 <span class="prompt">user@osint:~$</span>
-                <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" placeholder="curl -X GET https://api/v1/osint/query?type=flights">
+                <input title="curl -X GET https://api/v1/osint/query?type=flights" type="text" id="terminal-input" autocomplete="off" spellcheck="false" placeholder="curl -X GET https://api/v1/osint/query?type=flights">
             </div>
         </div>
 
@@ -99,7 +99,7 @@
             <div class="control-group">
                 <label>1. API Key</label>
                 <div class="key-input-wrapper">
-                    <input type="password" id="sandbox-api-key" placeholder="Enter your key or generate one ->" readonly>
+                    <input title="Sandbox Api Key" type="password" id="sandbox-api-key" placeholder="Enter your key or generate one ->" readonly>
                     <button id="btn-generate-key" class="btn btn-outline btn-sm"><i class="fa-solid fa-key"></i> Generate Free Key</button>
                     <button id="btn-reveal-key" class="btn btn-ghost btn-sm" aria-label="Toggle visible"><i class="fa-solid fa-eye"></i></button>
                 </div>
@@ -107,7 +107,7 @@
             
             <div class="control-group">
                 <label>2. Data Stream</label>
-                <select id="sandbox-endpoint">
+                <select title="Sandbox Endpoint" id="sandbox-endpoint">
                     <option value="flights">Commercial & Military Flights</option>
                     <option value="satellites">Active Satellites</option>
                     <option value="vessels">Maritime AIS Vessels</option>
@@ -180,13 +180,13 @@
                 <p>Registering for: <strong id="checkout-tier-name"></strong></p>
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="checkout-email" placeholder="dev@company.com">
+                    <input title="dev@company.com" type="email" id="checkout-email" placeholder="dev@company.com">
                 </div>
                 <div class="form-group credit-card-mock">
                     <label>Payment Method (Simulated)</label>
                     <div class="cc-input">
                         <i class="fa-brands fa-cc-stripe"></i>
-                        <input type="text" value="**** **** **** 4242" disabled>
+                        <input title="Input field" type="text" value="**** **** **** 4242" disabled>
                     </div>
                 </div>
                 <button id="btn-complete-checkout" class="btn btn-primary full-width">Pay & Generate API Key</button>
