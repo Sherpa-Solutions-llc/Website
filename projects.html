@@ -37,7 +37,24 @@
     --text-light: #ffffff !important;
 }
 </style>
-</head>
+
+    <style>
+        .product-img-bg-dark { height: 240px; background: #0d1117; padding: 0; }
+        .product-img-bg-black { height: 240px; background: #000; padding: 0; }
+        .product-img-bg-greenish { height: 240px; background: #0b110b; padding: 0; }
+        .product-img-bg-slate { height: 240px; background: #0f172a; padding: 0; }
+        .product-img-bg-gray { height: 240px; background: #111827; padding: 0; }
+        .product-img img.img-fit-center { object-fit: cover; width: 100%; height: 100%; object-position: center; }
+        .product-img img.img-fit-top { object-fit: cover; width: 100%; height: 100%; object-position: top; }
+        .product-img img.img-fit { object-fit: cover; width: 100%; height: 100%; }
+        h3.product-title-styled { margin-bottom: 0.5rem; color: var(--accent); }
+        .product-info p.desc-styled { color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem; }
+        .product-btn-wrapper { margin-top: auto; }
+        .product-btn .w-100 { width: 100%; }
+        .product-btn i.ml-2 { margin-left: 0.5rem; }
+    </style>
+    </head>
+
 
 <body class="">
 
@@ -361,6 +378,21 @@
                         </p>
                         <div class="product-btn" style="margin-top: auto;">
                             <span class="btn btn-primary" style="width: 100%;" data-cms="project-card-dcsa-btn">View Dashboard <i class="fa-solid fa-shield-halved" style="margin-left: 0.5rem;"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="business_model.html" class="product-card auto-style-8354e9b3" data-cms="project-link-business-model">
+                    <div class="product-img" style="height: 240px; background: #0d1117; padding: 0;">
+                        <img src="static/business_model_thumb.png" alt="Business Model" style="object-fit: cover; width: 100%; height: 100%;" data-cms="project-card-business-model-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" style="margin-bottom: 0.5rem; color: var(--accent);" data-cms="project-card-business-model-title">Business Model</h3>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;" data-cms="project-card-business-model-desc">
+                            A powerful Discrete Event Simulation (DES) engine to build digital twins of your enterprise workflows. Analyze bottlenecks and run Monte Carlo scenarios.
+                        </p>
+                        <div class="product-btn" style="margin-top: auto;">
+                            <span class="btn btn-primary" style="width: 100%;" data-cms="project-card-business-model-btn">Launch Simulator <i class="fa-solid fa-diagram-project" style="margin-left: 0.5rem;"></i></span>
                         </div>
                     </div>
                 </a>
