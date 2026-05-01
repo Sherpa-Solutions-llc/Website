@@ -350,6 +350,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.8);
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
             z-index: 9999;
             display: flex;
@@ -844,7 +845,8 @@
 <button class="btn-tab" id="btn-tab-brokers" onclick="switchTab('brokers')" type="button"><i class="fa-solid fa-database"></i> Data Brokers</button>
 <button class="btn-tab" id="btn-tab-results" onclick="switchTab('results')" type="button"><i class="fa-solid fa-list-check"></i> Live Results Dashboard</button>
 <button class="btn-tab" id="btn-tab-ai" onclick="switchTab('ai')" type="button"><i class="fa-solid fa-gear"></i> Settings</button>
-<button class="btn-tab" id="btn-tab-about" onclick="switchTab('about')" type="button"><i class="fa-solid fa-circle-info"></i> About</button></div>
+<button class="btn-tab" id="btn-tab-about" onclick="switchTab('about')" type="button"><i class="fa-solid fa-circle-info"></i> About</button>
+<button class="btn-tab" id="btn-tab-google" onclick="switchTab('google')" type="button"><i class="fa-brands fa-google"></i> Google</button></div>
 <!-- Content Area -->
 <div class="tab-content-container">
 <!-- Profile Tab -->
@@ -852,9 +854,9 @@
 <h3 class="auto-style-9c696433" >Personal Information to Scrub</h3>
 <form id="freeme-form">
 <div class="dynamic-list-container auto-style-d3297f95" id="list-aliases" >
-<label class="auto-style-1b7b299b" >
-<span>Names / Aliases</span>
-<button onclick="addDynamicField('list-aliases', 'alias-input', 'text', 'e.g. John Doe')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<label>
+<span data-cms="profile-label-alias">Names / Aliases</span>
+<button data-cms="btn-add-alias" onclick="addDynamicField('list-aliases', 'alias-input', 'text', 'e.g. John Doe')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
 <input title="e.g. John Doe" class="standard-input alias-input" placeholder="e.g. John Doe" type="text"/>
@@ -862,18 +864,18 @@
 </div>
 <div class="row">
 <div class="col dynamic-list-container" id="list-emails">
-<label class="auto-style-1b7b299b" >
-<span>Email</span>
-<button onclick="addDynamicField('list-emails', 'email-input', 'email', 'e.g. user@domain.com')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<label>
+<span data-cms="profile-label-email">Email</span>
+<button data-cms="btn-add-email" onclick="addDynamicField('list-emails', 'email-input', 'email', 'e.g. user@domain.com')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
 <input title="e.g. user@domain.com" class="standard-input email-input" placeholder="e.g. user@domain.com" type="email"/>
 </div>
 </div>
 <div class="col dynamic-list-container" id="list-phones">
-<label class="auto-style-1b7b299b" >
-<span>Phone number</span>
-<button onclick="addDynamicField('list-phones', 'phone-input', 'tel', 'e.g. 555-123-4567')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<label>
+<span data-cms="profile-label-phone">Phone Number</span>
+<button data-cms="btn-add-phone" onclick="addDynamicField('list-phones', 'phone-input', 'tel', 'e.g. 555-123-4567')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
 <input title="e.g. 555-123-4567" class="standard-input phone-input" placeholder="e.g. 555-123-4567" type="tel"/>
@@ -881,9 +883,9 @@
 </div>
 </div>
 <div class="dynamic-list-container auto-style-185d793c" id="list-addresses" >
-<label class="auto-style-1b7b299b" >
-<span>Address</span>
-<button onclick="addDynamicField('list-addresses', 'address-input', 'text', 'e.g. 123 Main St, City, ST 12345')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<label>
+<span data-cms="profile-label-address">Address</span>
+<button data-cms="btn-add-address" onclick="addDynamicField('list-addresses', 'address-input', 'text', 'e.g. 123 Main St, City, ST 12345')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
 <input title="e.g. 123 Main St, City, ST 12345" class="standard-input address-input" placeholder="e.g. 123 Main St, City, ST 12345" type="text"/>
@@ -904,7 +906,7 @@
 <input title="Photo Upload" accept="image/*" class="standard-input auto-style-fa85fbc9" id="photo-upload"  type="file"/>
 </div>
 <p class="auto-style-d450ca60" ><i class="fa-solid fa-lock"></i> <strong>Pillars of Privacy:</strong> This data is encrypted and passed locally to our privacy parser. It is only used to directly input into broker opt-out flows.</p>
-<button class="btn-run auto-style-be7cdf7a" onclick="switchTab('brokers')"  type="button">Next: Select Brokers <i class="fa-solid fa-arrow-right"></i></button>
+<button data-cms="btn-profile-next" class="btn-run auto-style-be7cdf7a" onclick="switchTab('brokers')"  type="button">Next: Select Brokers <i class="fa-solid fa-arrow-right"></i></button>
 </form>
 </div>
 <!-- Brokers Tab -->
@@ -956,7 +958,7 @@
 <div class="broker-icon"><i class="fa-solid fa-user-secret"></i></div>
 <div class="broker-info">
 <h3>Intelius</h3>
-<p>Select the data brokers you want our autonomous agents to scrub your data from.</p>
+<p>Extensive background and public records.</p>
 </div>
 <div class="toggle-switch">
 <input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Intelius"/>
@@ -982,6 +984,116 @@
 </div>
 <div class="toggle-switch">
 <input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Acxiom"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-star"></i></div>
+<div class="broker-info">
+<h3>MyLife</h3>
+<p>Reputation scores and background reports.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="MyLife"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+<div class="broker-info">
+<h3>Radaris</h3>
+<p>Public records and social media search.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Radaris"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-regular fa-id-card"></i></div>
+<div class="broker-info">
+<h3>Nuwber</h3>
+<p>People search and public records.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Nuwber"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+<div class="broker-info">
+<h3>TruthFinder</h3>
+<p>Detailed background checks.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="TruthFinder"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-bolt"></i></div>
+<div class="broker-info">
+<h3>InstantCheckmate</h3>
+<p>Public record searches.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="InstantCheckmate"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+<div class="broker-info">
+<h3>FastPeopleSearch</h3>
+<p>Fast and free people search.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="FastPeopleSearch"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-eye"></i></div>
+<div class="broker-info">
+<h3>PeekYou</h3>
+<p>People search engine.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="PeekYou"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-circle-question"></i></div>
+<div class="broker-info">
+<h3>AnyWho</h3>
+<p>Yellow and white pages directory.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="AnyWho"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-user-group"></i></div>
+<div class="broker-info">
+<h3>PeopleFinders</h3>
+<p>Background checks and public records.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="PeopleFinders"/>
+<span class="toggle-slider"></span>
+</div>
+</label>
+<label class="broker-card">
+<div class="broker-icon"><i class="fa-solid fa-flag-usa"></i></div>
+<div class="broker-info">
+<h3>USSearch</h3>
+<p>Background checks and public records.</p>
+</div>
+<div class="toggle-switch">
+<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="USSearch"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
@@ -1049,7 +1161,7 @@
 <div class="auto-style-ee8a4bb2" >
 <span class="auto-style-073fcba2" >Demo</span>
 <label class="toggle-switch">
-<input title="Live Mode Toggle" checked="" id="live-mode-toggle" type="checkbox"/>
+<input title="Live Mode Toggle" id="live-mode-toggle" type="checkbox"/>
 <span class="toggle-slider"></span>
 </label>
 </div>
@@ -1093,6 +1205,24 @@
 <div class="result-name">Targeting profiles will appear here</div>
 <div class="status-badge status-pending">—</div>
 </div>
+</div>
+</div>
+<!-- Google Tab -->
+<div class="hidden" id="tab-google">
+<div class="auto-style-bbc98b25" >
+<h3 class="auto-style-dd4a4c33" ><i class="fa-brands fa-google google-tab-icon"></i>Remove Data from Google</h3>
+</div>
+<div class="about-panel google-tab-panel">
+<p class="about-text google-tab-desc">To remove your personal information from Google Search results, Google provides a dedicated tool. You can request the removal of personal info such as phone numbers, email addresses, or physical addresses.</p>
+<ol class="about-text google-tab-list">
+    <li>Visit the <a href="https://support.google.com/websearch/answer/9673730" target="_blank" rel="noopener noreferrer" class="google-tab-link">Google Search Help page for removing personal information</a>.</li>
+    <li>Review the types of information Google will remove (e.g., non-consensual explicit imagery, doxxing info, financial/medical data, or personal contact info).</li>
+    <li>Click the <strong>"Start removal request"</strong> button on the page to open the form.</li>
+    <li>Provide the exact URLs (web addresses) of the pages showing your information, as well as the URLs of the Google search results pages.</li>
+    <li>Submit any required screenshots showing where your information appears.</li>
+    <li>Google will review your request and notify you of the outcome via email.</li>
+</ol>
+<p class="about-text"><em>Note:</em> Removing information from Google does not remove it from the internet. You must still contact the website owner or use FreeMe to opt out of the source data brokers.</p>
 </div>
 </div>
 <div class="hidden" id="tab-about"><div class="about-panel">
@@ -1327,6 +1457,7 @@
             document.getElementById('tab-ai').classList.add('hidden');
             document.getElementById('tab-results').classList.add('hidden');
             document.getElementById('tab-about').classList.add('hidden');
+            document.getElementById('tab-google').classList.add('hidden');
             document.getElementById('tab-' + tabId).classList.remove('hidden');
         }
 
