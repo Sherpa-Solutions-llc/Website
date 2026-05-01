@@ -3263,7 +3263,7 @@ footer {
 .sync-railway-row { border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 4px; }
 .sync-railway-inner { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--secondary); font-weight: 500; }
 .sync-railway-status { color: var(--accent); font-weight: 600; }
-.cms-sitemap-box { background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0; }
+.cms-sitemap-box { background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0; max-height: 350px; overflow-y: auto; overflow-x: hidden; }
 .cms-sitemap-title { font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
 .cms-sitemap-root { margin-bottom: 0.75rem; }
 .cms-sitemap-branch { margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem; }
@@ -4727,4 +4727,30 @@ footer {
 .auto-style-519c927c {
     transition: all 0.5s ease-in-out;
     max-height: 500px;
+}
+
+.mic-icon-style { margin-right:8px; flex-shrink:0; }
+.test-voice-btn { margin-left: 10px; padding: 4px 10px; font-size: 0.8rem; }
+
+.google-tab-icon { color: var(--accent); margin-right: 10px; }
+.google-tab-panel { margin-top: 1rem; }
+.google-tab-desc { font-size: 1.1rem; margin-bottom: 1rem; }
+.google-tab-list { margin-left: 20px; margin-bottom: 20px; line-height: 1.8; }
+.google-tab-link { color: var(--accent); text-decoration: underline; }
+
+
+.google-tab-icon { color: var(--accent); margin-right: 10px; }
+.google-tab-panel { margin-top: 1rem; }
+.google-tab-desc { font-size: 1.1rem; margin-bottom: 1rem; }
+.google-tab-list { margin-left: 20px; margin-bottom: 20px; line-height: 1.8; }
+.google-tab-link { color: var(--accent); text-decoration: underline; }
+
+/* Fix browser autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-color) inset !important;
+    -webkit-text-fill-color: var(--text-dark) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
