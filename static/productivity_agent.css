@@ -893,3 +893,53 @@ textarea:focus {
         font-size: 1.1rem;
     }
 }
+/* Ensure Master Agent is prominently on top */
+.master-agent {
+    /* grid-column removed */
+    margin-bottom: 0.5rem;
+}
+
+/* Fallback for ID targeting if class is missing */
+#agent-master {
+    /* grid-column removed */
+    margin-bottom: 0.5rem;
+}
+
+/* Force sub-agents to start on a new row */
+#agent-research {
+    /* removed */
+}
+
+/* Center the Master Agent */
+#agent-master {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    max-width: 250px;
+    margin-bottom: 0.5rem;
+}
+
+/* Hide the raw file input to rely on the custom clip icon */
+#file-upload {
+    display: none;
+}
+
+/* Restored auto-styles */
+.auto-style-4739e502 { text-transform: uppercase; background: repeating-linear-gradient(-60deg, #E09F25, #E09F25 1.5px, #ba7f13 1.5px, #ba7f13 3px); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.8)) drop-shadow(-1px -1px 0px rgba(255,255,255,0.3)) drop-shadow(0px 0px 2px rgba(224,159,37,0.5)); padding: 0.25rem 0.5rem; font-size: 1.8rem; letter-spacing: 2px; font-weight: 800; font-family: 'Outfit', sans-serif; }
+.auto-style-41625ddd { display: flex; flex-direction: column; gap: 2rem; height: calc(100vh - 120px); }
+.auto-style-1f28c308 { width: 0%; }
+.auto-style-9126da26 { height: 48px; width: auto; object-fit: contain; cursor: pointer; }
+.auto-style-224b51a7 { display: none; }
+.auto-style-4c5721a6 { background-color: #161b22; color: #ffffff; }
+.auto-style-f568f1fe { background: transparent; color: var(--text-secondary); border: none; outline: none; cursor: pointer; font-size: 0.9rem; }
+.auto-style-a7667d44 { flex-grow: 1; }
+.auto-style-ba6c3d8a { opacity: 0.5; cursor: not-allowed; }
+.auto-style-439cde06 { flex: 1; min-height: 0; }
+.auto-style-e0df21dc { pointer-events: none; opacity: 0.5; }
+.auto-style-303ad947 { display:inline-block; margin-top:0.5rem; }
+.auto-style-b6727b8a { order: -1; grid-column: 1 / -1; justify-self: center; width: 300px; }
+.auto-style-ee8a4bb2 { display: flex; align-items: center; gap: 1rem; }
+.auto-style-bbc98b25 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.auto-style-c42e0ec4 { margin-bottom: 0; }
+.auto-style-4c399ba4 { background: var(--control-bg); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 0.5rem; border-radius: 8px; }
+.auto-style-199b6f0e { width: 100%; }
