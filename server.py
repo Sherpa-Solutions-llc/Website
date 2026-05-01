@@ -1474,7 +1474,7 @@ SAFE_EDIT_PAGES = [
     'index', 'about', 'services', 'projects', 'contact', 'merchandise',
     'merch_shirts', 'merch_pens', 'merch_backpacks', 'backpack_nomatic_bag', 'backpack_nomatic_pack', 'backpack_pd_30l', 'backpack_pd_45l',
     'service_infrastructure', 'service_cybersecurity', 'service_data_analytics', 'service_program_recovery', 'service_quality_assessment', 'service_strategy_development',
-    'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody',
+    'business_model', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody',
     'open_vote', 'seo_sniper', 'brand_monitor', 'food_globe', 'fun_e_stick', 'arbitrage', 'b2b_leads', 'launchpad', 'marion_va', 'train_your_brain', 'view_candidates', 'osint_api_docs', 'avatar',
     'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator'
 ]
