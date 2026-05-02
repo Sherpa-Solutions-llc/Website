@@ -1,0 +1,603 @@
+/* Marion VA Specific Styles */
+
+.wayfinder-body {
+    overflow: hidden; /* Prevent scrolling, full app feel */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Compact header for the app surface */
+.wayfinder-body header {
+    padding: 0.75rem 5% !important;
+}
+
+.wayfinder-body .logo-container img {
+    height: 50px !important;
+}
+
+.app-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    margin-top: 75px; /* Offset for compact header */
+    height: calc(100vh - 75px);
+    overflow: hidden;
+}
+
+/* ThreeJS Canvas */
+#map-canvas-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background-color: var(--surface-color); /* Fallback */
+}
+
+/* Welcome / Idle Overlay */
+#welcome-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 3; /* above canvas (1), below floating panels (10+) */
+    background-image: url('marion_va_building.jpg');
+    background-size: cover;
+    background-position: center top;
+    transition: opacity 0.7s ease;
+    pointer-events: none; /* allow clicks through to UI panels above */
+}
+
+/* Dark gradient so the UI panels remain readable */
+#welcome-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.35) 0%,
+        rgba(0,0,0,0.15) 50%,
+        rgba(0,0,0,0.5) 100%
+    );
+}
+
+#welcome-overlay.hidden {
+    opacity: 0;
+}
+
+/* Pulsing prompt pill at the bottom */
+.welcome-prompt {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(192, 108, 59, 0.85);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(192, 108, 59, 0.5);
+    animation: prompt-pulse 2.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes prompt-pulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(192, 108, 59, 0.5); transform: translateX(-50%) scale(1); }
+    50% { box-shadow: 0 6px 30px rgba(192, 108, 59, 0.8); transform: translateX(-50%) scale(1.04); }
+}
+
+/* Floating UI Panels */
+.floating-ui {
+    position: absolute;
+    z-index: 10;
+    background: var(--surface-color);
+    border: 1px solid rgba(192, 108, 59, 0.2); /* Subtle accent border */
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+/* Admin Editor Panel - must render above everything */
+.admin-panel {
+    top: 10px; /* Positioned relative to app-container */
+    right: 20px;
+    width: 340px;
+    padding: 20px;
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-panel h3 {
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin: 0 0 4px 0;
+}
+
+.admin-panel .help-text {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.admin-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-panel textarea, #admin-export-output {
+    width: 100%;
+    background: var(--bg-color);
+    color: var(--text-dark);
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    resize: vertical;
+}
+
+/* Search Panel */
+.search-panel {
+    top: 10px;
+    left: 20px;
+    width: 440px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 15; /* Always above view-controls and admin panel */
+}
+
+.search-panel h2 {
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+    color: var(--primary);
+}
+
+.search-panel h2 span {
+    color: var(--accent);
+}
+
+/* Audio Controls in Search Panel Header */
+.lp-audio-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.lp-audio-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.lp-audio-btn:hover {
+    background: rgba(192, 108, 59, 0.3);
+    border-color: var(--primary);
+}
+
+.lp-audio-btn.active {
+    background: rgba(192, 108, 59, 0.2);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.lp-volume-slider {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.3);
+    padding: 4px 8px;
+    border-radius: 20px;
+}
+
+.lp-vol-icon {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+}
+
+.lp-volume-slider input[type="range"] {
+    width: 70px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.lp-volume-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group i {
+    position: absolute;
+    left: 12px;
+    color: var(--accent);
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 12px 12px 12px 36px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus, .input-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 1px 4px rgba(192,108,59,0.2);
+}
+
+.navigate-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 14px;
+    font-weight: 600;
+    justify-content: center;
+}
+
+/* View Controls (Bottom Right) */
+.view-controls {
+    bottom: 20px;
+    right: 20px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.view-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: none;
+    background: var(--bg-color);
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.view-btn:hover {
+    background: var(--primary);
+    color: var(--text-light);
+}
+
+.view-btn.active {
+    background: var(--accent);
+    color: #fff;
+}
+
+.floor-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 12px;
+    border-top: 1px solid #444;
+    padding-top: 12px;
+}
+
+.floor-btn {
+    width: auto;
+    min-width: 48px;
+    height: 36px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-dark);
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.8rem;
+}
+
+.floor-btn:hover {
+    background: #444;
+}
+
+.floor-btn.active {
+    background: var(--primary);
+    color: var(--text-light);
+}
+
+/* Directions List Styles */
+.directions-container {
+    margin-top: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.directions-container h3 {
+    font-size: 1rem;
+    color: #9DB581; /* Secondary green */
+    margin-bottom: 12px;
+}
+
+#route-steps {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.route-step {
+    padding: 12px 12px 12px 36px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: var(--text-dark);
+}
+
+.route-step:last-child {
+    border-bottom: none;
+}
+
+.route-step i {
+    color: var(--accent);
+    width: 20px;
+    text-align: center;
+}
+
+/* Offline Badge */
+.offline-badge {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff0000;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(255,0,0,0.3);
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+
+/* Accessibility Toggle Animation */
+.a11y-toggle {
+    transition: all 0.3s;
+}
+.a11y-toggle.active {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+
+/* Search Tabs */
+.search-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
+}
+
+.tab-btn {
+    flex: 1 1 45%;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #8b949e;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--primary);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.search-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.qr-scanner-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 10px 10px;
+    background: rgba(0,0,0,0.1);
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.qr-viewport p {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* Audio Controls */
+.lp-audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lp-audio-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #8b949e;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.lp-audio-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.lp-audio-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+
+.lp-volume-slider {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lp-audio-controls:hover .lp-volume-slider {
+    display: flex;
+}
+
+.lp-vol-icon {
+    font-size: 0.7rem;
+    color: #8b949e;
+}
+
+.lp-volume-slider input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 60px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    outline: none;
+}
+
+.lp-volume-slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .search-panel {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        border-radius: 12px 12px 0 0;
+        padding: 16px;
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+    .view-controls {
+        bottom: auto;
+        top: 20px;
+        right: 10px;
+    }
+    .hide-mobile {
+        display: none;
+    }
+}
+
+/* Active Step Highlight in Turn-by-Turn Directions */
+#route-steps li {
+    transition: background 0.3s ease, border-left 0.3s ease;
+    padding: 6px 10px;
+    border-left: 3px solid transparent;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+#route-steps li.step-active {
+    background: rgba(192, 108, 59, 0.2);
+    border-left: 3px solid var(--primary);
+    font-weight: 600;
+    color: var(--primary);
+}
+
+#route-steps li.step-active i {
+    color: var(--primary);
+}

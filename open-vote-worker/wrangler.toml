@@ -1,0 +1,9 @@
+name = "open-vote-worker"
+main = "src/index.js"
+compatibility_date = "2024-04-10"
+compatibility_flags = ["nodejs_compat"]
+
+# Use Turso variables locally via .dev.vars, but these represent production placeholders
+# [vars]
+# TURSO_URL = ""
+# TURSO_AUTH_TOKEN = ""

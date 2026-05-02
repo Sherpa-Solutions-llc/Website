@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Train Your Brain - Master the art of professional communication and high-status presence.">
+    <title>Train Your Brain | Sherpa Solutions</title>
+    
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="static/styles.css?v=1.5">
+    <script src="static/theme.js"></script>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+    </style>
+    <style>
+
+.metric-row { margin-bottom: 1.5rem; }
+.metric-row label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; letter-spacing: 1px; color: #aaa; text-transform: uppercase; }
+.progress-bg { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; transition: width 0.1s linear; border-radius: 6px; }
+.vol-fill { background: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
+.tone-fill { background: #ff5500; box-shadow: 0 0 10px #ff5500; }
+.pace-fill { background: #27ae60; box-shadow: 0 0 10px #27ae60; }
+
+.orb-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.voice-orb {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--accent) 0%, rgba(255,85,0,0.2) 80%, transparent 100%);
+    box-shadow: 0 0 40px var(--accent);
+    transition: transform 0.05s linear;
+    z-index: 2;
+}
+.idle-orb {
+    animation: orb-breathe 4s infinite ease-in-out;
+}
+@keyframes orb-breathe {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+.orb-ring {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    opacity: 0.3;
+    z-index: 1;
+}
+.ring-1 { animation: spin 8s linear infinite; border-top-color: transparent; border-bottom-color: transparent; }
+.ring-2 { animation: spin-rev 6s linear infinite; border-left-color: transparent; border-right-color: transparent; width: 220px; height: 220px;}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes spin-rev { 100% { transform: rotate(-360deg); } }
+
+.train-hero {
+    background: linear-gradient(135deg, rgba(8, 12, 16, 0.95), rgba(15, 23, 42, 0.95)), url('static/train_your_brain_thumb.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: center;
+    padding: 8rem 2rem 5rem;
+    position: relative;
+    border-bottom: 2px solid var(--accent);
+}
+
+.train-hero h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.train-hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 800px;
+    margin: 0 auto;
+    margin-bottom: 3rem;
+}
+
+.highlight-accent {
+    color: var(--accent);
+}
+
+.lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 5rem 10%;
+    background-color: var(--bg-color);
+}
+
+.lesson-card {
+    background-color: var(--surface-color);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border-top: 4px solid var(--accent);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lesson-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+
+html[data-theme="dark"] .lesson-card {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-top: 4px solid var(--accent);
+}
+
+.lesson-card i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+html[data-theme="dark"] .lesson-card i {
+    color: var(--accent);
+}
+
+.lesson-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.lesson-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.lesson-card li {
+    margin-bottom: 0.8rem;
+    color: var(--text-dark);
+    opacity: 0.85;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.lesson-card li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.checklist-section {
+    padding: 5rem 10%;
+    background: var(--surface-color);
+    text-align: center;
+}
+
+.checklist-section h2 {
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 3rem;
+}
+
+.interactive-demo {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+html[data-theme="dark"] .interactive-demo {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.demo-phrase {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+html[data-theme="dark"] .demo-phrase {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.bad-phrase {
+    color: #e74c3c;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.good-phrase {
+    color: #27ae60;
+    font-weight: 600;
+}
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC">
+            </a>
+        </div>
+        <div class="menu-toggle" id="mobile-menu-btn">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Our Services</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+            <li><a href="merchandise.html">Merchandise</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="header-actions" style="display: flex; align-items: center; gap: 15px;">
+            <input type="color" id="accent-color-picker" value="#c06c3b" style="cursor: pointer; border: none; padding: 0; background: none; width: 30px; height: 30px; border-radius: 50%;" title="Change Theme Accent Color">
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+            <a href="contact.html" class="btn btn-primary nav-cta">Schedule Basecamp Consultation</a>
+        </div>
+    </header>
+
+    <div class="train-hero">
+        <div class="hero-badge" style="margin-bottom: 1rem; display: inline-block; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-brain"></i> Train Your Brain</div>
+        <h1>The Art of <span class="highlight-accent">High-Status Communication</span></h1>
+        <p>Learn to command the room with executive presence. Discover the verbal, non-verbal, and psychological frameworks used by the world's most effective leaders to cultivate authority and trust.</p>
+        <div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 2rem; flex-wrap: wrap;">
+            <a data-cms="train-hero-cta1" href="#lessons" class="btn btn-primary btn-lg" style="margin: 0; min-width: 260px; height: 55px; display: flex; align-items: center; justify-content: center; white-space: nowrap;">Start the Masterclass</a>
+            <button data-cms="train-hero-demo1" id="btn-demo-toggle" class="btn btn-primary btn-lg" onclick="toggleDemo()" style="margin: 0; min-width: 260px; height: 55px; display: flex; align-items: center; justify-content: center; white-space: nowrap;"><i class="fa-solid fa-play" style="margin-right: 8px;"></i> Demo</button>
+        </div>
+    </div>
+
+    <section id="lessons" class="lesson-grid">
+        <div class="lesson-card">
+            <i class="fa-solid fa-stopwatch"></i>
+            <h3>Pacing & the Power of Silence</h3>
+            <p style="margin-bottom: 1rem;">High-value communicators convey confidence by refusing to rush. They own their space in the conversation.</p>
+            <ul>
+                <li><strong>Slow Down:</strong> Deliberate speaking signals that your words hold weight.</li>
+                <li><strong>The Strategic Pause:</strong> Use silence before a key point to build anticipation, and after to let it settle.</li>
+                <li><strong>Eliminate Fillers:</strong> Replace "um" and "uh" with comfortable silence.</li>
+            </ul>
+        </div>
+        
+        <div class="lesson-card">
+            <i class="fa-solid fa-comment-dots"></i>
+            <h3>High-Value Vocabulary</h3>
+            <p style="margin-bottom: 1rem;">Clarity and directness always win. Stripping away weak language instantly elevates your perceived authority.</p>
+            <ul>
+                <li><strong>Remove Qualifiers:</strong> Drop phrases like "I think maybe" or "I just wanted to."</li>
+                <li><strong>Be Direct:</strong> State the problem, then state the solution.</li>
+                <li><strong>Keep it Simple:</strong> True experts don't hide behind excessive jargon; they make complex things accessible.</li>
+            </ul>
+        </div>
+
+        <div class="lesson-card">
+            <i class="fa-solid fa-user-tie"></i>
+            <h3>Tonality & Physical Presence</h3>
+            <p style="margin-bottom: 1rem;">How you deliver the message is just as important as the words themselves. Project a grounded, unwavering energy.</p>
+            <ul>
+                <li><strong>Grounded Voice:</strong> Breathe from the diaphragm to create a richer, resonant tone instead of a thin, anxious voice.</li>
+                <li><strong>Stillness:</strong> Avoid erratic movements, fidgeting, or over-gesturing. Stillness commands respect.</li>
+                <li><strong>Steady Eye Contact:</strong> Maintain natural, unwavering eye contact without staring aggressively.</li>
+            </ul>
+        </div>
+    </section>
+
+
+    <!-- INTEL: INTERACTIVE HUD & AVATAR CHAMBER -->
+    <section class="simulator-section" style="padding: 5rem 10%; background: #080c10; color: white; position: relative;">
+        <h2 data-cms="train-sim-h2" style="font-size: 2.5rem; text-align: center; margin-bottom: 2rem; color: var(--accent);">Interactive Coaching Simulator</h2>
+        
+        <!-- STEP TABS -->
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap;">
+            <button data-cms="train-step-1" id="tab-step-1" class="step-tab active" onclick="setStep(1)" style="padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 1: Baseline Assessment</button>
+            <button data-cms="train-step-2" id="tab-step-2" class="step-tab" onclick="setStep(2)" style="padding: 10px 20px; background: transparent; border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 2: Echo Training</button>
+            <button data-cms="train-step-3" id="tab-step-3" class="step-tab" onclick="setStep(3)" style="padding: 10px 20px; background: transparent; border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 3: Teleprompter Run</button>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 3rem; justify-content: center; align-items: stretch;">
+            <!-- Left: Voice Orb Interface -->
+            <div style="flex: 1; min-width: 300px; max-width: 500px; height: 500px; background: radial-gradient(circle at center, #0f1724 0%, #000000 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
+                <div class="orb-container">
+                    <div id="voice-orb" class="voice-orb idle-orb"></div>
+                    <div class="orb-ring ring-1"></div>
+                    <div class="orb-ring ring-2"></div>
+                </div>
+            </div>
+            
+            <!-- Right: Telemetry Dashboard -->
+            <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column;">
+                <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; color: white;"><i class="fa-solid fa-chart-line" style="color: var(--accent);"></i> Real-Time Vocal Telemetry</h3>
+                
+                <div class="metric-row">
+                    <label>Volume Projection (RMS):</label>
+                    <div class="progress-bg"><div id="metric-vol" class="progress-fill vol-fill"></div></div>
+                </div>
+                <div class="metric-row">
+                    <label>Resonant Tone (Hz):</label>
+                    <div class="progress-bg"><div id="metric-tone" class="progress-fill tone-fill"></div></div>
+                </div>
+                <div class="metric-row">
+                    <label>Execution Pace (WPM):</label>
+                    <div class="progress-bg"><div id="metric-pace" class="progress-fill pace-fill"></div></div>
+                </div>
+                
+                <div id="assessment-result" style="margin-top: 2rem; flex-grow: 1; background: rgba(0,0,0,0.5); padding: 1.5rem; border-radius: 8px; font-family: monospace; font-size: 0.95rem; line-height: 1.5; border-left: 3px solid var(--accent); color: #ccc;">
+                    System Ready.<br>Waiting for operator to initiate assessment...
+                </div>
+                
+                <button data-cms="train-start-btn" id="btn-assess-start" class="btn btn-primary" style="margin-top: 2rem; width: 100%;" onclick="initSpeechSimulator()">
+                    <i class="fa-solid fa-microphone"></i> Start Speech Assessment
+                </button>
+            </div>
+        </div>
+    </section>
+
+
+
+    <footer>
+        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
+        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+    </footer>
+
+    <script>
+        // Theme Color functionality
+        const colorPicker = document.getElementById('accent-color-picker');
+        colorPicker.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--accent', e.target.value, 'important');
+        });
+
+        // Automated TTS Tour functionality
+        let isPlaying = false;
+
+        function toggleDemo() {
+            const btn = document.getElementById('btn-demo-toggle');
+            if (isPlaying) {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> Demo';
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.border = '';
+                isPlaying = false;
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> Stop Demo';
+                btn.style.background = 'transparent';
+                btn.style.border = '1px solid var(--primary)';
+                btn.style.color = 'var(--primary)';
+                isPlaying = true;
+
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    
+                    // Trigger the pulsing orb if we scroll down
+                    if (typeof setAiPulse === 'function') setAiPulse(true);
+
+                    const tourScript = "Welcome to Sherpa Solutions. Train Your Brain is an interactive masterclass designed to elevate your executive presence and ground your authority. Scroll down to the Interactive Coaching Simulator to test your pacing, projection, and resonance. Step 1 provides a baseline assessment of your natural speaking habits. Step 2 allows you to echo my cadence to train muscle memory. And Step 3 features a dynamic teleprompter to rigidly benchmark your reading speed. Please proceed downward when you are ready to begin.";
+                    
+                    const utterance = new SpeechSynthesisUtterance(tourScript);
+                    utterance.pitch = 0.8;
+                    utterance.rate = 0.90; // authoritative, deliberate pace
+                    
+                    function setVoiceAndSpeak() {
+                        const voices = window.speechSynthesis.getVoices();
+                        
+                        // Extremely greedy UK Female search
+                        const preferredVoice = 
+                            voices.find(v => (v.lang.includes('en-GB') || v.lang.includes('en_GB')) && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Sonia') || v.name.includes('Libby'))) ||
+                            voices.find(v => v.name.includes('UK English Female') || v.name.includes('Google UK English Female')) ||
+                            voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en_GB')) ||
+                            voices.find(v => v.name.includes('Hazel') || v.name.includes('Serena')) ||
+                            voices.find(v => v.name.includes('Female')) || 
+                            voices[0];
+                            
+                        if (preferredVoice) utterance.voice = preferredVoice;
+
+                        utterance.onend = () => { 
+                            if (typeof setAiPulse === 'function') setAiPulse(false);
+                            if (isPlaying) toggleDemo(); 
+                        };
+                        
+                        window.speechSynthesis.speak(utterance);
+                    }
+
+                    // Handle Chrome's notorious asynchronous voice loading bug
+                    if (window.speechSynthesis.getVoices().length === 0) {
+                        window.speechSynthesis.onvoiceschanged = () => {
+                            setVoiceAndSpeak();
+                            window.speechSynthesis.onvoiceschanged = null;
+                        };
+                    } else {
+                        setVoiceAndSpeak();
+                    }
+                } else {
+                    alert("Your browser does not support the audio tour. Please use Chrome.");
+                    toggleDemo();
+                }
+            }
+        }
+    </script>
+    <script src="/static/cms.js"></script>
+
+    <!-- SPEECH METRICS DEPENDENCIES -->
+    <script src="static/speech-metrics.js"></script>
+</body>
+</html>

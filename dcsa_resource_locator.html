@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head><link href="/static/extracted_dcsa.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DCSA Resource Locator</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/>
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- LeafletJS (High Performance 2D) -->
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Shared Styles -->
+<link href="static/styles.css?v=2.0" rel="stylesheet">
+<style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: #050505; }
+        
+        #cesiumContainer { width: calc(100% - 390px); height: 100%; position: absolute; top: 0; left: 390px; display: none; z-index: 1; }
+        #leafletContainer { width: calc(100% - 390px); height: 100%; position: absolute; top: 0; left: 390px; background: #050505 url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Cpath d="M0 0h40v40H0z" fill="none"/%3E%3Cpath d="M40 0H0v40h40V0zM1 39V1h38v38H1z" fill="rgba(255,122,0,0.05)"/%3E%3C/svg%3E'); z-index: 1; }
+        
+        /* Tactical Overlay */
+
+        /* Top Header */
+        .hud-header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(to bottom, rgba(5,5,5,0.9), transparent);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+        .hud-title {
+            font-family: 'Share Tech Mono', monospace;
+            color: #ff7a00;
+            font-size: 2rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,122,0,0.5);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            pointer-events: auto;
+        }
+        .back-btn {
+            pointer-events: auto;
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 122, 0, 0.1);
+            border: 1px solid #ff7a00;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: rgba(255, 122, 0, 0.3);
+            text-shadow: 0 0 5px #ff7a00;
+            box-shadow: 0 0 15px rgba(255, 122, 0, 0.3);
+        }
+
+        /* Sidebar Panel */
+        .side-panel {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            width: 350px;
+            bottom: 20px;
+            background: rgba(10, 15, 25, 0.85);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 122, 0, 0.3);
+            border-radius: 8px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 122, 0, 0.3);
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            cursor: pointer;
+            color: #8892b0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        .tab.active {
+            color: #ff7a00;
+            background: rgba(255, 122, 0, 0.1);
+            box-shadow: inset 0 -2px 0 #ff7a00;
+        }
+        .tab:hover:not(.active) {
+            color: #ccd6f6;
+            background: rgba(255,255,255,0.05);
+        }
+        .panel-content {
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+            color: #ccd6f6;
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Search Input */
+        .search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,122,0,0.4);
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .search-box input:focus {
+            border-color: #ff7a00;
+            box-shadow: 0 0 10px rgba(255,122,0,0.2);
+        }
+        .search-box i {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff7a00;
+        }
+
+        /* Search Results */
+        .result-item {
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .result-item:hover {
+            background: rgba(255,122,0,0.1);
+            border-color: #ff7a00;
+        }
+        .res-name { font-weight: 600; color: #fff; margin-bottom: 0.2rem; }
+        .res-dept { font-size: 0.8rem; color: #8892b0; font-family: 'Share Tech Mono', monospace; }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #ff7a00;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: rgba(15, 20, 25, 0.9) !important;
+            border: 1px solid rgba(255,122,0,0.4);
+            border-radius: 4px;
+            color: #ffffff !important;
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #ff7a00;
+            box-shadow: 0 0 10px rgba(255,122,0,0.2);
+            background-color: rgba(20, 25, 30, 1) !important;
+        }
+        select.form-control {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff7a00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            appearance: none;
+            
+        }
+        select.form-control option {
+            background-color: #0b0c0b;
+            color: #ffffff;
+            padding: 10px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: #ff7a00;
+            color: #0a192f;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        .btn-submit:hover {
+            box-shadow: 0 0 15px rgba(255,122,0,0.5);
+        }
+
+        /* Target Reticle Overlay */
+        .reticle {
+            position: absolute;
+            top: 50%; left: calc(50% + 195px);
+            transform: translate(-50%, -50%);
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255, 122, 0, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 50;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .reticle::before { content: ''; width: 4px; height: 4px; background: rgba(255,122,0,0.5); border-radius: 50%; }
+
+        /* Info Popup Overlay */
+        #employee-popup {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 65%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: rgba(10, 15, 20, 0.95);
+            border: 1px solid #ff7a00;
+            border-radius: 4px;
+            padding: 1.5rem;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 122, 0, 0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        .popup-header {
+            background: rgba(255, 122, 0, 0.1);
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 122, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .popup-header h3 { margin: 0; color: #fff; font-size: 1.2rem; }
+        .popup-header .status { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: #ff7a00; padding: 0.2rem 0.5rem; border: 1px solid #ff7a00; border-radius: 3px; display: inline-block; margin-top: 0.5rem;}
+        .close-popup { color: #8892b0; cursor: pointer; transition: color 0.2s; }
+        .close-popup:hover { color: #fff; }
+        
+        .popup-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+        .profile-row { display: flex; gap: 1rem; align-items: center; }
+        .profile-pic { width: 60px; height: 60px; background: #112240; border-radius: 4px; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255,122,0,0.3); color: #ff7a00; font-size: 1.5rem; overflow: hidden; }
+        .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-meta { flex: 1; }
+        .meta-label { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: #8892b0; text-transform: uppercase; }
+        .meta-val { color: #ccd6f6; font-size: 0.9rem; margin-bottom: 0.3rem; font-weight: 600; }
+        
+        .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; }
+        .grid-item { margin-bottom: 0.5rem; }
+
+        .popup-footer { padding: 1rem; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.5rem; }
+        .popup-btn { flex: 1; text-align: center; padding: 0.5rem; border: 1px solid rgba(255,122,0,0.3); color: #ff7a00; text-decoration: none; font-size: 0.8rem; font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.2s; background: transparent; }
+        .popup-btn:hover { background: rgba(255,122,0,0.1); }
+        
+        /* Leaflet Fixes */
+        .leaflet-container img {
+            max-width: none !important;
+            max-height: none !important;
+        }
+
+        /* Progress Overlay */
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 390px;
+            width: calc(100% - 390px);
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-hud {
+            width: 400px;
+            text-align: center;
+            padding: 2rem;
+            border: 1px solid rgba(255, 122, 0, 0.3);
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(255, 122, 0, 0.1);
+        }
+
+        .progress-hud h3 {
+            color: #ff7a00;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff7a00, #ff9e00);
+            box-shadow: 0 0 10px #ff7a00;
+            transition: width 0.1s ease-out;
+        }
+
+        .progress-status {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+        }
+    </style>
+</link></head>
+<body class="">
+<div class="no-cms" id="leafletContainer"></div>
+<div class="no-cms" id="cesiumContainer"></div>
+<div class="progress-overlay clean-style-0" id="progressOverlay">
+<div class="progress-hud">
+<h3 id="progressText">PLOTTING GLOBAL ASSETS</h3>
+<div class="progress-bar-track">
+<div class="progress-bar-fill" id="progressBarFill"></div>
+</div>
+<div class="progress-status">
+<span id="progressStep">INITIALIZING ENGINE...</span>
+<span id="progressPercent">0%</span>
+</div>
+</div>
+</div>
+<div class="reticle"></div>
+<div class="hud-header">
+<h1 class="hud-title" data-cms="auto-dcsa-resource-locator-h1-1"><i class="fa-solid fa-earth-americas" style="margin-right: 15px; font-size: 1.8rem;"></i> DCSA Global Asset</h1>
+<div class="clean-style-2">
+<button class="back-btn no-cms clean-style-3" id="toggleViewBtn"><i class="fa-solid fa-cube clean-style-4"></i> SWITCH TO 3D</button>
+<a class="back-btn" data-cms="auto-dcsa-resource-locator-a-4" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> EXIT LIVE VIEW</a>
+</div>
+</div>
+<div class="side-panel">
+<div class="panel-tabs">
+<div class="tab active" data-tab="search"><i class="fa-solid fa-satellite-dish clean-style-6"></i> LOCATE</div>
+<div class="tab" data-tab="manage"><i class="fa-solid fa-location-crosshairs clean-style-7"></i> MANAGE ASSETS</div>
+</div>
+<div class="panel-content">
+<!-- Search Pane -->
+<div class="tab-pane active" id="tab-search">
+<div class="clean-style-8">
+<label class="clean-style-9">Search By Name</label>
+<div class="clean-style-10">
+<div class="search-box">
+<i class="fa-solid fa-user"></i>
+<input id="locateSearchFirst" placeholder="First Name..." type="text"/>
+</div>
+<div class="search-box">
+<i class="fa-solid fa-user"></i>
+<input id="locateSearchLast" placeholder="Last Name..." type="text"/>
+</div>
+</div>
+<button class="btn-submit clean-style-11" id="executeLocateSearchBtn" type="button"><i class="fa-solid fa-satellite-dish clean-style-12"></i> EXECUTE SEARCH</button>
+</div>
+<label class="clean-style-13">Search Results</label>
+<div id="resultsList">
+<!-- Results populated by JS -->
+</div>
+</div>
+<!-- Manage Pane -->
+<div class="tab-pane" id="tab-manage">
+<p class="clean-style-14" data-cms="auto-dcsa-resource-locator-p-3">Add new resources or edit/delete existing global assets.</p>
+<div class="clean-style-15">
+<label class="clean-style-16">Search By Name</label>
+<div class="clean-style-17">
+<div class="search-box">
+<i class="fa-solid fa-user"></i>
+<input id="manageSearchFirst" placeholder="First Name..." type="text"/>
+</div>
+<div class="search-box">
+<i class="fa-solid fa-user"></i>
+<input id="manageSearchLast" placeholder="Last Name..." type="text"/>
+</div>
+</div>
+<button class="btn-submit clean-style-18" id="executeSearchBtn" type="button"><i class="fa-solid fa-satellite-dish clean-style-19"></i> EXECUTE SEARCH</button>
+</div>
+<div class="form-group clean-style-20">
+<label>Select Asset to Manage</label>
+<select class="form-control clean-style-21" id="assetSelector">
+<option value="NEW">[+] CREATE NEW ASSET</option>
+<!-- Options populated by JS -->
+</select>
+</div>
+<form id="statusForm">
+<div class="clean-style-22">
+<div class="form-group">
+<label>First Name</label>
+<input class="form-control" id="fName" type="text"/>
+</div>
+<div class="form-group">
+<label>Last Name</label>
+<input class="form-control" id="lName" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label>Department</label>
+<select class="form-control" id="dept">
+<option value="Counterintelligence">Counterintelligence</option>
+<option value="Industrial Security">Industrial Security</option>
+<option value="Personnel Vetting">Personnel Vetting</option>
+<option value="Security Training">Security Training</option>
+<option value="Cyber Threat Analysis">Cyber Threat Analysis</option>
+<option value="Background Investigations">Background Investigations</option>
+<option value="Insider Threat Program">Insider Threat Program</option>
+</select>
+</div>
+<div class="clean-style-23">
+<div class="form-group">
+<label>Duty Station</label>
+<select class="form-control" id="station">
+<option value="Quantico, VA">Quantico, VA</option>
+<option value="Fort Meade, MD">Fort Meade, MD</option>
+<option value="Washington, DC (HQ)">Washington, DC (HQ)</option>
+<option value="San Francisco, CA">San Francisco, CA</option>
+<option value="Huntsville, AL">Huntsville, AL</option>
+<option value="London, UK (Embassy)">London, UK (Embassy)</option>
+<option value="Tokyo, Japan (USFJ)">Tokyo, Japan (USFJ)</option>
+<option value="Ramstein, Germany">Ramstein, Germany</option>
+</select>
+</div>
+<div class="form-group">
+<label>Location (Lat, Lng)</label>
+<input class="form-control" id="customLocation" placeholder="e.g. 38.89, -77.03" type="text"/>
+</div>
+</div>
+<div class="clean-style-24">
+<div class="form-group">
+<label>Clearance</label>
+<select class="form-control" id="clearance">
+<option value="Secret">Secret</option>
+<option value="Top Secret">Top Secret</option>
+<option value="TS/SCI">TS/SCI</option>
+<option value="TS/SCI with Poly">TS/SCI with Poly</option>
+<option value="Unclassified">Unclassified</option>
+</select>
+</div>
+<div class="form-group">
+<label>Duty Status</label>
+<select class="form-control" id="dutyStatus">
+<option value="ACTIVE - ON STATION">Active Duty Station</option>
+<option value="REMOTE WORK">Remote Work (Telework)</option>
+<option value="TDY">TDY (Temporary Duty)</option>
+<option value="PCS - IN TRANSIT">PCS (Permanent Change of Station)</option>
+<option value="OUT OF OFFICE">Out of Office / Vacation</option>
+</select>
+</div>
+</div>
+<div class="clean-style-25">
+<div class="form-group">
+<label>Schedule</label>
+<select class="form-control" id="schedule">
+<option value="0700 - 1500 EST">0700 - 1500 EST</option>
+<option value="0800 - 1700 EST">0800 - 1700 EST</option>
+<option value="0900 - 1800 PST">0900 - 1800 PST</option>
+<option value="0800 - 1600 GMT">0800 - 1600 GMT</option>
+<option value="0900 - 1800 JST">0900 - 1800 JST</option>
+<option value="Rotating Shift">Rotating Shift</option>
+<option value="Flexible / Core Hours">Flexible / Core Hours</option>
+</select>
+</div>
+<div class="form-group">
+<label>Manager</label>
+<input class="form-control" id="manager" type="text"/>
+</div>
+</div>
+<div class="clean-style-26">
+<div class="form-group">
+<label>Email</label>
+<input class="form-control" id="email" type="text"/>
+</div>
+<div class="form-group">
+<label>Phone</label>
+<input class="form-control" id="phone" type="text"/>
+</div>
+</div>
+<!-- Hidden input for Nationality -->
+<input id="nationality" type="hidden" value="United States"/>
+<div class="clean-style-27" id="actionButtons">
+<button class="btn-submit" id="addAssetBtn" type="button">ADD NEW ASSET</button>
+<button class="btn-submit clean-style-28" id="updateAssetBtn" type="button">UPDATE ASSET</button>
+<button class="btn-submit clean-style-29" id="deleteAssetBtn" type="button">DELETE</button>
+</div>
+<div class="clean-style-30" id="saveMsg">TRANSMISSION LOGGED SUCESSFULLY.</div>
+</form>
+</div>
+</div>
+</div>
+<!-- Employee Info Popup -->
+<div id="employee-popup">
+<div class="popup-header">
+<div>
+<h3 data-cms="auto-dcsa-resource-locator-h3-2" id="popName">Jane Doe</h3>
+<div class="status" id="popStatus">ACTIVE - ON STATION</div>
+</div>
+<i class="fa-solid fa-xmark close-popup" id="closePopup"></i>
+</div>
+<div class="popup-body">
+<div class="profile-row">
+<div class="profile-pic">
+<i class="fa-solid fa-user"></i>
+</div>
+<div class="profile-meta">
+<div class="meta-label">Department</div>
+<div class="meta-val" id="popDept">Counterintelligence</div>
+<div class="meta-label">Duty Station</div>
+<div class="meta-val" id="popStation">Quantico, VA</div>
+</div>
+</div>
+<div class="popup-grid">
+<div class="grid-item">
+<div class="meta-label">Schedule</div>
+<div class="meta-val" id="popHours">0800 - 1700 EST</div>
+</div>
+<div class="grid-item">
+<div class="meta-label">Nationality</div>
+<div class="meta-val" id="popNat">United States</div>
+</div>
+<div class="grid-item">
+<div class="meta-label">Manager</div>
+<div class="meta-val" id="popManager">Dir. Smith</div>
+</div>
+<div class="grid-item">
+<div class="meta-label">Clearance</div>
+<div class="meta-val clean-style-31" id="popClearance">TS/SCI</div>
+</div>
+<div class="grid-item">
+<div class="meta-label">Phone</div>
+<div class="meta-val" id="popPhoneDetails">+1 555-0199</div>
+</div>
+</div>
+</div>
+<div class="popup-footer">
+<button class="popup-btn no-cms" id="popMessage"><i class="fa-solid fa-comment-dots"></i> MESSAGE</button>
+<button class="popup-btn no-cms" id="popEmail"><i class="fa-solid fa-envelope"></i> EMAIL</button>
+</div>
+</div>
+<script src="static/resource_locator.js"></script>
+<script src="static/dcsa_demo.js"></script>
+<script src="static/cms.js"></script>
+</body>
+</html>

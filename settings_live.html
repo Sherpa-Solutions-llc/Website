@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherpa Solutions LLC | Settings</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/styles.css">
+    <style>
+        /* Removed hardcoded Light Mode overrides so standard theme variables inherited from styles.css apply correctly */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--surface-color);
+            color: var(--text-dark);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #d0d8d0;
+        }
+
+        .sidebar-logo {
+            margin-bottom: 3rem;
+        }
+
+        .sidebar-logo img {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            flex: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            color: var(--text-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-color: var(--border-color);
+            margin-bottom: 6px;
+            background: rgba(122, 142, 99, 0.1);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--accent);
+            color: var(--text-light);
+            border-color: var(--accent);
+        }
+
+        .admin-content {
+            padding: 3rem;
+            background: var(--bg-color);
+            /* Standard background area for forms/settings readability */
+        }
+
+        .admin-panel {
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        /* CMS Page tab buttons */
+        .cms-tab {
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--border-color);
+            background: rgba(122, 142, 99, 0.1);
+            color: var(--text-dark);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .cms-tab:hover {
+            background: rgba(122, 142, 99, 0.2);
+            border-color: var(--primary);
+            color: var(--text-dark);
+        }
+
+        .cms-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            font-weight: 700;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .user-table th,
+        .user-table td {
+            text-align: left;
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .btn-danger {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #c9302c;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .form-row input {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            flex: 1;
+        }
+
+        .cms-field {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #eaeaea;
+            border-radius: 12px;
+        }
+
+        .cms-field label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            text-transform: capitalize;
+        }
+
+        .cms-field textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-height: 100px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .cms-field input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .custom-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 200px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 1rem;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                min-height: auto;
+                position: sticky;
+                top: 0;
+                z-index: 1100;
+            }
+
+            .sidebar-logo {
+                margin-bottom: 0;
+                width: 100px;
+            }
+
+            .sidebar-menu {
+                display: flex !important;
+                gap: 5px;
+                margin-top: 0;
+                overflow-x: auto;
+                padding-bottom: 5px;
+                flex: 1;
+                margin-left: 10px;
+                /* Ensure links don't wrap */
+                white-space: nowrap;
+            }
+
+            .sidebar-menu li {
+                margin: 0 !important;
+                /* kill desktop margin-top spacers */
+                flex-shrink: 0;
+                align-self: center;
+                /* vertical alignment within the flex row */
+            }
+
+            .sidebar-menu a {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+                gap: 6px;
+                background: rgba(122, 142, 99, 0.1);
+                color: var(--text-dark) !important;
+                border: 1.5px solid var(--border-color);
+                border-radius: 8px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .sidebar-menu a span {
+                display: inline !important;
+                color: var(--text-dark) !important;
+            }
+
+            .sidebar-menu a i {
+                color: var(--text-dark) !important;
+            }
+
+            .sidebar-menu a:hover,
+            .sidebar-menu a.active {
+                background: var(--accent) !important;
+                color: var(--text-light) !important;
+                border-color: var(--accent) !important;
+            }
+
+            .sidebar-menu a:hover span,
+            .sidebar-menu a.active span,
+            .sidebar-menu a:hover i,
+            .sidebar-menu a.active i {
+                color: #ffffff !important;
+            }
+
+            .admin-content {
+                padding: 1rem;
+            }
+
+            .admin-panel {
+                padding: 1rem;
+            }
+
+            .cms-field {
+                padding: 0.8rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .user-table th:nth-child(1),
+            .user-table td:nth-child(1),
+            .user-table th:nth-child(3),
+            .user-table td:nth-child(3) {
+                display: none;
+            }
+
+            /* Stack CMS Header */
+            .cms-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 1rem !important;
+            }
+
+            .sync-container {
+                width: 100% !important;
+                align-items: stretch !important;
+            }
+
+            .cms-tab {
+                padding: 0.4rem 0.8rem !important;
+                font-size: 0.8rem !important;
+            }
+        }
+    </style>
+    <script src="static/theme.js"></script>
+    <style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="/static/sherpa_logo.png" alt="Logo" data-cms="global-navbar-logo">
+            </div>
+            <ul class="sidebar-menu">
+                <li><a onclick="showPanel('users')" class="active" id="btn-users"><i class="fa-solid fa-users"></i>
+                        <span>Users</span></a></li>
+                <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i>
+                        <span>Site Editor</span></a></li>
+                <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
+                </li>
+                <li style="margin-top: 1rem;"><a onclick="showPanel('convoy')" id="btn-convoy"><span>Convoy</span></a>
+                </li>
+                <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
+                            class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
+            </ul>
+            <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
+        </aside>
+
+        <main class="admin-content">
+            <div id="panel-users" class="admin-panel active">
+                <h2>Admin User Management</h2>
+                <p style="color: var(--secondary); margin-bottom: 2rem;">Manage the administrators authorized to access
+                    this portal.</p>
+
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
+                    <h3>Provision New Administrator</h3>
+                    <form id="add-user-form" class="form-row">
+                        <input type="text" id="new-username" placeholder="New Username" required autocomplete="off">
+                        <div style="position: relative; flex: 1; display: flex;">
+                            <input type="password" id="new-password" placeholder="Secure Password" required
+                                autocomplete="new-password" style="flex: 1; padding-right: 40px;">
+                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
+                                <i class="fa-solid fa-eye" id="new-password-eye"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
+                            Account</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="panel-cms" class="admin-panel">
+                <!-- Toolbar -->
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
+                                    style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
+                                inline.</p>
+                            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border-color)';"><i class="fa-solid fa-moon"></i></button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                        <button id="cms-save-btn" class="btn btn-primary" onclick="saveEditorChanges()" disabled
+                            style="opacity:0.45;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                        </button>
+                        <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
+                            style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Global Theme Editor -->
+                <div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-palette"></i> Global Theme Colors
+                        </div>
+                        <button onclick="saveThemeColors()" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
+                            <input type="color" id="theme-color-primary" value="#2D3F2E" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
+                            <input type="color" id="theme-color-secondary" value="#7A8E63" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
+                            <input type="color" id="theme-color-accent" value="#C06C3B" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
+                            <input type="color" id="theme-color-bg" value="#FDFBF7" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
+                            <input type="color" id="theme-color-surface" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
+                            <input type="color" id="theme-color-textdark" value="#1A241A" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
+                            <input type="color" id="theme-color-textlight" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GitHub progress meter -->
+                <div id="sync-progress-container"
+                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color);">
+                    
+                    <!-- GitHub Row -->
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500; margin-bottom:4px;">
+                            <span><i class="fa-brands fa-github"></i> Deploy to GitHub</span>
+                            <span id="sync-progress-percent">0%</span>
+                        </div>
+                        <div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
+                            <div id="sync-progress-bar"
+                                style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;">
+                            </div>
+                        </div>
+                        <div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
+                    </div>
+
+                    <!-- Railway Row -->
+                    <div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
+                            <span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
+                            <span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page selector sitemap -->
+                <div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
+                    
+                    <!-- Root -->
+                    <div style="margin-bottom: 0.75rem;">
+                        <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
+                    </div>
+
+                    <!-- Main Navigation Branch -->
+                    <div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
+                            <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️ Services</button>
+                            <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒 Store</button>
+                            <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
+                        </div>
+
+                        <!-- Projects Sub-branch -->
+                        <div>
+                            <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
+                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="loadEditorPage('live_earth')" class="cms-tab" data-page="live_earth">🌍 Live Earth</button>
+                                <button onclick="loadEditorPage('skip_tracer')" class="cms-tab" data-page="skip_tracer">🔍 Traku</button>
+                                <button onclick="loadEditorPage('stock_agent')" class="cms-tab" data-page="stock_agent">📈 Stock Monitor</button>
+                                <button onclick="loadEditorPage('productivity_agent')" class="cms-tab" data-page="productivity_agent">🤖 Productivity</button>
+                                <button onclick="loadEditorPage('osint_api')" class="cms-tab" data-page="osint_api">🛰️ OSINT API</button>
+                                <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
+                                <button onclick="loadEditorPage('heavenly_melody')" class="cms-tab" data-page="heavenly_melody">🕊️ Heavenly Melody</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="cms-status-bar"
+                    style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+                    <span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
+                        fields. Click to start editing.</span>
+                    <span id="cms-unsaved-badge"
+                        style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
+                        Unsaved</span>
+                </div>
+
+                <iframe id="cms-iframe" src="/api/edit-page/index"
+                    style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;"
+                    sandbox="allow-scripts allow-same-origin">
+                </iframe>
+            </div>
+
+
+            <div id="panel-convoy" class="admin-panel">
+                <h2>Convoy Animation Settings</h2>
+                <p style="color: var(--secondary); margin-bottom: 2rem;">Adjust the spacing between the lead Sherpa and
+                    their group.</p>
+                <div class="form-row">
+                    <label for="convoy-delay-input" style="font-weight: 500;">Follower Spacing Delay (ms):</label>
+                    <input type="number" id="convoy-delay-input" min="0" step="100" value="800" style="width: 120px;" />
+                    <button class="btn btn-primary" onclick="saveConvoyDelay()">Save</button>
+                </div>
+                <p style="color: var(--secondary); margin-top:0.5rem; font-size: 0.9rem;">Higher delay = more space
+                    between characters.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
+    <div id="deploy-modal" class="custom-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h3>Deploy to GitHub</h3>
+            <p style="color: var(--secondary); margin-bottom: 1.5rem;">Select the specific projects you want to deploy to live hosting.</p>
+            <div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="heavenly_melody" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" checked> 
+                    <span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="core_site" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🌐 Sherpa Core Website (Home, About, Store, etc)</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="open_vote" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🗳️ Open Vote (Geospatial Dashboard)</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="live_earth" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🌍 Live Earth</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="traku" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🔍 Traku (Skip Tracer)</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="stock_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">📈 Stock Monitor</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="productivity_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🤖 Productivity Agent</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="osint_api" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🛰️ OSINT API</span>
+                </label>
+                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+                    <input type="checkbox" class="deploy-project-cb" value="freeme" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
+                    <span style="line-height: 1.4;">🛡️ FreeMe Engine</span>
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal('deploy-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitDeployment()">Deploy Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="password-modal" class="custom-modal">
+        <div class="modal-content">
+            <h3 id="pw-modal-title">Change Password</h3>
+            <p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
+            </p>
+            <div style="position: relative; margin-bottom: 1.5rem;">
+                <input type="password" id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;">
+                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
+                    <i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
+                </button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal('password-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="custom-modal">
+        <div class="modal-content">
+            <h3>Confirm Action</h3>
+            <p id="confirm-modal-text" style="color: var(--secondary); margin-bottom: 2rem;">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
+                <button class="btn-danger" id="confirm-modal-btn">Yes, Revoke</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentActionUserId = null;
+        let currentActionUsername = null;
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + '-eye');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function showPanel(panelName) {
+            if (panelName !== 'cms' && cmsHasChanges) {
+                if (!confirm('You have unsaved changes in the Content Editor. Leave and discard them?')) return;
+                cmsHasChanges = false;
+            }
+            document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            document.getElementById('panel-' + panelName).classList.add('active');
+            document.getElementById('btn-' + panelName).classList.add('active');
+            if (panelName === 'users') loadUsers();
+            if (panelName === 'cms') loadCMS();
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/users');
+                if (res.ok) {
+                    const users = await res.json();
+                    const tbody = document.getElementById('user-table-body');
+                    tbody.innerHTML = '';
+                    if (users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No users found in database payload.</td></tr>';
+                    }
+                    users.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>#${u.id}</td>
+                            <td style="font-weight: 600;">${u.username}</td>
+                            <td>${u.is_admin ? '<span class="hero-badge" style="padding:0.4rem 0.8rem; font-size:0.8rem; margin:0;"><i class="fa-solid fa-shield-halved"></i> Admin</span>' : '<span style="color: #aaa; font-size: 0.9rem;"><i class="fa-solid fa-user"></i> User</span>'}</td>
+                            <td style="display: flex; gap: 0.5rem; align-items: center;">
+                                ${u.is_admin ? `<button class="btn-outline" style="padding: 6px 10px; border-radius: 6px; font-size: 0.9rem;" onclick="changePassword(${u.id}, '${u.username}')" title="Change Password"><i class="fa-solid fa-key"></i> Edit Pass</button>` : ''}
+                                ${u.id !== 1 ? `${u.is_admin ? `<button class="btn-outline" style="padding: 6px 10px; border-radius: 6px; font-size: 0.9rem; color: #c06c3b; border-color: #c06c3b;" onclick="revokeUser(${u.id})" title="Revoke Access"><i class="fa-solid fa-ban"></i> Revoke</button>` : ''} <button class="btn-danger" style="padding: 6px 10px; border-radius: 6px; font-size: 0.9rem;" onclick="deleteUser(${u.id})" title="Delete Account"><i class="fa-solid fa-trash"></i> Remove</button>` : '<span style="color: #aaa; font-size: 0.9rem; margin-left: 0.5rem;"><i class="fa-solid fa-lock"></i> Root</span>'}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    if (res.status === 401) window.location.href = '/login.html';
+                    else alert('Server replied with status: ' + res.status);
+                }
+            } catch (error) {
+                alert('JS Execution Error: ' + error.message);
+            }
+        }
+
+        document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('new-username').value;
+            const p = document.getElementById('new-password').value;
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, password: p })
+            });
+            if (res.ok) {
+                document.getElementById('add-user-form').reset();
+                loadUsers();
+            } else {
+                alert('Action failed! Username may already exist.');
+            }
+        });
+
+        function revokeUser(id) {
+            document.getElementById('confirm-modal-text').innerText = "Are you sure you want to revoke this user's admin access? They will be demoted to a regular user and lose portal access.";
+            document.getElementById('confirm-modal-btn').innerText = "Yes, Revoke";
+            document.getElementById('confirm-modal-btn').className = "btn-outline";
+            document.getElementById('confirm-modal-btn').style.color = "#c06c3b";
+            document.getElementById('confirm-modal-btn').style.borderColor = "#c06c3b";
+            document.getElementById('confirm-modal-btn').onclick = async () => {
+                closeModal('confirm-modal');
+                currentActionUsername = null;
+                const res = await fetch('/api/users/' + id + '/revoke', { method: 'POST' });
+                if (res.ok) loadUsers();
+                else alert('Action failed.');
+            };
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function loadConvoyDelay() {
+            const input = document.getElementById('convoy-delay-input');
+            if (!input) return;
+            const stored = localStorage.getItem('convoyBaseDelay');
+            if (stored) input.value = stored;
+        }
+
+        function saveConvoyDelay() {
+            const input = document.getElementById('convoy-delay-input');
+            const val = parseInt(input.value, 10);
+            if (isNaN(val) || val < 0) {
+                alert('Please enter a valid non‑negative number');
+                return;
+            }
+            localStorage.setItem('convoyBaseDelay', val);
+            alert('Convoy base delay saved. Reload the Services page to see the effect.');
+        }
+
+        function deleteUser(id) {
+            document.getElementById('confirm-modal-text').innerText = "Are you absolutely sure you want to permanently remove this user from the system?";
+            document.getElementById('confirm-modal-btn').innerText = "Yes, Remove";
+            document.getElementById('confirm-modal-btn').className = "btn-danger";
+            document.getElementById('confirm-modal-btn').removeAttribute("style");
+            document.getElementById('confirm-modal-btn').onclick = async () => {
+                closeModal('confirm-modal');
+                const res = await fetch('/api/users/' + id, { method: 'DELETE' });
+                if (res.ok) loadUsers();
+                else alert('Failed to remove user. Refresh and try again.');
+            };
+            document.getElementById('confirm-modal').classList.add('active');
+        }
+
+        function changePassword(id, username) {
+            currentActionUserId = id;
+            currentActionUsername = username;
+            document.getElementById('pw-modal-title').innerText = `Editing '${username}'`;
+            document.getElementById('pw-modal-input').value = '';
+            document.getElementById('password-modal').classList.add('active');
+        }
+
+        async function submitPasswordChange() {
+            const newPassword = document.getElementById('pw-modal-input').value;
+            if (!newPassword || newPassword.trim() === '') return;
+
+            closeModal('password-modal');
+
+            const res = await fetch('/api/users/' + currentActionUserId + '/password', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ new_password: newPassword })
+            });
+
+            if (res.ok) {
+                // Flash green background as success indicator instead of alert
+                document.getElementById('password-modal').style.background = 'rgba(46, 204, 113, 0.4)';
+                setTimeout(() => document.getElementById('password-modal').style.background = 'rgba(0,0,0,0.5)', 500);
+            } else {
+                alert(`Failed to update password for ${currentActionUsername}.`);
+            }
+        }
+
+        let cmsCurrentPage = 'index';
+        let cmsHasChanges = false;
+
+        // Receive postMessages from the iframe editor
+        window.addEventListener('message', e => {
+            if (e.data.type === 'cms-dirty') {
+                cmsHasChanges = e.data.count > 0;
+                const btn = document.getElementById('cms-save-btn');
+                const badge = document.getElementById('cms-unsaved-badge');
+                const status = document.getElementById('cms-status-text');
+                if (cmsHasChanges) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    badge.style.display = 'inline-block';
+                    status.innerHTML = `<i class="fa-solid fa-pen-to-square" style="color:#c06c3b;"></i> Editing &mdash; <strong>${e.data.count}</strong> field(s) modified`;
+                } else {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.45';
+                    badge.style.display = 'none';
+                    status.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#2ecc71;"></i> All changes saved!';
+                    setTimeout(() => {
+                        status.innerHTML = '<i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable fields. Click to start editing.';
+                    }, 3000);
+                }
+            }
+
+            if (e.data.type === 'cms-changes-data') {
+                const changes = e.data.changes;
+                const keys = Object.keys(changes);
+                if (keys.length === 0) return;
+                const status = document.getElementById('cms-status-text');
+                status.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                Promise.all(keys.map(k =>
+                    fetch('/api/content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ element_id: k, html_content: changes[k] })
+                    })
+                )).then(() => {
+                    document.getElementById('cms-iframe').contentWindow.postMessage({ type: 'cms-saved' }, '*');
+                }).catch(err => {
+                    alert('Error saving changes: ' + err.message);
+                    status.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#e74c3c;"></i> Save failed — try again';
+                });
+            }
+        });
+
+        function loadEditorPage(page) {
+            if (cmsHasChanges) {
+                if (!confirm('You have unsaved changes on this page. Navigate away and lose them?')) return;
+                cmsHasChanges = false;
+            }
+            cmsCurrentPage = page;
+            document.querySelectorAll('.cms-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.cms-tab[data-page="${page}"]`).classList.add('active');
+            document.getElementById('cms-iframe').src = '/api/edit-page/' + page;
+            const btn = document.getElementById('cms-save-btn');
+            btn.disabled = true;
+            btn.style.opacity = '0.45';
+            document.getElementById('cms-unsaved-badge').style.display = 'none';
+            document.getElementById('cms-status-text').innerHTML = '<i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable fields. Click to start editing.';
+        }
+
+        function saveEditorChanges() {
+            document.getElementById('cms-iframe').contentWindow.postMessage({ type: 'cms-get-changes' }, '*');
+        }
+
+        function loadCMS() {
+            // No-op: iframe auto-loads on panel switch
+        }
+
+        async function uploadImageCMS(key) {
+            const fileInput = document.getElementById('cms-file-' + key);
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                alert('Please select an image file to upload first.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+            if (uploadRes.ok) {
+                const data = await uploadRes.json();
+                document.getElementById('cms-' + key).value = data.url;
+            } else {
+                alert('Failed to upload the image.');
+            }
+        }
+
+
+        async function saveThemeColors() {
+            const primary = document.getElementById('theme-color-primary').value;
+            const secondary = document.getElementById('theme-color-secondary').value;
+            const accent = document.getElementById('theme-color-accent').value;
+            const bg = document.getElementById('theme-color-bg').value;
+            const surface = document.getElementById('theme-color-surface').value;
+            const textdark = document.getElementById('theme-color-textdark').value;
+            const textlight = document.getElementById('theme-color-textlight').value;
+
+            // Generate CSS override block globally forcing light mode variables ONLY
+            const cssPayload = `
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: ${primary} !important;
+    --secondary: ${secondary} !important;
+    --accent: ${accent} !important;
+    --bg-color: ${bg} !important;
+    --surface-color: ${surface} !important;
+    --text-dark: ${textdark} !important;
+    --text-light: ${textlight} !important;
+}
+`;
+            
+            // Save to CMS so it propagates to all <style data-cms="custom-theme-colors"> elements site-wide
+            const res = await fetch('/api/content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ element_id: 'custom-theme-colors', html_content: cssPayload })
+            });
+            
+            if (res.ok) {
+                // Apply locally immediately instantly
+                let existingStyle = document.querySelector('style[data-cms="custom-theme-colors"]');
+                if (existingStyle) { existingStyle.innerHTML = cssPayload; }
+                
+                // Inject into iframe natively
+                const cmsIframe = document.getElementById('cms-iframe');
+                if (cmsIframe && cmsIframe.contentWindow && cmsIframe.contentWindow.document) {
+                    let iframeStyle = cmsIframe.contentWindow.document.querySelector('style[data-cms="custom-theme-colors"]');
+                    if (iframeStyle) { iframeStyle.innerHTML = cssPayload; }
+                }
+                
+                alert('Theme colors saved globally! The CMS and Live Site will now use these colors.');
+            } else {
+                alert('Error saving theme colors.');
+            }
+        }
+
+        async function syncToGitHub() {
+            const btn = document.getElementById('btn-sync-github');
+            
+            // Auto-save any unsaved CMS changes before deploying
+            if (cmsHasChanges) {
+                saveEditorChanges();
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Draft...';
+                await new Promise(r => setTimeout(r, 800)); // wait for iframe postMessage to process
+                btn.innerHTML = originalText;
+            }
+
+            document.getElementById('deploy-modal').classList.add('active');
+        }
+
+        async function submitDeployment() {
+            closeModal('deploy-modal');
+            
+            // Gather selected project keys
+            const checkboxes = document.querySelectorAll('.deploy-project-cb:checked');
+            const selectedProjects = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selectedProjects.length === 0) {
+                alert("Please select at least one project to deploy.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-sync-github');
+            const progressContainer = document.getElementById('sync-progress-container');
+            const progressText = document.getElementById('sync-progress-text');
+            const progressPercent = document.getElementById('sync-progress-percent');
+            const progressBar = document.getElementById('sync-progress-bar');
+            const railwayStatus = document.getElementById('railway-progress-status');
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deploying...';
+
+            // Reset and show progress UI
+            progressContainer.style.display = 'flex';
+            progressBar.style.width = '0%';
+            progressBar.style.background = 'var(--accent)';
+            progressText.innerText = 'Ready...';
+            progressText.style.color = 'var(--secondary)';
+            progressPercent.innerText = '0%';
+            progressPercent.style.color = 'var(--secondary)';
+            
+            // Railway Status Reset
+            railwayStatus.innerText = 'Ready';
+            railwayStatus.style.color = 'var(--secondary)';
+
+            // Step 1: Kick off the background deploy
+            try {
+                progressText.innerText = 'Committing changes...';
+                const res = await fetch('/api/sync-github', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ projects: selectedProjects })
+                });
+                if (!res.ok) {
+                    const data = await res.json();
+                    progressBar.style.background = '#e74c3c';
+                    progressText.innerText = 'Failed to start deployment';
+                    progressText.style.color = '#e74c3c';
+                    alert('Deployment Failed: ' + (data.message || 'Server error.'));
+                    btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                    return;
+                }
+            } catch (error) {
+                progressBar.style.background = '#e74c3c';
+                progressText.innerText = 'Connection Error';
+                progressText.style.color = '#e74c3c';
+                alert('Connection Error: Could not reach the server.');
+                btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                return;
+            }
+
+            // Step 2: Poll progress file until Python script reports 'completed'
+            const pollInterval = setInterval(async () => {
+                try {
+                    const progRes = await fetch('/api/sync-progress?t=' + Date.now());
+                    if (!progRes.ok) return;
+                    const p = await progRes.json();
+                    console.log('Sync Progress:', p);
+
+                    if (p.total > 0) {
+                        progressPercent.innerText = `${p.percentage}%`;
+                        progressBar.style.width = `${p.percentage}%`;
+                        // Show the detailed message from the script
+                        progressText.innerText = p.message || `${p.current} / ${p.total} files checked`;
+                        
+                        // Determine Railway Status
+                        if (p.percentage > 0 && p.percentage < 100) {
+                            railwayStatus.innerText = 'In Progress';
+                            railwayStatus.style.color = '#3498db';
+                        }
+                    }
+
+                    if (p.status === 'completed') {
+                        clearInterval(pollInterval);
+                        progressBar.style.width = '100%';
+                        progressBar.style.background = '#2ecc71';
+                        
+                        // Expose the final file count message to the user UI
+                        let cleanMsg = p.message ? p.message.replace('Done: ', '') : '';
+                        progressText.innerText = `✓ Deployed Selected Projects (${cleanMsg})`;
+                        
+                        progressText.style.color = '#2ecc71';
+                        progressPercent.innerText = '100%';
+                        progressPercent.style.color = '#2ecc71';
+                        btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                        
+                        // If files were actually modified/uploaded, Railway will rebuild
+                        if (p.current > 0 || p.message.includes('uploaded')) {
+                            railwayStatus.innerText = 'Deploying...';
+                            railwayStatus.style.color = '#3498db';
+                            
+                            setTimeout(() => {
+                                railwayStatus.innerText = 'Deployed';
+                                railwayStatus.style.color = '#2ecc71';
+                            }, 60000); // Show Deployed after 60s
+                        } else {
+                            railwayStatus.innerText = 'No Changes';
+                            railwayStatus.style.color = '#f39c12';
+                        }
+
+                        setTimeout(() => {
+                            progressContainer.style.display = 'none';
+                            alert('✅ Deployment Complete!\n\n' + (p.message || 'Changes pushed to GitHub.') + '\n\nLive site updates shortly.');
+                        }, 90000); 
+                    }
+                } catch (e) { console.error('Polling error:', e); }
+            }, 600);
+        }
+
+        // Initialize dashboard on load
+        loadUsers();
+        loadConvoyDelay();
+    </script>
+</body>
+
+</html>
