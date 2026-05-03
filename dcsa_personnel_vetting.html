@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html data-theme="light" lang="en">
+<html data-theme="dark" lang="en">
 <head>
 <link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
@@ -20,15 +20,26 @@
         background-attachment: fixed;
         background-size: min(70vw, 65vh);
     }
-    html[data-theme="light"] .dashboard-bg {
+    html[data-theme="dark"] .dashboard-bg {
         background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('static/dcsa_sherpa_logo.png');
     }
+</style>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
 </style>
 </head>
 <body class="dashboard-bg">
 <header>
 <div class="logo-container">
-<a data-cms="auto-dcsa-personnel-vetting-a-19" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_personnel_vetting-img-1"></a>
+<a data-cms="auto-dcsa-personnel-vetting-a-19" href="index.html"><img alt="Sherpa Solutions LLC" data-cms="auto-dcsa_personnel_vetting-img-1" src="static/sherpa_logo.png"/></a>
 </div>
 <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
 <ul class="nav-links" id="nav-menu">
@@ -138,7 +149,6 @@
 </tbody>
 </table>
 </div>
-
 </div>
 <div style="text-align: center;">
 <a class="btn btn-primary" data-cms="auto-dcsa-personnel-vetting-a-27" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
@@ -160,7 +170,7 @@
 <span data-cms="auto-dcsa-personnel-vetting-span-15" id="subj-status-badge"></span>
 </div>
 </div>
-<button class="no-cms" onclick="closeSubjectModal()" style="background:none; border:none; font-size:1.1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); display:flex; align-items:center; gap:0.5rem; font-family:'Outfit',sans-serif; text-transform:uppercase; opacity:0.7; flex-shrink:0;" title="Close" aria-label="Close Case Details">Close <i class="fa-solid fa-xmark"></i></button>
+<button aria-label="Close Case Details" class="no-cms" onclick="closeSubjectModal()" style="background:none; border:none; font-size:1.1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); display:flex; align-items:center; gap:0.5rem; font-family:'Outfit',sans-serif; text-transform:uppercase; opacity:0.7; flex-shrink:0;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
 <!-- Modal Body -->
 <div style="padding:2rem; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
@@ -676,7 +686,6 @@
             if (e.target === this) closeArtifactModal();
         });
     </script>
-
 <script src="static/cms.js"></script>
 <script src="static/analytics.js"></script>
 <script src="static/dcsa_demo.js"></script>

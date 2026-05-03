@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html data-theme="light" lang="en">
+<html data-theme="dark" lang="en">
 <head>
 <link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
@@ -20,7 +20,7 @@
         background-attachment: fixed;
         background-size: min(70vw, 65vh);
     }
-    html[data-theme="light"] .dashboard-bg {
+    html[data-theme="dark"] .dashboard-bg {
         background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('static/dcsa_sherpa_logo.png');
     }
 
@@ -94,11 +94,22 @@
     .sc-extract-67 { padding: 1rem; border-bottom: 1px solid var(--border-color); }
     .sc-extract-68 { background: '+inc.riskBg+'; color: '+inc.riskColor+'; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
     </style>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 <body class="dashboard-bg">
 <header>
 <div class="logo-container">
-<a data-cms="auto-dcsa-counterintelligence-a-11" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_counterintelligence-img-1"></a>
+<a data-cms="auto-dcsa-counterintelligence-a-11" href="index.html"><img alt="Sherpa Solutions LLC" data-cms="auto-dcsa_counterintelligence-img-1" src="static/sherpa_logo.png"/></a>
 </div>
 <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
 <ul class="nav-links" id="nav-menu">
@@ -110,40 +121,40 @@
 <li data-cms="auto-dcsa-counterintelligence-li-29"><a data-cms="auto-dcsa-counterintelligence-a-17" href="contact.html">Contact</a></li>
 </ul>
 <div class="header-actions">
-<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"><i class="fa-solid fa-sun"></i></button>
+<button aria-label="Toggle theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-counterintelligence-a-18" href="contact.html">Schedule Basecamp Consultation</a>
 </div>
 </header>
-<div class="page-header sc-extract-1" >
+<div class="page-header sc-extract-1">
 <h1 class="sc-extract-2" data-cms="auto-dcsa-counterintelligence-h1-1" style="color: var(--primary); font-size: 3.5rem; font-weight: 800; margin-bottom: 0;"><i class="fa-solid fa-user-secret sc-extract-3"></i> Counterintelligence</h1>
-<p class="sc-extract-4" data-cms="auto-dcsa-counterintelligence-p-7" >Foreign Intelligence Entities &amp; Insider Threat Mitigation</p>
+<p class="sc-extract-4" data-cms="auto-dcsa-counterintelligence-p-7">Foreign Intelligence Entities &amp; Insider Threat Mitigation</p>
 </div>
-<section class="content-block sc-extract-5" >
+<section class="content-block sc-extract-5">
 <div class="content-container">
-<div class="sc-extract-6" >
-<div class="sc-extract-7" >
-<h3 class="sc-extract-8" data-cms="auto-dcsa-counterintelligence-h3-2" >Active Threat Profiles</h3>
-<div class="sc-extract-9" >2,814</div>
-<div class="sc-extract-10" ><i class="fa-solid fa-arrow-trend-up"></i> +4% vs last quarter</div>
+<div class="sc-extract-6">
+<div class="sc-extract-7">
+<h3 class="sc-extract-8" data-cms="auto-dcsa-counterintelligence-h3-2">Active Threat Profiles</h3>
+<div class="sc-extract-9">2,814</div>
+<div class="sc-extract-10"><i class="fa-solid fa-arrow-trend-up"></i> +4% vs last quarter</div>
 </div>
-<div class="sc-extract-7" >
-<h3 class="sc-extract-8" data-cms="auto-dcsa-counterintelligence-h3-3" >Insider Threat Flags</h3>
-<div class="sc-extract-9" >148</div>
-<div class="sc-extract-11" ><i class="fa-solid fa-eye"></i> Currently under investigation</div>
+<div class="sc-extract-7">
+<h3 class="sc-extract-8" data-cms="auto-dcsa-counterintelligence-h3-3">Insider Threat Flags</h3>
+<div class="sc-extract-9">148</div>
+<div class="sc-extract-11"><i class="fa-solid fa-eye"></i> Currently under investigation</div>
 </div>
-<div class="sc-extract-7" >
-<h3 class="sc-extract-8" data-cms="auto-dcsa-counterintelligence-h3-4" >Neutralized Vectors</h3>
-<div class="sc-extract-9" >87</div>
-<div class="sc-extract-12" ><i class="fa-solid fa-shield-cat"></i> Successfully mitigated YTD</div>
+<div class="sc-extract-7">
+<h3 class="sc-extract-8" data-cms="auto-dcsa-counterintelligence-h3-4">Neutralized Vectors</h3>
+<div class="sc-extract-9">87</div>
+<div class="sc-extract-12"><i class="fa-solid fa-shield-cat"></i> Successfully mitigated YTD</div>
 </div>
 </div>
 <!-- Advanced Search Section -->
-<div class="sc-extract-13" >
-<h3 class="sc-extract-14" data-cms="auto-dcsa-counterintelligence-h3-5" ><i class="fa-solid fa-magnifying-glass sc-extract-15"></i> Advanced Incident Search</h3>
-<div class="sc-extract-16" >
-<div class="sc-extract-17" >
-<label for="search-criteria" class="sc-extract-18" >Search By</label>
-<select class="sc-extract-19" id="search-criteria" onchange="updateSearchUI()" >
+<div class="sc-extract-13">
+<h3 class="sc-extract-14" data-cms="auto-dcsa-counterintelligence-h3-5"><i class="fa-solid fa-magnifying-glass sc-extract-15"></i> Advanced Incident Search</h3>
+<div class="sc-extract-16">
+<div class="sc-extract-17">
+<label class="sc-extract-18" for="search-criteria">Search By</label>
+<select class="sc-extract-19" id="search-criteria" onchange="updateSearchUI()">
 <option value="incidentId">Incident ID</option>
 <option value="vector">Vector</option>
 <option value="riskLevel">Risk Level</option>
@@ -151,57 +162,57 @@
 </select>
 </div>
 <!-- Dynamic Input Containers -->
-<div class="sc-extract-20" id="input-container-incidentId" >
-<div class="sc-extract-21" >
-<label for="search-incident-id" class="sc-extract-18" >Incident ID</label>
+<div class="sc-extract-20" id="input-container-incidentId">
+<div class="sc-extract-21">
+<label class="sc-extract-18" for="search-incident-id">Incident ID</label>
 <input class="sc-extract-22" id="search-incident-id" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. INC-4921-A" type="text"/>
 </div>
 </div>
-<div class="sc-extract-23" id="input-container-vector" >
-<label for="search-vector" class="sc-extract-18" >Vector</label>
-<select class="sc-extract-19" id="search-vector" >
+<div class="sc-extract-23" id="input-container-vector">
+<label class="sc-extract-18" for="search-vector">Vector</label>
+<select class="sc-extract-19" id="search-vector">
 <option value="Unsolicited Email (Spearphishing)">Unsolicited Email (Spearphishing)</option>
 <option value="Conference Networking Request">Conference Networking Request</option>
 <option value="Social Media Outreach (LinkedIn)">Social Media Outreach (LinkedIn)</option>
 </select>
 </div>
-<div class="sc-extract-23" id="input-container-riskLevel" >
-<label for="search-risk-level" class="sc-extract-18" >Risk Level</label>
-<select class="sc-extract-19" id="search-risk-level" >
+<div class="sc-extract-23" id="input-container-riskLevel">
+<label class="sc-extract-18" for="search-risk-level">Risk Level</label>
+<select class="sc-extract-19" id="search-risk-level">
 <option value="CRITICAL">CRITICAL</option>
 <option value="ELEVATED">ELEVATED</option>
 <option value="MODERATE">MODERATE</option>
 </select>
 </div>
-<div class="sc-extract-23" id="input-container-agent" >
-<label for="search-agent" class="sc-extract-18" >Assigned Agent</label>
-<select class="sc-extract-19" id="search-agent" >
+<div class="sc-extract-23" id="input-container-agent">
+<label class="sc-extract-18" for="search-agent">Assigned Agent</label>
+<select class="sc-extract-19" id="search-agent">
 <option value="SA Davis">SA Davis</option>
 <option value="SA Rodriguez">SA Rodriguez</option>
 <option value="SA Chen">SA Chen</option>
 </select>
 </div>
 <div>
-<button class="sc-extract-24" onclick="executeSearch()" >Search</button>
+<button class="sc-extract-24" onclick="executeSearch()">Search</button>
 </div>
 <div>
 <button class="sc-extract-25" onclick="resetSearch()" title="Clear Search"><i class="fa-solid fa-rotate-left"></i></button>
 </div>
 </div>
 </div>
-<div class="sc-extract-26" >
-<div class="sc-extract-27" >
-<h3 class="sc-extract-28" data-cms="auto-dcsa-counterintelligence-h3-6" ><i class="fa-solid fa-radar sc-extract-15"></i> Suspicious Contact Reports (SCR)</h3>
+<div class="sc-extract-26">
+<div class="sc-extract-27">
+<h3 class="sc-extract-28" data-cms="auto-dcsa-counterintelligence-h3-6"><i class="fa-solid fa-radar sc-extract-15"></i> Suspicious Contact Reports (SCR)</h3>
 </div>
-<div class="sc-extract-29" >
-<table class="sc-extract-30 no-cms" >
-<thead class="sc-extract-31" >
-<tr class="sc-extract-32" >
-<th class="sc-extract-33" >Incident ID</th>
-<th class="sc-extract-33" >Vector</th>
-<th class="sc-extract-33" >Risk Level</th>
-<th class="sc-extract-33" >Agent Assigned</th>
-<th class="sc-extract-33" >Action Taken</th>
+<div class="sc-extract-29">
+<table class="sc-extract-30 no-cms">
+<thead class="sc-extract-31">
+<tr class="sc-extract-32">
+<th class="sc-extract-33">Incident ID</th>
+<th class="sc-extract-33">Vector</th>
+<th class="sc-extract-33">Risk Level</th>
+<th class="sc-extract-33">Agent Assigned</th>
+<th class="sc-extract-33">Action Taken</th>
 </tr>
 </thead>
 <tbody id="scr-tbody">
@@ -209,82 +220,82 @@
 </table>
 </div>
 </div>
-<div class="sc-extract-34" >
+<div class="sc-extract-34">
 <a class="btn btn-primary" data-cms="auto-dcsa-counterintelligence-a-19" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left sc-extract-15"></i> Back to Main Dashboard</a>
 </div>
 </div>
 </section>
 <!-- Incident Modal -->
-<div class="sc-extract-35" id="incident-modal" >
-<div class="sc-extract-36" >
-<div class="sc-extract-37" >
-<div class="sc-extract-38" ><i class="fa-solid fa-file-shield sc-extract-39" ></i> Incident Details: <span data-cms="auto-dcsa-counterintelligence-span-9" id="inc-id-display"></span></div>
+<div class="sc-extract-35" id="incident-modal">
+<div class="sc-extract-36">
+<div class="sc-extract-37">
+<div class="sc-extract-38"><i class="fa-solid fa-file-shield sc-extract-39"></i> Incident Details: <span data-cms="auto-dcsa-counterintelligence-span-9" id="inc-id-display"></span></div>
 <button class="sc-extract-40" onclick="closeIncidentModal()" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
-<div class="sc-extract-41" >
-<div class="sc-extract-42" >
-<div class="sc-extract-21" >
-<div class="sc-extract-43" >Vector</div>
-<div class="sc-extract-44" id="inc-vector" ></div>
+<div class="sc-extract-41">
+<div class="sc-extract-42">
+<div class="sc-extract-21">
+<div class="sc-extract-43">Vector</div>
+<div class="sc-extract-44" id="inc-vector"></div>
 </div>
-<div class="sc-extract-21" >
-<div class="sc-extract-43" >Risk Level</div>
-<div class="sc-extract-45" id="inc-risk" ></div>
+<div class="sc-extract-21">
+<div class="sc-extract-43">Risk Level</div>
+<div class="sc-extract-45" id="inc-risk"></div>
 </div>
 </div>
 <div>
-<div class="sc-extract-43" >Detailed Description</div>
-<div class="sc-extract-46" id="inc-desc" ></div>
+<div class="sc-extract-43">Detailed Description</div>
+<div class="sc-extract-46" id="inc-desc"></div>
 </div>
-<div class="sc-extract-42" >
-<div class="sc-extract-21" >
-<div class="sc-extract-43" >Action Taken</div>
-<div class="sc-extract-47" id="inc-action" ></div>
+<div class="sc-extract-42">
+<div class="sc-extract-21">
+<div class="sc-extract-43">Action Taken</div>
+<div class="sc-extract-47" id="inc-action"></div>
 </div>
-<div class="sc-extract-21" >
-<div class="sc-extract-43" >Agent Assigned</div>
-<div class="sc-extract-47" id="inc-agent" ></div>
+<div class="sc-extract-21">
+<div class="sc-extract-43">Agent Assigned</div>
+<div class="sc-extract-47" id="inc-agent"></div>
 </div>
 </div>
-<div class="sc-extract-42" >
-<div class="sc-extract-21" >
-<div class="sc-extract-43" >Date Reported</div>
-<div class="sc-extract-47" id="inc-date" ></div>
+<div class="sc-extract-42">
+<div class="sc-extract-21">
+<div class="sc-extract-43">Date Reported</div>
+<div class="sc-extract-47" id="inc-date"></div>
 </div>
-<div class="sc-extract-21" >
-<div class="sc-extract-43" >Status</div>
-<div class="sc-extract-47" id="inc-status" ></div>
+<div class="sc-extract-21">
+<div class="sc-extract-43">Status</div>
+<div class="sc-extract-47" id="inc-status"></div>
 </div>
 </div>
 </div>
 </div>
 </div>
 <!-- Agent Contact Modal -->
-<div class="sc-extract-48" id="agent-modal" >
-<div class="sc-extract-49" >
+<div class="sc-extract-48" id="agent-modal">
+<div class="sc-extract-49">
 <button class="sc-extract-50" onclick="closeAgentModal()" title="Close">×</button>
-<div class="sc-extract-51" >
-<div class="sc-extract-52" id="agent-icon-wrap" >
-<i class="fa-solid fa-user-tie sc-extract-53" id="agent-icon" ></i>
+<div class="sc-extract-51">
+<div class="sc-extract-52" id="agent-icon-wrap">
+<i class="fa-solid fa-user-tie sc-extract-53" id="agent-icon"></i>
 </div>
-<div class="sc-extract-54" id="agent-name" ></div>
-<div class="sc-extract-55" id="agent-title" ></div>
+<div class="sc-extract-54" id="agent-name"></div>
+<div class="sc-extract-55" id="agent-title"></div>
 </div>
-<div class="sc-extract-56" >
-<div class="sc-extract-57" >
-<i class="fa-solid fa-building sc-extract-58" ></i>
-<span class="sc-extract-59" data-cms="auto-dcsa-counterintelligence-span-10" id="agent-division" ></span>
+<div class="sc-extract-56">
+<div class="sc-extract-57">
+<i class="fa-solid fa-building sc-extract-58"></i>
+<span class="sc-extract-59" data-cms="auto-dcsa-counterintelligence-span-10" id="agent-division"></span>
 </div>
-<div class="sc-extract-57" >
-<i class="fa-solid fa-envelope sc-extract-58" ></i>
-<a class="sc-extract-60" data-cms="auto-dcsa-counterintelligence-a-20" href="#" id="agent-email" ></a>
+<div class="sc-extract-57">
+<i class="fa-solid fa-envelope sc-extract-58"></i>
+<a class="sc-extract-60" data-cms="auto-dcsa-counterintelligence-a-20" href="#" id="agent-email"></a>
 </div>
-<div class="sc-extract-57" >
-<i class="fa-solid fa-phone sc-extract-58" ></i>
-<a class="sc-extract-61" data-cms="auto-dcsa-counterintelligence-a-21" href="#" id="agent-phone" ></a>
+<div class="sc-extract-57">
+<i class="fa-solid fa-phone sc-extract-58"></i>
+<a class="sc-extract-61" data-cms="auto-dcsa-counterintelligence-a-21" href="#" id="agent-phone"></a>
 </div>
 </div>
-<a class="sc-extract-62" data-cms="auto-dcsa-counterintelligence-a-22" href="#" id="agent-compose" >
+<a class="sc-extract-62" data-cms="auto-dcsa-counterintelligence-a-22" href="#" id="agent-compose">
 <i class="fa-solid fa-envelope sc-extract-63"></i>Send Message
             </a>
 </div>
@@ -422,7 +433,6 @@
             if (e.target === this) closeAgentModal();
         });
     </script>
-
 <script src="static/cms.js"></script>
 <script src="static/analytics.js"></script>
 <script src="static/dcsa_demo.js"></script>

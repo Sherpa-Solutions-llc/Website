@@ -1,193 +1,182 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
 
+<html data-theme="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Avatar Agent | Sherpa Solutions</title>
-    
-    <!-- Fonts and Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="static/styles.css?v=1.4">
-    <link rel="stylesheet" href="static/avatar.css">
-    <script src="static/theme.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Avatar Agent | Sherpa Solutions</title>
+<!-- Fonts and Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- Custom Styles -->
+<link href="static/styles.css?v=1.4" rel="stylesheet"/>
+<link href="static/avatar.css" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
-
 <body class="avatar-page">
-
-    <!-- Header / Navbar from main site -->
-    <header>
-        <div class="logo-container">
-            <a href="index.html">
-                <img src="/static/sherpa_logo.webp" alt="Sherpa Solutions LLC">
-            </a>
-        </div>
-        <div class="menu-toggle" id="mobile-menu-btn">
-            <i class="fa-solid fa-bars"></i>
-        </div>
-        <ul class="nav-links" id="nav-menu">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="services.html">Our Services</a></li>
-            <li><a href="projects.html" class="active">Projects</a></li>
-            <li><a href="merchandise.html">Merchandise</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="header-actions">
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
-            <a href="projects.html" class="btn btn-outline nav-cta">Back to Projects</a>
-        </div>
-    </header>
-
-    <section class="hero-section text-center" style="padding: 4rem 1rem 2rem; text-align: center;">
-        <div class="hero-badge" style="display:inline-block; padding: 0.5rem 1rem; border-radius: 50px; background: rgba(210, 128, 82, 0.1); color: var(--accent); border: 1px solid var(--accent); margin-bottom: 1rem; font-weight: 600; letter-spacing: 1px; font-size: 0.85rem;"><i class="fa-solid fa-bolt"></i> Coming to Desktop & Mobile</div>
-        <h1 style="font-size: 3rem; margin-bottom: 1.5rem;"><span style="color:var(--accent);">Meet Your</span> AI Avatar</h1>
-        <p style="font-size: 1.15rem; max-width: 650px; margin: 0 auto; color: var(--text-dark); line-height: 1.6;">Your digital sherpa in the workspace. A fully customisable AI agent avatar that moves, works, and notifies you—all in a simulated digital environment.</p>
-    </section>
-
-    <div class="app-container">
-        <!-- Main Workspace Area -->
-        <div class="workspace-area">
-            
-            <div class="workspace-grid">
-                <!-- Visual Data Stations -->
-                <div class="station-node" id="station-1"></div>
-                <div class="station-node" id="station-2"></div>
-                <div class="station-node" id="station-3"></div>
-                <div class="station-node" id="station-4"></div>
-                
-                <!-- The Avatar Sprite -->
-                <div class="avatar-sprite-container" id="avatar-agent">
-                    <div class="avatar-sprite">
-                        <div class="avatar-label" id="avatar-name-display">Sherpa-01</div>
-                        <div class="avatar-image-wrapper" id="avatar-image-wrapper">
-                            <!-- Default Image inside -->
-                            <img src="/static/avatar_thumbnail.webp" id="avatar-img-element" alt="Avatar">
-                        </div>
-                        <div class="avatar-body-hologram" id="avatar-glow"></div>
-                        <div class="avatar-shadow"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Task Input HUD -->
-            <div class="task-hud">
-                <div class="task-input-group">
-                    <input type="text" id="task-input" placeholder="Assign a task to your digital Sherpa...">
-                    <button id="btn-submit-task"><i class="fa-solid fa-paper-plane"></i> Give Task</button>
-                </div>
-                <div class="status-display">
-                    <div class="status-dot" id="status-dot"></div>
-                    <span class="status-text" id="status-text">STATUS: IDLE</span>
-                </div>
-            </div>
-            
-        </div>
-
-        <!-- Right Customisation Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fa-solid fa-user-astronaut"></i> Avatar Customisation</h2>
-            </div>
-            <div class="sidebar-content">
-                
-                <div class="tabs">
-                    <button class="tab-btn active" data-target="tab-gallery">Gallery</button>
-                    <button class="tab-btn" data-target="tab-upload">Upload</button>
-                    <button class="tab-btn" data-target="tab-camera">Camera</button>
-                </div>
-
-                <!-- Gallery Tab -->
-                <div class="tab-pane active" id="tab-gallery">
-                    <div class="avatar-gallery" id="picker-gallery">
-                        <div class="gallery-item selected" data-src="/static/avatar_thumbnail.webp">
-                            <img src="/static/avatar_thumbnail.webp" alt="Default">
-                        </div>
-                        <div class="gallery-item" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=Sherpa">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Sherpa" alt="Bot 1">
-                        </div>
-                        <div class="gallery-item" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=Alpine">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alpine" alt="Bot 2">
-                        </div>
-                        <div class="gallery-item" data-src="https://api.dicebear.com/7.x/adventurer/svg?seed=Guide">
-                            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Guide" alt="Human 1">
-                        </div>
-                        <div class="gallery-item" data-src="https://api.dicebear.com/7.x/adventurer/svg?seed=Summit">
-                            <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Summit" alt="Human 2">
-                        </div>
-                        <div class="gallery-item" data-src="https://api.dicebear.com/7.x/identicon/svg?seed=Data">
-                            <img src="https://api.dicebear.com/7.x/identicon/svg?seed=Data" alt="Abstract">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upload Tab -->
-                <div class="tab-pane" id="tab-upload">
-                    <label class="upload-area" for="file-upload">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p>Click to upload image</p>
-                        <input type="file" id="file-upload" accept="image/*" style="display: none;">
-                    </label>
-                </div>
-
-                <!-- Camera Tab -->
-                <div class="tab-pane" id="tab-camera">
-                    <div class="camera-area" id="btn-start-camera">
-                        <i class="fa-solid fa-camera"></i>
-                        <p>Take a selfie</p>
-                    </div>
-                    <video id="camera-preview" autoplay playsinline></video>
-                    <button id="btn-take-photo" class="btn btn-primary" style="display:none; width: 100%; margin-top:10px;">Snap</button>
-                    <canvas id="camera-canvas" style="display:none;"></canvas>
-                </div>
-
-                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-
-                <div class="control-group">
-                    <label>Agent Name</label>
-                    <input type="text" id="input-agent-name" value="Sherpa-01">
-                </div>
-
-                <div class="control-group">
-                    <label>Aura Colour</label>
-                    <div class="color-options" id="color-picker">
-                        <div class="color-dot active" data-color="#D28052" style="background:#D28052;"></div>
-                        <div class="color-dot" data-color="#00d2ff" style="background:#00d2ff;"></div>
-                        <div class="color-dot" data-color="#00ff00" style="background:#00ff00;"></div>
-                        <div class="color-dot" data-color="#ff00ff" style="background:#ff00ff;"></div>
-                        <div class="color-dot" data-color="#ffcc00" style="background:#ffcc00;"></div>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>Task Notifications</label>
-                    <div class="notification-toggles">
-                        <button class="notify-btn active" data-mode="sound"><i class="fa-solid fa-volume-high"></i> Sound</button>
-                        <button class="notify-btn" data-mode="vibrate"><i class="fa-solid fa-mobile-screen"></i> Vibrate</button>
-                        <button class="notify-btn" data-mode="silent"><i class="fa-solid fa-bell-slash"></i> Silent</button>
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-    </div>
-
-    <!-- Download Section -->
-    <section class="download-cta">
-        <h2>Bring Your Sherpa Everywhere</h2>
-        <p>Available for download on all major platforms.</p>
-        <div class="download-buttons">
-            <a href="#" class="btn-download"><i class="fa-brands fa-windows"></i> Windows</a>
-            <a href="#" class="btn-download"><i class="fa-brands fa-apple"></i> macOS</a>
-            <a href="#" class="btn-download"><i class="fa-brands fa-google-play"></i> Android</a>
-            <a href="#" class="btn-download"><i class="fa-brands fa-app-store-ios"></i> iOS</a>
-        </div>
-    </section>
-
-    <script>
+<!-- Header / Navbar from main site -->
+<header>
+<div class="logo-container">
+<a href="index.html">
+<img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.webp"/>
+</a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn">
+<i class="fa-solid fa-bars"></i>
+</div>
+<ul class="nav-links" id="nav-menu">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a class="active" href="projects.html">Projects</a></li>
+<li><a href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button>
+<a class="btn btn-outline nav-cta" href="projects.html">Back to Projects</a>
+</div>
+</header>
+<section class="hero-section text-center" style="padding: 4rem 1rem 2rem; text-align: center;">
+<div class="hero-badge" style="display:inline-block; padding: 0.5rem 1rem; border-radius: 50px; background: rgba(210, 128, 82, 0.1); color: var(--accent); border: 1px solid var(--accent); margin-bottom: 1rem; font-weight: 600; letter-spacing: 1px; font-size: 0.85rem;"><i class="fa-solid fa-bolt"></i> Coming to Desktop &amp; Mobile</div>
+<h1 style="font-size: 3rem; margin-bottom: 1.5rem;"><span style="color:var(--accent);">Meet Your</span> AI Avatar</h1>
+<p style="font-size: 1.15rem; max-width: 650px; margin: 0 auto; color: var(--text-dark); line-height: 1.6;">Your digital sherpa in the workspace. A fully customisable AI agent avatar that moves, works, and notifies you—all in a simulated digital environment.</p>
+</section>
+<div class="app-container">
+<!-- Main Workspace Area -->
+<div class="workspace-area">
+<div class="workspace-grid">
+<!-- Visual Data Stations -->
+<div class="station-node" id="station-1"></div>
+<div class="station-node" id="station-2"></div>
+<div class="station-node" id="station-3"></div>
+<div class="station-node" id="station-4"></div>
+<!-- The Avatar Sprite -->
+<div class="avatar-sprite-container" id="avatar-agent">
+<div class="avatar-sprite">
+<div class="avatar-label" id="avatar-name-display">Sherpa-01</div>
+<div class="avatar-image-wrapper" id="avatar-image-wrapper">
+<!-- Default Image inside -->
+<img alt="Avatar" id="avatar-img-element" src="/static/avatar_thumbnail.webp"/>
+</div>
+<div class="avatar-body-hologram" id="avatar-glow"></div>
+<div class="avatar-shadow"></div>
+</div>
+</div>
+</div>
+<!-- Task Input HUD -->
+<div class="task-hud">
+<div class="task-input-group">
+<input id="task-input" placeholder="Assign a task to your digital Sherpa..." type="text"/>
+<button id="btn-submit-task"><i class="fa-solid fa-paper-plane"></i> Give Task</button>
+</div>
+<div class="status-display">
+<div class="status-dot" id="status-dot"></div>
+<span class="status-text" id="status-text">STATUS: IDLE</span>
+</div>
+</div>
+</div>
+<!-- Right Customisation Sidebar -->
+<aside class="sidebar">
+<div class="sidebar-header">
+<h2><i class="fa-solid fa-user-astronaut"></i> Avatar Customisation</h2>
+</div>
+<div class="sidebar-content">
+<div class="tabs">
+<button class="tab-btn active" data-target="tab-gallery">Gallery</button>
+<button class="tab-btn" data-target="tab-upload">Upload</button>
+<button class="tab-btn" data-target="tab-camera">Camera</button>
+</div>
+<!-- Gallery Tab -->
+<div class="tab-pane active" id="tab-gallery">
+<div class="avatar-gallery" id="picker-gallery">
+<div class="gallery-item selected" data-src="/static/avatar_thumbnail.webp">
+<img alt="Default" src="/static/avatar_thumbnail.webp"/>
+</div>
+<div class="gallery-item" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=Sherpa">
+<img alt="Bot 1" src="https://api.dicebear.com/7.x/bottts/svg?seed=Sherpa"/>
+</div>
+<div class="gallery-item" data-src="https://api.dicebear.com/7.x/bottts/svg?seed=Alpine">
+<img alt="Bot 2" src="https://api.dicebear.com/7.x/bottts/svg?seed=Alpine"/>
+</div>
+<div class="gallery-item" data-src="https://api.dicebear.com/7.x/adventurer/svg?seed=Guide">
+<img alt="Human 1" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Guide"/>
+</div>
+<div class="gallery-item" data-src="https://api.dicebear.com/7.x/adventurer/svg?seed=Summit">
+<img alt="Human 2" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Summit"/>
+</div>
+<div class="gallery-item" data-src="https://api.dicebear.com/7.x/identicon/svg?seed=Data">
+<img alt="Abstract" src="https://api.dicebear.com/7.x/identicon/svg?seed=Data"/>
+</div>
+</div>
+</div>
+<!-- Upload Tab -->
+<div class="tab-pane" id="tab-upload">
+<label class="upload-area" for="file-upload">
+<i class="fa-solid fa-cloud-arrow-up"></i>
+<p>Click to upload image</p>
+<input accept="image/*" id="file-upload" style="display: none;" type="file"/>
+</label>
+</div>
+<!-- Camera Tab -->
+<div class="tab-pane" id="tab-camera">
+<div class="camera-area" id="btn-start-camera">
+<i class="fa-solid fa-camera"></i>
+<p>Take a selfie</p>
+</div>
+<video autoplay="" id="camera-preview" playsinline=""></video>
+<button class="btn btn-primary" id="btn-take-photo" style="display:none; width: 100%; margin-top:10px;">Snap</button>
+<canvas id="camera-canvas" style="display:none;"></canvas>
+</div>
+<hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 20px 0;"/>
+<div class="control-group">
+<label>Agent Name</label>
+<input id="input-agent-name" type="text" value="Sherpa-01"/>
+</div>
+<div class="control-group">
+<label>Aura Colour</label>
+<div class="color-options" id="color-picker">
+<div class="color-dot active" data-color="#D28052" style="background:#D28052;"></div>
+<div class="color-dot" data-color="#00d2ff" style="background:#00d2ff;"></div>
+<div class="color-dot" data-color="#00ff00" style="background:#00ff00;"></div>
+<div class="color-dot" data-color="#ff00ff" style="background:#ff00ff;"></div>
+<div class="color-dot" data-color="#ffcc00" style="background:#ffcc00;"></div>
+</div>
+</div>
+<div class="control-group">
+<label>Task Notifications</label>
+<div class="notification-toggles">
+<button class="notify-btn active" data-mode="sound"><i class="fa-solid fa-volume-high"></i> Sound</button>
+<button class="notify-btn" data-mode="vibrate"><i class="fa-solid fa-mobile-screen"></i> Vibrate</button>
+<button class="notify-btn" data-mode="silent"><i class="fa-solid fa-bell-slash"></i> Silent</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Download Section -->
+<section class="download-cta">
+<h2>Bring Your Sherpa Everywhere</h2>
+<p>Available for download on all major platforms.</p>
+<div class="download-buttons">
+<a class="btn-download" href="#"><i class="fa-brands fa-windows"></i> Windows</a>
+<a class="btn-download" href="#"><i class="fa-brands fa-apple"></i> macOS</a>
+<a class="btn-download" href="#"><i class="fa-brands fa-google-play"></i> Android</a>
+<a class="btn-download" href="#"><i class="fa-brands fa-app-store-ios"></i> iOS</a>
+</div>
+</section>
+<script>
         // Avatar Logic
         document.addEventListener('DOMContentLoaded', () => {
 

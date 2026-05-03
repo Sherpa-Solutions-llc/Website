@@ -1,236 +1,225 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productivity Agent | Command Center</title>
-    <link rel="stylesheet" href="/static/productivity_agent.css?v=2">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({ startOnLoad: false, theme: 'dark' });</script>
-    <script src="/static/theme.js"></script>
-    
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Productivity Agent | Command Center</title>
+<link href="/static/productivity_agent.css?v=2" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: false, theme: 'dark' });</script>
+<script src="/static/theme.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
-
 <body>
-    <div class="background-orbs">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-
-    <div class="app-container">
-        <header class="glass-header">
-            <div class="logo">
-                <a href="/projects.html">
-                    <img src="static/sherpa_logo.png" style="height: 48px; width: auto; object-fit: contain; cursor: pointer;" alt="Sherpa Logo">
-                </a>
-                <h1 style="text-transform: uppercase; background: repeating-linear-gradient(-60deg, #E09F25, #E09F25 1.5px, #ba7f13 1.5px, #ba7f13 3px); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.8)) drop-shadow(-1px -1px 0px rgba(255,255,255,0.3)) drop-shadow(0px 0px 2px rgba(224,159,37,0.5)); padding: 0.25rem 0.5rem; font-size: 1.8rem; letter-spacing: 2px; font-weight: 800; font-family: 'Outfit', sans-serif;">Productivity Agent</h1>
-            </div>
-            <div class="header-controls" style="display: flex; align-items: center; gap: 1rem;">
-                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background: var(--control-bg); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
-                    <i class="fa-solid fa-sun"></i>
-                </button>
-                <select id="model-select" class="glass-select"
-                    style="background: var(--control-bg); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 0.5rem; border-radius: 8px;">
-                    <option value="gemini-2.5-flash" style="background-color: #161b22; color: #ffffff;">Gemini 2.5 Flash</option>
-                    <option value="gemini-2.5-pro" style="background-color: #161b22; color: #ffffff;">Gemini 2.5 Pro</option>
-                    <option value="gemini-1.5-pro" style="background-color: #161b22; color: #ffffff;">Gemini 1.5 Pro</option>
-                    <option value="gemini-1.5-flash" style="background-color: #161b22; color: #ffffff;">Gemini 1.5 Flash</option>
-                    <option value="claude-3.5-sonnet" style="background-color: #161b22; color: #ffffff;">Claude 3.5 Sonnet</option>
-                    <option value="gpt-4o" style="background-color: #161b22; color: #ffffff;">GPT-4o</option>
-                    <option value="o1" style="background-color: #161b22; color: #ffffff;">o1</option>
-                    <option value="o3-mini" style="background-color: #161b22; color: #ffffff;">o3-mini</option>
-                </select>
-                <div class="connection-status" id="connection-container">
-                    <!-- Populated by JS based on host environment -->
-                </div>
-            </div>
-        </header>
-
-        <main class="dashboard-layout"
-            style="display: flex; flex-direction: column; gap: 2rem; height: calc(100vh - 120px);">
-            <div class="dashboard-grid" style="flex: 1; min-height: 0;">
-                <!-- Left Column: Task Input & Chat -->
-                <div class="left-panel">
-                    <section class="task-input-section glass-card">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                            <h2 style="margin-bottom: 0;"><i class="fa-solid fa-comments"></i> Command & Chat</h2>
-
-                        </div>
-
-                        <div id="chat-thread" class="chat-thread">
-                            <!-- Chat messages will be injected here dynamically -->
-                        </div>
-
-                        <form id="task-form" onsubmit="event.preventDefault();">
-                            <div class="input-group">
-                                <textarea id="task-input"
-                                    placeholder="Simulated activity in progress..."
-                                    readonly disabled></textarea>
-                                <div class="action-row" id="sim-action-row">
-                                    <div class="attachment-wrapper" style="pointer-events: none; opacity: 0.5;">
-                                        <label class="attach-btn" title="Disabled in simulation">
-                                            <i class="fa-solid fa-paperclip"></i>
-                                        </label>
-                                    </div>
-                                    <button type="button" disabled class="glow-btn" style="opacity: 0.5; cursor: not-allowed;">
-                                        <span>Send</span>
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                                <div class="action-row" id="live-action-row" style="display: none;">
-                                    <div class="attachment-wrapper">
-                                        <label for="file-upload" class="attach-btn" title="Attach file or image">
-                                            <i class="fa-solid fa-paperclip"></i>
-                                        </label>
-                                        <input type="file" id="file-upload" accept="image/*,.txt,.pdf,.md,.csv" style="display: none;">
-                                        <div id="attachment-preview" class="hidden">
-                                            <span id="attachment-name"></span>
-                                            <i class="fa-solid fa-xmark remove-attachment" id="remove-attachment-btn"></i>
-                                        </div>
-                                    </div>
-                                    <button type="submit" id="submit-btn" class="glow-btn">
-                                        <span>Send</span>
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </section>
-                </div>
-
-                <!-- Right Column: Live Terminal / Logs -->
-                <div class="right-panel">
-                    <section class="terminal-section glass-card">
-                        <div class="terminal-header">
-                            <h2><i class="fa-solid fa-clipboard-list"></i> Activity Stream</h2>
-                        </div>
-                        <div class="terminal-body" id="log-container">
-                            <div class="log-entry system"><span class="timestamp">[SYSTEM]</span> Initiative protocol standing by...</div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <!-- Agent Fleet Section -->
-            <section class="agents-status-section glass-card">
-                <h2><i class="fa-solid fa-robot"></i> Agent Fleet</h2>
-                <div class="agents-grid">
-
-                    <!-- Master Agent -->
-                    <div class="agent-card" id="agent-master" style="order: -1; grid-column: 1 / -1; justify-self: center; width: 300px;">
-                        <div class="agent-icon master-icon"><i class="fa-solid fa-brain"></i></div>
-                        <div class="agent-info" style="flex-grow: 1;">
-                            <h3>Master Agent</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sub Agents -->
-                    <div class="agent-card" id="agent-research">
-                        <div class="agent-icon research-icon"><i class="fa-solid fa-magnifying-glass-chart"></i>
-                        </div>
-                        <div class="agent-info" style="width: 100%;">
-                            <h3>Research Agent</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="agent-card" id="agent-stock">
-                        <div class="agent-icon stock-icon"><i class="fa-solid fa-chart-line"></i></div>
-                        <div class="agent-info" style="width: 100%;">
-                            <h3>Stock Monitor</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="agent-card" id="agent-web">
-                        <div class="agent-icon web-icon"><i class="fa-solid fa-code"></i></div>
-                        <div class="agent-info" style="width: 100%;">
-                            <h3>Web Developer</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="agent-card" id="agent-data">
-                        <div class="agent-icon data-icon"><i class="fa-solid fa-database"></i></div>
-                        <div class="agent-info" style="width: 100%;">
-                            <h3>Data Analyst</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="agent-card" id="agent-code">
-                        <div class="agent-icon code-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                        <div class="agent-info" style="width: 100%;">
-                            <h3>Code Reviewer</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="agent-card" id="agent-qa">
-                        <div class="agent-icon qa-icon"><i class="fa-solid fa-vial-circle-check"></i></div>
-                        <div class="agent-info" style="width: 100%;">
-                            <h3>Software Tester</h3>
-                            <div class="agent-state status-idle">Idle</div>
-                            <div class="progress-wrapper">
-                                <div class="progress-bar-container">
-                                    <div class="progress-fill" style="width: 0%"></div>
-                                </div>
-                                <span class="progress-text">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <script src="/static/productivity_agent_live.js"></script>
-    <script>
+<div class="background-orbs">
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+</div>
+<div class="app-container">
+<header class="glass-header">
+<div class="logo">
+<a href="/projects.html">
+<img alt="Sherpa Logo" src="static/sherpa_logo.png" style="height: 48px; width: auto; object-fit: contain; cursor: pointer;"/>
+</a>
+<h1 style="text-transform: uppercase; background: repeating-linear-gradient(-60deg, #E09F25, #E09F25 1.5px, #ba7f13 1.5px, #ba7f13 3px); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.8)) drop-shadow(-1px -1px 0px rgba(255,255,255,0.3)) drop-shadow(0px 0px 2px rgba(224,159,37,0.5)); padding: 0.25rem 0.5rem; font-size: 1.8rem; letter-spacing: 2px; font-weight: 800; font-family: 'Outfit', sans-serif;">Productivity Agent</h1>
+</div>
+<div class="header-controls" style="display: flex; align-items: center; gap: 1rem;">
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle" style="background: var(--control-bg); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+<i class="fa-solid fa-sun"></i>
+</button>
+<select class="glass-select" id="model-select" style="background: var(--control-bg); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 0.5rem; border-radius: 8px;">
+<option style="background-color: #161b22; color: #ffffff;" value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+<option style="background-color: #161b22; color: #ffffff;" value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+<option style="background-color: #161b22; color: #ffffff;" value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+<option style="background-color: #161b22; color: #ffffff;" value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+<option style="background-color: #161b22; color: #ffffff;" value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+<option style="background-color: #161b22; color: #ffffff;" value="gpt-4o">GPT-4o</option>
+<option style="background-color: #161b22; color: #ffffff;" value="o1">o1</option>
+<option style="background-color: #161b22; color: #ffffff;" value="o3-mini">o3-mini</option>
+</select>
+<div class="connection-status" id="connection-container">
+<!-- Populated by JS based on host environment -->
+</div>
+</div>
+</header>
+<main class="dashboard-layout" style="display: flex; flex-direction: column; gap: 2rem; height: calc(100vh - 120px);">
+<div class="dashboard-grid" style="flex: 1; min-height: 0;">
+<!-- Left Column: Task Input & Chat -->
+<div class="left-panel">
+<section class="task-input-section glass-card">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<h2 style="margin-bottom: 0;"><i class="fa-solid fa-comments"></i> Command &amp; Chat</h2>
+</div>
+<div class="chat-thread" id="chat-thread">
+<!-- Chat messages will be injected here dynamically -->
+</div>
+<form id="task-form" onsubmit="event.preventDefault();">
+<div class="input-group">
+<textarea disabled="" id="task-input" placeholder="Simulated activity in progress..." readonly=""></textarea>
+<div class="action-row" id="sim-action-row">
+<div class="attachment-wrapper" style="pointer-events: none; opacity: 0.5;">
+<label class="attach-btn" title="Disabled in simulation">
+<i class="fa-solid fa-paperclip"></i>
+</label>
+</div>
+<button class="glow-btn" disabled="" style="opacity: 0.5; cursor: not-allowed;" type="button">
+<span>Send</span>
+<i class="fa-solid fa-paper-plane"></i>
+</button>
+</div>
+<div class="action-row" id="live-action-row" style="display: none;">
+<div class="attachment-wrapper">
+<label class="attach-btn" for="file-upload" title="Attach file or image">
+<i class="fa-solid fa-paperclip"></i>
+</label>
+<input accept="image/*,.txt,.pdf,.md,.csv" id="file-upload" style="display: none;" type="file"/>
+<div class="hidden" id="attachment-preview">
+<span id="attachment-name"></span>
+<i class="fa-solid fa-xmark remove-attachment" id="remove-attachment-btn"></i>
+</div>
+</div>
+<button class="glow-btn" id="submit-btn" type="submit">
+<span>Send</span>
+<i class="fa-solid fa-paper-plane"></i>
+</button>
+</div>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Column: Live Terminal / Logs -->
+<div class="right-panel">
+<section class="terminal-section glass-card">
+<div class="terminal-header">
+<h2><i class="fa-solid fa-clipboard-list"></i> Activity Stream</h2>
+</div>
+<div class="terminal-body" id="log-container">
+<div class="log-entry system"><span class="timestamp">[SYSTEM]</span> Initiative protocol standing by...</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Agent Fleet Section -->
+<section class="agents-status-section glass-card">
+<h2><i class="fa-solid fa-robot"></i> Agent Fleet</h2>
+<div class="agents-grid">
+<!-- Master Agent -->
+<div class="agent-card" id="agent-master" style="order: -1; grid-column: 1 / -1; justify-self: center; width: 300px;">
+<div class="agent-icon master-icon"><i class="fa-solid fa-brain"></i></div>
+<div class="agent-info" style="flex-grow: 1;">
+<h3>Master Agent</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+<!-- Sub Agents -->
+<div class="agent-card" id="agent-research">
+<div class="agent-icon research-icon"><i class="fa-solid fa-magnifying-glass-chart"></i>
+</div>
+<div class="agent-info" style="width: 100%;">
+<h3>Research Agent</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+<div class="agent-card" id="agent-stock">
+<div class="agent-icon stock-icon"><i class="fa-solid fa-chart-line"></i></div>
+<div class="agent-info" style="width: 100%;">
+<h3>Stock Monitor</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+<div class="agent-card" id="agent-web">
+<div class="agent-icon web-icon"><i class="fa-solid fa-code"></i></div>
+<div class="agent-info" style="width: 100%;">
+<h3>Web Developer</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+<div class="agent-card" id="agent-data">
+<div class="agent-icon data-icon"><i class="fa-solid fa-database"></i></div>
+<div class="agent-info" style="width: 100%;">
+<h3>Data Analyst</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+<div class="agent-card" id="agent-code">
+<div class="agent-icon code-icon"><i class="fa-solid fa-shield-halved"></i></div>
+<div class="agent-info" style="width: 100%;">
+<h3>Code Reviewer</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+<div class="agent-card" id="agent-qa">
+<div class="agent-icon qa-icon"><i class="fa-solid fa-vial-circle-check"></i></div>
+<div class="agent-info" style="width: 100%;">
+<h3>Software Tester</h3>
+<div class="agent-state status-idle">Idle</div>
+<div class="progress-wrapper">
+<div class="progress-bar-container">
+<div class="progress-fill" style="width: 0%"></div>
+</div>
+<span class="progress-text">0%</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<script src="/static/productivity_agent_live.js"></script>
+<script>
         const chatThread = document.getElementById('chat-thread');
         const logContainer = document.getElementById('log-container');
         let simTimeoutId = null;
@@ -442,8 +431,7 @@
             setTimeout(runSimulation, 1000);
         });
     </script>
-    <script src="/static/cms.js"></script>
-
-    <script src="static/analytics.js"></script>
+<script src="/static/cms.js"></script>
+<script src="static/analytics.js"></script>
 </body>
 </html>

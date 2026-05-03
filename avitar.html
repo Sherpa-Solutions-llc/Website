@@ -1,21 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Avatar OS | Sherpa Solutions</title>
-    <!-- Use the new Cyberpunk CSS -->
-    <link rel="stylesheet" href="/static/cyber.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="/static/avitar-3d.js"></script>
-</head>
 
+<html data-theme="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Avatar OS | Sherpa Solutions</title>
+<!-- Use the new Cyberpunk CSS -->
+<link href="/static/cyber.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/static/favicon.ico" rel="icon" type="image/x-icon"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="/static/avitar-3d.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
 <body>
-    <style>
+<style>
         .chat-message {
             padding: 12px 18px;
             border-radius: 15px;
@@ -81,331 +92,305 @@
             filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
         }
     </style>
-
-    <!-- Header / Navbar -->
-    <header>
-        <div class="logo-container" style="display:flex; align-items:center; gap:15px;">
-            <a href="index.html">
-                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC">
-            </a>
-            <span style="color:var(--cyber-cyan); font-weight:bold; letter-spacing:2px; font-size:1.2rem;">SHERPA | AGENT OS</span>
-        </div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="projects.html" class="active">Projects</a></li>
-        </ul>
-        <div class="header-actions" style="display:flex; align-items:center; gap:15px;">
-            <div class="audio-control-wrapper" style="position:relative; display:flex; align-items:center; gap:10px;">
-                <button id="btn-demo-toggle" class="nav-btn" onclick="toggleDemo()" style="padding:8px 15px;"><i class="fa-solid fa-play"></i> DEMO OFF</button>
-                <input type="range" id="demo-volume-slider" min="0" max="100" value="50" oninput="setDemoVolume(this.value)" style="width:80px; accent-color:var(--cyber-cyan);">
-            </div>
-        </div>
-    </header>
-
-    <main class="cyber-container">
-        
-        <!-- Left Panel: Stats -->
-        <aside class="cyber-panel cyber-left-panel">
-            <h3 class="panel-title">AGENT METRICS</h3>
-            <div class="cyber-nav">
-                <button class="nav-btn active"><i class="fa-solid fa-shapes"></i><br>DASHBOARD</button>
-                <button class="nav-btn" onclick="document.getElementById('modal-builder').style.display='flex'"><i class="fa-solid fa-user-astronaut"></i><br>APPEARANCE</button>
-            </div>
-            
-            <div class="cyber-stats" style="margin-top:20px;">
-                <div class="stat-box">
-                    <i class="fa-regular fa-id-badge"></i>
-                    <div>
-                        <div class="stat-label">AGENT ID</div>
-                        <div id="editable-agent-id" class="stat-value" contenteditable="true" spellcheck="false" style="outline:none; cursor:text; padding:2px 5px; border-radius:4px; transition:background 0.2s; border-bottom:1px dashed var(--cyber-cyan);" onfocus="this.style.background='rgba(0,229,255,0.2)'" onblur="this.style.background='transparent'">SHERPA-OS.9</div>
-                    </div>
-                </div>
-
-                <div class="stat-box">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <div>
-                        <div class="stat-label">AGENT OWNER ID</div>
-                        <div id="editable-owner-id" class="stat-value" contenteditable="true" spellcheck="false" style="outline:none; cursor:text; padding:2px 5px; border-radius:4px; transition:background 0.2s; border-bottom:1px dashed var(--cyber-orange);" onfocus="this.style.background='rgba(255,140,0,0.2)'" onblur="this.style.background='transparent'">UNKNOWN OPERATOR</div>
-                    </div>
-                </div>
-
-                <div class="stat-graphs" style="margin-top:30px;">
-                    <div class="graph-row"><span>GPU LOAD</span><div class="bar-container"><div class="bar" style="width: 74%; background: var(--cyber-orange);"></div></div><span>74%</span></div>
-                    <div class="graph-row"><span>CPU TEMP</span><div class="bar-container"><div class="bar" style="width: 42%; background: var(--cyber-cyan);"></div></div><span>42°C</span></div>
-                    <div class="graph-row"><span>MEMORY</span><div class="bar-container"><div class="bar" style="width: 65%; background: var(--cyber-orange);"></div></div><span>18GB</span></div>
-                </div>
-
-                <div style="margin-top:30px;">
-                    <label style="color:var(--cyber-dim); font-size:0.8rem; margin-bottom:5px; display:block;">COMPLETION ALERT</label>
-                    <select id="notify-select" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--cyber-cyan); color:#fff; padding:8px; border-radius:4px;">
-                        <option value="sound">Audible Ping</option>
-                        <option value="vibrate">Haptic Vibrate</option>
-                        <option value="silent">Silent Log</option>
-                    </select>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Center Panel: Avatar -->
-        <section class="cyber-panel cyber-center-panel" style="position:relative; overflow:hidden; padding:20px;">
-            <!-- Core Render Frame Background Matrix -->
-            <div id="webgl-container" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
-            
-            <!-- Foreground Interactive UI Matrix -->
-            <div style="position:relative; z-index:10; display:flex; flex-direction:column; height:100%; pointer-events:none; width:100%;">
-                
-                <!-- TOP HEADER -->
-                <div class="center-header" style="display:flex; justify-content:space-between; width:100%;">
-                    <div>
-                        <h2 id="header-agent-name" style="pointer-events:auto; text-shadow:0 0 10px rgba(0,229,255,0.8); margin:0; text-transform:uppercase;">SHERPA-9</h2>
-                        <span class="sys-status" style="color:var(--cyber-cyan); font-size:0.8rem; letter-spacing:1px; pointer-events:auto;">AI AGENT | ACTIVE</span>
-                    </div>
-                    <div class="sys-status" style="font-weight:bold; pointer-events:auto;">
+<!-- Header / Navbar -->
+<header>
+<div class="logo-container" style="display:flex; align-items:center; gap:15px;">
+<a href="index.html">
+<img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/>
+</a>
+<span style="color:var(--cyber-cyan); font-weight:bold; letter-spacing:2px; font-size:1.2rem;">SHERPA | AGENT OS</span>
+</div>
+<ul class="nav-links">
+<li><a href="index.html">Home</a></li>
+<li><a class="active" href="projects.html">Projects</a></li>
+</ul>
+<div class="header-actions" style="display:flex; align-items:center; gap:15px;">
+<div class="audio-control-wrapper" style="position:relative; display:flex; align-items:center; gap:10px;">
+<button class="nav-btn" id="btn-demo-toggle" onclick="toggleDemo()" style="padding:8px 15px;"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+<input id="demo-volume-slider" max="100" min="0" oninput="setDemoVolume(this.value)" style="width:80px; accent-color:var(--cyber-cyan);" type="range" value="50"/>
+</div>
+</div>
+</header>
+<main class="cyber-container">
+<!-- Left Panel: Stats -->
+<aside class="cyber-panel cyber-left-panel">
+<h3 class="panel-title">AGENT METRICS</h3>
+<div class="cyber-nav">
+<button class="nav-btn active"><i class="fa-solid fa-shapes"></i><br/>DASHBOARD</button>
+<button class="nav-btn" onclick="document.getElementById('modal-builder').style.display='flex'"><i class="fa-solid fa-user-astronaut"></i><br/>APPEARANCE</button>
+</div>
+<div class="cyber-stats" style="margin-top:20px;">
+<div class="stat-box">
+<i class="fa-regular fa-id-badge"></i>
+<div>
+<div class="stat-label">AGENT ID</div>
+<div class="stat-value" contenteditable="true" id="editable-agent-id" onblur="this.style.background='transparent'" onfocus="this.style.background='rgba(0,229,255,0.2)'" spellcheck="false" style="outline:none; cursor:text; padding:2px 5px; border-radius:4px; transition:background 0.2s; border-bottom:1px dashed var(--cyber-cyan);">SHERPA-OS.9</div>
+</div>
+</div>
+<div class="stat-box">
+<i class="fa-solid fa-user-lock"></i>
+<div>
+<div class="stat-label">AGENT OWNER ID</div>
+<div class="stat-value" contenteditable="true" id="editable-owner-id" onblur="this.style.background='transparent'" onfocus="this.style.background='rgba(255,140,0,0.2)'" spellcheck="false" style="outline:none; cursor:text; padding:2px 5px; border-radius:4px; transition:background 0.2s; border-bottom:1px dashed var(--cyber-orange);">UNKNOWN OPERATOR</div>
+</div>
+</div>
+<div class="stat-graphs" style="margin-top:30px;">
+<div class="graph-row"><span>GPU LOAD</span><div class="bar-container"><div class="bar" style="width: 74%; background: var(--cyber-orange);"></div></div><span>74%</span></div>
+<div class="graph-row"><span>CPU TEMP</span><div class="bar-container"><div class="bar" style="width: 42%; background: var(--cyber-cyan);"></div></div><span>42°C</span></div>
+<div class="graph-row"><span>MEMORY</span><div class="bar-container"><div class="bar" style="width: 65%; background: var(--cyber-orange);"></div></div><span>18GB</span></div>
+</div>
+<div style="margin-top:30px;">
+<label style="color:var(--cyber-dim); font-size:0.8rem; margin-bottom:5px; display:block;">COMPLETION ALERT</label>
+<select id="notify-select" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--cyber-cyan); color:#fff; padding:8px; border-radius:4px;">
+<option value="sound">Audible Ping</option>
+<option value="vibrate">Haptic Vibrate</option>
+<option value="silent">Silent Log</option>
+</select>
+</div>
+</div>
+</aside>
+<!-- Center Panel: Avatar -->
+<section class="cyber-panel cyber-center-panel" style="position:relative; overflow:hidden; padding:20px;">
+<!-- Core Render Frame Background Matrix -->
+<div id="webgl-container" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
+<!-- Foreground Interactive UI Matrix -->
+<div style="position:relative; z-index:10; display:flex; flex-direction:column; height:100%; pointer-events:none; width:100%;">
+<!-- TOP HEADER -->
+<div class="center-header" style="display:flex; justify-content:space-between; width:100%;">
+<div>
+<h2 id="header-agent-name" style="pointer-events:auto; text-shadow:0 0 10px rgba(0,229,255,0.8); margin:0; text-transform:uppercase;">SHERPA-9</h2>
+<span class="sys-status" style="color:var(--cyber-cyan); font-size:0.8rem; letter-spacing:1px; pointer-events:auto;">AI AGENT | ACTIVE</span>
+</div>
+<div class="sys-status" style="font-weight:bold; pointer-events:auto;">
                         SYSTEM STATUS: OPTIMAL <span class="blink-dot" id="status-dot"></span>
-                    </div>
-                </div>
-
-                <!-- VERTICAL EXPANSION VOID -->
-                <div style="flex-grow:1; width:100%;"></div>
-
-                <!-- CHAT LOG HISTORY -->
-                <div id="chat-history" style="width:100%; max-height:40vh; overflow-y:auto; padding:20px; display:flex; flex-direction:column; pointer-events:auto;">
-                    <!-- Chat messages injected natively here -->
-                </div>
-
-                <!-- BOTTOM SEARCH BAR -->
-                <div class="cyber-task-input" style="position:relative !important; bottom:0 !important; flex-shrink:0; padding-bottom:10px; z-index:20; pointer-events:auto; width:100%; margin:0; display:flex; gap:10px; align-items:center;">
-                    <button id="btn-voice-input" class="nav-btn" style="padding:15px; border-radius:50%; margin:0; outline:none; background:rgba(0,229,255,0.1); border:1px solid var(--cyber-cyan); color:var(--cyber-cyan); box-shadow:0 0 10px rgba(0,229,255,0.2); cursor:pointer;"><i class="fa-solid fa-microphone" style="margin:0; font-size:1.2rem;"></i></button>
-                    <input type="text" id="task-input" placeholder="ASSIGN A DIRECTIVE TO SHERPA_OS..." style="flex:1; padding:15px 25px; border-radius:30px; font-size:1rem; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); color:#fff; outline:none; box-shadow:0 0 15px rgba(0,229,255,0.1);">
-                    <button id="btn-submit-task" class="cyber-btn-primary" style="padding:15px 30px; margin:0; border-radius:30px; font-size:1rem;">EXECUTE</button>
-                </div>
-                
-            </div>
-        </section>
-
-        <!-- Right Panel: Logs -->
-        <aside class="cyber-panel cyber-right-panel">
-            <h3 class="panel-title">DATA STREAMS & LIVE LOGS</h3>
-            <div class="terminal-box" id="cyber-terminal">
-                <div class="terminal-line"><span class="time">[SYS]</span> Sherpa OS v9.4 Linked.</div>
-                <div class="terminal-line"><span class="time">[SYS]</span> Awaiting directives...</div>
-            </div>
-            
-            <div style="margin-top:20px; padding-top:20px; border-top:1px dashed var(--cyber-dim);">
-                <span style="color:var(--cyber-cyan); font-size:0.8rem; display:block; margin-bottom:10px;">ACTIVE TASK STATUS</span>
-                <div id="status-text" style="font-size:1.1rem; color:var(--cyber-orange); font-weight:bold;">[WAITING] NO ACTIVE TASKS</div>
-            </div>
-        </aside>
-
-        <!-- Bottom Panel: Process Networks -->
-        <section class="cyber-panel cyber-bottom-panel">
-            <h3 class="panel-title" style="margin-bottom:10px;">PROCESS NETWORKS</h3>
-            <div class="process-flowchart">
-                <div class="flow-node" id="station-1">
-                    <div class="hex">1</div>
-                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">PLAN</div>
-                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Map Objectives</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Allocate Resources</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Define Heuristics</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Scan Environment</label>
-                    </div>
-                </div>
-                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                <div class="flow-node" id="station-2">
-                    <div class="hex">2</div>
-                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">EXECUTE</div>
-                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Inject Payload</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Bypass Firewall</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Extract Data</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Deploy Agents</label>
-                    </div>
-                </div>
-                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                <div class="flow-node" id="station-3">
-                    <div class="hex">3</div>
-                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">PATTERN</div>
-                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Analyze Traffic</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Detect Anomalies</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Isolate Vectors</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Build Topology</label>
-                    </div>
-                </div>
-                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                <div class="flow-node" id="station-4">
-                    <div class="hex">4</div>
-                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">TEST</div>
-                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Run QA Scripts</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Simulate Load</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Verify Integrity</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Stress Network</label>
-                    </div>
-                </div>
-                <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                <div class="flow-node" id="station-5">
-                    <div class="hex">5</div>
-                    <div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">CLOSE</div>
-                    <div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Commit Loop</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Purge Cache</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Sever Connection</label>
-                        <label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" style="accent-color:var(--cyber-cyan); cursor:pointer;"> Archive Logs</label>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Builder Modal -->
-        <div class="cyber-modal" id="modal-builder" style="display:none;">
-            <div class="cyber-modal-content">
-                <button class="modal-close" onclick="document.getElementById('modal-builder').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
-                <h3 style="color:var(--cyber-orange); margin-bottom:15px; font-size: 1.2rem;">AVATAR OVERLAY</h3>
-                
-                <!-- Modal Content Block (Upload, Config, Audio) -->
-                <div style="flex: 1;">
-                    <div class="cyber-tabs">
-                        <button class="cyber-tab-btn active" onclick="switchModalTab('tab-gallery')"><i class="fa-solid fa-layer-group"></i> SKELETAL PRESETS</button>
-                        <button class="cyber-tab-btn" onclick="switchModalTab('tab-style')"><i class="fa-solid fa-user-pen"></i> STYLE / GENETICS</button>
-                        <button class="cyber-tab-btn" onclick="switchModalTab('tab-upload')"><i class="fa-solid fa-cloud-arrow-up"></i> UPLOAD .GLB</button>
-                    </div>
-                    <div class="cyber-tab-pane active" id="tab-gallery">
-                        <div class="avatar-gallery" id="picker-gallery" style="grid-template-columns: repeat(5, 1fr);">
-                            <div class="gallery-item selected" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb" data-scale="1.6" data-y="-3.5" data-rot="0">
-                                <img src="/static/yellow_robot_thumb.png" alt="Robot Expressive">
-                            </div>
-                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Soldier.glb" data-scale="3.5" data-y="-3.5" data-rot="3.14159">
-                                <img src="/static/tactical_soldier_thumb.png" alt="Tactical Soldier">
-                            </div>
-                            
-                            <!-- 8 New Injectable Presets -->
-                            <div class="gallery-item" data-model="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb" data-scale="0.04" data-y="-3.5" data-rot="0">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-dog fa-2x"></i><br><b style="font-size:0.6rem;">Dog / K-9</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Flamingo.glb" data-scale="0.04" data-y="0" data-rot="0">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-cat fa-2x"></i><br><b style="font-size:0.6rem;">Feline Cat</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Parrot.glb" data-scale="0.08" data-y="0" data-rot="0">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-fish fa-2x"></i><br><b style="font-size:0.6rem;">Aquatic Fish</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Horse.glb" data-scale="0.02" data-y="-3.5" data-rot="0">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-horse fa-2x"></i><br><b style="font-size:0.6rem;">Steed</b></div>
-                            </div>
-                            
-                            <!-- 6 Authentic Sketchfab Hardcoded Persistent Imports -->
-                            <div class="gallery-item" data-model="/static/tomb_raider_laracroft.glb" data-scale="1.6" data-y="-3.5" data-rot="3.14159">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-person-rifle fa-2x"></i><br><b style="font-size:0.6rem;">Lara Croft</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="/static/spyro_reignited_trilogy_delbin.glb" data-scale="1.6" data-y="-3.5" data-rot="3.14159">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-dragon fa-2x"></i><br><b style="font-size:0.6rem;">Spyro Dragon</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="/static/lighthouse_keeper.glb" data-scale="1.6" data-y="-3.5" data-rot="-1.5708">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-user-astronaut fa-2x"></i><br><b style="font-size:0.6rem;">Lighthouse</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="/static/lantern_keeper_of_steam_street.glb" data-scale="1.6" data-y="-3.5" data-rot="3.14159">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-user-ninja fa-2x"></i><br><b style="font-size:0.6rem;">Steam Keeper</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="/static/folktale_character_blue.glb" data-scale="1.6" data-y="-3.5" data-rot="0">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-staff-snake fa-2x"></i><br><b style="font-size:0.6rem;">Folktale Elf</b></div>
-                            </div>
-                            <div class="gallery-item" data-model="/static/kor_rpg_game_girl_2 (1).glb" data-scale="1.6" data-y="-3.5" data-rot="0">
-                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-user-graduate fa-2x"></i><br><b style="font-size:0.6rem;">KOR RPG Girl</b></div>
-                            </div>
-                        </div>
-                        <button class="cyber-btn-primary" id="btn-set-default" style="width:100%; padding: 12px; margin-top: 15px;" disabled>SELECT AVATAR TO SET AS DEFAULT</button>
-                        <button class="cyber-btn-primary" id="btn-delete-avatar" style="width:100%; padding: 12px; margin-top: 10px; background:rgba(255,0,0,0.1); border-color:#ff0000; color:#ff0000;" disabled><i class="fa-solid fa-trash-can"></i> PURGE SELECTED AVATAR FROM MATRIX</button>
-                    </div>
-
-                    <div class="cyber-tab-pane" id="tab-style">
-                        <div class="style-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
-                            <div>
-                                <label>BIOMETRIC SEX</label>
-                                <select id="style-sex" class="cyber-select">
-                                    <option>Female Matrix</option>
-                                    <option>Male Matrix</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>ETHNICITY / RACE</label>
-                                <select id="style-race" class="cyber-select">
-                                    <option>Caucasian</option>
-                                    <option>Black / African</option>
-                                    <option>Asian</option>
-                                    <option>Hispanic</option>
-                                    <option>Cybernetic / Neutral</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>SHIRT / TOP</label>
-                                <select id="style-shirt" class="cyber-select">
-                                    <option>None</option>
-                                    <option>Techwear Jacket</option>
-                                    <option>Corporate Suit</option>
-                                    <option>Tactical Vest</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>PANTS / BOTTOM</label>
-                                <select id="style-pants" class="cyber-select">
-                                    <option>None</option>
-                                    <option>Cargo Pants</option>
-                                    <option>Denim Jeans</option>
-                                    <option>Tactical Leggings</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>FOOTWEAR</label>
-                                <select id="style-shoes" class="cyber-select">
-                                    <option>Combat Boots</option>
-                                    <option>Cyber Sneakers</option>
-                                    <option>Formal Shoes</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>HEADGEAR / HAT</label>
-                                <select id="style-hat" class="cyber-select">
-                                    <option>None / Bare</option>
-                                    <option>Baseball Cap</option>
-                                    <option>Tactical Helmet</option>
-                                    <option>Neural Net Beanie</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>WATCH / WRIST</label>
-                                <select id="style-watch" class="cyber-select">
-                                    <option>None</option>
-                                    <option>Holographic Smartwatch</option>
-                                    <option>Gold Rolex</option>
-                                    <option>Fitness Tracker</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>RINGS / FINGERS</label>
-                                <select id="style-rings" class="cyber-select">
-                                    <option>None</option>
-                                    <option>Plain Silver Band</option>
-                                    <option>Gold Signet Ring</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button class="cyber-btn-primary" id="btn-save-style" style="width:100%; padding:15px;">SAVE STYLE SETTINGS TO CACHE</button>
-                    </div>
-
-                    <div class="cyber-tab-pane" id="tab-upload">
-                        <p style="font-size:0.8rem; color:var(--cyber-dim); margin-bottom:10px;">Select a local 3D `.glb` or `.gltf` rigged framework file to override core kinematics.</p>
-                        <input type="file" id="upload-avatar" accept=".glb, .gltf" style="width:100%; color:var(--cyber-cyan); background:rgba(0,0,0,0.5); border:1px solid var(--cyber-border); padding:10px; margin-bottom: 15px;">
-                        
-                        <button id="btn-parse-gltf" class="cyber-btn-primary" style="width:100%; padding:10px 0; transition:all 0.3s;" disabled>AWAITING GLB/GLTF FILE</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <script>
+</div>
+</div>
+<!-- VERTICAL EXPANSION VOID -->
+<div style="flex-grow:1; width:100%;"></div>
+<!-- CHAT LOG HISTORY -->
+<div id="chat-history" style="width:100%; max-height:40vh; overflow-y:auto; padding:20px; display:flex; flex-direction:column; pointer-events:auto;">
+<!-- Chat messages injected natively here -->
+</div>
+<!-- BOTTOM SEARCH BAR -->
+<div class="cyber-task-input" style="position:relative !important; bottom:0 !important; flex-shrink:0; padding-bottom:10px; z-index:20; pointer-events:auto; width:100%; margin:0; display:flex; gap:10px; align-items:center;">
+<button class="nav-btn" id="btn-voice-input" style="padding:15px; border-radius:50%; margin:0; outline:none; background:rgba(0,229,255,0.1); border:1px solid var(--cyber-cyan); color:var(--cyber-cyan); box-shadow:0 0 10px rgba(0,229,255,0.2); cursor:pointer;"><i class="fa-solid fa-microphone" style="margin:0; font-size:1.2rem;"></i></button>
+<input id="task-input" placeholder="ASSIGN A DIRECTIVE TO SHERPA_OS..." style="flex:1; padding:15px 25px; border-radius:30px; font-size:1rem; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); color:#fff; outline:none; box-shadow:0 0 15px rgba(0,229,255,0.1);" type="text"/>
+<button class="cyber-btn-primary" id="btn-submit-task" style="padding:15px 30px; margin:0; border-radius:30px; font-size:1rem;">EXECUTE</button>
+</div>
+</div>
+</section>
+<!-- Right Panel: Logs -->
+<aside class="cyber-panel cyber-right-panel">
+<h3 class="panel-title">DATA STREAMS &amp; LIVE LOGS</h3>
+<div class="terminal-box" id="cyber-terminal">
+<div class="terminal-line"><span class="time">[SYS]</span> Sherpa OS v9.4 Linked.</div>
+<div class="terminal-line"><span class="time">[SYS]</span> Awaiting directives...</div>
+</div>
+<div style="margin-top:20px; padding-top:20px; border-top:1px dashed var(--cyber-dim);">
+<span style="color:var(--cyber-cyan); font-size:0.8rem; display:block; margin-bottom:10px;">ACTIVE TASK STATUS</span>
+<div id="status-text" style="font-size:1.1rem; color:var(--cyber-orange); font-weight:bold;">[WAITING] NO ACTIVE TASKS</div>
+</div>
+</aside>
+<!-- Bottom Panel: Process Networks -->
+<section class="cyber-panel cyber-bottom-panel">
+<h3 class="panel-title" style="margin-bottom:10px;">PROCESS NETWORKS</h3>
+<div class="process-flowchart">
+<div class="flow-node" id="station-1">
+<div class="hex">1</div>
+<div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">PLAN</div>
+<div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Map Objectives</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Allocate Resources</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Define Heuristics</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Scan Environment</label>
+</div>
+</div>
+<div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+<div class="flow-node" id="station-2">
+<div class="hex">2</div>
+<div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">EXECUTE</div>
+<div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Inject Payload</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Bypass Firewall</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Extract Data</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Deploy Agents</label>
+</div>
+</div>
+<div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+<div class="flow-node" id="station-3">
+<div class="hex">3</div>
+<div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">PATTERN</div>
+<div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Analyze Traffic</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Detect Anomalies</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Isolate Vectors</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Build Topology</label>
+</div>
+</div>
+<div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+<div class="flow-node" id="station-4">
+<div class="hex">4</div>
+<div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">TEST</div>
+<div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Run QA Scripts</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Simulate Load</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Verify Integrity</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Stress Network</label>
+</div>
+</div>
+<div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+<div class="flow-node" id="station-5">
+<div class="hex">5</div>
+<div style="color:var(--cyber-cyan); font-size:0.75rem; letter-spacing:1px; margin-top:5px; font-weight:bold;">CLOSE</div>
+<div style="width:100%; height:60px; background:rgba(0,10,20,0.8); border:1px solid var(--cyber-cyan); border-radius:5px; padding:5px; margin-top:5px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; text-align:left;">
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Commit Loop</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Purge Cache</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Sever Connection</label>
+<label style="color:#fff; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><input style="accent-color:var(--cyber-cyan); cursor:pointer;" type="checkbox"/> Archive Logs</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Builder Modal -->
+<div class="cyber-modal" id="modal-builder" style="display:none;">
+<div class="cyber-modal-content">
+<button class="modal-close" onclick="document.getElementById('modal-builder').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+<h3 style="color:var(--cyber-orange); margin-bottom:15px; font-size: 1.2rem;">AVATAR OVERLAY</h3>
+<!-- Modal Content Block (Upload, Config, Audio) -->
+<div style="flex: 1;">
+<div class="cyber-tabs">
+<button class="cyber-tab-btn active" onclick="switchModalTab('tab-gallery')"><i class="fa-solid fa-layer-group"></i> SKELETAL PRESETS</button>
+<button class="cyber-tab-btn" onclick="switchModalTab('tab-style')"><i class="fa-solid fa-user-pen"></i> STYLE / GENETICS</button>
+<button class="cyber-tab-btn" onclick="switchModalTab('tab-upload')"><i class="fa-solid fa-cloud-arrow-up"></i> UPLOAD .GLB</button>
+</div>
+<div class="cyber-tab-pane active" id="tab-gallery">
+<div class="avatar-gallery" id="picker-gallery" style="grid-template-columns: repeat(5, 1fr);">
+<div class="gallery-item selected" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb" data-rot="0" data-scale="1.6" data-y="-3.5">
+<img alt="Robot Expressive" src="/static/yellow_robot_thumb.png"/>
+</div>
+<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Soldier.glb" data-rot="3.14159" data-scale="3.5" data-y="-3.5">
+<img alt="Tactical Soldier" src="/static/tactical_soldier_thumb.png"/>
+</div>
+<!-- 8 New Injectable Presets -->
+<div class="gallery-item" data-model="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb" data-rot="0" data-scale="0.04" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-dog fa-2x"></i><br/><b style="font-size:0.6rem;">Dog / K-9</b></div>
+</div>
+<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Flamingo.glb" data-rot="0" data-scale="0.04" data-y="0">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-cat fa-2x"></i><br/><b style="font-size:0.6rem;">Feline Cat</b></div>
+</div>
+<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Parrot.glb" data-rot="0" data-scale="0.08" data-y="0">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-fish fa-2x"></i><br/><b style="font-size:0.6rem;">Aquatic Fish</b></div>
+</div>
+<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Horse.glb" data-rot="0" data-scale="0.02" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-horse fa-2x"></i><br/><b style="font-size:0.6rem;">Steed</b></div>
+</div>
+<!-- 6 Authentic Sketchfab Hardcoded Persistent Imports -->
+<div class="gallery-item" data-model="/static/tomb_raider_laracroft.glb" data-rot="3.14159" data-scale="1.6" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-person-rifle fa-2x"></i><br/><b style="font-size:0.6rem;">Lara Croft</b></div>
+</div>
+<div class="gallery-item" data-model="/static/spyro_reignited_trilogy_delbin.glb" data-rot="3.14159" data-scale="1.6" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-dragon fa-2x"></i><br/><b style="font-size:0.6rem;">Spyro Dragon</b></div>
+</div>
+<div class="gallery-item" data-model="/static/lighthouse_keeper.glb" data-rot="-1.5708" data-scale="1.6" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-user-astronaut fa-2x"></i><br/><b style="font-size:0.6rem;">Lighthouse</b></div>
+</div>
+<div class="gallery-item" data-model="/static/lantern_keeper_of_steam_street.glb" data-rot="3.14159" data-scale="1.6" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-user-ninja fa-2x"></i><br/><b style="font-size:0.6rem;">Steam Keeper</b></div>
+</div>
+<div class="gallery-item" data-model="/static/folktale_character_blue.glb" data-rot="0" data-scale="1.6" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-staff-snake fa-2x"></i><br/><b style="font-size:0.6rem;">Folktale Elf</b></div>
+</div>
+<div class="gallery-item" data-model="/static/kor_rpg_game_girl_2 (1).glb" data-rot="0" data-scale="1.6" data-y="-3.5">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-user-graduate fa-2x"></i><br/><b style="font-size:0.6rem;">KOR RPG Girl</b></div>
+</div>
+</div>
+<button class="cyber-btn-primary" disabled="" id="btn-set-default" style="width:100%; padding: 12px; margin-top: 15px;">SELECT AVATAR TO SET AS DEFAULT</button>
+<button class="cyber-btn-primary" disabled="" id="btn-delete-avatar" style="width:100%; padding: 12px; margin-top: 10px; background:rgba(255,0,0,0.1); border-color:#ff0000; color:#ff0000;"><i class="fa-solid fa-trash-can"></i> PURGE SELECTED AVATAR FROM MATRIX</button>
+</div>
+<div class="cyber-tab-pane" id="tab-style">
+<div class="style-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+<div>
+<label>BIOMETRIC SEX</label>
+<select class="cyber-select" id="style-sex">
+<option>Female Matrix</option>
+<option>Male Matrix</option>
+</select>
+</div>
+<div>
+<label>ETHNICITY / RACE</label>
+<select class="cyber-select" id="style-race">
+<option>Caucasian</option>
+<option>Black / African</option>
+<option>Asian</option>
+<option>Hispanic</option>
+<option>Cybernetic / Neutral</option>
+</select>
+</div>
+<div>
+<label>SHIRT / TOP</label>
+<select class="cyber-select" id="style-shirt">
+<option>None</option>
+<option>Techwear Jacket</option>
+<option>Corporate Suit</option>
+<option>Tactical Vest</option>
+</select>
+</div>
+<div>
+<label>PANTS / BOTTOM</label>
+<select class="cyber-select" id="style-pants">
+<option>None</option>
+<option>Cargo Pants</option>
+<option>Denim Jeans</option>
+<option>Tactical Leggings</option>
+</select>
+</div>
+<div>
+<label>FOOTWEAR</label>
+<select class="cyber-select" id="style-shoes">
+<option>Combat Boots</option>
+<option>Cyber Sneakers</option>
+<option>Formal Shoes</option>
+</select>
+</div>
+<div>
+<label>HEADGEAR / HAT</label>
+<select class="cyber-select" id="style-hat">
+<option>None / Bare</option>
+<option>Baseball Cap</option>
+<option>Tactical Helmet</option>
+<option>Neural Net Beanie</option>
+</select>
+</div>
+<div>
+<label>WATCH / WRIST</label>
+<select class="cyber-select" id="style-watch">
+<option>None</option>
+<option>Holographic Smartwatch</option>
+<option>Gold Rolex</option>
+<option>Fitness Tracker</option>
+</select>
+</div>
+<div>
+<label>RINGS / FINGERS</label>
+<select class="cyber-select" id="style-rings">
+<option>None</option>
+<option>Plain Silver Band</option>
+<option>Gold Signet Ring</option>
+</select>
+</div>
+</div>
+<button class="cyber-btn-primary" id="btn-save-style" style="width:100%; padding:15px;">SAVE STYLE SETTINGS TO CACHE</button>
+</div>
+<div class="cyber-tab-pane" id="tab-upload">
+<p style="font-size:0.8rem; color:var(--cyber-dim); margin-bottom:10px;">Select a local 3D `.glb` or `.gltf` rigged framework file to override core kinematics.</p>
+<input accept=".glb, .gltf" id="upload-avatar" style="width:100%; color:var(--cyber-cyan); background:rgba(0,0,0,0.5); border:1px solid var(--cyber-border); padding:10px; margin-bottom: 15px;" type="file"/>
+<button class="cyber-btn-primary" disabled="" id="btn-parse-gltf" style="width:100%; padding:10px 0; transition:all 0.3s;">AWAITING GLB/GLTF FILE</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
         document.addEventListener('DOMContentLoaded', () => {
             // ── ENVIRONMENT DETECTION ────────────────────────────────────────────
             // On localhost → use real internet data. On live site → use simulated data.

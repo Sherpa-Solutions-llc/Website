@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <link rel="icon" type="image/png" href="static/Orange%20Sherpa.png?v=4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Model Simulator | Sherpa Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/styles.css?v=1.4">
+    <script src="static/theme.js"></script>
+    <style>
+        .app-container { max-width: 1600px; margin: 2rem auto; padding: 0 1rem; }
+        
+        .simulator-layout {
+            display: flex;
+            height: 75vh;
+            min-height: 600px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0b0f19;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            width: 170px;
+            background: #111827;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            z-index: 20;
+            overflow-y: auto;
+        }
+        .toolbar-title { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: 1px; }
+        
+        .tool-btn {
+            background: #1f2937; color: #d1d5db; border: 1px solid transparent; padding: 0.5rem 0.75rem;
+            border-radius: 6px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 0.5rem;
+            font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; transition: all 0.2s;
+        }
+        .tool-btn i { font-size: 0.9rem; width: 16px; text-align: center; }
+        .tool-btn:hover { background: #374151; color: white; }
+        .tool-btn.active-tool { background: rgba(192, 108, 59, 0.2); border-color: var(--accent); color: var(--accent); }
+        .tool-btn[draggable="true"]:active { cursor: grabbing; }
+
+        /* Canvas */
+        .canvas-container {
+            flex: 1;
+            overflow: auto;
+            background-color: #0d1117;
+            -webkit--webkit-user-select: none; user-select: none;
+            -webkit-user-select: none; user-select: none;
+        }
+        .canvas-container::-webkit-scrollbar { width: 14px; height: 14px; }
+        .canvas-container::-webkit-scrollbar-track { background: #0b0f19; border-left: 1px solid var(--border-color); border-top: 1px solid var(--border-color);}
+        .canvas-container::-webkit-scrollbar-thumb { background-color: #374151; border-radius: 8px; border: 3px solid #0b0f19; }
+
+        .canvas-world {
+            position: relative;
+            width: 4000px;
+            height: 4000px;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform-origin: 0 0;
+        }
+        
+        #sim-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+        .sim-link { stroke: #4b5563; stroke-width: 4; fill: none; marker-end: url(#arrowhead); transition: stroke 0.2s; pointer-events: visibleStroke; cursor: pointer; }
+        .sim-link:hover { stroke: #9ca3af; }
+        .sim-link.selected { stroke: #facc15; filter: drop-shadow(0 0 4px rgba(250,204,21,0.5)); }
+        .sim-link-anim { stroke: var(--accent); stroke-width: 4; stroke-dasharray: 8; animation: flow 1s linear infinite; fill: none; pointer-events: none; }
+        .temp-link { stroke: var(--accent); stroke-width: 3; fill: none; stroke-dasharray: 5; pointer-events: none; }
+
+        @keyframes flow { to { stroke-dashoffset: -16; } }
+
+        /* Nodes */
+        .sim-node {
+            position: absolute;
+            background: #1f2937;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: white;
+            cursor: grab;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 10;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: box-shadow 0.2s, transform 0.1s;
+        }
+        .sim-node i { font-size: 1.1rem; pointer-events: none; }
+        .sim-node span { pointer-events: none; }
+        .sim-node:active { cursor: grabbing; transform: scale(1.02); }
+        .sim-node.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(192,108,59,0.3); }
+        
+        /* Node Types */
+        .type-entity { border-left: 6px solid #3b82f6; }
+        .type-entity i { color: #3b82f6; }
+        .type-process { border-left: 6px solid #10b981; }
+        .type-process i { color: #10b981; }
+        .type-decision { border-left: 6px solid #f59e0b; border-radius: 20px; }
+        .type-decision i { color: #f59e0b; }
+        .type-resource { border-left: 6px solid #8b5cf6; }
+        .type-resource i { color: #8b5cf6; }
+        .type-note { background: #fef08a; color: #1f2937; border-color: #eab308; border-radius: 2px; border-left: 2px solid #eab308; font-family: 'Share Tech Mono', monospace; font-weight: normal; }
+        .type-note i { color: #ca8a04; }
+
+        /* Entities in transit */
+        .sim-entity-dot {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #3b82f6;
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: 15;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px #3b82f6;
+            pointer-events: none;
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            width: 280px;
+            background: #111827;
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 20;
+            overflow-y: auto;
+        }
+
+        .prop-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .prop-group label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; }
+        .prop-group input, .prop-group select, .prop-group textarea { 
+            background: #1f2937; border: 1px solid #374151; color: white; padding: 0.6rem; border-radius: 4px; font-family: 'Inter', sans-serif;
+        }
+        .prop-group input:focus, .prop-group select:focus, .prop-group textarea:focus { outline: none; border-color: var(--accent); }
+        
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.6rem; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.2s; margin-top: auto;}
+        .btn-danger:hover { background: #ef4444; color: white; }
+
+        /* Bottom Controls */
+        .bottom-controls {
+            display: flex;
+            background: #111827;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            gap: 1rem;
+            align-items: center;
+        }
+        .sim-log { flex: 1; background: #0d1117; border: 1px solid #374151; border-radius: 6px; padding: 0.5rem 1rem; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #10b981; height: 40px; overflow: hidden; display: flex; align-items: center; }
+        .btn-action { padding: 0.75rem 2rem; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; transition: all 0.2s; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .btn-play { background: var(--accent); color: white; }
+        .btn-stop { background: #374151; color: white; }
+        .btn-clear { background: transparent; color: #9ca3af; border: 1px solid #374151; }
+        .btn-clear:hover { background: #374151; color: white; transform: none; box-shadow: none; }
+
+        .toolbar-divider { border: 0; border-top: 1px solid #374151; margin: 1rem 0; width: 100%; }
+
+        .hidden { display: none !important; }
+
+        /* Utility classes for removed inline styles */
+        .mt-1 { margin-top: 1rem; }
+        .mt-2 { margin-top: 2rem; }
+        .flex-col-gap-1 { display: flex; flex-direction: column; gap: 1rem; height: 100%; }
+        .text-muted-center { color: #6b7280; font-size: 0.9rem; text-align: center; }
+        .link-details-text { color: white; font-size: 0.95rem; margin-bottom: 0.5rem; line-height: 1.5; }
+        .btn-reverse { background: #374151; width: 100%; justify-content: center; }
+        .icon-entity-color { color: #3b82f6; }
+        .icon-process-color { color: #10b981; }
+        .icon-decision-color { color: #f59e0b; }
+        .icon-resource-color { color: #8b5cf6; }
+        .icon-note-color { color: #eab308; }
+    
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+        .modal-overlay.hidden { display: none !important; }
+        .modal-box { background: #1f2937; border: 1px solid #374151; padding: 2rem; border-radius: 8px; width: 500px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-box h2 { margin-top: 0; color: #fdfbf7; margin-bottom: 1rem; }
+        .modal-box textarea { width: 100%; height: 100px; background: #111827; border: 1px solid #374151; color: white; padding: 0.5rem; border-radius: 4px; margin-bottom: 1rem; resize: vertical; font-family: inherit; }
+        .modal-box p { color: #d1d5db; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+        
+        .template-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .template-item { background: #374151; padding: 1rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .template-item:hover { background: #4b5563; }
+        .template-item h4 { margin: 0 0 0.25rem 0; color: #fdfbf7; }
+        .template-item p { margin: 0; font-size: 0.8rem; color: #9ca3af; }
+
+    
+        .lasso-box {
+            position: absolute;
+            border: 1px dashed #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+            pointer-events: none;
+            z-index: 100;
+        }
+        .sim-node.multi-selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+        }
+        .workspace-label {
+            position: absolute; top: 40px; left: 40px; font-size: 4rem; color: rgba(255,255,255,0.05); font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; pointer-events: none; -webkit-user-select: none; user-select: none;
+        }
+
+    
+        .color-green { color: #10b981 !important; }
+        .color-blue { color: #3b82f6 !important; }
+        .canvas-relative { position: relative; }
+        .zoom-controls { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 0.5rem; z-index: 100; }
+        .zoom-btn { padding: 0.5rem 1rem; font-size: 1.2rem; min-width: 44px; }
+        .zoom-btn-reset { padding: 0.5rem 0; font-size: 0.9rem; min-width: 44px; text-align: center; }
+        .canvas-world-transform { transform-origin: 0 0; transition: transform 0.2s; }
+        .form-group-flex { display: flex; gap: 0.5rem; }
+        .flex-1 { flex: 1; }
+
+    
+        .custom-routing-list-container { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+        .custom-routing-error-msg { color: #ef4444; font-size: 0.8rem; margin-top: 0.5rem; display: none; }
+        .routing-row { display: flex; align-items: center; justify-content: space-between; }
+        .routing-tgt-name { color: #d1d5db; font-size: 0.85rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .routing-input { width: 60px; padding: 0.2rem; background: #111827; color: white; border: 1px solid #374151; border-radius: 4px; }
+        .routing-percent-sign { color: #9ca3af; font-size: 0.85rem; margin-left: 0.25rem; }
+        .routing-empty-msg { color: #6b7280; font-size: 0.85rem; }
+
+        .audio-controls-overlay {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--primary-accent);
+        }
+        #btn-audio-demo:hover .audio-controls-overlay {
+            display: flex;
+        }
+        .audio-controls-overlay i {
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+        .audio-controls-overlay i:hover {
+            color: var(--primary-accent);
+        }
+
+        .toolbar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .tool-btn-small { margin-bottom: 0; font-size: 0.85rem; padding: 0.5rem; }
+        .position-relative { position: relative; }
+        .btn-demo-accent { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
+
+        .demo-subtitles {
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: #fff; padding: 15px 30px; border-radius: 8px;
+            font-size: 18px; font-weight: 500; text-align: center; z-index: 10000;
+            max-width: 800px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); pointer-events: none;
+            border: 1px solid #334155;
+        }
+        .model-analyzer {
+            margin-top: 20px; border-top: 1px solid #334155; padding-top: 15px;
+            color: #f8fafc;
+        }
+        .model-analyzer.hidden { display: none; }
+        .model-analyzer-title {
+            margin-top: 0; color: #38bdf8; font-size: 14px; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 0.05em; border-bottom: 1px solid #334155;
+            padding-bottom: 10px; margin-bottom: 10px;
+        }
+        .analyzer-content {
+            font-size: 13px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .analyzer-card {
+            background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; min-width: 160px; flex-shrink: 0;
+        }
+        .analyzer-card-total { color: #10b981; font-weight: bold; }
+        .analyzer-card-node { color: #e2e8f0; }
+
+        @media (max-width: 900px) {
+            .simulator-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            .toolbar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-height: 250px;
+            }
+            .canvas-container {
+                height: 50vh;
+                min-height: 400px;
+            }
+            .properties-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                height: 400px;
+            }
+            .toolbar-divider {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
+            .tool-btn {
+                flex: 1 1 calc(50% - 0.5rem);
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="index.html"><img src="static/sherpa_logo.png" alt="Sherpa Solutions LLC"></a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+        </ul>
+        <div class="header-actions">
+            <a href="projects.html" class="btn btn-primary nav-cta"><i class="fa-solid fa-arrow-left"></i> Back to Projects</a>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1>Business Model Simulator</h1>
+        <p>Enterprise Discrete Event Simulation (DES) Engine</p>
+    </div>
+
+    <div class="app-container">
+        <div class="simulator-layout">
+            
+            <!-- Left Toolbar -->
+            <div class="toolbar">
+                <button class="tool-btn position-relative btn-demo-accent" id="btn-audio-demo">
+                    <i class="fa-solid fa-volume-high"></i> Play Demo
+                    <div id="audio-hover-controls" class="audio-controls-overlay">
+                        <i class="fa-solid fa-play" id="audio-play" title="Play"></i>
+                        <i class="fa-solid fa-pause" id="audio-pause" title="Pause"></i>
+                        <i class="fa-solid fa-stop" id="audio-stop" title="Stop"></i>
+                    </div>
+                </button>
+                <hr class="toolbar-divider">
+                <div class="toolbar-title">File</div>
+                <div class="toolbar-grid">
+                    <button class="tool-btn tool-btn-small" id="btn-file-new"><i class="fa-solid fa-file"></i> New</button>
+                    <button class="tool-btn tool-btn-small" id="btn-file-open"><i class="fa-solid fa-folder-open"></i> Open</button>
+                    <button class="tool-btn tool-btn-small" id="btn-file-save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+                    <button class="tool-btn tool-btn-small" id="btn-file-edit"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                </div>
+                <hr class="toolbar-divider">
+                <div class="toolbar-title">Tools</div>
+                <button class="tool-btn active-tool" data-tool="select"><i class="fa-solid fa-arrow-pointer"></i> Select / Move</button>
+
+                <button class="tool-btn" id="btn-layout"><i class="fa-solid fa-align-center"></i> Auto Layout</button>
+                <hr class="toolbar-divider">
+                <div class="toolbar-title">Sherpa AI & Resources</div>
+                <button class="tool-btn" id="btn-ai-builder" class="color-green"><i class="fa-solid fa-wand-magic-sparkles"></i> Build AI</button>
+                <button class="tool-btn" id="btn-ai-stats" class="color-blue"><i class="fa-solid fa-chart-line"></i> Smart Stats</button>
+                <button class="tool-btn" id="btn-templates"><i class="fa-solid fa-folder-open"></i> Load Template</button>
+
+                
+                <hr class="toolbar-divider">
+                <div class="toolbar-title">Drag Nodes</div>
+                <button class="tool-btn" data-tool="entity" draggable="true"><i class="fa-solid fa-box icon-entity-color"></i> Entity</button>
+                <button class="tool-btn" data-tool="process" draggable="true"><i class="fa-solid fa-gears icon-process-color"></i> Process</button>
+                <button class="tool-btn" data-tool="decision" draggable="true"><i class="fa-solid fa-code-branch icon-decision-color"></i> Decision</button>
+                <button class="tool-btn" data-tool="resource" draggable="true"><i class="fa-solid fa-user-tie icon-resource-color"></i> Resource</button>
+                <button class="tool-btn" data-tool="note" draggable="true"><i class="fa-solid fa-sticky-note icon-note-color"></i> Text Note</button>
+                <button class="tool-btn" data-tool="link"><i class="fa-solid fa-diagram-next"></i> Draw Connection</button>
+            </div>
+
+            <!-- Main Canvas -->
+            <div class="canvas-container canvas-relative">
+                <!-- Zoom Controls -->
+                <div class="zoom-controls">
+                    <button id="btn-zoom-in" class="btn btn-primary" class="zoom-btn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                    <button id="btn-zoom-reset" class="btn btn-clear" class="zoom-btn-reset" title="Reset Zoom">100%</button>
+                    <button id="btn-zoom-out" class="btn btn-primary" class="zoom-btn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                </div>
+                <div class="canvas-world" id="canvas" class="canvas-world-transform">
+                    <div class="workspace-label">WORKSPACE</div>
+                    <div id="lasso-box" class="lasso-box hidden"></div>
+                    <svg id="sim-svg">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280" />
+                            </marker>
+                            <marker id="arrowhead-selected" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#facc15" />
+                            </marker>
+                        </defs>
+                        <g id="links-layer"></g>
+                        <path id="temp-link" class="temp-link hidden" d=""></path>
+                    </svg>
+                    <div id="nodes-layer"></div>
+                    <div id="entities-layer"></div>
+                </div>
+            </div>
+
+            <!-- Right Properties Panel -->
+            <div class="properties-panel" id="props-panel">
+                <div class="toolbar-title">Properties</div>
+                
+                <div id="no-selection">
+                    <p class="text-muted-center mt-2">Select a node or connection line to edit properties.</p>
+                </div>
+
+                <!-- Node Editor -->
+                <div id="node-editor" class="hidden flex-col-gap-1">
+                    <div class="prop-group">
+                        <label>Name / Label</label>
+                        <input type="text" id="prop-name" autocomplete="off" title="Node Name" placeholder="Node Name">
+                    </div>
+                    <div class="prop-group">
+                        <label>Type</label>
+                        <input type="text" id="prop-type" disabled class="hidden" title="Node Type" placeholder="Node Type">
+                    </div>
+                    <div class="prop-group hidden" id="prop-quantity-group">
+                        <label>Batch Quantity</label>
+                        <input type="number" id="prop-quantity" min="1" value="1" title="Quantity to spawn per cycle">
+                    </div>
+                    <div class="prop-group" id="prop-time-group">
+                        <label>Processing Time</label>
+                        <div class="form-group-flex">
+                            <select id="prop-time" title="Time Value" class="flex-1">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                            <select id="prop-time-unit" title="Time Unit" class="flex-1">
+                                <option value="sec">Sec</option>
+                                <option value="min">Min</option>
+                                <option value="hour">Hour</option>
+                                <option value="day">Day</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="prop-group" id="prop-dist-group">
+                        <label>Distribution</label>
+                        <select id="prop-dist" title="Distribution Type">
+                            <option value="constant">Constant</option>
+                            <option value="uniform">Uniform (±20%)</option>
+                            <option value="custom">Custom Routing</option>
+                        </select>
+                    </div>
+                    
+                    <div class="prop-group hidden" id="prop-custom-routing-group">
+                        <label>Custom Routing (%)</label>
+                        <div id="custom-routing-list" class="custom-routing-list-container"></div>
+                        <div id="custom-routing-error" class="custom-routing-error-msg">Must equal exactly 100%</div>
+                    </div>
+                    
+                    <button class="btn-danger" id="btn-delete-node"><i class="fa-solid fa-trash"></i> Delete Node</button>
+                </div>
+
+                <!-- Link Editor -->
+                <div id="link-editor" class="hidden flex-col-gap-1">
+                    <div class="prop-group">
+                        <label>Connection Routing</label>
+                        <div id="link-details" class="link-details-text"></div>
+                    </div>
+                    
+                    <div class="prop-group">
+                        <label>Travel Time (Override)</label>
+                        <div class="form-group-flex">
+                            <input type="number" id="prop-link-time" min="0" step="0.5" class="flex-1" title="Time taken to traverse. Blank = Auto Distance" placeholder="Auto">
+                            <select id="prop-link-time-unit" title="Time Unit" style="width: 80px;">
+                                <option value="sec">Sec</option>
+                                <option value="min">Min</option>
+                                <option value="hour">Hour</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-action btn-reverse" id="btn-reverse-link"><i class="fa-solid fa-arrows-rotate"></i> Reverse Flow</button>
+                    <button class="btn-danger" id="btn-delete-link"><i class="fa-solid fa-trash"></i> Delete Connection</button>
+                </div>
+
+                <!-- Model Analyzer Section -->
+                <div id="model-analyzer" class="model-analyzer hidden">
+                    <div class="model-analyzer-title"><i class="fa-solid fa-chart-line"></i> Model Analyzer</div>
+                    <div id="analyzer-content" class="analyzer-content"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+            <button class="btn-action btn-play" id="btn-run" style="width: 160px;"><i class="fa-solid fa-play"></i> Run Simulation</button>
+            <button class="btn-action btn-clear" id="btn-clear"><i class="fa-solid fa-rotate-right"></i> Reset Board</button>
+            
+            <div class="sim-log" id="sim-log">
+                > System initialized. Ready to simulate. Drag tools onto the board to build.
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- UI Overlays -->
+    <div id="demo-subtitles" class="demo-subtitles hidden"></div>
+
+    <!-- Modals -->
+    <div id="modal-ai-builder" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2><i class="fa-solid fa-wand-magic-sparkles" class="color-green"></i> Sherpa AI Builder</h2>
+            <p>Describe your process in plain English, and our AI will automatically generate the corresponding simulation nodes and connections.</p>
+            <textarea id="ai-prompt" placeholder="e.g., Customer arrives, gets routed to support or billing, support processes the ticket, customer leaves."></textarea>
+            <div class="modal-actions">
+                <button class="btn btn-clear" onclick="document.getElementById('modal-ai-builder').classList.add('hidden')">Cancel</button>
+                <button class="btn btn-primary" id="btn-ai-generate">Generate Model</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-smart-stats" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2><i class="fa-solid fa-chart-line" class="color-blue"></i> Analyze AI: Smart Stats</h2>
+            <div id="stats-content">
+                <p>Analyzing current model parameters...</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="document.getElementById('modal-smart-stats').classList.add('hidden')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-templates" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2><i class="fa-solid fa-folder-open"></i> Simulation Templates</h2>
+            <p>Select a pre-built model to load onto the canvas.</p>
+            <div class="template-list">
+                <div class="template-item" data-template="call-center">
+                    <h4>Inbound Call Center</h4>
+                    <p>Standard support routing with tiered levels and QA.</p>
+                </div>
+                <div class="template-item" data-template="patient-flow">
+                    <h4>Hospital Patient Flow</h4>
+                    <p>Triage, examination, treatment, and discharge routing.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-clear" onclick="document.getElementById('modal-templates').classList.add('hidden')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data State
+        let nodes = [];
+        let links = [];
+        let nodeIdCounter = 1;
+        
+        let currentTool = 'select'; // select, link
+        let selectedItemType = null; // 'node' or 'link'
+        let selectedItemId = null;
+        
+        let isDragging = false;
+        let dragNodeId = null;
+        
+        let isLinking = false;
+        let currentlyDraggedTool = null;
+        let linkStartNodeId = null;
+        
+        // Multi-select & Lasso
+        let selectedNodeIds = [];
+        let lassoActive = false;
+        let lassoStartX = 0;
+        let lassoStartY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+
+        // Simulation State
+        let isSimulating = false;
+        let activeEntities = [];
+
+        // DOM Elements
+        const canvas = document.getElementById('canvas');
+        const nodesLayer = document.getElementById('nodes-layer');
+        const linksLayer = document.getElementById('links-layer');
+        const entitiesLayer = document.getElementById('entities-layer');
+        const tempLink = document.getElementById('temp-link');
+        const logPanel = document.getElementById('sim-log');
+
+        const icons = {
+            'entity': 'fa-box',
+            'process': 'fa-gears',
+            'decision': 'fa-code-branch',
+            'resource': 'fa-user-tie',
+            'note': 'fa-sticky-note'
+        };
+
+        // Initialize Default Board
+        function initBoard() {
+            nodes = [
+                { id: 1, type: 'entity', name: 'Raw Materials', x: 200, y: 300, time: 1, dist: 'constant' },
+                { id: 2, type: 'process', name: 'Assembly Line', x: 500, y: 300, time: 2, dist: 'uniform' },
+                { id: 3, type: 'decision', name: 'QA Check', x: 800, y: 300, time: 0.5, dist: 'constant' },
+                { id: 4, type: 'process', name: 'Rework Station', x: 800, y: 500, time: 3, dist: 'constant' },
+                { id: 5, type: 'process', name: 'Packaging', x: 1100, y: 300, time: 1.5, dist: 'constant' },
+                { id: 6, type: 'note', name: 'Flow routes 50% to packaging\nand 50% back to rework.', x: 1100, y: 150, time: 0, dist: 'constant'}
+            ];
+            links = [
+                { id: 1, source: 1, target: 2 },
+                { id: 2, source: 2, target: 3 },
+                { id: 3, source: 3, target: 5 },
+                { id: 4, source: 3, target: 4 },
+                { id: 5, source: 4, target: 2 }
+            ];
+            nodeIdCounter = 7;
+            renderAll();
+        }
+
+        // Toolbar Logic (Selection tools)
+        document.querySelectorAll('.tool-btn:not([draggable])').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active-tool'));
+                btn.classList.add('active-tool');
+                currentTool = btn.dataset.tool;
+                canvas.style.cursor = currentTool === 'select' ? 'default' : 'crosshair';
+            });
+        });
+
+        // DRAG AND DROP API FOR CREATING NODES
+        document.querySelectorAll('.tool-btn[draggable]').forEach(btn => {
+            btn.addEventListener('dragstart', (e) => {
+                if(isSimulating) return e.preventDefault();
+                currentlyDraggedTool = e.currentTarget.dataset.tool;
+                e.dataTransfer.setData('tool', currentlyDraggedTool);
+                e.dataTransfer.effectAllowed = 'copy';
+            });
+            btn.addEventListener('click', () => {
+                logMsg(`Hint: Drag and Drop the "${btn.innerText.trim()}" button onto the grid to place it.`);
+            });
+        });
+
+        canvas.addEventListener('dragover', (e) => {
+            if(!isSimulating) e.preventDefault(); // allow drop
+        });
+
+        canvas.addEventListener('drop', (e) => {
+            if(isSimulating) return;
+            e.preventDefault();
+            const tool = e.dataTransfer.getData('tool') || currentlyDraggedTool;
+            currentlyDraggedTool = null;
+            if(!tool) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            // Calculate precise drop coordinate based on scroll offsets and zoom
+            const x = (e.clientX - rect.left) / currentZoom - 60; 
+            const y = (e.clientY - rect.top) / currentZoom - 20;
+            
+            const newNode = {
+                id: nodeIdCounter++,
+                type: tool,
+                name: tool === 'note' ? 'Add notes here' : `New ${tool.charAt(0).toUpperCase() + tool.slice(1)}`,
+                x: x,
+                y: y,
+                time: 1,
+                dist: 'constant'
+            };
+            nodes.push(newNode);
+            selectItem('node', newNode.id);
+            renderAll();
+            
+            // Auto revert to select tool
+            currentTool = 'select';
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active-tool'));
+            document.querySelector('[data-tool="select"]').classList.add('active-tool');
+            canvas.style.cursor = 'default';
+            logMsg(`Added ${newNode.name} to the workspace.`);
+        });
+
+        
+        // Canvas Click (Deselect / Start Lasso)
+        canvas.addEventListener('mousedown', (e) => {
+            const isNode = e.target.closest ? e.target.closest('.sim-node') : e.target.classList && e.target.classList.contains('sim-node');
+            const isLink = e.target.closest ? e.target.closest('.sim-link') : e.target.classList && e.target.classList.contains('sim-link');
+            
+            if(isSimulating) {
+                if(!isNode && !isLink) selectItem(null, null);
+                return;
+            }
+            
+            // Allow lasso if clicking on canvas container or empty space
+            if(!isNode && !isLink) {
+                selectItem(null, null);
+                selectedNodeIds = [];
+                renderAll();
+                
+                if (currentTool === 'select') {
+                    lassoActive = true;
+                    const rect = canvas.getBoundingClientRect();
+                    lassoStartX = (e.clientX - rect.left) / currentZoom;
+                    lassoStartY = (e.clientY - rect.top) / currentZoom;
+                    const lassoBox = document.getElementById('lasso-box');
+                    lassoBox.style.left = lassoStartX + 'px';
+                    lassoBox.style.top = lassoStartY + 'px';
+                    lassoBox.style.width = '0px';
+                    lassoBox.style.height = '0px';
+                    lassoBox.classList.remove('hidden');
+                }
+            }
+        });
+
+
+        
+        // Canvas Mousemove -> Dragging / Linking / Lasso
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / currentZoom;
+            const y = (e.clientY - rect.top) / currentZoom;
+
+            if (lassoActive) {
+                const w = Math.abs(x - lassoStartX);
+                const h = Math.abs(y - lassoStartY);
+                const l = Math.min(x, lassoStartX);
+                const t = Math.min(y, lassoStartY);
+                const lassoBox = document.getElementById('lasso-box');
+                lassoBox.style.left = l + 'px';
+                lassoBox.style.top = t + 'px';
+                lassoBox.style.width = w + 'px';
+                lassoBox.style.height = h + 'px';
+            } else if (isDragging && dragNodeId) {
+                const dx = x - lastMouseX;
+                const dy = y - lastMouseY;
+                
+                if (selectedNodeIds.includes(dragNodeId)) {
+                    selectedNodeIds.forEach(id => {
+                        const n = nodes.find(n => n.id === id);
+                        n.x += dx;
+                        n.y += dy;
+                    });
+                } else {
+                    const node = nodes.find(n => n.id === dragNodeId);
+                    node.x += dx;
+                    node.y += dy;
+                }
+                lastMouseX = x;
+                lastMouseY = y;
+                renderAll();
+            } else if (isLinking && linkStartNodeId) {
+                const startNode = nodes.find(n => n.id === linkStartNodeId);
+                tempLink.classList.remove('hidden');
+                tempLink.setAttribute('d', `M ${startNode.x + 60} ${startNode.y + 20} L ${x} ${y}`);
+            }
+        });
+
+
+        // Canvas Mouseup -> End Drag / Link
+        window.addEventListener('mouseup', (e) => {
+            isDragging = false;
+            dragNodeId = null;
+            
+            if (lassoActive) {
+                lassoActive = false;
+                const lassoBox = document.getElementById('lasso-box');
+                lassoBox.classList.add('hidden');
+                
+                const rect = canvas.getBoundingClientRect();
+                const endX = (e.clientX - rect.left) / currentZoom;
+                const endY = (e.clientY - rect.top) / currentZoom;
+                
+                const l = Math.min(lassoStartX, endX);
+                const r = Math.max(lassoStartX, endX);
+                const t = Math.min(lassoStartY, endY);
+                const b = Math.max(lassoStartY, endY);
+                
+                selectedNodeIds = [];
+                nodes.forEach(n => {
+                    const nx = n.x + 60;
+                    const ny = n.y + 20;
+                    if (nx >= l && nx <= r && ny >= t && ny <= b) {
+                        selectedNodeIds.push(n.id);
+                    }
+                });
+                
+                if (selectedNodeIds.length > 0) {
+                    selectItem('node', selectedNodeIds[0]);
+                }
+                renderAll();
+            }
+
+            if (isLinking) {
+                isLinking = false;
+                linkStartNodeId = null;
+                tempLink.classList.add('hidden');
+            }
+        });
+
+        // Node Interaction Handlers
+        function attachNodeEvents(el, node) {
+            
+            el.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                if(isSimulating) {
+                    selectItem('node', node.id);
+                    return;
+                }
+                if (currentTool === 'select') {
+                    if (!e.shiftKey && !selectedNodeIds.includes(node.id)) {
+                        selectedNodeIds = []; // clear multi if clicking a single unselected node
+                    }
+                    if (e.shiftKey) {
+                        if (selectedNodeIds.includes(node.id)) {
+                            selectedNodeIds = selectedNodeIds.filter(id => id !== node.id);
+                        } else {
+                            selectedNodeIds.push(node.id);
+                        }
+                        renderAll();
+                    }
+                    selectItem('node', node.id);
+                    isDragging = true;
+                    dragNodeId = node.id;
+                    const rect = canvas.getBoundingClientRect();
+                    lastMouseX = (e.clientX - rect.left) / currentZoom;
+                    lastMouseY = (e.clientY - rect.top) / currentZoom;
+                } else if (currentTool === 'link') {
+
+                    if(node.type === 'note') return; // Cannot route from a note
+                    isLinking = true;
+                    linkStartNodeId = node.id;
+                }
+            });
+
+            el.addEventListener('mouseup', (e) => {
+                if(isSimulating) return;
+                if (isLinking && linkStartNodeId && linkStartNodeId !== node.id && node.type !== 'note') {
+                    // Create link if it doesn't exist
+                    const exists = links.find(l => l.source === linkStartNodeId && l.target === node.id);
+                    if (!exists) {
+                        links.push({ id: Date.now(), source: linkStartNodeId, target: node.id });
+                        selectItem('link', links[links.length-1].id);
+                        renderAll();
+                    }
+                }
+            });
+        }
+
+        // Custom Routing UI Engine
+        function renderCustomRouting(node) {
+            const group = document.getElementById('prop-custom-routing-group');
+            const list = document.getElementById('custom-routing-list');
+            const outLinks = links.filter(l => l.source === node.id);
+            
+            if (outLinks.length === 0) {
+                list.innerHTML = '<span class="routing-empty-msg">No outgoing connections.</span>';
+                group.classList.remove('hidden');
+                validateCustomRouting(node);
+                return;
+            }
+
+            list.innerHTML = '';
+            if (!node.customRouting) node.customRouting = {};
+            
+            outLinks.forEach(l => {
+                const tgt = nodes.find(n => n.id === l.target);
+                const tgtName = tgt ? tgt.name : 'Unknown';
+                const val = node.customRouting[l.id] || 0;
+                
+                const row = document.createElement('div');
+                row.classList.add('routing-row');
+                
+                
+                
+                row.innerHTML = `
+                    <span class="routing-tgt-name" title="To: ${tgtName}">${tgtName}</span>
+                    <input type="number" data-link-id="${l.id}" value="${val}" min="0" max="100" class="routing-input">
+                    <span class="routing-percent-sign">%</span>
+                `;
+                list.appendChild(row);
+            });
+
+            list.querySelectorAll('input').forEach(inp => {
+                inp.addEventListener('input', (e) => {
+                    const linkId = parseInt(e.target.dataset.linkId);
+                    node.customRouting[linkId] = parseFloat(e.target.value) || 0;
+                    validateCustomRouting(node);
+                });
+            });
+            
+            validateCustomRouting(node);
+            group.classList.remove('hidden');
+        }
+
+        function validateCustomRouting(node) {
+            const errorEl = document.getElementById('custom-routing-error');
+            if (!node || node.dist !== 'custom') {
+                errorEl.style.display = 'none';
+                return true;
+            }
+            const outLinks = links.filter(l => l.source === node.id);
+            let sum = 0;
+            outLinks.forEach(l => sum += (node.customRouting[l.id] || 0));
+            
+            if (outLinks.length > 0 && Math.abs(sum - 100) > 0.01) {
+                errorEl.style.display = 'block';
+                return false;
+            } else {
+                errorEl.style.display = 'none';
+                return true;
+            }
+        }
+
+        // Selection & Properties Engine
+        function selectItem(type, id) {
+            selectedItemType = type;
+            selectedItemId = id;
+            
+            // Visual Update without destroying DOM elements if possible, but renderAll is fine if called outside mousedown
+            renderAll();
+
+            // Panel Update
+            const noSelPanel = document.getElementById('no-selection');
+            const nodePanel = document.getElementById('node-editor');
+            const linkPanel = document.getElementById('link-editor');
+
+            noSelPanel.classList.add('hidden');
+            nodePanel.classList.add('hidden');
+            linkPanel.classList.add('hidden');
+
+            if (type === 'node' && id) {
+                const node = nodes.find(n => n.id === id);
+                nodePanel.classList.remove('hidden');
+                
+                document.getElementById('prop-name').value = node.name;
+                document.getElementById('prop-type').value = node.type.toUpperCase();
+                
+                const timeGroup = document.getElementById('prop-time-group');
+                const distGroup = document.getElementById('prop-dist-group');
+                const qtyGroup = document.getElementById('prop-quantity-group');
+                
+                if (node.type === 'entity') {
+                    timeGroup.querySelector('label').innerText = 'Spawn Rate';
+                    document.getElementById('prop-time').value = Math.floor(node.time || 1);
+                    document.getElementById('prop-time-unit').value = node.timeUnit || 'sec';
+                    qtyGroup.classList.remove('hidden');
+                    document.getElementById('prop-quantity').value = node.quantity || 1;
+                    timeGroup.classList.remove('hidden');
+                    distGroup.classList.remove('hidden');
+                    document.getElementById('prop-dist').value = node.dist || 'constant';
+                    if (node.dist === 'custom') renderCustomRouting(node);
+                    else document.getElementById('prop-custom-routing-group').classList.add('hidden');
+                } else if (node.type === 'process' || node.type === 'decision') {
+                    timeGroup.querySelector('label').innerText = 'Processing Time';
+                    document.getElementById('prop-time').value = Math.floor(node.time || 1);
+                    document.getElementById('prop-time-unit').value = node.timeUnit || 'sec';
+                    qtyGroup.classList.add('hidden');
+                    timeGroup.classList.remove('hidden');
+                    distGroup.classList.remove('hidden');
+                    document.getElementById('prop-dist').value = node.dist || 'constant';
+                    if (node.dist === 'custom') renderCustomRouting(node);
+                    else document.getElementById('prop-custom-routing-group').classList.add('hidden');
+                } else {
+                    qtyGroup.classList.add('hidden');
+                    timeGroup.classList.add('hidden');
+                    distGroup.classList.add('hidden');
+                    document.getElementById('prop-custom-routing-group').classList.add('hidden');
+                }
+            } else if (type === 'link' && id) {
+                const link = links.find(l => l.id === id);
+                if(!link) return;
+                linkPanel.classList.remove('hidden');
+                const src = nodes.find(n => n.id === link.source);
+                const tgt = nodes.find(n => n.id === link.target);
+                document.getElementById('link-details').innerHTML = `<strong>From:</strong> ${src.name}<br><strong>To:</strong> ${tgt.name}`;
+                document.getElementById('prop-link-time').value = link.time !== undefined ? link.time : '';
+                document.getElementById('prop-link-time-unit').value = link.timeUnit || 'sec';
+            } else {
+                noSelPanel.classList.remove('hidden');
+            }
+        }
+
+        function updateSpawnInterval(node) {
+            if (!isSimulating || node.type !== 'entity') return;
+            if (node.spawnInterval) clearInterval(node.spawnInterval);
+            const intervalTime = getComputedTime(node.time, node.dist, node.timeUnit) * 1000;
+            node.spawnInterval = setInterval(() => {
+                const qty = node.quantity || 1;
+                for (let i = 0; i < qty; i++) {
+                    spawnEntity(node, i, qty);
+                }
+            }, intervalTime);
+        }
+
+        // Property Listeners
+        document.getElementById('prop-name').addEventListener('input', (e) => {
+            if(selectedItemType === 'node' && selectedItemId) {
+                nodes.find(n => n.id === selectedItemId).name = e.target.value;
+                renderAll();
+            }
+        });
+        document.getElementById('prop-quantity').addEventListener('change', (e) => {
+            if(selectedItemType === 'node' && selectedItemId) {
+                nodes.find(n => n.id === selectedItemId).quantity = parseInt(e.target.value) || 1;
+                renderAll();
+            }
+        });
+        document.getElementById('prop-time').addEventListener('change', (e) => {
+            if(selectedItemType === 'node' && selectedItemId) {
+                const node = nodes.find(n => n.id === selectedItemId);
+                node.time = parseFloat(e.target.value) || 1;
+                updateSpawnInterval(node);
+                renderAll();
+            }
+        });
+        document.getElementById('prop-time-unit').addEventListener('change', (e) => {
+            if(selectedItemType === 'node' && selectedItemId) {
+                const node = nodes.find(n => n.id === selectedItemId);
+                node.timeUnit = e.target.value;
+                updateSpawnInterval(node);
+                renderAll();
+            }
+        });
+        document.getElementById('prop-dist').addEventListener('change', (e) => {
+            if(selectedItemType === 'node' && selectedItemId) {
+                const node = nodes.find(n => n.id === selectedItemId);
+                node.dist = e.target.value;
+                if(node.dist === 'custom') renderCustomRouting(node);
+                else document.getElementById('prop-custom-routing-group').classList.add('hidden');
+                updateSpawnInterval(node);
+                renderAll();
+            }
+        });
+        
+        // Link Property Listeners
+        document.getElementById('prop-link-time').addEventListener('input', (e) => {
+            if(selectedItemType === 'link' && selectedItemId) {
+                const link = links.find(l => l.id === selectedItemId);
+                if (e.target.value === '') {
+                    delete link.time;
+                } else {
+                    link.time = parseFloat(e.target.value);
+                }
+            }
+        });
+        document.getElementById('prop-link-time-unit').addEventListener('change', (e) => {
+            if(selectedItemType === 'link' && selectedItemId) {
+                links.find(l => l.id === selectedItemId).timeUnit = e.target.value;
+            }
+        });
+        
+        document.getElementById('btn-delete-node').addEventListener('click', () => {
+            if (selectedNodeIds.length > 0) {
+                selectedNodeIds.forEach(id => {
+                    nodes = nodes.filter(n => n.id !== id);
+                    links = links.filter(l => l.source !== id && l.target !== id);
+                });
+                selectedNodeIds = [];
+                selectItem(null, null);
+                renderAll();
+            } else if (selectedItemType === 'node' && selectedItemId) {
+                nodes = nodes.filter(n => n.id !== selectedItemId);
+                links = links.filter(l => l.source !== selectedItemId && l.target !== selectedItemId);
+                selectItem(null, null);
+                renderAll();
+            }
+        });
+
+        
+        // Link Editor Listeners
+        document.getElementById('btn-reverse-link').addEventListener('click', () => {
+            if(selectedItemType === 'link' && selectedItemId) {
+                const link = links.find(l => l.id === selectedItemId);
+                // Swap
+                const temp = link.source;
+                link.source = link.target;
+                link.target = temp;
+                selectItem('link', link.id); // refresh panel
+                renderAll();
+                logMsg("Connection direction reversed.");
+            }
+        });
+        document.getElementById('btn-delete-link').addEventListener('click', () => {
+            if(selectedItemType === 'link' && selectedItemId) {
+                links = links.filter(l => l.id !== selectedItemId);
+                selectItem(null, null);
+                renderAll();
+            }
+        });
+
+        // Rendering Engine
+        function renderAll() {
+            // Render Nodes
+            nodesLayer.innerHTML = '';
+            nodes.forEach(node => {
+                const el = document.createElement('div');
+                el.className = `sim-node type-${node.type} ${selectedItemType === 'node' && selectedItemId === node.id ? 'selected' : ''} ${selectedNodeIds.includes(node.id) ? 'multi-selected' : ''}`;
+                el.dataset.id = node.id;
+                el.style.left = node.x + 'px';
+                el.style.top = node.y + 'px';
+                
+                // Allow line breaks for notes
+                const displayName = node.name.replace(/\n/g, '<br>');
+                
+                let metaHtml = '';
+                if (node.type === 'entity') {
+                    const qty = node.quantity || 1;
+                    const time = node.time || 1;
+                    const unit = node.timeUnit || 'sec';
+                    metaHtml = `<div style="font-size: 0.65rem; color: #9ca3af; margin-top: 4px; font-weight: normal; letter-spacing: 0.5px;">QTY: ${qty} | RATE: ${time}${unit}</div>`;
+                } else if (node.type === 'process' || node.type === 'decision') {
+                    const time = node.time || 1;
+                    const unit = node.timeUnit || 'sec';
+                    metaHtml = `<div style="font-size: 0.65rem; color: #9ca3af; margin-top: 4px; font-weight: normal; letter-spacing: 0.5px;">TIME: ${time}${unit}</div>`;
+                }
+                
+                el.innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <i class="fa-solid ${icons[node.type]}"></i> <span>${displayName}</span>
+                        </div>
+                        ${metaHtml}
+                    </div>
+                `;
+                
+                attachNodeEvents(el, node);
+                nodesLayer.appendChild(el);
+            });
+
+            // Render Links
+            linksLayer.innerHTML = '';
+            links.forEach(link => {
+                const src = nodes.find(n => n.id === link.source);
+                const tgt = nodes.find(n => n.id === link.target);
+                if(src && tgt) {
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('class', `sim-link ${selectedItemType === 'link' && selectedItemId === link.id ? 'selected' : ''}`);
+                    
+                    if(selectedItemType === 'link' && selectedItemId === link.id) {
+                        path.setAttribute('marker-end', 'url(#arrowhead-selected)');
+                    }
+                    
+                    // Invisible hitbox for easier clicking
+                    const hitbox = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    hitbox.setAttribute('stroke', 'transparent');
+                    hitbox.setAttribute('stroke-width', '30');
+                    hitbox.setAttribute('fill', 'none');
+                    hitbox.style.cursor = 'pointer';
+                    hitbox.style.pointerEvents = 'visibleStroke';
+                    
+                    // Simple straight line from centers
+                    // Dynamically get actual node dimensions instead of hardcoding
+                    const srcEl = document.querySelector(`.sim-node[data-id="${src.id}"]`);
+                    const tgtEl = document.querySelector(`.sim-node[data-id="${tgt.id}"]`);
+                    const srcW = srcEl ? srcEl.offsetWidth : 160;
+                    const srcH = srcEl ? srcEl.offsetHeight : 50;
+                    const tgtW = tgtEl ? tgtEl.offsetWidth : 160;
+                    const tgtH = tgtEl ? tgtEl.offsetHeight : 50;
+
+                    const x1 = src.x + (srcW / 2); const y1 = src.y + (srcH / 2);
+                    const x2 = tgt.x + (tgtW / 2); const y2 = tgt.y + (tgtH / 2);
+                    
+                    // Calculate intersection with target node's bounding box
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    let adjX2 = x2;
+                    let adjY2 = y2;
+                    
+                    if (dx !== 0 || dy !== 0) {
+                        const tan = dy / dx;
+                        // use exact half-width and half-height for target bounding box
+                        const tHW = tgtW / 2 + 5; // Add 5px padding for arrow
+                        const tHH = tgtH / 2 + 5;
+                        
+                        if (Math.abs(dy) / tHH > Math.abs(dx) / tHW) {
+                            // Intersects top or bottom edge
+                            adjY2 = dy > 0 ? y2 - tHH : y2 + tHH;
+                            adjX2 = x2 - (y2 - adjY2) / tan;
+                        } else {
+                            // Intersects left or right edge
+                            adjX2 = dx > 0 ? x2 - tHW : x2 + tHW;
+                            adjY2 = y2 - (x2 - adjX2) * tan;
+                        }
+                    }
+
+                    const dPath = `M ${x1} ${y1} L ${adjX2} ${adjY2}`;
+                    path.setAttribute('d', dPath);
+                    hitbox.setAttribute('d', dPath);
+                    
+                    // Click events for links
+                    const linkClickHandler = (e) => {
+                        e.stopPropagation();
+                        selectItem('link', link.id);
+                    };
+                    
+                    path.addEventListener('mousedown', linkClickHandler);
+                    hitbox.addEventListener('mousedown', linkClickHandler);
+                    
+                    linksLayer.appendChild(path);
+                    
+                    // Separate animated path so marker doesn't disappear in gaps
+                    if(isSimulating) {
+                        const animPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        animPath.setAttribute('d', dPath);
+                        animPath.setAttribute('class', 'sim-link-anim');
+                        linksLayer.appendChild(animPath);
+                    }
+                    
+                    linksLayer.appendChild(hitbox);
+                }
+            });
+        }
+
+        // Logging
+        function logMsg(msg) {
+            logPanel.innerHTML = `> ${msg}`;
+        }
+
+        // SIMULATION ENGINE
+        function getComputedTime(baseTime, distribution, unit) {
+            baseTime = parseFloat(baseTime) || 1;
+            
+            let multi = 1;
+            if (unit === 'min') multi = 60;
+            else if (unit === 'hour') multi = 3600;
+            else if (unit === 'day') multi = 86400;
+            
+            let seconds = baseTime * multi;
+
+            if(distribution === 'uniform') {
+                // +/- 20% variance
+                const variance = seconds * 0.2;
+                return seconds + (Math.random() * variance * 2 - variance);
+            }
+            return seconds;
+        }
+
+        function runSimulation() {
+            // Validate custom routing
+            for(const n of nodes) {
+                if (n.dist === 'custom') {
+                    const outLinks = links.filter(l => l.source === n.id);
+                    let sum = 0;
+                    outLinks.forEach(l => sum += (n.customRouting && n.customRouting[l.id] ? n.customRouting[l.id] : 0));
+                    if (outLinks.length > 0 && Math.abs(sum - 100) > 0.01) {
+                        selectItem('node', n.id);
+                        logMsg(`Error: Node "${n.name}" custom routing must equal exactly 100%.`);
+                        return; // Prevent simulation
+                    }
+                }
+            }
+
+            if(isSimulating) return;
+            isSimulating = true;
+            
+            const btnRun = document.getElementById('btn-run');
+            btnRun.innerHTML = '<i class="fa-solid fa-stop"></i> Stop Simulation';
+            btnRun.classList.remove('btn-play');
+            btnRun.classList.add('btn-stop');
+            
+            // Initialize tracking stats
+            totalGenerated = 0;
+            nodes.forEach(n => {
+                n.stats = { processing: 0, backlog: 0, decisions: 0 };
+            });
+            
+            selectItem(null, null);
+            renderAll(); // updates links to dashed flowing state
+            logMsg("Simulation Started. Entities spawning...");
+            
+            document.getElementById('model-analyzer').classList.remove('hidden');
+            analyzerInterval = setInterval(updateAnalyzer, 250);
+            
+            const entityNodes = nodes.filter(n => n.type === 'entity');
+            if(entityNodes.length === 0) {
+                logMsg("Error: No 'Entity' nodes found to start process.");
+                stopSimulation();
+                return;
+            }
+
+            // Spawn loop
+            entityNodes.forEach(en => {
+                const intervalTime = getComputedTime(en.time, en.dist, en.timeUnit) * 1000;
+                en.spawnInterval = setInterval(() => {
+                    const qty = en.quantity || 1;
+                    for (let i = 0; i < qty; i++) {
+                        spawnEntity(en, i, qty);
+                    }
+                }, intervalTime);
+            });
+        }
+        
+        let totalGenerated = 0;
+        let analyzerInterval = null;
+        
+        function updateAnalyzer() {
+            const analyzer = document.getElementById('analyzer-content');
+            if (!analyzer) return;
+            
+            let html = `<div class="analyzer-card">
+                            <strong>Total Entities Generated:</strong> <span class="analyzer-card-total">${totalGenerated}</span>
+                        </div>`;
+                        
+            nodes.forEach(n => {
+                if(!n.stats) return;
+                if(n.type === 'process' || n.type === 'decision' || n.type === 'resource') {
+                    let bcolor = n.type==='decision' ? '#f59e0b' : (n.type==='resource' ? '#ec4899' : '#3b82f6');
+                    html += `<div class="analyzer-card" style="border-left: 3px solid ${bcolor};">
+                                <strong class="analyzer-card-node">${n.name} (${n.type})</strong><br>`;
+                    
+                    if (n.type === 'process') {
+                        html += `Processing: ${n.stats.processing}<br>
+                                 Backlog: ${n.stats.backlog}<br>
+                                 Wait Time: ${n.time} ${n.timeUnit||'sec'}`;
+                    } else if (n.type === 'decision') {
+                        html += `Decisions Made: ${n.stats.decisions}<br>
+                                 Backlog: ${n.stats.backlog}<br>
+                                 Duration: ${n.time} ${n.timeUnit||'sec'}`;
+                    } else if (n.type === 'resource') {
+                        let hourly = n.hourlyRate || Math.floor(Math.random() * 30 + 20);
+                        html += `Hours: 8am - 4pm<br>
+                                 Rate: $${hourly}/hr<br>
+                                 Utilization: ${Math.min(100, Math.floor(Math.random() * 40 + 60 + n.stats.processing * 10))}%`;
+                    }
+                    html += `</div>`;
+                }
+            });
+            analyzer.innerHTML = html;
+        }
+
+        function spawnEntity(startNode, index = 0, total = 1) {
+            totalGenerated++;
+            const dot = document.createElement('div');
+            dot.className = 'sim-entity-dot';
+            
+            // Apply slight positional jitter for batch spawns
+            const jitterX = total > 1 ? (Math.random() * 40 - 20) : 0;
+            const jitterY = total > 1 ? (Math.random() * 40 - 20) : 0;
+            
+            const srcEl = document.querySelector(`.sim-node[data-id="${startNode.id}"]`);
+            const srcW = srcEl ? srcEl.offsetWidth : 160;
+            const srcH = srcEl ? srcEl.offsetHeight : 50;
+            
+            dot.style.left = (startNode.x + (srcW/2) + jitterX) + 'px';
+            dot.style.top = (startNode.y + (srcH/2) + jitterY) + 'px';
+            entitiesLayer.appendChild(dot);
+
+            const entityData = { el: dot, currentNodeId: startNode.id };
+            activeEntities.push(entityData);
+            
+            // Stagger heavy batches to prevent visual/computation locking
+            if (total > 5) {
+                setTimeout(() => processEntity(entityData), index * 20);
+            } else {
+                processEntity(entityData);
+            }
+        }
+
+        function processEntity(entity) {
+            if (!isSimulating) return;
+            const currentNode = nodes.find(n => n.id === entity.currentNodeId);
+            if (!currentNode) return;
+            
+            // Find outgoing links
+            const outgoing = links.filter(l => l.source === currentNode.id);
+            if(outgoing.length === 0) {
+                // Done. Disappear.
+                setTimeout(() => {
+                    entity.el.remove();
+                    activeEntities = activeEntities.filter(e => e !== entity);
+                }, 500);
+                return;
+            }
+
+            // Pick next path (Random if decision, or custom routing, or just first if process)
+            let nextLink;
+            if (currentNode.dist === 'custom') {
+                const rand = Math.random() * 100;
+                let accum = 0;
+                for (const l of outgoing) {
+                    accum += (currentNode.customRouting && currentNode.customRouting[l.id] ? currentNode.customRouting[l.id] : 0);
+                    if (rand <= accum) {
+                        nextLink = l;
+                        break;
+                    }
+                }
+                if (!nextLink) nextLink = outgoing[outgoing.length - 1]; // fallback
+            } else if (currentNode.type === 'decision') {
+                nextLink = outgoing[Math.floor(Math.random() * outgoing.length)];
+            } else {
+                nextLink = outgoing[0]; // simplistic routing for demo
+            }
+
+            const targetNode = nodes.find(n => n.id === nextLink.target);
+            if(!targetNode.stats) targetNode.stats = { processing: 0, backlog: 0, decisions: 0 };
+            
+            targetNode.stats.backlog++;
+
+            let moveTime;
+            if (nextLink.time !== undefined) {
+                moveTime = getComputedTime(nextLink.time, 'constant', nextLink.timeUnit || 'sec');
+            } else {
+                // Calculate distance to determine duration (approx 200px / sec)
+                const dx = targetNode.x - currentNode.x;
+                const dy = targetNode.y - currentNode.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                moveTime = dist / 200;
+            }
+
+            entity.el.style.transition = `left ${moveTime}s linear, top ${moveTime}s linear`;
+            
+            const tgtEl = document.querySelector(`.sim-node[data-id="${targetNode.id}"]`);
+            const tgtW = tgtEl ? tgtEl.offsetWidth : 160;
+            const tgtH = tgtEl ? tgtEl.offsetHeight : 50;
+            
+            setTimeout(() => {
+                entity.el.style.left = (targetNode.x + (tgtW/2)) + 'px';
+                entity.el.style.top = (targetNode.y + (tgtH/2)) + 'px';
+            }, 10);
+
+            setTimeout(() => {
+                targetNode.stats.backlog--;
+                targetNode.stats.processing++;
+                if (targetNode.type === 'decision') targetNode.stats.decisions++;
+                
+                const procTime = getComputedTime(targetNode.time, targetNode.dist, targetNode.timeUnit);
+                entity.el.style.transform = "translate(-50%, -50%) scale(1.5)";
+                entity.el.style.backgroundColor = "#10b981"; 
+                
+                setTimeout(() => {
+                    targetNode.stats.processing--;
+                    entity.el.style.transform = "translate(-50%, -50%) scale(1)";
+                    entity.el.style.backgroundColor = "#3b82f6";
+                    entity.currentNodeId = targetNode.id;
+                    processEntity(entity); 
+                }, procTime * 1000);
+                
+            }, moveTime * 1000);
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            
+            const btnRun = document.getElementById('btn-run');
+            btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run Simulation';
+            btnRun.classList.remove('btn-stop');
+            btnRun.classList.add('btn-play');
+            
+            if (analyzerInterval) clearInterval(analyzerInterval);
+            document.getElementById('model-analyzer').classList.add('hidden');
+            
+            nodes.forEach(n => {
+                if(n.spawnInterval) clearInterval(n.spawnInterval);
+            });
+            activeEntities.forEach(e => { if(e.el) e.el.remove(); });
+            activeEntities = [];
+            entitiesLayer.innerHTML = '';
+            logMsg("Simulation Halted.");
+            renderAll();
+        }
+
+
+        
+        // --- NEW FEATURES ---
+        
+        // 1. One-Click Re-Layout
+        document.getElementById('btn-layout').addEventListener('click', () => {
+            if(isSimulating) return;
+            // Simple horizontal layout
+            nodes.forEach((n, i) => {
+                n.x = 100 + (i * 200) % 800;
+                n.y = 150 + Math.floor((i * 200) / 800) * 200;
+            });
+            renderAll();
+            logMsg("Auto-layout applied.");
+        });
+
+        // 2. Templates
+        document.getElementById('btn-templates').addEventListener('click', () => {
+            if(isSimulating) return;
+            document.getElementById('modal-templates').classList.remove('hidden');
+        });
+        
+        document.querySelectorAll('.template-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                stopSimulation();
+                const tpl = e.currentTarget.dataset.template;
+                nodes = [];
+                links = [];
+                if(tpl === 'call-center') {
+                    nodes.push({id: 1, type: 'entity', name: 'Inbound Call', x: 100, y: 300, time: 2, timeUnit: 'sec', dist: 'uniform'});
+                    nodes.push({id: 2, type: 'process', name: 'Tier 1 Support', x: 350, y: 300, time: 5, timeUnit: 'sec', dist: 'constant'});
+                    nodes.push({id: 3, type: 'decision', name: 'Resolved?', x: 600, y: 300, time: 1, timeUnit: 'sec', dist: 'custom', customRouting: {101: 70, 102: 30}});
+                    nodes.push({id: 4, type: 'process', name: 'Tier 2 Escalation', x: 850, y: 150, time: 10, timeUnit: 'sec', dist: 'constant'});
+                    nodes.push({id: 5, type: 'process', name: 'Call Closed', x: 850, y: 450, time: 1, timeUnit: 'sec', dist: 'constant'});
+                    links.push({id: 100, source: 1, target: 2});
+                    links.push({id: 103, source: 2, target: 3});
+                    links.push({id: 101, source: 3, target: 5}); // 70% resolved
+                    links.push({id: 102, source: 3, target: 4}); // 30% escalated
+                    links.push({id: 104, source: 4, target: 5}); // tier 2 closes it
+                } else if (tpl === 'patient-flow') {
+                    nodes.push({id: 1, type: 'entity', name: 'Patient Arrival', x: 100, y: 200, time: 2, timeUnit: 'sec', dist: 'uniform'});
+                    nodes.push({id: 2, type: 'process', name: 'Triage', x: 350, y: 200, time: 4, timeUnit: 'sec', dist: 'uniform'});
+                    nodes.push({id: 3, type: 'decision', name: 'Severity', x: 600, y: 200, time: 1, timeUnit: 'sec', dist: 'custom', customRouting: {201: 20, 202: 80}});
+                    nodes.push({id: 4, type: 'process', name: 'Trauma Bay', x: 850, y: 100, time: 8, timeUnit: 'sec', dist: 'uniform'});
+                    nodes.push({id: 5, type: 'process', name: 'Standard Room', x: 850, y: 300, time: 6, timeUnit: 'sec', dist: 'uniform'});
+                    links.push({id: 200, source: 1, target: 2});
+                    links.push({id: 203, source: 2, target: 3});
+                    links.push({id: 201, source: 3, target: 4}); // 20% critical
+                    links.push({id: 202, source: 3, target: 5}); // 80% standard
+                }
+                document.getElementById('modal-templates').classList.add('hidden');
+                renderAll();
+                logMsg(`Loaded template: ${tpl}`);
+            });
+        });
+
+        // 3. Sherpa AI Builder
+        document.getElementById('btn-ai-builder').addEventListener('click', () => {
+            if(isSimulating) return;
+            document.getElementById('modal-ai-builder').classList.remove('hidden');
+        });
+        
+        document.getElementById('btn-ai-generate').addEventListener('click', () => {
+            const prompt = document.getElementById('ai-prompt').value.trim();
+            if(!prompt) return;
+            
+            document.getElementById('btn-ai-generate').innerText = 'Generating...';
+            
+            // Simulate AI parsing delay
+            setTimeout(() => {
+                stopSimulation();
+                nodes = [];
+                links = [];
+                
+                if (prompt.toLowerCase().includes('call center')) {
+                    nodes = [
+                        {id: 1, type: 'entity', name: 'Incoming Calls', x: 100, y: 300, time: 2, timeUnit: 'sec', dist: 'uniform'},
+                        {id: 2, type: 'decision', name: 'IVR Routing', x: 350, y: 300, time: 1, timeUnit: 'sec', dist: 'constant'},
+                        {id: 3, type: 'process', name: 'Tech Support', x: 600, y: 150, time: 5, timeUnit: 'sec', dist: 'uniform'},
+                        {id: 4, type: 'process', name: 'Sales Department', x: 600, y: 450, time: 3, timeUnit: 'sec', dist: 'uniform'},
+                        {id: 5, type: 'resource', name: 'Support Agent 1', x: 850, y: 100, time: 1, timeUnit: 'sec', dist: 'constant', hourlyRate: 25},
+                        {id: 6, type: 'resource', name: 'Support Agent 2', x: 850, y: 200, time: 1, timeUnit: 'sec', dist: 'constant', hourlyRate: 25},
+                        {id: 7, type: 'resource', name: 'Sales Agent', x: 850, y: 450, time: 1, timeUnit: 'sec', dist: 'constant', hourlyRate: 35}
+                    ];
+                    links = [
+                        {id: 101, source: 1, target: 2},
+                        {id: 102, source: 2, target: 3},
+                        {id: 103, source: 2, target: 4},
+                        {id: 104, source: 3, target: 5},
+                        {id: 105, source: 4, target: 7}
+                    ];
+                } else {
+                    // Smart Semantic Mock Parser
+                    let p = prompt.toLowerCase();
+                    
+                    // Domain inference
+                    let entityName = "Item";
+                    let processName = "Processing";
+                    if (p.includes('restaurant') || p.includes('kitchen') || p.includes('food') || p.includes('pizza')) { entityName = "Order"; processName = "Cooking"; }
+                    else if (p.includes('hospital') || p.includes('clinic') || p.includes('medical') || p.includes('patient')) { entityName = "Patient"; processName = "Examination"; }
+                    else if (p.includes('factory') || p.includes('manufacturing') || p.includes('assembly')) { entityName = "Raw Material"; processName = "Assembly"; }
+                    else if (p.includes('bank') || p.includes('finance') || p.includes('teller')) { entityName = "Customer"; processName = "Transaction"; }
+                    else if (p.includes('support') || p.includes('ticket') || p.includes('helpdesk')) { entityName = "Support Ticket"; processName = "Troubleshooting"; }
+                    else if (p.includes('store') || p.includes('retail') || p.includes('shop')) { entityName = "Shopper"; processName = "Checkout"; }
+                    else if (p.includes('school') || p.includes('student')) { entityName = "Student"; processName = "Class"; }
+                    else if (p.includes('airport') || p.includes('flight')) { entityName = "Passenger"; processName = "Security Check"; }
+                    else { entityName = "Entity"; processName = "Task"; }
+                    
+                    // Extract numbers for resources
+                    let numResources = 1;
+                    const numMatch = p.match(/(\d+)\s+(employee|worker|agent|staff|resource|machine|teller|cook|chef|nurse|doctor|personnel|people)/);
+                    if (numMatch) {
+                        numResources = Math.min(parseInt(numMatch[1]), 10);
+                    } else if (p.includes('two')) numResources = 2;
+                    else if (p.includes('three')) numResources = 3;
+                    else if (p.includes('four')) numResources = 4;
+                    else if (p.includes('five')) numResources = 5;
+                    
+                    let currentX = 100;
+                    let lastId = 1;
+                    
+                    // 1. Initial Entity
+                    nodes.push({id: 1, type: 'entity', name: entityName, x: currentX, y: 300, time: 2, timeUnit: 'sec', dist: 'uniform'});
+                    currentX += 250;
+                    
+                    // 2. Routing/Decision (if mentioned or implied by keywords)
+                    if (p.includes('decision') || p.includes('routing') || p.includes('check') || p.includes('if') || p.includes('sort') || p.includes('triage') || p.includes('quality') || p.includes('complex')) {
+                        nodes.push({id: 2, type: 'decision', name: 'Inspection / Routing', x: currentX, y: 300, time: 1, timeUnit: 'sec', dist: 'constant'});
+                        links.push({id: 101, source: lastId, target: 2});
+                        lastId = 2;
+                        currentX += 250;
+                        
+                        // Split into two parallel processes
+                        nodes.push({id: 3, type: 'process', name: processName + ' (Standard)', x: currentX, y: 150, time: 5, timeUnit: 'sec', dist: 'uniform'});
+                        nodes.push({id: 4, type: 'process', name: processName + ' (Complex)', x: currentX, y: 450, time: 8, timeUnit: 'sec', dist: 'uniform'});
+                        links.push({id: 102, source: 2, target: 3});
+                        links.push({id: 103, source: 2, target: 4});
+                        
+                        currentX += 250;
+                        
+                        // Link resources
+                        const resourceBaseY = 300 - ((numResources - 1) * 80 / 2);
+                        for(let i=0; i<numResources; i++) {
+                            const rId = 10 + i;
+                            nodes.push({id: rId, type: 'resource', name: `Resource ${i+1}`, x: currentX, y: resourceBaseY + (i * 80), time: 1, timeUnit: 'sec', dist: 'constant', hourlyRate: 25});
+                            
+                            if (i % 2 === 0) links.push({id: 200 + i, source: 3, target: rId});
+                            else links.push({id: 200 + i, source: 4, target: rId});
+                            
+                            if (numResources === 1) {
+                                links.push({id: 201, source: 4, target: rId});
+                            }
+                        }
+                    } else {
+                        // 2. Sequential Process
+                        nodes.push({id: 2, type: 'process', name: processName, x: currentX, y: 300, time: 5, timeUnit: 'sec', dist: 'uniform'});
+                        links.push({id: 101, source: lastId, target: 2});
+                        lastId = 2;
+                        currentX += 250;
+                        
+                        // 3. Add resources
+                        const resourceBaseY = 300 - ((numResources - 1) * 80 / 2);
+                        for(let i=0; i<numResources; i++) {
+                            const rId = 10 + i;
+                            nodes.push({id: rId, type: 'resource', name: `Resource ${i+1}`, x: currentX, y: resourceBaseY + (i * 80), time: 1, timeUnit: 'sec', dist: 'constant', hourlyRate: 25});
+                            links.push({id: 200 + i, source: lastId, target: rId});
+                        }
+                    }
+                }
+                
+                document.getElementById('btn-ai-generate').innerText = 'Generate Model';
+                document.getElementById('modal-ai-builder').classList.add('hidden');
+                document.getElementById('ai-prompt').value = '';
+                renderAll();
+                logMsg("AI successfully built model from prompt.");
+            }, 1500);
+        });
+
+        // 4. Smart Stats
+        document.getElementById('btn-ai-stats').addEventListener('click', () => {
+            const content = document.getElementById('stats-content');
+            
+            if (nodes.length === 0) {
+                content.innerHTML = '<p>No model exists. Build a model first.</p>';
+            } else {
+                // Find bottleneck
+                let maxTime = -1;
+                let bottleneck = null;
+                
+                nodes.forEach(n => {
+                    if(n.type === 'process') {
+                        let multi = 1;
+                        if(n.timeUnit === 'min') multi = 60;
+                        if(n.timeUnit === 'hour') multi = 3600;
+                        if(n.timeUnit === 'day') multi = 86400;
+                        let secs = (n.time || 1) * multi;
+                        if(secs > maxTime) { maxTime = secs; bottleneck = n; }
+                    }
+                });
+                
+                if (bottleneck) {
+                    content.innerHTML = `
+                        <p style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check-circle"></i> Analysis Complete</p>
+                        <p><strong>Primary Bottleneck:</strong> ${bottleneck.name}</p>
+                        <p><strong>Impact:</strong> This node takes the longest simulated duration (${bottleneck.time || 1} ${bottleneck.timeUnit || 'sec'}). ProcessModel AI recommends evaluating resource allocation or adding parallel paths to reduce queue times at this step.</p>
+                        <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-left: 4px solid #3b82f6; border-radius: 4px; margin-top: 1rem;">
+                            <p style="margin: 0; font-size: 0.85rem; color: #9ca3af;"><strong>AI Insight:</strong> Reducing the processing time of '${bottleneck.name}' by 20% would theoretically increase overall system throughput by 14.2%.</p>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = '<p>No processing nodes detected. Add process nodes to analyze bottlenecks.</p>';
+                }
+            }
+            
+            document.getElementById('modal-smart-stats').classList.remove('hidden');
+        });
+        
+        // 5. Zoom Controls
+        let currentZoom = 0.7;
+        const canvasWorld = document.getElementById('canvas');
+        
+        function updateZoom() {
+            canvasWorld.style.transform = `scale(${currentZoom})`;
+            document.getElementById('btn-zoom-reset').innerText = Math.round(currentZoom * 100) + '%';
+        }
+        updateZoom();
+
+        document.getElementById('btn-zoom-in').addEventListener('click', () => {
+            currentZoom = Math.min(currentZoom + 0.1, 2.0); // max 200%
+            updateZoom();
+        });
+
+        document.getElementById('btn-zoom-out').addEventListener('click', () => {
+            currentZoom = Math.max(currentZoom - 0.1, 0.3); // min 30%
+            updateZoom();
+        });
+
+        document.getElementById('btn-zoom-reset').addEventListener('click', () => {
+            currentZoom = 1;
+            updateZoom();
+        });
+
+        // Mouse Wheel Zoom
+        document.querySelector('.canvas-container').addEventListener('wheel', (e) => {
+            if (e.ctrlKey || true) { // enable zooming even without ctrl for ease of use
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    currentZoom = Math.min(currentZoom + 0.1, 2.0);
+                } else {
+                    currentZoom = Math.max(currentZoom - 0.1, 0.3);
+                }
+                updateZoom();
+            }
+        });
+
+        // --- END NEW FEATURES ---
+
+        // Audio Demo Speech Synthesis
+        let demoUtterance = null;
+        let isAudioPlaying = false;
+        let isAudioPaused = false;
+        
+        function initAudioDemo() {
+            const demoText = "Welcome to the Business Model Simulator. This enterprise-grade discrete event simulation engine allows you to map out complex workflows, assign temporal properties, and run live data flows to identify bottlenecks. You can drag and drop entities, processes, and resources, or utilize our smart template library.";
+            
+            function setVoice() {
+                const voices = window.speechSynthesis.getVoices();
+                if (voices.length === 0) return;
+                
+                demoUtterance = new SpeechSynthesisUtterance(demoText);
+                
+                let selectedVoice = voices.find(v => v.lang === 'en-GB' && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('hazel') || v.name.toLowerCase().includes('sonia')));
+                if (!selectedVoice) selectedVoice = voices.find(v => v.lang === 'en-GB');
+                if (!selectedVoice) selectedVoice = voices.find(v => v.name.toLowerCase().includes('female'));
+                
+                if (selectedVoice) {
+                    demoUtterance.voice = selectedVoice;
+                }
+                demoUtterance.rate = 0.9;
+                demoUtterance.pitch = 1.1;
+                
+                demoUtterance.onend = () => {
+                    isAudioPlaying = false;
+                    isAudioPaused = false;
+                };
+            }
+            
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = setVoice;
+            }
+            setVoice();
+            
+            document.getElementById('audio-play').addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                if (isAudioPaused) {
+                    window.speechSynthesis.resume();
+                    isAudioPaused = false;
+                } else {
+                    window.speechSynthesis.cancel();
+                    if(demoUtterance) window.speechSynthesis.speak(demoUtterance);
+                }
+                isAudioPlaying = true;
+                logMsg("Playing audio demo.");
+            });
+            
+            document.getElementById('audio-pause').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isAudioPlaying && !isAudioPaused) {
+                    window.speechSynthesis.pause();
+                    isAudioPaused = true;
+                    logMsg("Paused audio demo.");
+                }
+            });
+            
+            document.getElementById('audio-stop').addEventListener('click', (e) => {
+                e.stopPropagation();
+                window.speechSynthesis.cancel();
+                isAudioPlaying = false;
+                isAudioPaused = false;
+                logMsg("Stopped audio demo.");
+            });
+            
+            document.getElementById('btn-audio-demo').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                runAnimatedDemo();
+            });
+        }
+        
+        async function runAnimatedDemo() {
+            stopSimulation();
+            window.speechSynthesis.cancel();
+            nodes = [];
+            links = [];
+            renderAll();
+            
+            let cursor = document.getElementById('demo-cursor');
+            if (!cursor) {
+                cursor = document.createElement('div');
+                cursor.id = 'demo-cursor';
+                cursor.style.position = 'absolute';
+                cursor.style.zIndex = '9999';
+                cursor.style.pointerEvents = 'none';
+                cursor.style.transition = 'top 0.4s ease-in-out, left 0.4s ease-in-out';
+                cursor.innerHTML = '<i class="fa-solid fa-arrow-pointer" style="font-size: 24px; color: white; -webkit-text-stroke: 1px black; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));"></i>';
+                document.body.appendChild(cursor);
+            }
+            
+            cursor.style.display = 'block';
+            cursor.style.left = (window.innerWidth / 2) + 'px';
+            cursor.style.top = (window.innerHeight / 2) + 'px';
+            
+            let isDemoRunning = true;
+            window.demoUtterances = []; // Prevent garbage collection of utterances
+            
+            const showSubtitle = (text) => {
+                const sub = document.getElementById('demo-subtitles');
+                sub.innerHTML = text;
+                sub.classList.remove('hidden');
+            };
+            const hideSubtitle = () => {
+                document.getElementById('demo-subtitles').classList.add('hidden');
+            };
+
+            const stopDemoHandler = (e) => {
+                if (!e.isTrusted) return; // Ignore programmatic clicks from the demo
+                if (e.target.closest('.tool-btn') && e.target.closest('.tool-btn').id !== 'btn-audio-demo') {
+                    isDemoRunning = false;
+                    window.speechSynthesis.cancel();
+                    hideSubtitle();
+                    cursor.style.display = 'none';
+                    document.querySelector('.toolbar').removeEventListener('click', stopDemoHandler);
+                }
+            };
+            document.querySelector('.toolbar').addEventListener('click', stopDemoHandler);
+
+            const speakWait = (text) => {
+                return new Promise(resolve => {
+                    if(!isDemoRunning) return resolve();
+                    showSubtitle(text);
+                    const u = new SpeechSynthesisUtterance(text);
+                    window.demoUtterances.push(u); // Prevent GC
+                    const voices = window.speechSynthesis.getVoices();
+                    let voice = voices.find(v => v.lang === 'en-GB' && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('hazel') || v.name.toLowerCase().includes('sonia')));
+                    if (!voice) voice = voices.find(v => v.lang === 'en-GB');
+                    if (voice) u.voice = voice;
+                    u.rate = 0.95;
+                    u.pitch = 1.1;
+                    
+                    let resolved = false;
+                    const onEnd = () => {
+                        if(resolved) return;
+                        resolved = true;
+                        hideSubtitle();
+                        resolve();
+                    };
+                    u.onend = onEnd;
+                    u.onerror = onEnd;
+                    
+                    // Fallback in case onend fails to fire (Chrome bug)
+                    setTimeout(onEnd, Math.max(3000, text.length * 100));
+                    
+                    window.speechSynthesis.speak(u);
+                });
+            };
+
+            const speakAsync = (text) => {
+                if(!isDemoRunning) return;
+                showSubtitle(text);
+                const u = new SpeechSynthesisUtterance(text);
+                window.demoUtterances.push(u); // Prevent GC
+                const voices = window.speechSynthesis.getVoices();
+                let voice = voices.find(v => v.lang === 'en-GB' && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('hazel') || v.name.toLowerCase().includes('sonia')));
+                if (!voice) voice = voices.find(v => v.lang === 'en-GB');
+                if (voice) u.voice = voice;
+                u.rate = 0.95;
+                u.pitch = 1.1;
+                u.onend = hideSubtitle;
+                u.onerror = hideSubtitle;
+                window.speechSynthesis.speak(u);
+            };
+            
+            const moveCursor = (x, y, duration = 400) => {
+                return new Promise(resolve => {
+                    if(!isDemoRunning) return resolve();
+                    cursor.style.transition = `top ${duration}ms ease-in-out, left ${duration}ms ease-in-out`;
+                    cursor.style.left = x + 'px';
+                    cursor.style.top = y + 'px';
+                    setTimeout(resolve, duration);
+                });
+            };
+            
+            const clickCursor = (btnSelector) => {
+                return new Promise(resolve => {
+                    if(!isDemoRunning) return resolve();
+                    cursor.style.transform = 'scale(0.8)';
+                    if (btnSelector) {
+                        const el = document.querySelector(btnSelector);
+                        if (el && el.click) el.click();
+                    }
+                    setTimeout(() => {
+                        cursor.style.transform = 'scale(1)';
+                        setTimeout(resolve, 100);
+                    }, 100);
+                });
+            };
+
+            const getBtnPos = (btnSelector) => {
+                const btn = document.querySelector(btnSelector);
+                if(!btn) return {x: window.innerWidth / 2, y: window.innerHeight / 2};
+                const rect = btn.getBoundingClientRect();
+                return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+            };
+
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            await speakWait("Welcome to the Business Model Simulator. We have an issue where our manufacturing pipeline is experiencing severe bottlenecks during Quality Assurance.");
+            if(!isDemoRunning) return;
+            
+            await speakWait("Let me demonstrate how we can map out this 5-step process to identify the root cause.");
+            if(!isDemoRunning) return;
+            
+            // 1. Raw Materials
+            speakAsync("First, we select an Entity node from the toolbar to represent our incoming Raw Materials.");
+            let pos = getBtnPos('[data-tool="entity"]');
+            await moveCursor(pos.x, pos.y, 600);
+            await clickCursor(); 
+            let targetX = canvasRect.left + 200 * currentZoom;
+            let targetY = canvasRect.top + 300 * currentZoom;
+            await moveCursor(targetX, targetY, 800);
+            nodes.push({ id: 1, type: 'entity', name: 'Raw Materials', x: 200, y: 300, time: 1, dist: 'constant' });
+            renderAll();
+            selectItem('node', 1);
+            await new Promise(r=>setTimeout(r,500));
+            if(!isDemoRunning) return;
+
+            // 2. Assembly Line
+            speakAsync("Next, we drag out a Process node for the primary Assembly Line, which takes 2 time units to complete.");
+            pos = getBtnPos('[data-tool="process"]');
+            await moveCursor(pos.x, pos.y, 600);
+            await clickCursor(); 
+            targetX = canvasRect.left + 500 * currentZoom;
+            targetY = canvasRect.top + 300 * currentZoom;
+            await moveCursor(targetX, targetY, 800);
+            nodes.push({ id: 2, type: 'process', name: 'Assembly Line', x: 500, y: 300, time: 2, dist: 'uniform' });
+            renderAll();
+            selectItem('node', 2);
+            await new Promise(r=>setTimeout(r,500));
+            if(!isDemoRunning) return;
+
+            // 3. QA Check
+            speakAsync("Then, the materials arrive at the QA Check decision point.");
+            pos = getBtnPos('[data-tool="decision"]');
+            await moveCursor(pos.x, pos.y, 600);
+            await clickCursor(); 
+            targetX = canvasRect.left + 800 * currentZoom;
+            targetY = canvasRect.top + 300 * currentZoom;
+            await moveCursor(targetX, targetY, 800);
+            nodes.push({ id: 3, type: 'decision', name: 'QA Check', x: 800, y: 300, time: 0.5, dist: 'constant' });
+            renderAll();
+            selectItem('node', 3);
+            await new Promise(r=>setTimeout(r,500));
+            if(!isDemoRunning) return;
+
+            // Zoom Out Demonstration
+            await speakWait("As we can see, our model is starting to grow a bit too large for the current workspace view.");
+            if(!isDemoRunning) return;
+            
+            speakAsync("We can easily use the zoom controls in the bottom right to scale the view down to 70 percent.");
+            let zoomOutBtn = getBtnPos('#btn-zoom-out');
+            await moveCursor(zoomOutBtn.x, zoomOutBtn.y, 800);
+            
+            for(let i = 0; i < 3; i++) {
+                if(!isDemoRunning) return;
+                await clickCursor('#btn-zoom-out');
+                await new Promise(r=>setTimeout(r, 300));
+            }
+            if(!isDemoRunning) return;
+
+            // 4. Rework Station
+            speakAsync("If they fail QA, they are routed to the Rework Station down here.");
+            pos = getBtnPos('[data-tool="process"]');
+            await moveCursor(pos.x, pos.y, 600);
+            await clickCursor(); 
+            targetX = canvasRect.left + 800 * currentZoom;
+            targetY = canvasRect.top + 500 * currentZoom;
+            await moveCursor(targetX, targetY, 800);
+            nodes.push({ id: 4, type: 'process', name: 'Rework Station', x: 800, y: 500, time: 3, dist: 'constant' });
+            renderAll();
+            selectItem('node', 4);
+            await new Promise(r=>setTimeout(r,500));
+            if(!isDemoRunning) return;
+
+            // 5. Packaging
+            speakAsync("If they pass, they proceed straight to final Packaging.");
+            pos = getBtnPos('[data-tool="process"]');
+            await moveCursor(pos.x, pos.y, 600);
+            await clickCursor(); 
+            targetX = canvasRect.left + 1100 * currentZoom;
+            targetY = canvasRect.top + 300 * currentZoom;
+            await moveCursor(targetX, targetY, 800);
+            nodes.push({ id: 5, type: 'process', name: 'Packaging', x: 1100, y: 300, time: 1.5, dist: 'constant' });
+            renderAll();
+            selectItem('node', 5);
+            await new Promise(r=>setTimeout(r,500));
+            if(!isDemoRunning) return;
+
+            // 6. Note
+            speakAsync("Let's add a quick text note to document our routing logic.");
+            pos = getBtnPos('[data-tool="note"]');
+            await moveCursor(pos.x, pos.y, 600);
+            await clickCursor(); 
+            targetX = canvasRect.left + 1100 * currentZoom;
+            targetY = canvasRect.top + 150 * currentZoom;
+            await moveCursor(targetX, targetY, 800);
+            nodes.push({ id: 6, type: 'note', name: 'Flow routes 50% to packaging\nand 50% back to rework.', x: 1100, y: 150, time: 0, dist: 'constant' });
+            renderAll();
+            selectItem('node', 6);
+            await new Promise(r=>setTimeout(r,500));
+            if(!isDemoRunning) return;
+
+            await speakWait("Now, we will use the draw connection tool to establish the exact workflow logic between our nodes.");
+            if(!isDemoRunning) return;
+
+            let linkBtn = getBtnPos('[data-tool="link"]');
+            await moveCursor(linkBtn.x, linkBtn.y, 600);
+            await clickCursor('[data-tool="link"]'); 
+
+            const demoLinks = [
+                { source: 1, target: 2 },
+                { source: 2, target: 3 },
+                { source: 3, target: 5 },
+                { source: 3, target: 4 },
+                { source: 4, target: 2 }
+            ];
+
+            for (let i = 0; i < demoLinks.length; i++) {
+                if(!isDemoRunning) return;
+                let dl = demoLinks[i];
+                let n1 = nodes.find(n => n.id === dl.source);
+                let n2 = nodes.find(n => n.id === dl.target);
+                
+                let e1X = canvasRect.left + n1.x * currentZoom + 30;
+                let e1Y = canvasRect.top + n1.y * currentZoom + 30;
+                let e2X = canvasRect.left + n2.x * currentZoom + 30;
+                let e2Y = canvasRect.top + n2.y * currentZoom + 30;
+
+                await moveCursor(e1X, e1Y, 300);
+                await clickCursor();
+                await moveCursor(e2X, e2Y, 300);
+                await clickCursor();
+                
+                links.push({ id: i+1, source: dl.source, target: dl.target });
+                renderAll();
+            }
+
+            if(!isDemoRunning) return;
+
+            let selectBtn = getBtnPos('[data-tool="select"]');
+            await moveCursor(selectBtn.x, selectBtn.y, 400);
+            await clickCursor('[data-tool="select"]');
+            selectItem(null, null);
+
+            await speakWait("With the pipeline complete, we can run the simulation to track throughput, animate the data flow, and pinpoint those delays!");
+            if(!isDemoRunning) return;
+
+            let runBtn = getBtnPos('#btn-run');
+            await moveCursor(runBtn.x, runBtn.y, 500);
+            await clickCursor();
+            
+            cursor.style.display = 'none';
+            document.querySelector('.toolbar').removeEventListener('click', stopDemoHandler);
+            runSimulation();
+        }
+        
+        initAudioDemo();
+
+        // Button Listeners
+        document.getElementById('btn-run').addEventListener('click', () => {
+            if (isSimulating) stopSimulation();
+            else runSimulation();
+        });
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            stopSimulation();
+            nodes = [];
+            links = [];
+            renderAll();
+
+            // Set zoom to 100% for the demo to show the scaling down feature later
+            currentZoom = 1.0;
+            updateZoom();
+            logMsg("Board cleared.");
+        });
+
+        // File Controls Listeners
+        document.getElementById('btn-file-new').addEventListener('click', () => {
+            stopSimulation();
+            nodes = [];
+            links = [];
+            selectedNodeIds = [];
+            selectItem(null, null);
+            renderAll();
+            logMsg("New project started.");
+        });
+
+        document.getElementById('btn-file-save').addEventListener('click', async () => {
+            const dataStr = JSON.stringify({nodes, links}, null, 2);
+            
+            if (window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: 'business_model_project.json',
+                        types: [{
+                            description: 'JSON Files',
+                            accept: { 'application/json': ['.json'] },
+                        }],
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(dataStr);
+                    await writable.close();
+                    logMsg(`Project saved successfully.`);
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error(err);
+                        alert("Error saving file.");
+                    }
+                }
+            } else {
+                let filename = prompt("Enter a file name for your project (will be saved as JSON):", "business_model_project");
+                if (!filename) return;
+                if (!filename.toLowerCase().endsWith('.json')) filename += '.json';
+                
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", url);
+                downloadAnchorNode.setAttribute("download", filename);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                URL.revokeObjectURL(url);
+                logMsg(`Project saved as ${filename}.`);
+            }
+        });
+
+        document.getElementById('btn-file-open').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = e => { 
+                const file = e.target.files[0]; 
+                if (!file) return;
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.onload = readerEvent => {
+                    try {
+                        const parsed = JSON.parse(readerEvent.target.result);
+                        if (parsed.nodes && parsed.links) {
+                            stopSimulation();
+                            nodes = parsed.nodes;
+                            links = parsed.links;
+                            renderAll();
+                            logMsg("Project loaded.");
+                        } else {
+                            alert("Invalid project file format. Missing nodes or links.");
+                        }
+                    } catch (err) {
+                        alert("Error reading file. Ensure it is a valid JSON project.");
+                    }
+                }
+            }
+            input.click();
+        });
+
+        document.getElementById('btn-file-edit').addEventListener('click', () => {
+            alert("Batch editing properties feature coming soon!");
+        });
+
+        // Start
+        initBoard();
+
+        // Toolbar Stop Intercept
+        document.querySelector('.toolbar').addEventListener('click', (e) => {
+            if (!e.isTrusted) return; // Ignore programmatic clicks
+            if (e.target.closest('.tool-btn') && e.target.closest('.tool-btn').id !== 'btn-audio-demo') {
+                stopSimulation();
+            }
+        });
+
+        setTimeout(runSimulation, 500);
+    </script>
+</body>
+</html>

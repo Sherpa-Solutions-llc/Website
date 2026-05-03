@@ -12,6 +12,8 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import json
+import subprocess
+import logging
 import time
 import hmac
 import hashlib
@@ -1460,7 +1462,7 @@ import subprocess
 
 @app.get("/api/sync-progress")
 async def sync_progress(user: str = Depends(require_admin)):
-    progress_file = r"C:\tmp\github_sync_progress.json"
+    progress_file = "github_sync_progress.json"
     if os.path.exists(progress_file):
         try:
             with open(progress_file, 'r') as f:
@@ -1470,7 +1472,7 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
-SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator']
+SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator', 'voice-chat']
 
 @app.get("/api/edit-page/{page_name:path}")
 async def edit_page_view(page_name: str):
@@ -1833,27 +1835,46 @@ import asyncio
 class SyncRequest(BaseModel):
     projects: list[str] = []
 
+@app.get("/api/git-status")
+async def get_git_status(user: str = Depends(require_admin)):
+    try:
+        import subprocess
+        # Get list of modified files in a format we can parse
+        res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+        files = []
+        for line in res.stdout.splitlines():
+            # git status --porcelain output: " M path/to/file.html" or "?? newfile.html"
+            path = line[3:].strip()
+            if path.endswith(".html"):
+                # Extract filename without extension for easier matching
+                name = os.path.basename(path).replace(".html", "")
+                files.append(name)
+        return {"modified": files}
+    except Exception as e:
+        return {"modified": [], "error": str(e)}
+
 @app.post("/api/sync-github")
 async def sync_github(request: SyncRequest, user: str = Depends(require_admin)):
     try:
         # Write selected projects config
-        config_file = r"C:\tmp\github_sync_config.json"
+        config_file = "github_sync_config.json"
         import json
         with open(config_file, 'w') as f:
             json.dump({"projects": request.projects}, f)
 
         # Initialize progress file with starting state
-        progress_file = r"C:\tmp\github_sync_progress.json"
+        progress_file = "github_sync_progress.json"
         with open(progress_file, 'w') as f:
             json.dump({"current": 0, "total": 0, "status": "starting", "message": "Initializing...", "percentage": 0}, f)
             
         # Run the existing upload script in the background
         # Using the same interpreter and absolute path for reliability
-        script_path = r"C:\tmp\github_final_upload.py"
-        python_exe = r"C:\Users\choos\AppData\Local\Python\pythoncore-3.14-64\python.exe"
+        script_path = os.path.join(BASE_DIR, "github_final_upload.py")
+        python_exe = sys.executable
         
         # We DON'T await process.communicate() here, so the API returns immediately
         # and allows the frontend to poll for progress while the script runs.
+        print(f"Launching sync script: {python_exe} {script_path}")
         subprocess.Popen([python_exe, script_path], 
                          stdout=subprocess.DEVNULL, 
                          stderr=subprocess.DEVNULL,

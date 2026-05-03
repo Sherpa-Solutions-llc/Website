@@ -1,17 +1,17 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" data-theme="light">
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Sherpa Solutions LLC | Merchandise</title>
 <!-- Modern Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <link href="static/styles.css" rel="stylesheet"/>
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -22,7 +22,18 @@
     --text-light: #ffffff !important;
 }
 </style>
-</head>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</link></head>
 <body>
 <header>
 <div class="logo-container">
@@ -35,10 +46,10 @@
 <li><a href="about.html">About Us</a></li>
 <li><a href="services.html">Our Services</a></li>
 <li><a href="projects.html">Projects</a></li>
-            <li><a class="active" href="merchandise.html">Merchandise</a></li>
+<li><a class="active" href="merchandise.html">Merchandise</a></li>
 <li><a href="contact.html">Contact</a></li>
 </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
+<div class="header-actions"><button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button></div>
 <a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
 </header>
 <div class="page-header">
@@ -46,33 +57,30 @@
 <p data-cms="merch-page-sub">Premium gear for the journey. Show your affiliation with the leaders of the climb.
         </p>
 </div>
-
 <section class="content-block">
 <h2 class="section-title" data-cms="merch-cat-apparel" style="text-align: center; margin-bottom: 2rem; color: var(--primary);">Corporate Apparel</h2>
 <div class="store-grid">
 <div class="product-card" id="card-shirt">
-<div class="product-img"><img id="shirt-color-img" alt="White Button-Up Shirt" src="static/merch_shirt_button_user.png?v=1772648820" style="object-fit: contain;"/></div>
+<div class="product-img"><img alt="White Button-Up Shirt" id="shirt-color-img" src="static/merch_shirt_button_user.png?v=1772648820" style="object-fit: contain;"/></div>
 <div class="product-info">
 <h3 class="product-title">Corporate Button-Up Shirt</h3>
 <p class="product-price">$65.00</p>
 <div style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: center;">
 <select style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: white;"><option>Size S</option><option>Size M</option><option selected="">Size L</option></select>
-<select id="shirt-color-select" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: white;" onchange="var img=document.getElementById('shirt-color-img');if(this.value==='Blue'){img.src='/static/merch_shirt_button_blue.png';img.alt='Blue Button-Up Shirt';}else{img.src='/static/merch_shirt_button_user.png?v=1772648820';img.alt='White Button-Up Shirt';}"><option value="White">White</option><option value="Blue">Blue</option></select>
+<select id="shirt-color-select" onchange="var img=document.getElementById('shirt-color-img');if(this.value==='Blue'){img.src='/static/merch_shirt_button_blue.png';img.alt='Blue Button-Up Shirt';}else{img.src='/static/merch_shirt_button_user.png?v=1772648820';img.alt='White Button-Up Shirt';}" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: white;"><option value="White">White</option><option value="Blue">Blue</option></select>
 </div>
 <div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
 <label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
+<input class="qty-input" max="99" min="1" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;" type="number" value="1"/>
 </div>
 <a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-shirt','Corporate Button-Up Shirt',65,'/static/merch_shirt_button_user.png')">Add to Cart</a>
 </div>
 </div>
-
 <!-- Product 1 -->
-
 <!-- Product 2 -->
 <div class="product-card" id="card-quartzip">
 <div class="product-img">
-<img id="quartzip-color-img" alt="Sherpa Basecamp Quarter-Zip" data-cms="merch-img-2" src="/static/merch_pullover.png"/>
+<img alt="Sherpa Basecamp Quarter-Zip" data-cms="merch-img-2" id="quartzip-color-img" src="/static/merch_pullover.png"/>
 </div>
 <div class="product-info">
 <h3 class="product-title" data-cms="merch-title-2">Basecamp Quarter-Zip</h3>
@@ -85,7 +93,7 @@
 <option value="L">Large</option>
 <option value="XL">X-Large</option>
 </select>
-<select aria-label="Color" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit; color: #1a1a1a;" onchange="var img=document.getElementById('quartzip-color-img');if(this.value==='Black'){img.src='/static/merch_pullover_black.png';img.alt='Black Basecamp Quarter-Zip';}else if(this.value==='Olive'){img.src='/static/merch_pullover_pro.png?v=1772650922';img.alt='Sherpa Basecamp Quarter-Zip';}">
+<select aria-label="Color" onchange="var img=document.getElementById('quartzip-color-img');if(this.value==='Black'){img.src='/static/merch_pullover_black.png';img.alt='Black Basecamp Quarter-Zip';}else if(this.value==='Olive'){img.src='/static/merch_pullover_pro.png?v=1772650922';img.alt='Sherpa Basecamp Quarter-Zip';}" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; flex: 1; font-family: inherit; color: #1a1a1a;">
 <option disabled="" selected="" value="">Color</option>
 <option value="Olive">Olive Green</option>
 <option value="Black">Black</option>
@@ -93,7 +101,7 @@
 </div>
 <div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
 <label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
+<input class="qty-input" max="99" min="1" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;" type="number" value="1"/>
 </div>
 <a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-quartzip','Basecamp Quarter-Zip',85,'/static/merch_pullover_pro.png')">Add to Cart</a>
 </div>
@@ -107,14 +115,14 @@
 <h3 class="product-title" data-cms="merch-title-3">Summit Powerbank</h3>
 <p class="product-price" id="powerbank-price">$55.00</p>
 <div style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: center;">
-<select id="powerbank-mah" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: white; flex: 1; font-family: inherit;" onchange="document.getElementById('powerbank-price').textContent = this.value === '200000' ? '$75.00' : '$55.00';">
+<select id="powerbank-mah" onchange="document.getElementById('powerbank-price').textContent = this.value === '200000' ? '$75.00' : '$55.00';" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: white; flex: 1; font-family: inherit;">
 <option value="100000">100,000 mAh â€” $55</option>
 <option value="200000">200,000 mAh â€” $75</option>
 </select>
 </div>
 <div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
 <label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
+<input class="qty-input" max="99" min="1" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;" type="number" value="1"/>
 </div>
 <a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-powerbank','Summit Powerbank',55,'/static/merch_powerbank_pro.png')">Add to Cart</a>
 </div>
@@ -144,7 +152,7 @@
 </div>
 <div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
 <label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
+<input class="qty-input" max="99" min="1" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;" type="number" value="1"/>
 </div>
 <a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-polos','Performance Polos',65,'/static/merch_shirt_polo_user.png')">Add to Cart</a>
 </div>
@@ -168,7 +176,7 @@
 </div>
 <div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
 <label style="font-size:0.85rem;color:#666;">Qty:</label>
-<input type="number" class="qty-input" value="1" min="1" max="99" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;">
+<input class="qty-input" max="99" min="1" style="width:50px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;" type="number" value="1"/>
 </div>
 <a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-socks','Mountaineering Socks',25,'/static/merch_socks_pro.png')">Add to Cart</a>
 </div>
@@ -180,72 +188,62 @@
 <h2 data-cms="merch-cta-head">Outfit Your Team</h2>
 <p data-cms="merch-cta-desc">We offer bulk discounts for corporate orders to ensure your entire team is
                 equipped for the climb.</p>
-<a class="btn btn-primary" href="contact.html" >Contact for Bulk Orders</a>
+<a class="btn btn-primary" href="contact.html">Contact for Bulk Orders</a>
 </div>
 </section>
 <footer>
 <p>Â© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
 </footer>
 <script src="static/cms.js"></script>
-
 <!-- Cart FAB -->
-<div id="cart-fab" onclick="openCart()" style="position:fixed;bottom:2rem;right:2rem;width:60px;height:60px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(192,108,59,0.4);z-index:999;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+<div id="cart-fab" onclick="openCart()" onmouseout="this.style.transform='scale(1)'" onmouseover="this.style.transform='scale(1.1)'" style="position:fixed;bottom:2rem;right:2rem;width:60px;height:60px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(192,108,59,0.4);z-index:999;transition:transform 0.2s;">
 <i class="fas fa-shopping-cart" style="color:white;font-size:1.4rem;"></i>
 <span id="cart-badge" style="position:absolute;top:-4px;right:-4px;background:var(--primary);color:white;font-size:0.7rem;font-weight:700;width:22px;height:22px;border-radius:50%;display:none;align-items:center;justify-content:center;">0</span>
 </div>
-
 <!-- Cart Overlay -->
 <div id="cart-overlay" onclick="closeCart()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1000;"></div>
-
 <!-- Cart Drawer -->
 <div id="cart-drawer" style="position:fixed;top:0;right:0;width:400px;max-width:90vw;height:100%;background:white;z-index:1001;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(0,0,0,0.1);">
 <div style="padding:1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
 <h3 style="margin:0;color:var(--primary);font-family:'Outfit',sans-serif;">Shopping Cart</h3>
-<button onclick="closeCart()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888;">&times;</button>
+<button onclick="closeCart()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888;">×</button>
 </div>
 <div id="cart-body" style="flex:1;overflow-y:auto;padding:0 1.5rem;">
 <p style="text-align:center;color:#888;padding:2rem;">Your cart is empty.</p>
 </div>
 <div id="cart-footer" style="padding:1.5rem;border-top:1px solid #eee;"></div>
 </div>
-
 <!-- Checkout Modal -->
 <div id="checkout-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1002;align-items:center;justify-content:center;">
 <div id="checkout-modal-body" style="background:white;border-radius:16px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;padding:2rem;position:relative;">
-<button onclick="closeCheckout()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888;">&times;</button>
+<button onclick="closeCheckout()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888;">×</button>
 <h2 style="color:var(--primary);font-family:'Outfit',sans-serif;margin-bottom:1.5rem;"><i class="fas fa-lock" style="margin-right:0.5rem;color:var(--accent);"></i>Secure Checkout</h2>
-
 <div id="checkout-order-summary" style="margin-bottom:1.5rem;"></div>
-
 <form id="checkout-form" onsubmit="placeOrder(event)">
 <h3 style="color:var(--primary);font-size:1rem;margin-bottom:0.8rem;">Shipping Information</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1rem;">
-<input required placeholder="First Name" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
-<input required placeholder="Last Name" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
+<input placeholder="First Name" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input placeholder="Last Name" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
 </div>
-<input required placeholder="Email Address" type="email" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;">
-<input required placeholder="Street Address" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;">
+<input placeholder="Email Address" required="" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;" type="email"/>
+<input placeholder="Street Address" required="" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;"/>
 <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.8rem;margin-bottom:1.5rem;">
-<input required placeholder="City" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
-<input required placeholder="State" maxlength="2" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
-<input required placeholder="ZIP" maxlength="5" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
+<input placeholder="City" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input maxlength="2" placeholder="State" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input maxlength="5" placeholder="ZIP" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
 </div>
-
 <h3 style="color:var(--primary);font-size:1rem;margin-bottom:0.8rem;"><i class="fas fa-credit-card" style="margin-right:0.5rem;color:var(--accent);"></i>Payment</h3>
-<input required placeholder="Card Number" maxlength="19" oninput="formatCard(this)" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;">
+<input maxlength="19" oninput="formatCard(this)" placeholder="Card Number" required="" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;"/>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem;">
-<input required placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
-<input required placeholder="CVV" maxlength="4" type="password" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
+<input maxlength="5" oninput="formatExpiry(this)" placeholder="MM/YY" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input maxlength="4" placeholder="CVV" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;" type="password"/>
 </div>
-
-<button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:1.05rem;">
+<button class="btn btn-primary" style="width:100%;justify-content:center;font-size:1.05rem;" type="submit">
 <i class="fas fa-lock" style="margin-right:0.5rem;"></i> Place Order
 </button>
 </form>
 </div>
 </div>
-
 <script src="static/cart.js"></script>
 </body>
 </html>
-

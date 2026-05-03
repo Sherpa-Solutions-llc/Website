@@ -525,7 +525,17 @@
             }
         }
     </style>
-    
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 <body>
 <header>
@@ -543,14 +553,14 @@
 </ul>
 <div class="header-actions" style="gap: 1.5rem;">
 <div id="demo-header-container" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-    <button id="btn-play-demo" onclick="runGuidedDemo()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
-        <i class="fa-solid fa-play"></i> Demo
+<button id="btn-play-demo" onclick="runGuidedDemo()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+<i class="fa-solid fa-play"></i> Demo
     </button>
-    <div id="demo-volume-control" style="display:flex;align-items:center;gap:6px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 0.8rem;">
-        <span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-low"></i></span>
-        <input id="demo-volume-slider" max="100" min="0" style="width:60px;height:3px;cursor:pointer;accent-color:var(--accent);" type="range" value="50"/>
-        <span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-high"></i></span>
-    </div>
+<div id="demo-volume-control" style="display:flex;align-items:center;gap:6px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 0.8rem;">
+<span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-low"></i></span>
+<input id="demo-volume-slider" max="100" min="0" style="width:60px;height:3px;cursor:pointer;accent-color:var(--accent);" type="range" value="50"/>
+<span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-high"></i></span>
+</div>
 </div>
 <button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
 <a class="btn btn-primary nav-cta" href="index.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back Home</a>
@@ -826,7 +836,6 @@
             document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
-
 <div class="app-container">
 <div class="search-panel">
 <!-- Tabs -->
@@ -905,8 +914,8 @@
 <h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem;">Target Data Brokers</h3>
 <p style="color: var(--text-muted); margin: 0;">Select the sources you want the autonomous agents to process.</p>
 </div>
-<button id="btn-scan-brokers" class="btn-run" style="margin-left: 1rem; width: fit-content; padding: 0.8rem 1.5rem; font-size: 1rem; white-space: nowrap;" onclick="discoverNewBrokers()" type="button">
-    <i class="fa-solid fa-magnifying-glass"></i> Search New Data Brokers
+<button class="btn-run" id="btn-scan-brokers" onclick="discoverNewBrokers()" style="margin-left: 1rem; width: fit-content; padding: 0.8rem 1.5rem; font-size: 1rem; white-space: nowrap;" type="button">
+<i class="fa-solid fa-magnifying-glass"></i> Search New Data Brokers
 </button>
 </div>
 <div class="broker-grid" id="main-broker-grid">
@@ -1050,7 +1059,7 @@
                         </p>
 <p style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 1.5rem;">
 <strong>Autonomous Opt-Out Engine (OFF):</strong> Submits real requests via Playwright parsing. <em>Note: If Cloudflare Anti-Bot triggers, the physical browser will forcefully respawn on your monitor for manual Captcha clearance.</em>
-                        </p>
+</p>
 <div class="input-group" id="mock-data-container" style="margin-top: 1.5rem;">
 <label>Inject Random Mock Data (Overwrites Target Profile tab)</label>
 <button onclick="injectMockData()" style="padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;" type="button">
@@ -1763,7 +1772,6 @@
             document.getElementById('btn-play-demo').innerHTML = '<i class="fa-solid fa-play"></i> Play Voice Demo Tour';
         }
     </script>
-
-    <script src="static/analytics.js"></script>
+<script src="static/analytics.js"></script>
 </body>
 </html>

@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sherpa Solutions LLC | Settings</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css">
-    <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sherpa Solutions LLC | Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Outfit:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css" rel="stylesheet"/>
+<style>
         /* Removed hardcoded Light Mode overrides so standard theme variables inherited from styles.css apply correctly */
         .admin-layout {
             display: grid;
@@ -368,8 +366,19 @@
             }
         }
     </style>
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -381,304 +390,269 @@
 }
 </style>
 </head>
-
 <body>
-    <div class="admin-layout">
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <img src="/static/sherpa_logo.png" alt="Logo" data-cms="global-navbar-logo">
-            </div>
-            <ul class="sidebar-menu">
-                <li><a onclick="showPanel('users')" class="active" id="btn-users"><i class="fa-solid fa-users"></i>
-                        <span>Users</span></a></li>
-                <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i>
-                        <span>Site Editor</span></a></li>
-                <li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
-                </li>
-                <li style="margin-top: 1rem;"><a onclick="showPanel('convoy')" id="btn-convoy"><span>Convoy</span></a>
-                </li>
-                <li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
-                            class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
-            </ul>
-            <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
-        </aside>
-
-        <main class="admin-content">
-            <div id="panel-users" class="admin-panel active">
-                <h2>Admin User Management</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Manage the administrators authorized to access
+<div class="admin-layout">
+<aside class="sidebar">
+<div class="sidebar-logo">
+<img alt="Logo" data-cms="global-navbar-logo" src="/static/sherpa_logo.png"/>
+</div>
+<ul class="sidebar-menu">
+<li><a class="active" id="btn-users" onclick="showPanel('users')"><i class="fa-solid fa-users"></i>
+<span>Users</span></a></li>
+<li><a id="btn-cms" onclick="showPanel('cms')"><i class="fa-solid fa-pen-to-square"></i>
+<span>Site Editor</span></a></li>
+<li style="margin-top: 2rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
+</li>
+<li style="margin-top: 1rem;"><a id="btn-convoy" onclick="showPanel('convoy')"><span>Convoy</span></a>
+</li>
+<li style="margin-top: 1rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
+</ul>
+<form action="/api/logout" id="logout-form" method="POST" style="display:none;"></form>
+</aside>
+<main class="admin-content">
+<div class="admin-panel active" id="panel-users">
+<h2>Admin User Management</h2>
+<p style="color: var(--secondary); margin-bottom: 2rem;">Manage the administrators authorized to access
                     this portal.</p>
-
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Account ID</th>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-table-body">
-                        <!-- Loaded via JS -->
-                    </tbody>
-                </table>
-
-                <div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
-                    <h3>Provision New Administrator</h3>
-                    <form id="add-user-form" class="form-row">
-                        <input type="text" id="new-username" placeholder="New Username" required autocomplete="off">
-                        <div style="position: relative; flex: 1; display: flex;">
-                            <input type="password" id="new-password" placeholder="Secure Password" required
-                                autocomplete="new-password" style="flex: 1; padding-right: 40px;">
-                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
-                                <i class="fa-solid fa-eye" id="new-password-eye"></i>
-                            </button>
-                        </div>
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
+<table class="user-table">
+<thead>
+<tr>
+<th>Account ID</th>
+<th>Username</th>
+<th>Role</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="user-table-body">
+<!-- Loaded via JS -->
+</tbody>
+</table>
+<div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
+<h3>Provision New Administrator</h3>
+<form class="form-row" id="add-user-form">
+<input autocomplete="off" id="new-username" placeholder="New Username" required="" type="text"/>
+<div style="position: relative; flex: 1; display: flex;">
+<input autocomplete="new-password" id="new-password" placeholder="Secure Password" required="" style="flex: 1; padding-right: 40px;" type="password"/>
+<button onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);" type="button">
+<i class="fa-solid fa-eye" id="new-password-eye"></i>
+</button>
+</div>
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-plus"></i> Add
                             Account</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="panel-cms" class="admin-panel">
-                <!-- Toolbar -->
-                <div
-                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
-                    <div>
-                        <h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
-                                    style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
+</form>
+</div>
+</div>
+<div class="admin-panel" id="panel-cms">
+<!-- Toolbar -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
+<div>
+<h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
+<div style="display:flex; align-items:center; gap:0.5rem;">
+<p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
                                 inline.</p>
-                            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border-color)';"><i class="fa-solid fa-moon"></i></button>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-                        <button id="cms-save-btn" class="btn btn-primary" onclick="saveEditorChanges()" disabled
-                            style="opacity:0.45;">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle" onmouseout="this.style.borderColor='var(--border-color)';" onmouseover="this.style.borderColor='var(--accent)';" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;"><i class="fa-solid fa-moon"></i></button>
+</div>
+</div>
+<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+<button class="btn btn-primary" disabled="" id="cms-save-btn" onclick="saveEditorChanges()" style="opacity:0.45;">
+<i class="fa-solid fa-floppy-disk"></i> Save Changes
                         </button>
-                        <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
-                            style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
+<button class="btn btn-primary" id="btn-sync-github" onclick="syncToGitHub()" style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
+<i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
                         </button>
-                    </div>
-                </div>
-
-                <!-- Global Theme Editor -->
-                <div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                            <i class="fa-solid fa-palette"></i> Global Theme Colors
+</div>
+</div>
+<!-- Global Theme Editor -->
+<div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+<i class="fa-solid fa-palette"></i> Global Theme Colors
                         </div>
-                        <button onclick="saveThemeColors()" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
-                    </div>
-                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
-                            <input type="color" id="theme-color-primary" value="#2D3F2E" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
-                            <input type="color" id="theme-color-secondary" value="#7A8E63" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
-                            <input type="color" id="theme-color-accent" value="#C06C3B" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
-                            <input type="color" id="theme-color-bg" value="#FDFBF7" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
-                            <input type="color" id="theme-color-surface" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
-                            <input type="color" id="theme-color-textdark" value="#1A241A" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
-                            <input type="color" id="theme-color-textlight" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- GitHub progress meter -->
-                <div id="sync-progress-container"
-                    style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color);">
-                    
-                    <!-- GitHub Row -->
-                    <div>
-                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500; margin-bottom:4px;">
-                            <span><i class="fa-brands fa-github"></i> Deploy to GitHub</span>
-                            <span id="sync-progress-percent">0%</span>
-                        </div>
-                        <div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
-                            <div id="sync-progress-bar"
-                                style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;">
-                            </div>
-                        </div>
-                        <div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
-                    </div>
-
-                    <!-- Railway Row -->
-                    <div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
-                        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
-                            <span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
-                            <span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Page selector sitemap -->
-                <div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
-                    
-                    <!-- Root -->
-                    <div style="margin-bottom: 0.75rem;">
-                        <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
-                    </div>
-
-                    <!-- Main Navigation Branch -->
-                    <div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
-                        
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
-                            <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️ Services</button>
-                            <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒 Store</button>
-                            <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
-                        </div>
-
-                        <!-- Projects Sub-branch -->
-                        <div>
-                            <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadEditorPage('live_earth')" class="cms-tab" data-page="live_earth">🌍 Live Earth</button>
-                                <button onclick="loadEditorPage('skip_tracer')" class="cms-tab" data-page="skip_tracer">🔍 Traku</button>
-                                <button onclick="loadEditorPage('stock_agent')" class="cms-tab" data-page="stock_agent">📈 Stock Monitor</button>
-                                <button onclick="loadEditorPage('productivity_agent')" class="cms-tab" data-page="productivity_agent">🤖 Productivity</button>
-                                <button onclick="loadEditorPage('osint_api')" class="cms-tab" data-page="osint_api">🛰️ OSINT API</button>
-                                <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
-                                <button onclick="loadEditorPage('heavenly_melody')" class="cms-tab" data-page="heavenly_melody">🕊️ Heavenly Melody</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div id="cms-status-bar"
-                    style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
-                    <span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
+<button class="btn-outline" onclick="saveThemeColors()" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
+</div>
+<div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
+<input id="theme-color-primary" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#2D3F2E"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
+<input id="theme-color-secondary" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#7A8E63"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
+<input id="theme-color-accent" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#C06C3B"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
+<input id="theme-color-bg" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#FDFBF7"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
+<input id="theme-color-surface" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#FFFFFF"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
+<input id="theme-color-textdark" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#1A241A"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
+<input id="theme-color-textlight" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#FFFFFF"/>
+</div>
+</div>
+</div>
+<!-- GitHub progress meter -->
+<div id="sync-progress-container" style="display:none; width:100%; flex-direction:column; gap:8px; margin-bottom:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color);">
+<!-- GitHub Row -->
+<div>
+<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500; margin-bottom:4px;">
+<span><i class="fa-brands fa-github"></i> Deploy to GitHub</span>
+<span id="sync-progress-percent">0%</span>
+</div>
+<div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
+<div id="sync-progress-bar" style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;">
+</div>
+</div>
+<div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
+</div>
+<!-- Railway Row -->
+<div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
+<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
+<span><i class="fa-solid fa-server"></i> Deploy to Railway</span>
+<span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
+</div>
+</div>
+</div>
+<!-- Page selector sitemap -->
+<div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
+<!-- Root -->
+<div style="margin-bottom: 0.75rem;">
+<button class="cms-tab active" data-page="index" onclick="loadEditorPage('index')">🏠 Home</button>
+</div>
+<!-- Main Navigation Branch -->
+<div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="about" onclick="loadEditorPage('about')">👥 About</button>
+<button class="cms-tab" data-page="services" onclick="loadEditorPage('services')">⚙️ Services</button>
+<button class="cms-tab" data-page="merchandise" onclick="loadEditorPage('merchandise')">🛒 Store</button>
+<button class="cms-tab" data-page="contact" onclick="loadEditorPage('contact')">📞 Contact</button>
+</div>
+<!-- Projects Sub-branch -->
+<div>
+<button class="cms-tab" data-page="projects" onclick="loadEditorPage('projects')">📁 Projects</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="live_earth" onclick="loadEditorPage('live_earth')">🌍 Live Earth</button>
+<button class="cms-tab" data-page="skip_tracer" onclick="loadEditorPage('skip_tracer')">🔍 Traku</button>
+<button class="cms-tab" data-page="stock_agent" onclick="loadEditorPage('stock_agent')">📈 Stock Monitor</button>
+<button class="cms-tab" data-page="productivity_agent" onclick="loadEditorPage('productivity_agent')">🤖 Productivity</button>
+<button class="cms-tab" data-page="osint_api" onclick="loadEditorPage('osint_api')">🛰️ OSINT API</button>
+<button class="cms-tab" data-page="freeme" onclick="loadEditorPage('freeme')">🛡️ FreeMe</button>
+<button class="cms-tab" data-page="heavenly_melody" onclick="loadEditorPage('heavenly_melody')">🕊️ Heavenly Melody</button>
+</div>
+</div>
+</div>
+</div>
+<div id="cms-status-bar" style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+<span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
                         fields. Click to start editing.</span>
-                    <span id="cms-unsaved-badge"
-                        style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
+<span id="cms-unsaved-badge" style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
                         Unsaved</span>
-                </div>
-
-                <iframe id="cms-iframe" src="/api/edit-page/index"
-                    style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;"
-                    sandbox="allow-scripts allow-same-origin">
-                </iframe>
-            </div>
-
-
-            <div id="panel-convoy" class="admin-panel">
-                <h2>Convoy Animation Settings</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Adjust the spacing between the lead Sherpa and
+</div>
+<iframe id="cms-iframe" sandbox="allow-scripts allow-same-origin" src="/api/edit-page/index" style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;">
+</iframe>
+</div>
+<div class="admin-panel" id="panel-convoy">
+<h2>Convoy Animation Settings</h2>
+<p style="color: var(--secondary); margin-bottom: 2rem;">Adjust the spacing between the lead Sherpa and
                     their group.</p>
-                <div class="form-row">
-                    <label for="convoy-delay-input" style="font-weight: 500;">Follower Spacing Delay (ms):</label>
-                    <input type="number" id="convoy-delay-input" min="0" step="100" value="800" style="width: 120px;" />
-                    <button class="btn btn-primary" onclick="saveConvoyDelay()">Save</button>
-                </div>
-                <p style="color: var(--secondary); margin-top:0.5rem; font-size: 0.9rem;">Higher delay = more space
+<div class="form-row">
+<label for="convoy-delay-input" style="font-weight: 500;">Follower Spacing Delay (ms):</label>
+<input id="convoy-delay-input" min="0" step="100" style="width: 120px;" type="number" value="800">
+<button class="btn btn-primary" onclick="saveConvoyDelay()">Save</button>
+</input></div>
+<p style="color: var(--secondary); margin-top:0.5rem; font-size: 0.9rem;">Higher delay = more space
                     between characters.</p>
-            </div>
-        </main>
-    </div>
-
-    <!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
-    <div id="deploy-modal" class="custom-modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <h3>Deploy to GitHub</h3>
-            <p style="color: var(--secondary); margin-bottom: 1.5rem;">Select the specific projects you want to deploy to live hosting.</p>
-            <div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="heavenly_melody" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" checked> 
-                    <span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="core_site" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🌐 Sherpa Core Website (Home, About, Store, etc)</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="open_vote" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🗳️ Open Vote (Geospatial Dashboard)</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="live_earth" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🌍 Live Earth</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="traku" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🔍 Traku (Skip Tracer)</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="stock_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">📈 Stock Monitor</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="productivity_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🤖 Productivity Agent</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="osint_api" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🛰️ OSINT API</span>
-                </label>
-                <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                    <input type="checkbox" class="deploy-project-cb" value="freeme" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                    <span style="line-height: 1.4;">🛡️ FreeMe Engine</span>
-                </label>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-outline" onclick="closeModal('deploy-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="submitDeployment()">Deploy Selected</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="password-modal" class="custom-modal">
-        <div class="modal-content">
-            <h3 id="pw-modal-title">Change Password</h3>
-            <p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
+</div>
+</main>
+</div>
+<!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
+<div class="custom-modal" id="deploy-modal">
+<div class="modal-content" style="max-width: 500px;">
+<h3>Deploy to GitHub</h3>
+<p style="color: var(--secondary); margin-bottom: 1.5rem;">Select the specific projects you want to deploy to live hosting.</p>
+<div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input checked="" class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="heavenly_melody"/>
+<span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="core_site"/>
+<span style="line-height: 1.4;">🌐 Sherpa Core Website (Home, About, Store, etc)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="open_vote"/>
+<span style="line-height: 1.4;">🗳️ Open Vote (Geospatial Dashboard)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="live_earth"/>
+<span style="line-height: 1.4;">🌍 Live Earth</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="traku"/>
+<span style="line-height: 1.4;">🔍 Traku (Skip Tracer)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="stock_agent"/>
+<span style="line-height: 1.4;">📈 Stock Monitor</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="productivity_agent"/>
+<span style="line-height: 1.4;">🤖 Productivity Agent</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="osint_api"/>
+<span style="line-height: 1.4;">🛰️ OSINT API</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="freeme"/>
+<span style="line-height: 1.4;">🛡️ FreeMe Engine</span>
+</label>
+</div>
+<div class="modal-actions">
+<button class="btn-outline" onclick="closeModal('deploy-modal')">Cancel</button>
+<button class="btn btn-primary" onclick="submitDeployment()">Deploy Selected</button>
+</div>
+</div>
+</div>
+<div class="custom-modal" id="password-modal">
+<div class="modal-content">
+<h3 id="pw-modal-title">Change Password</h3>
+<p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
             </p>
-            <div style="position: relative; margin-bottom: 1.5rem;">
-                <input type="password" id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;">
-                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
-                    <i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
-                </button>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-outline" onclick="closeModal('password-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="confirm-modal" class="custom-modal">
-        <div class="modal-content">
-            <h3>Confirm Action</h3>
-            <p id="confirm-modal-text" style="color: var(--secondary); margin-bottom: 2rem;">Are you sure?</p>
-            <div class="modal-actions">
-                <button class="btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
-                <button class="btn-danger" id="confirm-modal-btn">Yes, Revoke</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<div style="position: relative; margin-bottom: 1.5rem;">
+<input id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;" type="password"/>
+<button onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);" type="button">
+<i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
+</button>
+</div>
+<div class="modal-actions">
+<button class="btn-outline" onclick="closeModal('password-modal')">Cancel</button>
+<button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
+</div>
+</div>
+</div>
+<div class="custom-modal" id="confirm-modal">
+<div class="modal-content">
+<h3>Confirm Action</h3>
+<p id="confirm-modal-text" style="color: var(--secondary); margin-bottom: 2rem;">Are you sure?</p>
+<div class="modal-actions">
+<button class="btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
+<button class="btn-danger" id="confirm-modal-btn">Yes, Revoke</button>
+</div>
+</div>
+</div>
+<script>
         let currentActionUserId = null;
         let currentActionUsername = null;
 
@@ -938,7 +912,7 @@
 
             // Generate CSS override block globally forcing light mode variables ONLY
             const cssPayload = `
-:root[data-theme="light"], :root[data-theme="light"] body {
+:root[data-theme="dark"], :root[data-theme="dark"] body {
     --primary: ${primary} !important;
     --secondary: ${secondary} !important;
     --accent: ${accent} !important;
@@ -1117,5 +1091,4 @@
         loadConvoyDelay();
     </script>
 </body>
-
 </html>

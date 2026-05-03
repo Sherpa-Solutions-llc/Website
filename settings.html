@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sherpa Solutions LLC | Settings</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css">
-    <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sherpa Solutions LLC | Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Outfit:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
         /* Removed hardcoded Light Mode overrides so standard theme variables inherited from styles.css apply correctly */
         .admin-layout {
             display: grid;
@@ -25,7 +24,7 @@
             padding: 2rem;
             display: flex;
             flex-direction: column;
-            border-right: 2px solid #d0d8d0;
+            border-right: 2px solid var(--border-color);
         }
 
         .sidebar-logo {
@@ -34,7 +33,6 @@
 
         .sidebar-logo img {
             width: 100%;
-            background: white;
             border-radius: 8px;
             padding: 10px;
         }
@@ -236,6 +234,22 @@
             font-size: 1rem;
         }
 
+        /* Custom Scrollbar for Modal */
+        #deploy-modal-form > div::-webkit-scrollbar {
+            width: 8px;
+        }
+        #deploy-modal-form > div::-webkit-scrollbar-track {
+            background: rgba(122, 142, 99, 0.05);
+            border-radius: 4px;
+        }
+        #deploy-modal-form > div::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+        #deploy-modal-form > div::-webkit-scrollbar-thumb:hover {
+            background: #b8653d;
+        }
+
         .modal-actions {
             display: flex;
             justify-content: center;
@@ -368,8 +382,8 @@
             }
         }
     </style>
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -381,580 +395,577 @@
 }
 </style>
 </head>
-
 <body>
-    <div class="admin-layout">
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <img src="/static/sherpa_logo.png" alt="Logo" data-cms="global-navbar-logo">
-            </div>
-            <ul class="sidebar-menu">
-                <li><a onclick="showPanel('users')" class="active" id="btn-users"><i class="fa-solid fa-users"></i>
-                        <span>Users</span></a></li>
-                <li><a onclick="showPanel('cms')" id="btn-cms"><i class="fa-solid fa-pen-to-square"></i>
-                        <span>Site Editor</span></a></li>
-                <li><a onclick="showPanel('demo')" id="btn-demo"><i class="fa-solid fa-clapperboard"></i>
-                        <span>Demo Editor</span></a></li>
-                <li><a onclick="openModal('deploy-modal')"><i class="fa-brands fa-github"></i>
-                        <span>Deploy to GitHub</span></a></li>
-                <li><a onclick="showPanel('settings')" id="btn-settings"><i class="fa-solid fa-gear"></i>
-                        <span>Settings</span></a></li>
-                
-                <li style="margin-top: 1.5rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
-                </li>
-                <li style="margin-top: 0.5rem;"><a onclick="showPanel('convoy')" id="btn-convoy"><i class="fa-solid fa-person-hiking"></i> <span>Convoy</span></a>
-                </li>
-                <li style="margin-top: 0.5rem;"><a href="#" onclick="document.getElementById('logout-form').submit()"><i
-                            class="fa-solid fa-sign-out-alt"></i> <span>Logout</span></a></li>
-            </ul>
-            <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
-        </aside>
-
-        <main class="admin-content">
-            <div id="panel-users" class="admin-panel active">
-                <h2>Admin User Management</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Manage the administrators authorized to access
-                    this portal.</p>
-
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Account ID</th>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-table-body">
-                        <!-- Loaded via JS -->
-                    </tbody>
-                </table>
-
-                <div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
-                    <h3>Provision New Administrator</h3>
-                    <form id="add-user-form" class="form-row">
-                        <input type="text" id="new-username" placeholder="New Username" required autocomplete="off">
-                        <div style="position: relative; flex: 1; display: flex;">
-                            <input type="password" id="new-password" placeholder="Secure Password" required
-                                autocomplete="new-password" style="flex: 1; padding-right: 40px;">
-                            <button type="button" onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
-                                <i class="fa-solid fa-eye" id="new-password-eye"></i>
-                            </button>
-                        </div>
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
-                            Account</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="panel-cms" class="admin-panel">
-                <!-- Toolbar -->
-                <div
-                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
-                    <div>
-                        <h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span
-                                    style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
-                                inline.</p>
-                            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border-color)';"><i class="fa-solid fa-moon"></i></button>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-                        <button id="cms-discard-btn" class="btn-outline" onclick="discardEditorChanges()" disabled
-                            style="opacity:0.45; border-color:#e74c3c; color:#e74c3c; padding: 0.5rem 1rem;">
-                            <i class="fa-solid fa-rotate-left"></i> Discard
-                        </button>
-                        <button id="cms-save-btn" class="btn btn-primary" onclick="saveEditorChanges()" disabled
-                            style="opacity:0.45;">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
-                        </button>
-                        <button onclick="syncToGitHub()" class="btn btn-primary" id="btn-sync-github"
-                            style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Global Theme Editor -->
-                <div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                            <i class="fa-solid fa-palette"></i> Global Theme Colors
-                        </div>
-                        <button onclick="saveThemeColors()" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
-                    </div>
-                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
-                            <input type="color" id="theme-color-primary" value="#2D3F2E" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
-                            <input type="color" id="theme-color-secondary" value="#7A8E63" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
-                            <input type="color" id="theme-color-accent" value="#C06C3B" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
-                            <input type="color" id="theme-color-bg" value="#FDFBF7" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
-                            <input type="color" id="theme-color-surface" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
-                            <input type="color" id="theme-color-textdark" value="#1A241A" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
-                            <input type="color" id="theme-color-textlight" value="#FFFFFF" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;">
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <!-- Page selector sitemap -->
-                <div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
-                    
-                    <!-- Root -->
-                    <div style="margin-bottom: 0.75rem;">
-                        <button onclick="loadEditorPage('index')" class="cms-tab active" data-page="index">🏠 Home</button>
-                    </div>
-
-                    <!-- Main Navigation Branch -->
-                    <div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
-                        
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button onclick="loadEditorPage('about')" class="cms-tab" data-page="about">👥 About</button>
-                            <button onclick="loadEditorPage('contact')" class="cms-tab" data-page="contact">📞 Contact</button>
-                            <button onclick="loadEditorPage('login')" class="cms-tab" data-page="login">🔒 Login</button>
-                        </div>
-
-                        <!-- Services Branch -->
-                        <div>
-                            <button onclick="loadEditorPage('services')" class="cms-tab" data-page="services">⚙️ Services</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadEditorPage('service_ai_automation')" class="cms-tab" data-page="service_ai_automation">AI Automation</button>
-                                <button onclick="loadEditorPage('service_ai_integration')" class="cms-tab" data-page="service_ai_integration">AI Integration</button>
-                                <button onclick="loadEditorPage('service_cloud_strategy')" class="cms-tab" data-page="service_cloud_strategy">Cloud Strategy</button>
-                                <button onclick="loadEditorPage('service_competitor_analysis')" class="cms-tab" data-page="service_competitor_analysis">Competitor</button>
-                                <button onclick="loadEditorPage('service_cybersecurity_strategy')" class="cms-tab" data-page="service_cybersecurity_strategy">Cybersecurity</button>
-                                <button onclick="loadEditorPage('service_digital_transformation')" class="cms-tab" data-page="service_digital_transformation">Digital Trans</button>
-                                <button onclick="loadEditorPage('service_it_project_management')" class="cms-tab" data-page="service_it_project_management">IT Project</button>
-                                <button onclick="loadEditorPage('service_leadership_coaching')" class="cms-tab" data-page="service_leadership_coaching">Leadership</button>
-                                <button onclick="loadEditorPage('service_marketing_strategy')" class="cms-tab" data-page="service_marketing_strategy">Marketing</button>
-                                <button onclick="loadEditorPage('service_operational_review')" class="cms-tab" data-page="service_operational_review">Operational</button>
-                                <button onclick="loadEditorPage('service_program_recovery')" class="cms-tab" data-page="service_program_recovery">Program Rec</button>
-                                <button onclick="loadEditorPage('service_quality_assessment')" class="cms-tab" data-page="service_quality_assessment">Quality</button>
-                                <button onclick="loadEditorPage('service_strategy_development')" class="cms-tab" data-page="service_strategy_development">Strategy</button>
-                            </div>
-                        </div>
-
-                        <!-- Store Branch -->
-                        <div>
-                            <button onclick="loadEditorPage('merchandise')" class="cms-tab" data-page="merchandise">🛒 Store</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadEditorPage('merch_shirts')" class="cms-tab" data-page="merch_shirts">Shirts</button>
-                                <button onclick="loadEditorPage('merch_pens')" class="cms-tab" data-page="merch_pens">Pens</button>
-                                <button onclick="loadEditorPage('merch_backpacks')" class="cms-tab" data-page="merch_backpacks">Backpacks</button>
-                                <button onclick="loadEditorPage('backpack_nomatic_bag')" class="cms-tab" data-page="backpack_nomatic_bag">Nomatic Bag</button>
-                                <button onclick="loadEditorPage('backpack_nomatic_pack')" class="cms-tab" data-page="backpack_nomatic_pack">Nomatic Pack</button>
-                                <button onclick="loadEditorPage('backpack_pd_30l')" class="cms-tab" data-page="backpack_pd_30l">PD 30L</button>
-                                <button onclick="loadEditorPage('backpack_pd_45l')" class="cms-tab" data-page="backpack_pd_45l">PD 45L</button>
-                            </div>
-                        </div>
-
-                        <!-- Projects Sub-branch -->
-                        <div>
-                            <button onclick="loadEditorPage('projects')" class="cms-tab" data-page="projects">📁 Projects</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadEditorPage('live_earth')" class="cms-tab" data-page="live_earth">🌍 Live Earth</button>
-                                <button onclick="loadEditorPage('skip_tracer')" class="cms-tab" data-page="skip_tracer">🔍 Traku</button>
-                                <button onclick="loadEditorPage('stock_agent')" class="cms-tab" data-page="stock_agent">📈 Stock Monitor</button>
-                                <button onclick="loadEditorPage('productivity_agent')" class="cms-tab" data-page="productivity_agent">🤖 Productivity</button>
-                                <button onclick="loadEditorPage('osint_api')" class="cms-tab" data-page="osint_api">🛰️ OSINT API</button>
-                                <button onclick="loadEditorPage('freeme')" class="cms-tab" data-page="freeme">🛡️ FreeMe</button>
-                                <button onclick="loadEditorPage('heavenly_melody')" class="cms-tab" data-page="heavenly_melody">🕊️ Heavenly Melody</button>
-                                <button onclick="loadEditorPage('open_vote')" class="cms-tab" data-page="open_vote">🗳️ Open Vote</button>
-                                <button onclick="loadEditorPage('seo_sniper')" class="cms-tab" data-page="seo_sniper">🎯 SEO Sniper</button>
-                                <button onclick="loadEditorPage('brand_monitor')" class="cms-tab" data-page="brand_monitor">📊 Brand Monitor</button>
-                                <button onclick="loadEditorPage('food_globe')" class="cms-tab" data-page="food_globe">🍔 Food Globe</button>
-                                <button onclick="loadEditorPage('fun_e_stick')" class="cms-tab" data-page="fun_e_stick">🎮 Fun E Stick</button>
-                                <button onclick="loadEditorPage('arbitrage')" class="cms-tab" data-page="arbitrage">💹 Arbitrage</button>
-                                <button onclick="loadEditorPage('b2b_leads')" class="cms-tab" data-page="b2b_leads">💼 B2B Leads</button>
-                                <button onclick="loadEditorPage('launchpad')" class="cms-tab" data-page="launchpad">🚀 Launchpad</button>
-                                <button onclick="loadEditorPage('marion_va')" class="cms-tab" data-page="marion_va">🏛️ Marion VA</button>
-                                <button onclick="loadEditorPage('train_your_brain')" class="cms-tab" data-page="train_your_brain">🧠 Train Brain</button>
-                                <button onclick="loadEditorPage('view_candidates')" class="cms-tab" data-page="view_candidates">👥 Candidates</button>
-                                <button onclick="loadEditorPage('osint_api_docs')" class="cms-tab" data-page="osint_api_docs">📄 OSINT Docs</button>
-                                <button onclick="loadEditorPage('avatar')" class="cms-tab" data-page="avatar">👤 Avatar</button>
-                            </div>
-                        </div>
-
-                        <!-- DCSA Prototype Sub-branch -->
-                        <div>
-                            <button onclick="loadEditorPage('dcsa_dashboard')" class="cms-tab" data-page="dcsa_dashboard">🛡️ DCSA Portal</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadEditorPage('dcsa_personnel_vetting')" class="cms-tab" data-page="dcsa_personnel_vetting">Personnel Vetting</button>
-                                <button onclick="loadEditorPage('dcsa_industrial_security')" class="cms-tab" data-page="dcsa_industrial_security">Industrial Sec</button>
-                                <button onclick="loadEditorPage('dcsa_counterintelligence')" class="cms-tab" data-page="dcsa_counterintelligence">Counterintel</button>
-                                <button onclick="loadEditorPage('dcsa_security_training')" class="cms-tab" data-page="dcsa_security_training">Training</button>
-                                <button onclick="loadEditorPage('dcsa_full_integration')" class="cms-tab" data-page="dcsa_full_integration">Full Integration</button>
-                                <button onclick="loadEditorPage('dcsa_2040_threats')" class="cms-tab" data-page="dcsa_2040_threats">2040 Threats</button>
-                                <button onclick="loadEditorPage('dcsa_agency_profile')" class="cms-tab" data-page="dcsa_agency_profile">Agency Profile</button>
-                                <button onclick="loadEditorPage('dcsa_resource_locator')" class="cms-tab" data-page="dcsa_resource_locator">Resource Locator</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div id="cms-status-bar"
-                    style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
-                    <span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
-                        fields. Click to start editing.</span>
-                    <span id="cms-unsaved-badge"
-                        style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
-                        Unsaved</span>
-                </div>
-
-                <iframe id="cms-iframe" src="/api/edit-page/index"
-                    style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;"
-                    sandbox="allow-scripts allow-same-origin">
-                </iframe>
-            </div>
-
-            <!-- Demo Editor Panel -->
-            <div id="panel-demo" class="admin-panel">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-                    <div>
-                        <h2 style="margin:0 0 0.25rem;">Advanced Demo Editor</h2>
-                        <p style="color:var(--secondary); margin:0; font-size:0.9rem;">Edit live content while recording and synchronizing automated dashboard demonstrations.</p>
-                    </div>
-                </div>
-
-                <!-- Page selector sitemap for Demo Editor -->
-                <div class="cms-sitemap" id="demo-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Select Page to Automate</div>
-                    
-                    <!-- Root -->
-                    <div style="margin-bottom: 0.75rem;">
-                        <button onclick="loadDemoConfigForPage('index')" class="cms-tab active" data-demo-page="index">🏠 Home</button>
-                    </div>
-
-                    <!-- Main Navigation Branch -->
-                    <div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button onclick="loadDemoConfigForPage('about')" class="cms-tab" data-demo-page="about">👥 About</button>
-                            <button onclick="loadDemoConfigForPage('contact')" class="cms-tab" data-demo-page="contact">📞 Contact</button>
-                            <button onclick="loadDemoConfigForPage('login')" class="cms-tab" data-demo-page="login">🔒 Login</button>
-                        </div>
-                        <!-- Services Branch -->
-                        <div>
-                            <button onclick="loadDemoConfigForPage('services')" class="cms-tab" data-demo-page="services">⚙️ Services</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadDemoConfigForPage('service_ai_automation')" class="cms-tab" data-demo-page="service_ai_automation">AI Automation</button>
-                                <button onclick="loadDemoConfigForPage('service_ai_integration')" class="cms-tab" data-demo-page="service_ai_integration">AI Integration</button>
-                                <button onclick="loadDemoConfigForPage('service_cloud_strategy')" class="cms-tab" data-demo-page="service_cloud_strategy">Cloud Strategy</button>
-                                <button onclick="loadDemoConfigForPage('service_competitor_analysis')" class="cms-tab" data-demo-page="service_competitor_analysis">Competitor</button>
-                                <button onclick="loadDemoConfigForPage('service_cybersecurity_strategy')" class="cms-tab" data-demo-page="service_cybersecurity_strategy">Cybersecurity</button>
-                                <button onclick="loadDemoConfigForPage('service_digital_transformation')" class="cms-tab" data-demo-page="service_digital_transformation">Digital Trans</button>
-                                <button onclick="loadDemoConfigForPage('service_it_project_management')" class="cms-tab" data-demo-page="service_it_project_management">IT Project</button>
-                                <button onclick="loadDemoConfigForPage('service_leadership_coaching')" class="cms-tab" data-demo-page="service_leadership_coaching">Leadership</button>
-                                <button onclick="loadDemoConfigForPage('service_marketing_strategy')" class="cms-tab" data-demo-page="service_marketing_strategy">Marketing</button>
-                                <button onclick="loadDemoConfigForPage('service_operational_review')" class="cms-tab" data-demo-page="service_operational_review">Operational</button>
-                                <button onclick="loadDemoConfigForPage('service_program_recovery')" class="cms-tab" data-demo-page="service_program_recovery">Program Rec</button>
-                                <button onclick="loadDemoConfigForPage('service_quality_assessment')" class="cms-tab" data-demo-page="service_quality_assessment">Quality</button>
-                                <button onclick="loadDemoConfigForPage('service_strategy_development')" class="cms-tab" data-demo-page="service_strategy_development">Strategy</button>
-                            </div>
-                        </div>
-
-                        <!-- Store Branch -->
-                        <div>
-                            <button onclick="loadDemoConfigForPage('merchandise')" class="cms-tab" data-demo-page="merchandise">🛒 Store</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadDemoConfigForPage('merch_shirts')" class="cms-tab" data-demo-page="merch_shirts">Shirts</button>
-                                <button onclick="loadDemoConfigForPage('merch_pens')" class="cms-tab" data-demo-page="merch_pens">Pens</button>
-                                <button onclick="loadDemoConfigForPage('merch_backpacks')" class="cms-tab" data-demo-page="merch_backpacks">Backpacks</button>
-                                <button onclick="loadDemoConfigForPage('backpack_nomatic_bag')" class="cms-tab" data-demo-page="backpack_nomatic_bag">Nomatic Bag</button>
-                                <button onclick="loadDemoConfigForPage('backpack_nomatic_pack')" class="cms-tab" data-demo-page="backpack_nomatic_pack">Nomatic Pack</button>
-                                <button onclick="loadDemoConfigForPage('backpack_pd_30l')" class="cms-tab" data-demo-page="backpack_pd_30l">PD 30L</button>
-                                <button onclick="loadDemoConfigForPage('backpack_pd_45l')" class="cms-tab" data-demo-page="backpack_pd_45l">PD 45L</button>
-                            </div>
-                        </div>
-                        <!-- Projects Sub-branch -->
-                        <div>
-                            <button onclick="loadDemoConfigForPage('projects')" class="cms-tab" data-demo-page="projects">📁 Projects</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadDemoConfigForPage('live_earth')" class="cms-tab" data-demo-page="live_earth">🌍 Live Earth</button>
-                                <button onclick="loadDemoConfigForPage('skip_tracer')" class="cms-tab" data-demo-page="skip_tracer">🔍 Traku</button>
-                                <button onclick="loadDemoConfigForPage('stock_agent')" class="cms-tab" data-demo-page="stock_agent">📈 Stock Monitor</button>
-                                <button onclick="loadDemoConfigForPage('productivity_agent')" class="cms-tab" data-demo-page="productivity_agent">🤖 Productivity</button>
-                                <button onclick="loadDemoConfigForPage('osint_api')" class="cms-tab" data-demo-page="osint_api">🛰️ OSINT API</button>
-                                <button onclick="loadDemoConfigForPage('freeme')" class="cms-tab" data-demo-page="freeme">🛡️ FreeMe</button>
-                                <button onclick="loadDemoConfigForPage('heavenly_melody')" class="cms-tab" data-demo-page="heavenly_melody">🕊️ Heavenly Melody</button>
-                                <button onclick="loadDemoConfigForPage('open_vote')" class="cms-tab" data-demo-page="open_vote">🗳️ Open Vote</button>
-                                <button onclick="loadDemoConfigForPage('seo_sniper')" class="cms-tab" data-demo-page="seo_sniper">🎯 SEO Sniper</button>
-                                <button onclick="loadDemoConfigForPage('brand_monitor')" class="cms-tab" data-demo-page="brand_monitor">📊 Brand Monitor</button>
-                                <button onclick="loadDemoConfigForPage('food_globe')" class="cms-tab" data-demo-page="food_globe">🍔 Food Globe</button>
-                                <button onclick="loadDemoConfigForPage('fun_e_stick')" class="cms-tab" data-demo-page="fun_e_stick">🎮 Fun E Stick</button>
-                                <button onclick="loadDemoConfigForPage('arbitrage')" class="cms-tab" data-demo-page="arbitrage">💹 Arbitrage</button>
-                                <button onclick="loadDemoConfigForPage('b2b_leads')" class="cms-tab" data-demo-page="b2b_leads">💼 B2B Leads</button>
-                                <button onclick="loadDemoConfigForPage('launchpad')" class="cms-tab" data-demo-page="launchpad">🚀 Launchpad</button>
-                                <button onclick="loadDemoConfigForPage('marion_va')" class="cms-tab" data-demo-page="marion_va">🏛️ Marion VA</button>
-                                <button onclick="loadDemoConfigForPage('train_your_brain')" class="cms-tab" data-demo-page="train_your_brain">🧠 Train Brain</button>
-                                <button onclick="loadDemoConfigForPage('view_candidates')" class="cms-tab" data-demo-page="view_candidates">👥 Candidates</button>
-                                <button onclick="loadDemoConfigForPage('osint_api_docs')" class="cms-tab" data-demo-page="osint_api_docs">📄 OSINT Docs</button>
-                                <button onclick="loadDemoConfigForPage('avatar')" class="cms-tab" data-demo-page="avatar">👤 Avatar</button>
-                            </div>
-                        </div>
-                        <!-- DCSA Prototype Sub-branch -->
-                        <div>
-                            <button onclick="loadDemoConfigForPage('dcsa_dashboard')" class="cms-tab" data-demo-page="dcsa_dashboard">🛡️ DCSA Portal</button>
-                            <div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button onclick="loadDemoConfigForPage('dcsa_personnel_vetting')" class="cms-tab" data-demo-page="dcsa_personnel_vetting">Personnel Vetting</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_industrial_security')" class="cms-tab" data-demo-page="dcsa_industrial_security">Industrial Sec</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_counterintelligence')" class="cms-tab" data-demo-page="dcsa_counterintelligence">Counterintel</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_security_training')" class="cms-tab" data-demo-page="dcsa_security_training">Training</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_full_integration')" class="cms-tab" data-demo-page="dcsa_full_integration">Full Integration</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_2040_threats')" class="cms-tab" data-demo-page="dcsa_2040_threats">2040 Threats</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_agency_profile')" class="cms-tab" data-demo-page="dcsa_agency_profile">Agency Profile</button>
-                                <button onclick="loadDemoConfigForPage('dcsa_resource_locator')" class="cms-tab" data-demo-page="dcsa_resource_locator">Resource Locator</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Shared Iframe for Previewing/Recording (Styled like CMS) -->
-                <div id="demo-status-bar"
-                    style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
-                    <span id="demo-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
-                        fields. Click to start editing.</span>
-                    <span id="demo-unsaved-badge"
-                        style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
-                        Unsaved</span>
-                </div>
-
-                <iframe id="demo-iframe" src="/api/edit-page/index"
-                    style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block; margin-bottom: 2rem;"
-                    sandbox="allow-scripts allow-same-origin">
-                </iframe>
-
-                <!-- Voice Controls Panel -->
-                <div style="background:var(--surface-color); border:1.5px solid var(--border-color); border-radius:8px; padding:1rem; margin-bottom:1rem;">
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-microphone"></i> Voice Settings</div>
-                    <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
-                        <select id="demo-voice-select" style="padding:0.5rem; border-radius:4px; border:1px solid var(--border-color); flex:1; min-width: 200px;">
-                            <option value="">Default System Voice</option>
-                            <option value="Google UK English Female">Google UK English Female</option>
-                            <option value="Microsoft Hazel Desktop">Microsoft Hazel Desktop (UK)</option>
-                            <option value="Microsoft Zira Desktop">Microsoft Zira Desktop (US)</option>
-                        </select>
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <label style="font-size:0.8rem; font-weight:600;">Rate:</label>
-                            <input type="range" id="demo-voice-rate" min="0.5" max="2" step="0.1" value="1.0" style="width:100px;" oninput="document.getElementById('demo-voice-rate-val').innerText = parseFloat(this.value).toFixed(1);">
-                            <span id="demo-voice-rate-val" style="font-size:0.8rem; width:30px;">1.0</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <label style="font-size:0.8rem; font-weight:600;">Volume:</label>
-                            <input type="range" id="demo-voice-volume" min="0" max="1" step="0.1" value="1.0" style="width:100px;" oninput="document.getElementById('demo-voice-volume-val').innerText = parseFloat(this.value).toFixed(1);">
-                            <span id="demo-voice-volume-val" style="font-size:0.8rem; width:30px;">1.0</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem; position: relative;">
-                        <label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.4rem; color: var(--secondary);">Narration Script:</label>
-                        <textarea id="demo-narration-text" style="width:100%; height:80px; padding:0.5rem; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:inherit; resize:vertical;"></textarea>
-                    </div>
-                </div>
-
-                <!-- Advanced Timeline Editor (Docked Bottom) -->
-                <div id="demo-timeline-editor" style="height: 340px; background:var(--surface-color); border:1.5px solid var(--border-color); border-radius:8px; display:flex; flex-direction:column; flex-shrink: 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05);">
-                    <!-- Group Name -->
-                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); padding: 1rem 1rem 0; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-play-circle"></i> Demo Player</div>
-                    
-                    <!-- Timeline Toolbar -->
-                    <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.02);">
-                        <div style="display:flex; gap:1.5rem; align-items:center;">
-                            <div style="display:flex; gap:0.5rem;">
-                                <button class="btn btn-primary" onclick="startRecording()" id="btn-record" style="background:#e74c3c; border-color:#e74c3c; padding:0.4rem 1rem;"><i class="fa-solid fa-crosshairs"></i> Record</button>
-                                <button class="btn btn-primary" onclick="toggleDemoPreview()" id="btn-play-preview" style="background:#2ecc71; border-color:#2ecc71; padding:0.4rem 1rem;"><i class="fa-solid fa-play"></i> Play Preview</button>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; font-weight:600;">
-                                <i class="fa-solid fa-clock" style="color:var(--secondary);"></i>
-                                <span id="demo-timeline-time">00:00.0</span>
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:0.5rem; align-items:center;">
-                            <button id="demo-discard-btn" class="btn-outline" onclick="discardEditorChanges()" style="opacity:0.45; padding:0.4rem 0.8rem; font-size:0.85rem;" disabled><i class="fa-solid fa-rotate-left"></i> Discard</button>
-                            <button id="demo-save-btn" class="btn btn-primary" onclick="saveEditorChanges()" style="opacity:0.45; padding:0.4rem 0.8rem; font-size:0.85rem;" disabled><i class="fa-solid fa-floppy-disk"></i> Save Content</button>
-                            <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 0.25rem;"></div>
-                            <button class="btn-outline" onclick="clearTimeline()" style="padding:0.4rem 0.8rem; font-size:0.85rem;"><i class="fa-solid fa-trash"></i> Clear</button>
-                            <button class="btn btn-primary" onclick="saveDemoConfig()" style="background:#2ecc71; border-color:#2ecc71; padding:0.4rem 1rem; box-shadow:0 4px 15px rgba(46, 204, 113, 0.2);"><i class="fa-solid fa-video"></i> Save Demo Timeline</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Timeline Tracks -->
-                    <div style="flex:1; display:flex; overflow:hidden;">
-                        <!-- Track Headers -->
-                        <div style="width: 150px; background:var(--surface-color); border-right:1px solid var(--border-color); display:flex; flex-direction:column;">
-                            <div style="height: 60px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-comment-dots" style="margin-right:8px; color:#9b59b6;"></i> Narration</div>
-                            <div style="height: 60px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-mouse-pointer" style="margin-right:8px; color:#3498db;"></i> Clicks & UI</div>
-                            <div style="height: 60px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-keyboard" style="margin-right:8px; color:#e67e22;"></i> Typing</div>
-                            <div style="height: 60px; display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-route" style="margin-right:8px; color:#2ecc71;"></i> Navigation</div>
-                        </div>
-                        <!-- Tracks Area -->
-                        <div id="demo-tracks-container" style="flex:1; overflow-x:auto; overflow-y:hidden; position:relative; background:#f9f9f9;">
-                            <!-- Time grid background -->
-                            <div style="position:absolute; top:0; bottom:0; width:3000px; background-size: 50px 100%; background-image: linear-gradient(to right, #ececec 1px, transparent 1px); pointer-events:none;"></div>
-                            
-                            <div class="demo-track" id="track-narration" style="position:absolute; top:0; height:60px; width:3000px; border-bottom:1px solid var(--border-color);"></div>
-                            <div class="demo-track" id="track-clicks" style="position:absolute; top:60px; height:60px; width:3000px; border-bottom:1px solid var(--border-color);"></div>
-                            <div class="demo-track" id="track-typing" style="position:absolute; top:120px; height:60px; width:3000px; border-bottom:1px solid var(--border-color);"></div>
-                            <div class="demo-track" id="track-navigation" style="position:absolute; top:180px; height:60px; width:3000px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="panel-settings" class="admin-panel">
-                <h2>Admin Settings</h2>
-                <div class="cms-field">
-                    <label>Theme Mode</label>
-                    <button class="btn btn-primary" id="btn-theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i> Switch to Dark Mode</button>
-                    <p style="color:var(--secondary); margin-top:0.5rem; font-size:0.9rem;">Toggle between light and dark themes for the admin panel.</p>
-                </div>
-            </div>
-
-            <div id="panel-convoy" class="admin-panel">
-                <h2>Convoy Animation Settings</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Adjust the spacing between the lead Sherpa and
-                    their group.</p>
-                <div class="form-row">
-                    <label for="convoy-delay-input" style="font-weight: 500;">Follower Spacing Delay (ms):</label>
-                    <input type="number" id="convoy-delay-input" min="0" step="100" value="800" style="width: 120px;" />
-                    <button class="btn btn-primary" onclick="saveConvoyDelay()">Save</button>
-                </div>
-                <p style="color: var(--secondary); margin-top:0.5rem; font-size: 0.9rem;">Higher delay = more space
-                    between characters.</p>
-            </div>
-        </main>
-    </div>
-
-    <!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
-    <div id="deploy-modal" class="custom-modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <h3>Deploy to GitHub</h3>
-            <p style="color: var(--secondary); margin-bottom: 1.5rem;">Select the specific projects you want to deploy to live hosting.</p>
-            <div id="deploy-modal-form">
-                <div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="heavenly_melody" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" checked> 
-                        <span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="core_site" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🌐 Sherpa Core Website (Home, About, Store, etc)</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="open_vote" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🗳️ Open Vote (Geospatial Dashboard)</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="live_earth" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🌍 Live Earth</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="traku" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🔍 Traku (Skip Tracer)</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="stock_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">📈 Stock Monitor</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="productivity_agent" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🤖 Productivity Agent</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="osint_api" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🛰️ OSINT API</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="freeme" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🛡️ FreeMe Engine</span>
-                    </label>
-                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-                        <input type="checkbox" class="deploy-project-cb" value="dcsa" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;"> 
-                        <span style="line-height: 1.4;">🏢 DCSA Personnel Vetting Dashboard</span>
-                    </label>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn btn-outline" onclick="closeModal('deploy-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="submitDeployment()">Deploy Selected</button>
-                </div>
-            </div>
-            
-            <div id="sync-progress-container" style="display:none; width:100%; flex-direction:column; gap:8px; margin-top:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color); text-align: left;">
-                <div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500; margin-bottom:4px;">
-                        <span><i class="fa-brands fa-github"></i> Push to GitHub</span>
-                        <span id="sync-progress-percent">0%</span>
-                    </div>
-                    <div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
-                        <div id="sync-progress-bar" style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;"></div>
-                    </div>
-                    <div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
-                </div>
-                <div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
-                        <span><i class="fa-solid fa-server"></i> Railway Server Deploy</span>
-                        <span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
-                    </div>
-                </div>
-                <div id="sync-finish-actions" style="display:none; margin-top: 1rem; text-align: right;">
-                    <button class="btn btn-primary" onclick="closeModal('deploy-modal'); document.getElementById('deploy-modal-form').style.display='block'; document.getElementById('sync-progress-container').style.display='none'; document.getElementById('sync-finish-actions').style.display='none';">Done</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="password-modal" class="custom-modal">
-        <div class="modal-content">
-            <h3 id="pw-modal-title">Change Password</h3>
-            <p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
-            </p>
-            <div style="position: relative; margin-bottom: 1.5rem;">
-                <input type="password" id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;">
-                <button type="button" onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);">
-                    <i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
+<div class="admin-layout">
+<aside class="sidebar">
+<div class="sidebar-logo">
+<img alt="Logo" data-cms="global-navbar-logo" src="/static/sherpa_logo.png"/>
+</div>
+<ul class="sidebar-menu">
+<li><a class="active" id="btn-users" onclick="showPanel('users')"><i class="fa-solid fa-users"></i>
+<span>Users</span></a></li>
+<li><a id="btn-cms" onclick="showPanel('cms')"><i class="fa-solid fa-pen-to-square"></i>
+<span>Site Editor</span></a></li>
+<li><a id="btn-demo" onclick="showPanel('demo')"><i class="fa-solid fa-clapperboard"></i>
+<span>Demo Editor</span></a></li>
+<li><a onclick="openModal('deploy-modal')"><i class="fa-brands fa-github"></i>
+<span>Deploy to GitHub</span></a></li>
+<li><a id="btn-settings" onclick="showPanel('settings')"><i class="fa-solid fa-gear"></i>
+<span>Settings</span></a></li>
+<li style="margin-top: 1.5rem;"><a href="/"><i class="fa-solid fa-arrow-left"></i> <span>Site</span></a>
+</li>
+<li style="margin-top: 0.5rem;"><a id="btn-convoy" onclick="showPanel('convoy')"><i class="fa-solid fa-person-hiking"></i> <span>Convoy</span></a>
+</li>
+<li><a onclick="document.getElementById('logout-form').submit()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+</ul>
+<div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+<button class="btn btn-primary" id="theme-toggle" style="width: 100%; justify-content: center; font-size: 0.85rem; padding: 0.8rem;">
+<i class="fa-solid fa-sun"></i> Switch to Light Mode
                 </button>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-outline" onclick="closeModal('password-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="confirm-modal" class="custom-modal">
-        <div class="modal-content">
-            <h3>Confirm Action</h3>
-            <p id="confirm-modal-text" style="color: var(--secondary); margin-bottom: 2rem;">Are you sure?</p>
-            <div class="modal-actions">
-                <button class="btn btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
-                <button class="btn-danger" id="confirm-modal-btn">Yes, Revoke</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+<form action="/api/logout" id="logout-form" method="POST" style="display:none;"></form>
+</aside>
+<main class="admin-content">
+<div class="admin-panel active" id="panel-users">
+<h2>Admin User Management</h2>
+<p style="color: var(--secondary); margin-bottom: 2rem;">Manage the administrators authorized to access
+                    this portal.</p>
+<table class="user-table">
+<thead>
+<tr>
+<th>Account ID</th>
+<th>Username</th>
+<th>Role</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="user-table-body">
+<!-- Loaded via JS -->
+</tbody>
+</table>
+<div style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
+<h3>Provision New Administrator</h3>
+<form class="form-row" id="add-user-form">
+<input autocomplete="off" id="new-username" placeholder="New Username" required="" type="text"/>
+<div style="position: relative; flex: 1; display: flex;">
+<input autocomplete="new-password" id="new-password" placeholder="Secure Password" required="" style="flex: 1; padding-right: 40px;" type="password"/>
+<button onclick="togglePasswordVisibility('new-password')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);" type="button">
+<i class="fa-solid fa-eye" id="new-password-eye"></i>
+</button>
+</div>
+<button class="btn btn-primary" type="submit"><i class="fa-solid fa-plus"></i> Add
+                            Account</button>
+</form>
+</div>
+</div>
+<div class="admin-panel" id="panel-cms">
+<!-- Toolbar -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
+<div>
+<h2 style="margin:0 0 0.25rem;">Live Content Editor</h2>
+<div style="display:flex; align-items:center; gap:0.5rem;">
+<p style="color:var(--secondary); margin:0; font-size:0.9rem;">Click any <span style="color:var(--accent); font-weight:600;">highlighted element</span> to edit it
+                                inline.</p>
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle" onmouseout="this.style.borderColor='var(--border-color)';" onmouseover="this.style.borderColor='var(--accent)';" style="background:rgba(122, 142, 99, 0.1); color:var(--text-dark); border:1px solid var(--border-color); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.9rem; transition:all 0.2s; margin-left: 0.5rem;"><i class="fa-solid fa-moon"></i></button>
+</div>
+</div>
+<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+<button class="btn-outline" disabled="" id="cms-discard-btn" onclick="discardEditorChanges()" style="opacity:0.45; border-color:#e74c3c; color:#e74c3c; padding: 0.5rem 1rem;">
+<i class="fa-solid fa-rotate-left"></i> Discard
+                        </button>
+<button class="btn btn-primary" disabled="" id="cms-save-btn" onclick="saveEditorChanges()" style="opacity:0.45;">
+<i class="fa-solid fa-floppy-disk"></i> Save Changes
+                        </button>
+<button class="btn btn-primary" id="btn-sync-github" onclick="syncToGitHub()" style="white-space:nowrap; background:var(--accent); box-shadow:0 4px 15px rgba(192,108,59,0.2);">
+<i class="fa-solid fa-cloud-arrow-up"></i> Deploy to GitHub
+                        </button>
+</div>
+</div>
+<!-- Global Theme Editor -->
+<div class="cms-theme-editor" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+<i class="fa-solid fa-palette"></i> Global Theme Colors
+                        </div>
+<button class="btn-outline" onclick="saveThemeColors()" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; color: var(--accent); border-color: var(--accent);">Save Colors</button>
+</div>
+<div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Primary Base</label>
+<input id="theme-color-primary" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#2D3F2E"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Secondary</label>
+<input id="theme-color-secondary" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#7A8E63"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Accent</label>
+<input id="theme-color-accent" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#C06C3B"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Background</label>
+<input id="theme-color-bg" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#FDFBF7"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Surface</label>
+<input id="theme-color-surface" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#FFFFFF"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Text Dark</label>
+<input id="theme-color-textdark" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#1A241A"/>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0.25rem;">
+<label style="font-size: 0.8rem; color: var(--text-dark);">Text Light</label>
+<input id="theme-color-textlight" style="border: none; width: 40px; height: 30px; border-radius: 4px; cursor: pointer; background: transparent; padding: 0;" type="color" value="#FFFFFF"/>
+</div>
+</div>
+</div>
+<!-- Page selector sitemap -->
+<div class="cms-sitemap" id="cms-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 0;">
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Site Structure Map</div>
+<!-- Root -->
+<div style="margin-bottom: 0.75rem;">
+<button class="cms-tab active" data-page="index" onclick="loadEditorPage('index')">🏠 Home</button>
+</div>
+<!-- Main Navigation Branch -->
+<div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="about" onclick="loadEditorPage('about')">👥 About</button>
+<button class="cms-tab" data-page="contact" onclick="loadEditorPage('contact')">📞 Contact</button>
+<button class="cms-tab" data-page="login" onclick="loadEditorPage('login')">🔒 Login</button>
+</div>
+<!-- Services Branch -->
+<div>
+<button class="cms-tab" data-page="services" onclick="loadEditorPage('services')">⚙️ Services</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="service_ai_automation" onclick="loadEditorPage('service_ai_automation')">AI Automation</button>
+<button class="cms-tab" data-page="service_ai_integration" onclick="loadEditorPage('service_ai_integration')">AI Integration</button>
+<button class="cms-tab" data-page="service_cloud_strategy" onclick="loadEditorPage('service_cloud_strategy')">Cloud Strategy</button>
+<button class="cms-tab" data-page="service_competitor_analysis" onclick="loadEditorPage('service_competitor_analysis')">Competitor</button>
+<button class="cms-tab" data-page="service_cybersecurity_strategy" onclick="loadEditorPage('service_cybersecurity_strategy')">Cybersecurity</button>
+<button class="cms-tab" data-page="service_digital_transformation" onclick="loadEditorPage('service_digital_transformation')">Digital Trans</button>
+<button class="cms-tab" data-page="service_it_project_management" onclick="loadEditorPage('service_it_project_management')">IT Project</button>
+<button class="cms-tab" data-page="service_leadership_coaching" onclick="loadEditorPage('service_leadership_coaching')">Leadership</button>
+<button class="cms-tab" data-page="service_marketing_strategy" onclick="loadEditorPage('service_marketing_strategy')">Marketing</button>
+<button class="cms-tab" data-page="service_operational_review" onclick="loadEditorPage('service_operational_review')">Operational</button>
+<button class="cms-tab" data-page="service_program_recovery" onclick="loadEditorPage('service_program_recovery')">Program Rec</button>
+<button class="cms-tab" data-page="service_quality_assessment" onclick="loadEditorPage('service_quality_assessment')">Quality</button>
+<button class="cms-tab" data-page="service_strategy_development" onclick="loadEditorPage('service_strategy_development')">Strategy</button>
+</div>
+</div>
+<!-- Store Branch -->
+<div>
+<button class="cms-tab" data-page="merchandise" onclick="loadEditorPage('merchandise')">🛒 Store</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="merch_shirts" onclick="loadEditorPage('merch_shirts')">Shirts</button>
+<button class="cms-tab" data-page="merch_pens" onclick="loadEditorPage('merch_pens')">Pens</button>
+<button class="cms-tab" data-page="merch_backpacks" onclick="loadEditorPage('merch_backpacks')">Backpacks</button>
+<button class="cms-tab" data-page="backpack_nomatic_bag" onclick="loadEditorPage('backpack_nomatic_bag')">Nomatic Bag</button>
+<button class="cms-tab" data-page="backpack_nomatic_pack" onclick="loadEditorPage('backpack_nomatic_pack')">Nomatic Pack</button>
+<button class="cms-tab" data-page="backpack_pd_30l" onclick="loadEditorPage('backpack_pd_30l')">PD 30L</button>
+<button class="cms-tab" data-page="backpack_pd_45l" onclick="loadEditorPage('backpack_pd_45l')">PD 45L</button>
+</div>
+</div>
+<!-- Projects Sub-branch -->
+<div>
+<button class="cms-tab" data-page="projects" onclick="loadEditorPage('projects')">📁 Projects</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="live_earth" onclick="loadEditorPage('live_earth')">🌍 Live Earth</button>
+<button class="cms-tab" data-page="skip_tracer" onclick="loadEditorPage('skip_tracer')">🔍 Traku</button>
+<button class="cms-tab" data-page="stock_agent" onclick="loadEditorPage('stock_agent')">📈 Stock Monitor</button>
+<button class="cms-tab" data-page="productivity_agent" onclick="loadEditorPage('productivity_agent')">🤖 Productivity</button>
+<button class="cms-tab" data-page="osint_api" onclick="loadEditorPage('osint_api')">🛰️ OSINT API</button>
+<button class="cms-tab" data-page="freeme" onclick="loadEditorPage('freeme')">🛡️ FreeMe</button>
+<button class="cms-tab" data-page="heavenly_melody" onclick="loadEditorPage('heavenly_melody')">🕊️ Heavenly Melody</button>
+<button class="cms-tab" data-page="voice-chat" onclick="loadEditorPage('voice-chat')">🏔️ Voice Sherpa</button>
+<button class="cms-tab" data-page="open_vote" onclick="loadEditorPage('open_vote')">🗳️ Open Vote</button>
+<button class="cms-tab" data-page="seo_sniper" onclick="loadEditorPage('seo_sniper')">🎯 SEO Sniper</button>
+<button class="cms-tab" data-page="brand_monitor" onclick="loadEditorPage('brand_monitor')">📊 Brand Monitor</button>
+<button class="cms-tab" data-page="food_globe" onclick="loadEditorPage('food_globe')">🍔 Food Globe</button>
+<button class="cms-tab" data-page="fun_e_stick" onclick="loadEditorPage('fun_e_stick')">🎮 Fun E Stick</button>
+<button class="cms-tab" data-page="arbitrage" onclick="loadEditorPage('arbitrage')">💹 Arbitrage</button>
+<button class="cms-tab" data-page="b2b_leads" onclick="loadEditorPage('b2b_leads')">💼 B2B Leads</button>
+<button class="cms-tab" data-page="launchpad" onclick="loadEditorPage('launchpad')">🚀 Launchpad</button>
+<button class="cms-tab" data-page="marion_va" onclick="loadEditorPage('marion_va')">🏛️ Marion VA</button>
+<button class="cms-tab" data-page="train_your_brain" onclick="loadEditorPage('train_your_brain')">🧠 Train Brain</button>
+<button class="cms-tab" data-page="view_candidates" onclick="loadEditorPage('view_candidates')">👥 Candidates</button>
+<button class="cms-tab" data-page="osint_api_docs" onclick="loadEditorPage('osint_api_docs')">📄 OSINT Docs</button>
+<button class="cms-tab" data-page="avatar" onclick="loadEditorPage('avatar')">👤 Avatar</button>
+</div>
+</div>
+<!-- DCSA Prototype Sub-branch -->
+<div>
+<button class="cms-tab" data-page="dcsa_dashboard" onclick="loadEditorPage('dcsa_dashboard')">🛡️ DCSA Portal</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-page="dcsa_personnel_vetting" onclick="loadEditorPage('dcsa_personnel_vetting')">Personnel Vetting</button>
+<button class="cms-tab" data-page="dcsa_industrial_security" onclick="loadEditorPage('dcsa_industrial_security')">Industrial Sec</button>
+<button class="cms-tab" data-page="dcsa_counterintelligence" onclick="loadEditorPage('dcsa_counterintelligence')">Counterintel</button>
+<button class="cms-tab" data-page="dcsa_security_training" onclick="loadEditorPage('dcsa_security_training')">Training</button>
+<button class="cms-tab" data-page="dcsa_full_integration" onclick="loadEditorPage('dcsa_full_integration')">Full Integration</button>
+<button class="cms-tab" data-page="dcsa_2040_threats" onclick="loadEditorPage('dcsa_2040_threats')">2040 Threats</button>
+<button class="cms-tab" data-page="dcsa_agency_profile" onclick="loadEditorPage('dcsa_agency_profile')">Agency Profile</button>
+<button class="cms-tab" data-page="dcsa_resource_locator" onclick="loadEditorPage('dcsa_resource_locator')">Resource Locator</button>
+</div>
+</div>
+</div>
+</div>
+<div id="cms-status-bar" style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+<span id="cms-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
+                        fields. Click to start editing.</span>
+<span id="cms-unsaved-badge" style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
+                        Unsaved</span>
+</div>
+<iframe id="cms-iframe" sandbox="allow-scripts allow-same-origin" src="/api/edit-page/index" style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block;">
+</iframe>
+</div>
+<!-- Demo Editor Panel -->
+<div class="admin-panel" id="panel-demo">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+<div>
+<h2 style="margin:0 0 0.25rem;">Advanced Demo Editor</h2>
+<p style="color:var(--secondary); margin:0; font-size:0.9rem;">Edit live content while recording and synchronizing automated dashboard demonstrations.</p>
+</div>
+</div>
+<!-- Page selector sitemap for Demo Editor -->
+<div class="cms-sitemap" id="demo-page-tabs" style="background: var(--surface-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-sitemap"></i> Select Page to Automate</div>
+<!-- Root -->
+<div style="margin-bottom: 0.75rem;">
+<button class="cms-tab active" data-demo-page="index" onclick="loadDemoConfigForPage('index')">🏠 Home</button>
+</div>
+<!-- Main Navigation Branch -->
+<div style="margin-left: 1.25rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-demo-page="about" onclick="loadDemoConfigForPage('about')">👥 About</button>
+<button class="cms-tab" data-demo-page="contact" onclick="loadDemoConfigForPage('contact')">📞 Contact</button>
+<button class="cms-tab" data-demo-page="login" onclick="loadDemoConfigForPage('login')">🔒 Login</button>
+</div>
+<!-- Services Branch -->
+<div>
+<button class="cms-tab" data-demo-page="services" onclick="loadDemoConfigForPage('services')">⚙️ Services</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-demo-page="service_ai_automation" onclick="loadDemoConfigForPage('service_ai_automation')">AI Automation</button>
+<button class="cms-tab" data-demo-page="service_ai_integration" onclick="loadDemoConfigForPage('service_ai_integration')">AI Integration</button>
+<button class="cms-tab" data-demo-page="service_cloud_strategy" onclick="loadDemoConfigForPage('service_cloud_strategy')">Cloud Strategy</button>
+<button class="cms-tab" data-demo-page="service_competitor_analysis" onclick="loadDemoConfigForPage('service_competitor_analysis')">Competitor</button>
+<button class="cms-tab" data-demo-page="service_cybersecurity_strategy" onclick="loadDemoConfigForPage('service_cybersecurity_strategy')">Cybersecurity</button>
+<button class="cms-tab" data-demo-page="service_digital_transformation" onclick="loadDemoConfigForPage('service_digital_transformation')">Digital Trans</button>
+<button class="cms-tab" data-demo-page="service_it_project_management" onclick="loadDemoConfigForPage('service_it_project_management')">IT Project</button>
+<button class="cms-tab" data-demo-page="service_leadership_coaching" onclick="loadDemoConfigForPage('service_leadership_coaching')">Leadership</button>
+<button class="cms-tab" data-demo-page="service_marketing_strategy" onclick="loadDemoConfigForPage('service_marketing_strategy')">Marketing</button>
+<button class="cms-tab" data-demo-page="service_operational_review" onclick="loadDemoConfigForPage('service_operational_review')">Operational</button>
+<button class="cms-tab" data-demo-page="service_program_recovery" onclick="loadDemoConfigForPage('service_program_recovery')">Program Rec</button>
+<button class="cms-tab" data-demo-page="service_quality_assessment" onclick="loadDemoConfigForPage('service_quality_assessment')">Quality</button>
+<button class="cms-tab" data-demo-page="service_strategy_development" onclick="loadDemoConfigForPage('service_strategy_development')">Strategy</button>
+</div>
+</div>
+<!-- Store Branch -->
+<div>
+<button class="cms-tab" data-demo-page="merchandise" onclick="loadDemoConfigForPage('merchandise')">🛒 Store</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-demo-page="merch_shirts" onclick="loadDemoConfigForPage('merch_shirts')">Shirts</button>
+<button class="cms-tab" data-demo-page="merch_pens" onclick="loadDemoConfigForPage('merch_pens')">Pens</button>
+<button class="cms-tab" data-demo-page="merch_backpacks" onclick="loadDemoConfigForPage('merch_backpacks')">Backpacks</button>
+<button class="cms-tab" data-demo-page="backpack_nomatic_bag" onclick="loadDemoConfigForPage('backpack_nomatic_bag')">Nomatic Bag</button>
+<button class="cms-tab" data-demo-page="backpack_nomatic_pack" onclick="loadDemoConfigForPage('backpack_nomatic_pack')">Nomatic Pack</button>
+<button class="cms-tab" data-demo-page="backpack_pd_30l" onclick="loadDemoConfigForPage('backpack_pd_30l')">PD 30L</button>
+<button class="cms-tab" data-demo-page="backpack_pd_45l" onclick="loadDemoConfigForPage('backpack_pd_45l')">PD 45L</button>
+</div>
+</div>
+<!-- Projects Sub-branch -->
+<div>
+<button class="cms-tab" data-demo-page="projects" onclick="loadDemoConfigForPage('projects')">📁 Projects</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-demo-page="live_earth" onclick="loadDemoConfigForPage('live_earth')">🌍 Live Earth</button>
+<button class="cms-tab" data-demo-page="skip_tracer" onclick="loadDemoConfigForPage('skip_tracer')">🔍 Traku</button>
+<button class="cms-tab" data-demo-page="stock_agent" onclick="loadDemoConfigForPage('stock_agent')">📈 Stock Monitor</button>
+<button class="cms-tab" data-demo-page="productivity_agent" onclick="loadDemoConfigForPage('productivity_agent')">🤖 Productivity</button>
+<button class="cms-tab" data-demo-page="osint_api" onclick="loadDemoConfigForPage('osint_api')">🛰️ OSINT API</button>
+<button class="cms-tab" data-demo-page="freeme" onclick="loadDemoConfigForPage('freeme')">🛡️ FreeMe</button>
+<button class="cms-tab" data-demo-page="heavenly_melody" onclick="loadDemoConfigForPage('heavenly_melody')">🕊️ Heavenly Melody</button>
+<button class="cms-tab" data-demo-page="voice-chat" onclick="loadDemoConfigForPage('voice-chat')">🏔️ Voice Sherpa</button>
+<button class="cms-tab" data-demo-page="open_vote" onclick="loadDemoConfigForPage('open_vote')">🗳️ Open Vote</button>
+<button class="cms-tab" data-demo-page="seo_sniper" onclick="loadDemoConfigForPage('seo_sniper')">🎯 SEO Sniper</button>
+<button class="cms-tab" data-demo-page="brand_monitor" onclick="loadDemoConfigForPage('brand_monitor')">📊 Brand Monitor</button>
+<button class="cms-tab" data-demo-page="food_globe" onclick="loadDemoConfigForPage('food_globe')">🍔 Food Globe</button>
+<button class="cms-tab" data-demo-page="fun_e_stick" onclick="loadDemoConfigForPage('fun_e_stick')">🎮 Fun E Stick</button>
+<button class="cms-tab" data-demo-page="arbitrage" onclick="loadDemoConfigForPage('arbitrage')">💹 Arbitrage</button>
+<button class="cms-tab" data-demo-page="b2b_leads" onclick="loadDemoConfigForPage('b2b_leads')">💼 B2B Leads</button>
+<button class="cms-tab" data-demo-page="launchpad" onclick="loadDemoConfigForPage('launchpad')">🚀 Launchpad</button>
+<button class="cms-tab" data-demo-page="marion_va" onclick="loadDemoConfigForPage('marion_va')">🏛️ Marion VA</button>
+<button class="cms-tab" data-demo-page="train_your_brain" onclick="loadDemoConfigForPage('train_your_brain')">🧠 Train Brain</button>
+<button class="cms-tab" data-demo-page="view_candidates" onclick="loadDemoConfigForPage('view_candidates')">👥 Candidates</button>
+<button class="cms-tab" data-demo-page="osint_api_docs" onclick="loadDemoConfigForPage('osint_api_docs')">📄 OSINT Docs</button>
+<button class="cms-tab" data-demo-page="avatar" onclick="loadDemoConfigForPage('avatar')">👤 Avatar</button>
+<button class="cms-tab" data-demo-page="business_model" onclick="loadDemoConfigForPage('business_model')">📊 Business Model</button>
+</div>
+</div>
+<!-- DCSA Prototype Sub-branch -->
+<div>
+<button class="cms-tab" data-demo-page="dcsa_dashboard" onclick="loadDemoConfigForPage('dcsa_dashboard')">🛡️ DCSA Portal</button>
+<div style="margin-left: 1.25rem; margin-top: 0.75rem; padding-left: 1.25rem; border-left: 2px solid var(--border-color); display: flex; gap: 0.5rem; flex-wrap: wrap;">
+<button class="cms-tab" data-demo-page="dcsa_personnel_vetting" onclick="loadDemoConfigForPage('dcsa_personnel_vetting')">Personnel Vetting</button>
+<button class="cms-tab" data-demo-page="dcsa_industrial_security" onclick="loadDemoConfigForPage('dcsa_industrial_security')">Industrial Sec</button>
+<button class="cms-tab" data-demo-page="dcsa_counterintelligence" onclick="loadDemoConfigForPage('dcsa_counterintelligence')">Counterintel</button>
+<button class="cms-tab" data-demo-page="dcsa_security_training" onclick="loadDemoConfigForPage('dcsa_security_training')">Training</button>
+<button class="cms-tab" data-demo-page="dcsa_full_integration" onclick="loadDemoConfigForPage('dcsa_full_integration')">Full Integration</button>
+<button class="cms-tab" data-demo-page="dcsa_2040_threats" onclick="loadDemoConfigForPage('dcsa_2040_threats')">2040 Threats</button>
+<button class="cms-tab" data-demo-page="dcsa_agency_profile" onclick="loadDemoConfigForPage('dcsa_agency_profile')">Agency Profile</button>
+<button class="cms-tab" data-demo-page="dcsa_resource_locator" onclick="loadDemoConfigForPage('dcsa_resource_locator')">Resource Locator</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Shared Iframe for Previewing/Recording (Styled like CMS) -->
+<div id="demo-status-bar" style="background:var(--bg-color); border:1.5px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.55rem 1rem; font-size:0.82rem; color:var(--text-dark); display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem;">
+<span id="demo-status-text"><i class="fa-solid fa-circle-info"></i> Orange dashed borders = editable
+                        fields. Click to start editing.</span>
+<span id="demo-unsaved-badge" style="display:none; background:#c06c3b; color:white; padding:0.2rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:700;">●
+                        Unsaved</span>
+</div>
+<iframe id="demo-iframe" sandbox="allow-scripts allow-same-origin" src="/api/edit-page/index" style="width:100%; height:78vh; border:1.5px solid var(--border-color); border-radius:0 0 8px 8px; display:block; margin-bottom: 2rem;">
+</iframe>
+<!-- Voice Controls Panel -->
+<div style="background:var(--surface-color); border:1.5px solid var(--border-color); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-microphone"></i> Voice Settings</div>
+<div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+<select id="demo-voice-select" style="padding:0.5rem; border-radius:4px; border:1px solid var(--border-color); flex:1; min-width: 200px;">
+<option value="">Default System Voice</option>
+<option value="Google UK English Female">Google UK English Female</option>
+<option value="Microsoft Hazel Desktop">Microsoft Hazel Desktop (UK)</option>
+<option value="Microsoft Zira Desktop">Microsoft Zira Desktop (US)</option>
+</select>
+<div style="display:flex; align-items:center; gap:0.5rem;">
+<label style="font-size:0.8rem; font-weight:600;">Rate:</label>
+<input id="demo-voice-rate" max="2" min="0.5" oninput="document.getElementById('demo-voice-rate-val').innerText = parseFloat(this.value).toFixed(1);" step="0.1" style="width:100px;" type="range" value="1.0"/>
+<span id="demo-voice-rate-val" style="font-size:0.8rem; width:30px;">1.0</span>
+</div>
+<div style="display:flex; align-items:center; gap:0.5rem;">
+<label style="font-size:0.8rem; font-weight:600;">Volume:</label>
+<input id="demo-voice-volume" max="1" min="0" oninput="document.getElementById('demo-voice-volume-val').innerText = parseFloat(this.value).toFixed(1);" step="0.1" style="width:100px;" type="range" value="1.0"/>
+<span id="demo-voice-volume-val" style="font-size:0.8rem; width:30px;">1.0</span>
+</div>
+</div>
+<div style="margin-top: 1rem; position: relative;">
+<label style="font-size:0.8rem; font-weight:600; display:block; margin-bottom:0.4rem; color: var(--secondary);">Narration Script:</label>
+<textarea id="demo-narration-text" style="width:100%; height:80px; padding:0.5rem; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:inherit; resize:vertical;"></textarea>
+</div>
+</div>
+<!-- Advanced Timeline Editor (Docked Bottom) -->
+<div id="demo-timeline-editor" style="height: 340px; background:var(--surface-color); border:1.5px solid var(--border-color); border-radius:8px; display:flex; flex-direction:column; flex-shrink: 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05);">
+<!-- Group Name -->
+<div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); padding: 1rem 1rem 0; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-play-circle"></i> Demo Player</div>
+<!-- Timeline Toolbar -->
+<div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.02);">
+<div style="display:flex; gap:1.5rem; align-items:center;">
+<div style="display:flex; gap:0.5rem;">
+<button class="btn btn-primary" id="btn-record" onclick="startRecording()" style="background:#e74c3c; border-color:#e74c3c; padding:0.4rem 1rem;"><i class="fa-solid fa-crosshairs"></i> Record</button>
+<button class="btn btn-primary" id="btn-play-preview" onclick="toggleDemoPreview()" style="background:#2ecc71; border-color:#2ecc71; padding:0.4rem 1rem;"><i class="fa-solid fa-play"></i> Play Preview</button>
+</div>
+<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; font-weight:600;">
+<i class="fa-solid fa-clock" style="color:var(--secondary);"></i>
+<span id="demo-timeline-time">00:00.0</span>
+</div>
+</div>
+<div style="display:flex; gap:0.5rem; align-items:center;">
+<button class="btn-outline" disabled="" id="demo-discard-btn" onclick="discardEditorChanges()" style="opacity:0.45; padding:0.4rem 0.8rem; font-size:0.85rem;"><i class="fa-solid fa-rotate-left"></i> Discard</button>
+<button class="btn btn-primary" disabled="" id="demo-save-btn" onclick="saveEditorChanges()" style="opacity:0.45; padding:0.4rem 0.8rem; font-size:0.85rem;"><i class="fa-solid fa-floppy-disk"></i> Save Content</button>
+<div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 0.25rem;"></div>
+<button class="btn-outline" onclick="clearTimeline()" style="padding:0.4rem 0.8rem; font-size:0.85rem;"><i class="fa-solid fa-trash"></i> Clear</button>
+<button class="btn btn-primary" onclick="saveDemoConfig()" style="background:#2ecc71; border-color:#2ecc71; padding:0.4rem 1rem; box-shadow:0 4px 15px rgba(46, 204, 113, 0.2);"><i class="fa-solid fa-video"></i> Save Demo Timeline</button>
+</div>
+</div>
+<!-- Timeline Tracks -->
+<div style="flex:1; display:flex; overflow:hidden;">
+<!-- Track Headers -->
+<div style="width: 150px; background:var(--surface-color); border-right:1px solid var(--border-color); display:flex; flex-direction:column;">
+<div style="height: 60px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-comment-dots" style="margin-right:8px; color:#9b59b6;"></i> Narration</div>
+<div style="height: 60px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-mouse-pointer" style="margin-right:8px; color:#3498db;"></i> Clicks &amp; UI</div>
+<div style="height: 60px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-keyboard" style="margin-right:8px; color:#e67e22;"></i> Typing</div>
+<div style="height: 60px; display:flex; align-items:center; padding:0 1rem; font-size:0.8rem; font-weight:700; color:var(--text-dark); background:rgba(0,0,0,0.01);"><i class="fa-solid fa-route" style="margin-right:8px; color:#2ecc71;"></i> Navigation</div>
+</div>
+<!-- Tracks Area -->
+<div id="demo-tracks-container" style="flex:1; overflow-x:auto; overflow-y:hidden; position:relative; background:#f9f9f9;">
+<!-- Time grid background -->
+<div style="position:absolute; top:0; bottom:0; width:3000px; background-size: 50px 100%; background-image: linear-gradient(to right, #ececec 1px, transparent 1px); pointer-events:none;"></div>
+<div class="demo-track" id="track-narration" style="position:absolute; top:0; height:60px; width:3000px; border-bottom:1px solid var(--border-color);"></div>
+<div class="demo-track" id="track-clicks" style="position:absolute; top:60px; height:60px; width:3000px; border-bottom:1px solid var(--border-color);"></div>
+<div class="demo-track" id="track-typing" style="position:absolute; top:120px; height:60px; width:3000px; border-bottom:1px solid var(--border-color);"></div>
+<div class="demo-track" id="track-navigation" style="position:absolute; top:180px; height:60px; width:3000px;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="admin-panel" id="panel-settings">
+<h2>Admin Settings</h2>
+<div class="cms-field">
+<label>Theme Mode</label>
+<button class="btn btn-primary" id="btn-theme-toggle"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button>
+<p style="color:var(--secondary); margin-top:0.5rem; font-size:0.9rem;">Toggle between light and dark themes for the admin panel.</p>
+</div>
+</div>
+<div class="admin-panel" id="panel-convoy">
+<h2>Convoy Animation Settings</h2>
+<p style="color: var(--secondary); margin-bottom: 2rem;">Adjust the spacing between the lead Sherpa and
+                    their group.</p>
+<div class="form-row">
+<label for="convoy-delay-input" style="font-weight: 500;">Follower Spacing Delay (ms):</label>
+<input id="convoy-delay-input" min="0" step="100" style="width: 120px;" type="number" value="800">
+<button class="btn btn-primary" onclick="saveConvoyDelay()">Save</button>
+</input></div>
+<p style="color: var(--secondary); margin-top:0.5rem; font-size: 0.9rem;">Higher delay = more space
+                    between characters.</p>
+</div>
+</main>
+</div>
+<!-- Custom Modals to bypass sandboxed prompt()/confirm() -->
+<div class="custom-modal" id="deploy-modal">
+<div class="modal-content" style="max-width: 500px;">
+<h3>Deploy to GitHub</h3>
+<p style="color: var(--secondary); margin-bottom: 1.5rem;">Select the specific projects you want to deploy to live hosting.</p>
+<div id="deploy-modal-form">
+<div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); max-height: 450px; overflow-y: auto;">
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input checked="" class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="heavenly_melody"/>
+<span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="core_site"/>
+<span style="line-height: 1.4;">🌐 Sherpa Core Website (Home, About, Store, etc)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="open_vote"/>
+<span style="line-height: 1.4;">🗳️ Open Vote (Geospatial Dashboard)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="live_earth"/>
+<span style="line-height: 1.4;">🌍 Live Earth</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="traku"/>
+<span style="line-height: 1.4;">🔍 Traku (Skip Tracer)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="stock_agent"/>
+<span style="line-height: 1.4;">📈 Stock Monitor</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="productivity_agent"/>
+<span style="line-height: 1.4;">🤖 Productivity Agent</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="osint_api"/>
+<span style="line-height: 1.4;">🛰️ OSINT API</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="freeme"/>
+<span style="line-height: 1.4;">🛡️ FreeMe Engine</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="dcsa"/>
+<span style="line-height: 1.4;">🏢 DCSA Personnel Vetting Dashboard</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="voice-chat"/>
+<span style="line-height: 1.4;">🏔️ Voice Sherpa (AI Assistant)</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="arbitrage"/>
+<span style="line-height: 1.4;">💹 Arbitrage Engine</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="b2b_leads"/>
+<span style="line-height: 1.4;">💼 B2B Lead Generator</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="launchpad"/>
+<span style="line-height: 1.4;">🚀 Launchpad Portal</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="marion_va"/>
+<span style="line-height: 1.4;">🏛️ Marion VA System</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="train_your_brain"/>
+<span style="line-height: 1.4;">🧠 Train Your Brain</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="food_globe"/>
+<span style="line-height: 1.4;">🍔 Food Globe Dashboard</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="fun_e_stick"/>
+<span style="line-height: 1.4;">🎮 Fun E Stick Control</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="seo_sniper"/>
+<span style="line-height: 1.4;">🎯 SEO Sniper</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="brand_monitor"/>
+<span style="line-height: 1.4;">📊 Brand Monitor</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="business_model"/>
+<span style="line-height: 1.4;">📈 Business Model Simulator</span>
+</label>
+</div>
+<div class="modal-actions">
+<button class="btn btn-outline" onclick="closeModal('deploy-modal')">Cancel</button>
+<button class="btn btn-primary" onclick="submitDeployment()">Deploy Selected</button>
+</div>
+</div>
+<div id="sync-progress-container" style="display:none; width:100%; flex-direction:column; gap:8px; margin-top:1rem; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:var(--surface-color); text-align: left;">
+<div>
+<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500; margin-bottom:4px;">
+<span><i class="fa-brands fa-github"></i> Push to GitHub</span>
+<span id="sync-progress-percent">0%</span>
+</div>
+<div style="width:100%; background:var(--bg-color); height:8px; border-radius:4px; overflow:hidden; border: 1px solid var(--border-color);">
+<div id="sync-progress-bar" style="width:0%; height:100%; background:var(--accent); transition:width 0.3s ease, background 0.3s ease;"></div>
+</div>
+<div id="sync-progress-text" style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">Preparing...</div>
+</div>
+<div style="border-top:1px solid var(--border-color); padding-top:8px; margin-top:4px;">
+<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--secondary); font-weight:500;">
+<span><i class="fa-solid fa-server"></i> Railway Server Deploy</span>
+<span id="railway-progress-status" style="color:var(--accent); font-weight:600;">Ready</span>
+</div>
+</div>
+<div id="sync-finish-actions" style="display:none; margin-top: 1rem; text-align: right;">
+<button class="btn btn-primary" onclick="closeModal('deploy-modal'); document.getElementById('deploy-modal-form').style.display='block'; document.getElementById('sync-progress-container').style.display='none'; document.getElementById('sync-finish-actions').style.display='none';">Done</button>
+</div>
+</div>
+</div>
+</div>
+<div class="custom-modal" id="password-modal">
+<div class="modal-content">
+<h3 id="pw-modal-title">Change Password</h3>
+<p style="color: var(--secondary); margin-bottom: 1rem;">Enter a new secure password for this administrator.
+            </p>
+<div style="position: relative; margin-bottom: 1.5rem;">
+<input id="pw-modal-input" placeholder="New Secure Password" style="margin-bottom: 0; padding-right: 40px;" type="password"/>
+<button onclick="togglePasswordVisibility('pw-modal-input')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--accent);" type="button">
+<i class="fa-solid fa-eye" id="pw-modal-input-eye"></i>
+</button>
+</div>
+<div class="modal-actions">
+<button class="btn btn-outline" onclick="closeModal('password-modal')">Cancel</button>
+<button class="btn btn-primary" onclick="submitPasswordChange()">Update Pass</button>
+</div>
+</div>
+</div>
+<div class="custom-modal" id="confirm-modal">
+<div class="modal-content">
+<h3>Confirm Action</h3>
+<p id="confirm-modal-text" style="color: var(--secondary); margin-bottom: 2rem;">Are you sure?</p>
+<div class="modal-actions">
+<button class="btn btn-outline" onclick="closeModal('confirm-modal')">Cancel</button>
+<button class="btn-danger" id="confirm-modal-btn">Yes, Revoke</button>
+</div>
+</div>
+</div>
+<script>
         let currentActionUserId = null;
         let currentActionUsername = null;
 
@@ -1251,7 +1262,7 @@
 
             // Generate CSS override block globally forcing light mode variables ONLY
             const cssPayload = `
-:root[data-theme="light"], :root[data-theme="light"] body {
+:root[data-theme="dark"], :root[data-theme="dark"] body {
     --primary: ${primary} !important;
     --secondary: ${secondary} !important;
     --accent: ${accent} !important;
@@ -1297,6 +1308,37 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Draft...';
                 await new Promise(r => setTimeout(r, 800)); // wait for iframe postMessage to process
                 btn.innerHTML = originalText;
+            }
+
+            // Fetch Git Status to auto-check modified projects
+            try {
+                const statusRes = await fetch('/api/git-status');
+                if (statusRes.ok) {
+                    const statusData = await statusRes.json();
+                    const modified = statusData.modified || [];
+                    
+                    // Reset all checkboxes
+                    document.querySelectorAll('.deploy-project-cb').forEach(cb => {
+                        cb.checked = false;
+                        cb.parentElement.style.opacity = '0.5';
+                        cb.parentElement.style.fontWeight = '400';
+                        cb.parentElement.querySelector('span').innerHTML = cb.parentElement.querySelector('span').innerText.replace(' (Changed)', '');
+                    });
+                    
+                    // Check and highlight modified ones
+                    modified.forEach(page => {
+                        // Map internal filenames to project values if needed, but they usually match
+                        const cb = document.querySelector(`.deploy-project-cb[value="${page}"]`);
+                        if (cb) {
+                            cb.checked = true;
+                            cb.parentElement.style.opacity = '1';
+                            cb.parentElement.style.fontWeight = '700';
+                            cb.parentElement.querySelector('span').innerHTML += ' <b style="color:var(--accent); font-size:0.7rem;">(Changed)</b>';
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Git status fetch failed", e);
             }
 
             document.getElementById('deploy-modal').classList.add('active');
@@ -1756,5 +1798,4 @@
         loadConvoyDelay();
     </script>
 </body>
-
 </html>

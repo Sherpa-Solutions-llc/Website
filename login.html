@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sherpa Solutions LLC | Admin Login</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sherpa Solutions LLC | Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Outfit:wght@400;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
         *,
         *::before,
         *::after {
@@ -225,7 +223,18 @@
             margin-bottom: 1rem;
         }
     </style>
-    <style data-cms="custom-theme-colors">
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -237,64 +246,49 @@
 }
 </style>
 </head>
-
 <body>
-    <div class="login-wrapper">
-        <div class="login-card">
-
-            <img src="static/sherpa_logo_embroidered.jpg" alt="Sherpa Solutions LLC" class="login-logo">
-
-            <h2>Admin Portal</h2>
-            <p class="login-subtitle">Sherpa Solutions LLC · Secure Access</p>
-
-            <div class="login-divider"></div>
-
-            <div class="security-badge">
-                <i class="fa-solid fa-shield-halved"></i> Authorized Personnel Only
+<div class="login-wrapper">
+<div class="login-card">
+<img alt="Sherpa Solutions LLC" class="login-logo" src="static/sherpa_logo_embroidered.jpg"/>
+<h2>Admin Portal</h2>
+<p class="login-subtitle">Sherpa Solutions LLC · Secure Access</p>
+<div class="login-divider"></div>
+<div class="security-badge">
+<i class="fa-solid fa-shield-halved"></i> Authorized Personnel Only
             </div>
-
-            <div id="errorBox" class="error-message">
-                <i class="fa-solid fa-circle-exclamation"></i>
+<div class="error-message" id="errorBox">
+<i class="fa-solid fa-circle-exclamation"></i>
                 Invalid username or password. Please try again.
             </div>
-
-            <form action="/api/login" method="POST">
-                <div class="field-group">
-                    <label for="username">Username</label>
-                    <div class="input-wrap">
-                        <i class="fa-solid fa-user input-icon"></i>
-                        <input type="text" id="username" name="username" required placeholder="Admin username"
-                            autocomplete="username">
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <label for="password">Password</label>
-                    <div class="input-wrap">
-                        <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" id="password" name="password" required placeholder="Admin password"
-                            autocomplete="current-password">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-login">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Secure Login
+<form action="/api/login" method="POST">
+<div class="field-group">
+<label for="username">Username</label>
+<div class="input-wrap">
+<i class="fa-solid fa-user input-icon"></i>
+<input autocomplete="username" id="username" name="username" placeholder="Admin username" required="" type="text"/>
+</div>
+</div>
+<div class="field-group">
+<label for="password">Password</label>
+<div class="input-wrap">
+<i class="fa-solid fa-lock input-icon"></i>
+<input autocomplete="current-password" id="password" name="password" placeholder="Admin password" required="" type="password"/>
+</div>
+</div>
+<button class="btn-login" type="submit">
+<i class="fa-solid fa-arrow-right-to-bracket"></i> Secure Login
                 </button>
-            </form>
-
-            <a href="/" class="return-link">
-                <i class="fa-solid fa-arrow-left"></i> Return to Main Site
+</form>
+<a class="return-link" href="/">
+<i class="fa-solid fa-arrow-left"></i> Return to Main Site
             </a>
-
-        </div>
-    </div>
-
-    <script>
+</div>
+</div>
+<script>
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('error')) {
             document.getElementById('errorBox').classList.add('visible');
         }
     </script>
 </body>
-
 </html>

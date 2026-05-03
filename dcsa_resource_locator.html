@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html data-theme="dark" lang="en">
 <head><link href="/static/extracted_dcsa.css" rel="stylesheet"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -13,7 +13,7 @@
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Shared Styles -->
-<link href="static/styles.css?v=2.0" rel="stylesheet">
+<link href="static/styles.css?v=2.0" rel="stylesheet"/>
 <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: #050505; }
         
@@ -355,7 +355,18 @@
             font-size: 0.8rem;
         }
     </style>
-</link></head>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
 <body class="">
 <div class="no-cms" id="leafletContainer"></div>
 <div class="no-cms" id="cesiumContainer"></div>

@@ -1,44 +1,55 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEO Competitor Sniper | Command Center</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="/static/theme.js?v=3"></script>
-    <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SEO Competitor Sniper | Command Center</title>
+<link href="/static/styles.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="/static/theme.js?v=3"></script>
+<style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #0e1117; }
         iframe { width: 100%; height: calc(100vh - 180px); border: none; margin-top: 180px; }
     </style>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <a href="index.html"><img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/></a>
-        </div>
-        <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
-        <ul class="nav-links" id="nav-menu">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="services.html">Our Services</a></li>
-            <li><a class="active" href="projects.html">Projects</a></li>
-            <li><a href="merchandise.html">Merchandise</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="header-actions">
-            <span id="env-indicator" style="display:inline-flex; align-items:center; gap:8px; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);"></span>
-            <button id="btn-demo-toggle" class="demo-btn" style="margin-right: 15px;" onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
-            <button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
-            <a class="btn btn-primary nav-cta" href="projects.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back</a>
-        </div>
-    </header>
-
-    <iframe data-path="/seo_sniper" id="sherpa-frame"></iframe>
-    <audio id="demo-audio" src="/static/audio/seo_demo.mp3"></audio>
-    <script>
+<header>
+<div class="logo-container">
+<a href="index.html"><img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/></a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
+<ul class="nav-links" id="nav-menu">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a class="active" href="projects.html">Projects</a></li>
+<li><a href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions">
+<span id="env-indicator" style="display:inline-flex; align-items:center; gap:8px; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);"></span>
+<button class="demo-btn" id="btn-demo-toggle" onclick="toggleDemo()" style="margin-right: 15px;"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" href="projects.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back</a>
+</div>
+</header>
+<iframe data-path="/seo_sniper" id="sherpa-frame"></iframe>
+<audio id="demo-audio" src="/static/audio/seo_demo.mp3"></audio>
+<script>
         document.addEventListener('DOMContentLoaded', () => {
             const isLocal = window.location.search.includes('backend=local');
             const flag = isLocal ? 'live' : 'sim';
