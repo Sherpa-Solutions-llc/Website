@@ -7,9 +7,9 @@ if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'lo
 
 // 🌍 Initialize Cesium Viewer with Organic Tone
 const viewer = new Cesium.Viewer('globe-container', {
-    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-        url : 'https://a.tile.openstreetmap.org/',
-        maximumLevel: 19
+    imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
+        url : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+        enablePickFeatures: false
     }),
     baseLayerPicker: false,
     geocoder: false,
