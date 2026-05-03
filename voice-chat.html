@@ -93,9 +93,15 @@
             filter: grayscale(0.5) blur(2px);
         }
 
-        .avatar-container.talking img {
-            animation: hologram-jitter 0.1s infinite;
-            filter: brightness(1.2) contrast(1.1);
+        .avatar-container.speaking img {
+            animation: avatar-pulse 2s infinite ease-in-out;
+            filter: brightness(1.05) contrast(1.02);
+        }
+
+        @keyframes avatar-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         .mouth-overlay {
@@ -115,13 +121,20 @@
         }
 
         .avatar-container.speaking .mouth-overlay {
-            opacity: 0.85;
-            animation: mouth-talk 0.18s infinite alternate ease-in-out;
+            opacity: 0.75;
+            animation: mouth-talk 0.2s infinite alternate ease-in-out;
         }
 
         .avatar-container.male-avatar .mouth-overlay {
-            top: 65%;
-            width: 38px;
+            top: 45.5%; /* Corrected for the new premium male image */
+            width: 32px;
+            height: 10px;
+        }
+
+        .avatar-container.female-avatar .mouth-overlay {
+            top: 51.5%; /* Corrected for the new premium female image */
+            width: 28px;
+            height: 8px;
         }
 
         @keyframes mouth-talk {
@@ -146,13 +159,9 @@
             opacity: 0.4;
         }
 
-        @keyframes hologram-jitter {
-            0% { transform: translate(0,0) skew(0deg); }
-            20% { transform: translate(-2px, 1px) skew(1deg); }
-            40% { transform: translate(2px, -1px) skew(-1deg); }
-            60% { transform: translate(-1px, 2px) skew(0.5deg); }
-            80% { transform: translate(1px, -2px) skew(-0.5deg); }
-            100% { transform: translate(0,0) skew(0deg); }
+        @keyframes mouth-talk {
+            0% { transform: translateX(-50%) scaleX(0.7) scaleY(0.1); }
+            100% { transform: translateX(-50%) scaleX(0.9) scaleY(0.5); }
         }
 
         @keyframes avatar-glow {
