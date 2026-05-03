@@ -107,7 +107,19 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     recognition.onerror = (event) => {
         console.error('Recognition error:', event.error);
         stopListening();
-        statusBadge.textContent = 'Error: ' + event.error;
+        
+        if (event.error === 'no-speech') {
+            statusBadge.textContent = 'I didn\'t hear anything.';
+            userTranscript.textContent = 'Try speaking again...';
+        } else if (event.error === 'not-allowed') {
+            statusBadge.textContent = 'Microphone access denied.';
+            userTranscript.textContent = 'Please enable microphone permissions in your browser settings.';
+        } else if (event.error === 'audio-capture') {
+            statusBadge.textContent = 'No microphone found.';
+        } else {
+            statusBadge.textContent = 'Error: ' + event.error;
+        }
+
         if (config.interactionMode === 'tel' && event.error !== 'no-speech') {
             setTimeout(startListening, 1000);
         } else if (config.interactionMode === 'tel') {
