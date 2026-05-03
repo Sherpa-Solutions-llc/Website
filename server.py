@@ -1861,8 +1861,16 @@ async def chat_proxy(request: Request):
     import httpx
     try:
         body = await request.json()
+        headers = {}
+        if "authorization" in request.headers:
+            headers["authorization"] = request.headers["authorization"]
+            
         async with httpx.AsyncClient(timeout=60.0) as client:
-            res = await client.post("http://localhost:8000/v1/chat/completions", json=body)
+            res = await client.post(
+                "http://localhost:8000/v1/chat/completions", 
+                json=body, 
+                headers=headers
+            )
             return JSONResponse(status_code=res.status_code, content=res.json())
     except Exception as e:
         print(f"[Chat Proxy Error] {e}")
