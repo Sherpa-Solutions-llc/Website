@@ -270,10 +270,10 @@ function initCesium() {
             id: emp.id,
             position: Cesium.Cartesian3.fromDegrees(emp.lng, emp.lat),
             point: {
-                pixelSize: 8,
+                pixelSize: 20,
                 color: color,
-                outlineColor: Cesium.Color.BLACK,
-                outlineWidth: 2,
+                outlineColor: Cesium.Color.fromCssColorString('rgba(0, 0, 0, 0.4)'),
+                outlineWidth: 6,
                 disableDepthTestDistance: Number.POSITIVE_INFINITY
             },
             label: {
@@ -360,11 +360,11 @@ function initLeaflet() {
 
         const marker = L.circleMarker([emp.lat, emp.lng], {
             renderer: canvasRenderer,
-            color: '#000',
-            weight: 1,
+            color: 'rgba(0,0,0,0.4)',
+            weight: 3,
             fillColor: color,
             fillOpacity: 1,
-            radius: 5
+            radius: 10
         }).addTo(leafletMap);
 
         marker.on('click', () => selectEmployee(emp));
@@ -802,10 +802,10 @@ addAssetBtn.addEventListener('click', () => {
         id: newEmp.id,
         position: Cesium.Cartesian3.fromDegrees(newEmp.lng, newEmp.lat),
         point: {
-            pixelSize: 12,
+            pixelSize: 20,
             color: color,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2,
+            outlineColor: Cesium.Color.fromCssColorString('rgba(0, 0, 0, 0.4)'),
+            outlineWidth: 6,
             disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {

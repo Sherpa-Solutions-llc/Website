@@ -2171,7 +2171,7 @@ async def get_git_status(user: str = Depends(require_admin)):
             elif path.startswith("static/"):
                 if "open_vote" in filename: project_keys.add("open_vote")
                 elif "live_earth" in filename: project_keys.add("live_earth")
-                elif "dcsa" in filename: project_keys.add("dcsa")
+                elif "dcsa" in filename or "resource_locator" in filename: project_keys.add("dcsa")
                 elif "voice-chat" in filename: project_keys.add("voice-chat")
                 elif "productivity_agent" in filename: project_keys.add("productivity_agent")
                 elif "osint_api" in filename: project_keys.add("osint_api")
