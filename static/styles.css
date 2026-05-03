@@ -72,6 +72,15 @@ header {
     transition: var(--transition);
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+}
+
 .logo-container {
     display: flex;
     align-items: center;

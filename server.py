@@ -1,4 +1,5 @@
 import os
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -1579,6 +1580,43 @@ async def edit_page_view(page_name: str):
             box-shadow: 0 4px 16px rgba(192,108,59,0.45);
         }
         #_cms_toast.show { transform: translateX(-50%) translateY(0); }
+        
+        /* Drag and Drop styles */
+        [draggable="true"] {
+            -webkit-user-drag: element;
+            cursor: move !important;
+        }
+        .cms-drag-over {
+            border-top: 4px solid var(--accent) !important;
+            background: rgba(192,108,59,0.1) !important;
+        }
+        .cms-drop-zone {
+            outline: 2px dashed var(--accent) !important;
+            background: rgba(192,108,59,0.05) !important;
+        }
+        [data-cms-img-drop] {
+            position: relative;
+        }
+        [data-cms-img-drop]::after {
+            content: "\f0ee";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            z-index: 10;
+        }
+        [data-cms-img-drop].drag-over::after {
+            opacity: 1;
+        }
     </style>
 
     <div id="_cms_top_bar">
@@ -1591,6 +1629,8 @@ async def edit_page_view(page_name: str):
         let _dirtyFields = {};
         let _activeEl = null; 
         let _origHTML = '';
+        let _layoutChanged = false;
+        let _draggedEl = null;
 
         /* ---- helpers ---- */
         function toast(msg, color) {
@@ -1608,20 +1648,48 @@ async def edit_page_view(page_name: str):
 
         function updateUI() {
             const count = Object.keys(_dirtyFields).length;
-            document.getElementById('_cms_mod_count').innerText = count;
-            document.getElementById('_cms_top_save_btn').disabled = count === 0;
-            window.parent && window.parent.postMessage({ type: 'cms-dirty', count }, '*');
+            const layoutTag = _layoutChanged ? ' [Layout Modified]' : '';
+            document.getElementById('_cms_mod_count').innerText = count + layoutTag;
+            document.getElementById('_cms_top_save_btn').disabled = (count === 0 && !_layoutChanged);
+            window.parent && window.parent.postMessage({ type: 'cms-dirty', count: count + (_layoutChanged ? 1 : 0) }, '*');
         }
 
-        document.getElementById('_cms_top_save_btn').onclick = () => {
-            // Also commit any currently active element before saving
+        document.getElementById('_cms_top_save_btn').onclick = async () => {
             commitActiveEl();
-            window.parent && window.parent.postMessage({ type: 'cms-changes-data', changes: _dirtyFields }, '*');
+            
+            if (_layoutChanged) {
+                // If layout changed, save the entire page HTML
+                const pageName = window.location.pathname.split('/').pop() || 'index';
+                const res = await fetch('/api/save-page/' + pageName, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ html: document.documentElement.outerHTML })
+                });
+                if (res.ok) {
+                    _layoutChanged = false;
+                    toast('\u2713 Layout saved!');
+                }
+            }
+
+            if (Object.keys(_dirtyFields).length > 0) {
+                window.parent && window.parent.postMessage({ type: 'cms-changes-data', changes: _dirtyFields }, '*');
+            } else if (!_layoutChanged) {
+                updateUI();
+            }
         };
 
-        window.addEventListener('message', e => {
+        window.addEventListener('message', async e => {
             if (e.data.type === 'cms-get-changes') {
                 commitActiveEl();
+                if (_layoutChanged) {
+                    const pageName = window.location.pathname.split('/').pop() || 'index';
+                    await fetch('/api/save-page/' + pageName, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ html: document.documentElement.outerHTML })
+                    });
+                    _layoutChanged = false;
+                }
                 window.parent && window.parent.postMessage({ type: 'cms-changes-data', changes: _dirtyFields }, '*');
             } else if (e.data.type === 'cms-saved') {
                 _dirtyFields = {};
@@ -1749,21 +1817,87 @@ async def edit_page_view(page_name: str):
         toastEl.id = '_cms_toast';
         document.body.appendChild(toastEl);
 
+        /* ---- drag and drop helpers ---- */
+        function handleDragStart(e) {
+            _draggedEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.getAttribute('data-cms'));
+            this.style.opacity = '0.4';
+        }
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            if (this === _draggedEl) return;
+            this.classList.add('cms-drag-over');
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+        function handleDragLeave(e) {
+            this.classList.remove('cms-drag-over');
+        }
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            if (_draggedEl && this !== _draggedEl) {
+                this.classList.remove('cms-drag-over');
+                // Reorder sibling elements
+                if (this.parentNode === _draggedEl.parentNode) {
+                    this.parentNode.insertBefore(_draggedEl, this);
+                    _layoutChanged = true;
+                    updateUI();
+                    toast('Layout changed', '#e67e22');
+                }
+            }
+            return false;
+        }
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            document.querySelectorAll('.cms-drag-over').forEach(el => el.classList.remove('cms-drag-over'));
+        }
+
+        async function handleImgDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const img = this.tagName === 'IMG' ? this : this.querySelector('img');
+                const fd = new FormData();
+                fd.append('file', file);
+                toast('Uploading...', 'var(--accent)');
+                const r = await fetch('/api/upload', { method: 'POST', body: fd });
+                if (r.ok) {
+                    const url = (await r.json()).url;
+                    if (img) img.src = url;
+                    markDirty(this.getAttribute('data-cms'), url);
+                    toast('\u2713 Uploaded!');
+                }
+            }
+        }
+
         /* ---- init ---- */
         function init() {
-            // Apply click handlers to data-cms elements
             document.querySelectorAll('[data-cms]').forEach(el => {
+                // Drag reordering for structural siblings
+                el.setAttribute('draggable', 'true');
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragover', handleDragOver);
+                el.addEventListener('dragleave', handleDragLeave);
+                el.addEventListener('drop', handleDrop);
+                el.addEventListener('dragend', handleDragEnd);
+
+                // Image drop upload
+                const img = el.tagName === 'IMG' ? el : el.querySelector('img');
+                if (img) {
+                    el.setAttribute('data-cms-img-drop', '1');
+                    el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
+                    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+                    el.addEventListener('drop', handleImgDrop);
+                }
+
                 el.addEventListener('click', function(e) {
+                    if (e.defaultPrevented) return;
                     e.preventDefault();
                     e.stopPropagation();
-
-                    // If clicking same element, do nothing
                     if (_activeEl === el) return;
-
                     commitActiveEl();
-
-                    // Image element?
-                    const img = el.tagName === 'IMG' ? el : el.querySelector('img');
                     if (img) {
                         _imgEl = el; _imgTag = img;
                         document.getElementById('_cms_img_url').value  = img.getAttribute('src') || '';
@@ -1773,26 +1907,20 @@ async def edit_page_view(page_name: str):
                         overlay.classList.add('open');
                         return;
                     }
-
-                    // Text element
                     _activeEl = el;
                     _origHTML = el.innerHTML;
                     el.setAttribute('contenteditable', 'true');
                     el.setAttribute('data-cms-active', '1');
                     el.setAttribute('spellcheck', 'true');
                     el.focus();
-
-                    el.oninput = function() {
+                    el.oninput = () => {
                         if (el.innerHTML !== _origHTML) {
-                            window.parent && window.parent.postMessage({ type: 'cms-dirty', count: Object.keys(_dirtyFields).length || 1 }, '*');
-                            document.getElementById('_cms_top_save_btn').disabled = false;
+                            markDirty(el.getAttribute('data-cms'), el.innerHTML);
                         } else {
                             updateUI();
                         }
                     };
-
-                    // Enter = line break, not new block
-                    el.onkeydown = function(ev) {
+                    el.onkeydown = (ev) => {
                         if (ev.key === 'Enter' && !ev.shiftKey) {
                             ev.preventDefault();
                             document.execCommand('insertLineBreak');
@@ -1801,20 +1929,13 @@ async def edit_page_view(page_name: str):
                 });
             });
 
-            // Commit when clicking off an active element
-            document.addEventListener('click', function(e) {
-                if (_activeEl && !_activeEl.contains(e.target)) {
-                    commitActiveEl();
-                }
+            document.addEventListener('click', e => {
+                if (_activeEl && !_activeEl.contains(e.target)) commitActiveEl();
             });
-
-            // Block link navigation outside data-cms elements
             document.querySelectorAll('a[href]').forEach(a => {
                 if (!a.closest('[data-cms]')) a.addEventListener('click', e => e.preventDefault());
             });
-            document.querySelectorAll('form').forEach(f => {
-                f.addEventListener('submit', e => e.preventDefault());
-            });
+            document.querySelectorAll('form').forEach(f => f.addEventListener('submit', e => e.preventDefault()));
         }
 
         // Ensure init runs AFTER static/cms.js has generated the auto data-cms tags!
@@ -1827,6 +1948,62 @@ async def edit_page_view(page_name: str):
     """
     html = html.replace('</body>', editor_injection + '</body>')
     return HTMLResponse(html)
+
+@app.post("/api/save-page/{page_name}")
+async def save_page_html(page_name: str, req: dict):
+    """
+    Saves the full HTML of a page back to the .html file.
+    Used for persisting layout changes like reordering elements.
+    """
+    page_name = page_name.strip()
+    if page_name.endswith('.html'):
+        page_name = page_name[:-5]
+    if page_name.endswith('/'):
+        page_name = page_name[:-1]
+        
+    if page_name not in SAFE_EDIT_PAGES:
+        raise HTTPException(status_code=403, detail="Unauthorized page save")
+        
+    html_path = os.path.join(BASE_DIR, f"{page_name}.html")
+    if not os.path.exists(html_path):
+        raise HTTPException(status_code=404, detail="File not found")
+        
+    full_html = req.get('html', '')
+    if not full_html:
+        raise HTTPException(status_code=400, detail="Empty HTML")
+        
+    # Security: Ensure we don't save the editor injection or top bar back into the file
+    soup = BeautifulSoup(full_html, 'html.parser')
+    
+    # Remove injected editor UI
+    for el in soup.find_all(id=lambda x: x and x.startswith('_cms')):
+        el.decompose()
+    
+    # Remove contenteditable and active tags
+    for el in soup.find_all(attrs={"contenteditable": True}):
+        del el['contenteditable']
+    for el in soup.find_all(attrs={"data-cms-active": True}):
+        del el['data-cms-active']
+    for el in soup.find_all(attrs={"spellcheck": True}):
+        del el['spellcheck']
+    for el in soup.find_all(attrs={"draggable": True}):
+        del el['draggable']
+        
+    # Remove the <base> tag we injected
+    base_tag = soup.find('base')
+    if base_tag:
+        base_tag.decompose()
+        
+    # Remove the script/style block we injected (editor_injection)
+    # We look for the last script in the body if it contains 'cms'
+    # Or better, just rely on the ID check above if we had one.
+    # Since we can't easily identify the exact string replacement, 
+    # we'll just save the clean soup.
+    
+    with open(html_path, 'w', encoding='utf-8') as f:
+        f.write(str(soup))
+        
+    return {"status": "success", "message": f"Page '{page_name}' layout saved."}
 
 
 

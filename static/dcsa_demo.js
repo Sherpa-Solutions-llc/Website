@@ -215,13 +215,26 @@
     window.addEventListener('DOMContentLoaded', () => {
         let headerActions = document.querySelector('.header-actions');
         if (headerActions && !document.getElementById('btn-demo-toggle') && !window.location.pathname.endsWith('dcsa_dashboard.html')) {
+            // Ensure container is flex and doesn't wrap
+            headerActions.style.display = 'flex';
+            headerActions.style.alignItems = 'center';
+            headerActions.style.flexWrap = 'nowrap';
+            headerActions.style.gap = '0.5rem';
+
             let demoBtn = document.createElement('button');
             demoBtn.id = 'btn-demo-toggle';
             demoBtn.className = 'btn btn-outline';
-            demoBtn.style.cssText = "margin-right: 15px; border: 1px solid var(--border-color); color: var(--text-dark); background: transparent; cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;";
+            demoBtn.style.cssText = "border: 1px solid var(--border-color); color: var(--text-dark); background: transparent; cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s; white-space: nowrap;";
             demoBtn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO';
             demoBtn.onclick = window.toggleDemo;
-            headerActions.insertBefore(demoBtn, headerActions.firstChild);
+            
+            // Specifically insert before the theme toggle if it exists
+            let themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                headerActions.insertBefore(demoBtn, themeToggle);
+            } else {
+                headerActions.prepend(demoBtn);
+            }
         }
     });
 
