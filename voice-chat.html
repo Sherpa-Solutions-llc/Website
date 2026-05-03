@@ -98,6 +98,37 @@
             filter: brightness(1.2) contrast(1.1);
         }
 
+        .mouth-overlay {
+            position: absolute;
+            top: 63.5%; 
+            left: 50%;
+            width: 32px;
+            height: 12px;
+            background: #000;
+            transform: translateX(-50%) scaleX(0.8) scaleY(0.1);
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(1px);
+            transition: opacity 0.3s;
+            z-index: 10;
+            box-shadow: inset 0 0 8px rgba(192, 108, 59, 0.4);
+        }
+
+        .avatar-container.speaking .mouth-overlay {
+            opacity: 0.85;
+            animation: mouth-talk 0.18s infinite alternate ease-in-out;
+        }
+
+        .avatar-container.male-avatar .mouth-overlay {
+            top: 65%;
+            width: 38px;
+        }
+
+        @keyframes mouth-talk {
+            0% { transform: translateX(-50%) scaleX(0.7) scaleY(0.1); }
+            100% { transform: translateX(-50%) scaleX(1.0) scaleY(0.7); }
+        }
+
         .scanlines {
             position: absolute;
             top: 0;
@@ -346,6 +377,7 @@
 
         <div id="avatar-btn" class="avatar-container">
             <img src="/static/realistic_female_sherpa.png" alt="Sherpa Avatar">
+            <div class="mouth-overlay"></div>
             <div class="scanlines"></div>
         </div>
 

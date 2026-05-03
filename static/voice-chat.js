@@ -321,9 +321,20 @@ function speak(text) {
         statusBadge.textContent = 'Standby';
     };
 
+    currentUtterance.onstart = () => {
+        isSpeaking = true;
+        statusBadge.textContent = 'Speaking...';
+        mountainBtn.classList.add('speaking');
+        avatarBtn.classList.add('speaking');
+        startVisualizer();
+    };
+
     currentUtterance.onend = () => {
         isSpeaking = false;
         statusBadge.textContent = 'Standby';
+        mountainBtn.classList.remove('speaking');
+        avatarBtn.classList.remove('speaking');
+        stopVisualizer();
         if (config.interactionMode === 'tel') setTimeout(startListening, 500);
     };
     synthesis.speak(currentUtterance);
@@ -357,6 +368,8 @@ function getAvatarImage() {
             name.includes('claire') ||
             name.includes('monica') ||
             name.includes('alice')) {
+            avatarBtn.classList.add('female-avatar');
+            avatarBtn.classList.remove('male-avatar');
             return '/static/realistic_female_sherpa.png';
         }
 
@@ -366,6 +379,8 @@ function getAvatarImage() {
             name.includes('mark') || 
             name.includes('george') || 
             name.includes('paul')) {
+            avatarBtn.classList.add('male-avatar');
+            avatarBtn.classList.remove('female-avatar');
             return '/static/realistic_sherpa.png';
         }
     }
