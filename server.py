@@ -2159,11 +2159,13 @@ async def get_git_status(user: str = Depends(require_admin)):
             elif filename in DIRECT_MAP:
                 project_keys.add(DIRECT_MAP[filename])
             
-            # 2. Prefix Rules
+            # 2. Prefix and Name Rules
             elif filename.startswith("dcsa_"):
                 project_keys.add("dcsa")
             elif filename.startswith("service_") or filename.startswith("merch_") or filename.startswith("backpack_"):
                 project_keys.add("core_site")
+            elif "deformation" in filename or "earthquake" in filename or "satellite" in filename or "flight" in filename:
+                project_keys.add("live_earth")
             
             # 3. Static Assets Mapping
             elif path.startswith("static/"):
