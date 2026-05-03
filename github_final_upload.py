@@ -78,13 +78,17 @@ def git_push():
             
         subprocess.run(["git", "commit", "-m", f"Auto-deploy from Sherpa Admin - {time.ctime()}"], check=True)
         
-        update_progress(80, "Pushing to GitHub...")
+        # Get current branch name
+        branch_res = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True)
+        current_branch = branch_res.stdout.strip() or "master"
+        
+        update_progress(80, f"Pushing to GitHub ({current_branch})...")
         result = subprocess.run(["git", "push"], capture_output=True, text=True)
         
         if result.returncode != 0:
             if "no upstream branch" in result.stderr:
-                # Try to push to origin main if no upstream
-                subprocess.run(["git", "push", "-u", "origin", "main"], check=True)
+                # Use detected branch instead of hardcoded 'main'
+                subprocess.run(["git", "push", "-u", "origin", current_branch], check=True)
             else:
                 raise Exception(result.stderr)
                 
