@@ -1835,6 +1835,39 @@ import asyncio
 class SyncRequest(BaseModel):
     projects: list[str] = []
 
+class AvatarRequest(BaseModel):
+    text: str
+    image_url: str = "/static/realistic_sherpa.png"
+
+@app.post("/api/generate-avatar")
+async def generate_avatar(req: AvatarRequest):
+    """
+    Placeholder for Wav2Lip integration.
+    This endpoint will eventually trigger the video lip-sync process.
+    """
+    # For now, return a success status and the base image URL.
+    return {
+        "status": "success",
+        "video_url": req.image_url,
+        "message": "Wav2Lip engine initialized in simulation mode."
+    }
+
+@app.post("/v1/chat/completions")
+async def chat_proxy(request: Request):
+    """
+    Proxy to the local Hermes agent on port 8000.
+    This allows the frontend to use a single origin (port 8001) for all requests.
+    """
+    import httpx
+    try:
+        body = await request.json()
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            res = await client.post("http://localhost:8000/v1/chat/completions", json=body)
+            return JSONResponse(status_code=res.status_code, content=res.json())
+    except Exception as e:
+        print(f"[Chat Proxy Error] {e}")
+        return JSONResponse(status_code=500, content={"error": "Basecamp server unreachable"})
+
 @app.get("/api/git-status")
 async def get_git_status(user: str = Depends(require_admin)):
     try:

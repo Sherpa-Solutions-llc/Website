@@ -61,6 +61,74 @@
             opacity: 0.7;
         }
 
+        .avatar-container {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 2rem;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--accent);
+            box-shadow: 0 0 40px rgba(192, 108, 59, 0.3);
+            display: none;
+            transition: var(--transition);
+            cursor: pointer;
+            background: #000;
+        }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .avatar-container.listening {
+            border-color: #ff9e79;
+            box-shadow: 0 0 50px rgba(255, 158, 121, 0.5);
+        }
+
+        .avatar-container.thinking img {
+            opacity: 0.7;
+            filter: grayscale(0.5) blur(2px);
+        }
+
+        .avatar-container.talking img {
+            animation: hologram-jitter 0.1s infinite;
+            filter: brightness(1.2) contrast(1.1);
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        @keyframes hologram-jitter {
+            0% { transform: translate(0,0) skew(0deg); }
+            20% { transform: translate(-2px, 1px) skew(1deg); }
+            40% { transform: translate(2px, -1px) skew(-1deg); }
+            60% { transform: translate(-1px, 2px) skew(0.5deg); }
+            80% { transform: translate(1px, -2px) skew(-0.5deg); }
+            100% { transform: translate(0,0) skew(0deg); }
+        }
+
+        @keyframes avatar-glow {
+            from { box-shadow: 0 0 30px rgba(192, 108, 59, 0.3); border-color: var(--accent); }
+            to { box-shadow: 0 0 70px rgba(192, 108, 59, 0.8); border-color: #ff9e79; }
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--glow-color)); }
             50% { transform: scale(1.1); filter: drop-shadow(0 0 30px var(--accent)); }
@@ -73,8 +141,30 @@
         }
 
         .transcript-container {
-            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
             margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(192, 108, 59, 0.15);
+            backdrop-filter: blur(10px);
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) rgba(255,255,255,0.05);
+        }
+
+        .transcript-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .transcript-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .transcript-container::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 10px;
         }
 
         .transcript {
@@ -254,6 +344,11 @@
             <i class="fa-solid fa-mountain-sun"></i>
         </div>
 
+        <div id="avatar-btn" class="avatar-container">
+            <img src="/static/realistic_female_sherpa.png" alt="Sherpa Avatar">
+            <div class="scanlines"></div>
+        </div>
+
         <div class="controls">
             <div class="audio-control-wrapper">
                 <button id="toggle-audio" class="btn btn-outline">
@@ -354,6 +449,14 @@
             </div>
 
             <div class="setting-group">
+                <label>Visual Experience</label>
+                <div class="mode-toggle">
+                    <button id="visual-mode-mountain" class="mode-btn active">Mountain Icon</button>
+                    <button id="visual-mode-avatar" class="mode-btn">Realistic Avatar</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
                 <label>Change UI Passkey</label>
                 <input type="password" id="ui-passkey-input" placeholder="Enter new passkey...">
             </div>
@@ -377,15 +480,18 @@
 
         .modal-content {
             background-color: var(--surface-color);
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 2rem;
             border: 1px solid var(--accent);
             width: 90%;
             max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
             border-radius: 20px;
             box-shadow: 0 0 30px var(--glow-color);
             position: relative;
             color: var(--primary);
+            padding-bottom: 2.5rem;
         }
 
         .close-modal {

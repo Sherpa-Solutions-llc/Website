@@ -27,16 +27,36 @@ const uiPasskeyInput = document.getElementById('ui-passkey-input');
 const modePtt = document.getElementById('mode-ptt');
 const modeTel = document.getElementById('mode-tel');
 
+const visualModeMountain = document.getElementById('visual-mode-mountain');
+const visualModeAvatar = document.getElementById('visual-mode-avatar');
+const avatarBtn = document.getElementById('avatar-btn');
+
 const SHERPA_PASSKEY = localStorage.getItem('sherpa_ui_passkey') || '8909';
+
+// Live Internet Security Guard (Enforced on page load)
+const isLive = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+if (isLive) {
+    const currentPasskey = localStorage.getItem('sherpa_ui_passkey');
+    if (currentPasskey !== '8909') {
+        const entered = prompt("Sherpa Solutions Security: Please enter your interface passkey to proceed (Default: 8909):");
+        if (entered === '8909') {
+            localStorage.setItem('sherpa_ui_passkey', '8909');
+        } else {
+            document.body.innerHTML = '<div style="text-align: center; margin-top: 50px; font-family: sans-serif; color: white;"><h2>Access Denied</h2><p>Please reload and enter the correct passkey.</p></div>';
+            throw new Error("Access Denied. Passkey missing or incorrect.");
+        }
+    }
+}
 
 // Persistent Settings
 let config = {
-    apiUrl: localStorage.getItem('hermes_api_url') || 'http://localhost:8000/v1',
+    apiUrl: localStorage.getItem('hermes_api_url') || (window.location.origin + '/v1'),
     voiceName: localStorage.getItem('hermes_voice_name') || '',
     rate: parseFloat(localStorage.getItem('hermes_speech_rate')) || 1.0,
     pitch: parseFloat(localStorage.getItem('hermes_speech_pitch')) || 1.0,
     volume: parseFloat(localStorage.getItem('hermes_speech_volume')) || 1.0,
-    interactionMode: localStorage.getItem('hermes_interaction_mode') || 'ptt'
+    interactionMode: localStorage.getItem('hermes_interaction_mode') || 'ptt',
+    visualMode: localStorage.getItem('hermes_visual_mode') || 'mountain'
 };
 
 let isListening = false;
@@ -59,6 +79,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     recognition.onstart = () => {
         isListening = true;
         mountainBtn.classList.add('listening');
+        avatarBtn.classList.add('listening');
         statusBadge.textContent = 'Listening...';
         userTranscript.textContent = 'Listening for your command...';
         startVisualizer();
@@ -97,6 +118,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     recognition.onend = () => {
         isListening = false;
         mountainBtn.classList.remove('listening');
+        avatarBtn.classList.remove('listening');
         if (!isSpeaking && !isListening) {
             stopVisualizer();
             statusBadge.textContent = 'Standby';
@@ -144,6 +166,15 @@ modeTel.onclick = () => { modeTel.classList.add('active'); modePtt.classList.rem
 closeModal.onclick = () => settingsModal.style.display = 'none';
 window.onclick = (e) => { if (e.target == settingsModal) settingsModal.style.display = 'none'; };
 
+visualModeMountain.onclick = () => { 
+    visualModeMountain.classList.add('active'); 
+    visualModeAvatar.classList.remove('active'); 
+};
+visualModeAvatar.onclick = () => { 
+    visualModeAvatar.classList.add('active'); 
+    visualModeMountain.classList.remove('active'); 
+};
+
 rateInput.oninput = () => rateVal.textContent = rateInput.value;
 pitchInput.oninput = () => pitchVal.textContent = pitchInput.value;
 
@@ -153,6 +184,7 @@ saveSettingsBtn.addEventListener('click', () => {
     config.rate = parseFloat(rateInput.value);
     config.pitch = parseFloat(pitchInput.value);
     config.interactionMode = modePtt.classList.contains('active') ? 'ptt' : 'tel';
+    config.visualMode = visualModeMountain.classList.contains('active') ? 'mountain' : 'avatar';
 
     if (uiPasskeyInput.value) {
         localStorage.setItem('sherpa_ui_passkey', uiPasskeyInput.value);
@@ -163,7 +195,10 @@ saveSettingsBtn.addEventListener('click', () => {
     localStorage.setItem('hermes_speech_rate', config.rate);
     localStorage.setItem('hermes_speech_pitch', config.pitch);
     localStorage.setItem('hermes_interaction_mode', config.interactionMode);
+    localStorage.setItem('hermes_visual_mode', config.visualMode);
 
+    applyVisualMode();
+window.speechSynthesis.onvoiceschanged = () => { applyVisualMode(); };
     settingsModal.style.display = 'none';
     statusBadge.textContent = 'Calibrated';
     if (config.interactionMode === 'tel') startListening();
@@ -192,12 +227,20 @@ volumeSlider.oninput = (e) => {
 
 // Main Logic
 mountainBtn.addEventListener('click', () => {
+    handleInteraction();
+});
+
+avatarBtn.addEventListener('click', () => {
+    handleInteraction();
+});
+
+function handleInteraction() {
     if (isListening) stopListening();
     else {
         if (isSpeaking) { synthesis.cancel(); isSpeaking = false; }
         startListening();
     }
-});
+}
 
 audioToggle.addEventListener('click', () => {
     audioEnabled = !audioEnabled;
@@ -222,24 +265,8 @@ async function processCommand(text) {
     stopListening();
     statusBadge.textContent = 'Thinking...';
     mountainBtn.classList.add('thinking');
+    avatarBtn.classList.add('thinking');
     agentText.textContent = '';
-
-    // Live Internet Security Guard
-    const isLive = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-    if (isLive) {
-        const currentPasskey = localStorage.getItem('sherpa_ui_passkey');
-        if (currentPasskey !== '8909') {
-            const entered = prompt("Sherpa Solutions Security: Please enter your interface passkey to proceed (Default: 8909):");
-            if (entered === '8909') {
-                localStorage.setItem('sherpa_ui_passkey', '8909');
-            } else {
-                statusBadge.textContent = 'Unauthorized';
-                mountainBtn.classList.remove('thinking');
-                agentText.textContent = "Access Denied. Please configure your passkey in Settings.";
-                return;
-            }
-        }
-    }
 
     try {
         const response = await fetch(`${config.apiUrl}/chat/completions`, {
@@ -250,6 +277,7 @@ async function processCommand(text) {
         const data = await response.json();
         const reply = data.choices[0].message.content;
         mountainBtn.classList.remove('thinking');
+        avatarBtn.classList.remove('thinking');
         agentText.textContent = reply;
         statusBadge.textContent = 'Speaking...';
         if (audioEnabled) speak(reply);
@@ -275,6 +303,12 @@ function speak(text) {
     currentUtterance.pitch = config.pitch;
     currentUtterance.volume = currentVolume;
 
+    currentUtterance.onerror = (e) => {
+        console.error('Speech error:', e);
+        isSpeaking = false;
+        statusBadge.textContent = 'Standby';
+    };
+
     currentUtterance.onend = () => {
         isSpeaking = false;
         statusBadge.textContent = 'Standby';
@@ -296,3 +330,84 @@ function stopVisualizer() {
     visualizerInterval = null;
     bars.forEach(bar => { bar.style.height = '8px'; });
 }
+
+function getAvatarImage() {
+    const voices = synthesis.getVoices();
+    const voiceName = config.voiceName || localStorage.getItem('hermes_voice_name');
+    
+    if (voiceName) {
+        const name = voiceName.toLowerCase();
+        
+        // Check for female FIRST because the string 'female' contains 'male'
+        if (name.includes('female') || 
+            name.includes('samantha') || 
+            name.includes('victoria') || 
+            name.includes('claire') ||
+            name.includes('monica') ||
+            name.includes('alice')) {
+            return '/static/realistic_female_sherpa.png';
+        }
+
+        // Explicitly check for male keywords
+        if (name.includes('male') || 
+            name.includes('david') || 
+            name.includes('mark') || 
+            name.includes('george') || 
+            name.includes('paul')) {
+            return '/static/realistic_sherpa.png';
+        }
+    }
+
+    // Default to female avatar (matches default voice)
+    return '/static/realistic_female_sherpa.png';
+}
+
+function applyVisualMode() {
+    if (config.visualMode === 'avatar') {
+        mountainBtn.style.display = 'none';
+        avatarBtn.style.display = 'block';
+        
+        // Dynamic gender selection
+        const img = avatarBtn.querySelector('img');
+        if (img) {
+            const targetSrc = getAvatarImage();
+            if (img.getAttribute('src') !== targetSrc) {
+                img.src = targetSrc;
+            }
+        }
+
+        visualModeAvatar.classList.add('active');
+        visualModeMountain.classList.remove('active');
+    } else {
+        mountainBtn.style.display = 'block';
+        avatarBtn.style.display = 'none';
+        visualModeMountain.classList.add('active');
+        visualModeAvatar.classList.remove('active');
+    }
+}
+
+// Lip Sync Animation Loop
+function updateAvatarLipSync() {
+    if (synthesis.speaking && config.visualMode === 'avatar') {
+        avatarBtn.classList.add('talking');
+    } else {
+        avatarBtn.classList.remove('talking');
+    }
+    requestAnimationFrame(updateAvatarLipSync);
+}
+
+// Initial initialization
+applyVisualMode();
+window.speechSynthesis.onvoiceschanged = () => { applyVisualMode(); };
+updateAvatarLipSync();
+
+// Auto-scroll transcript container
+const transcriptContainer = document.querySelector('.transcript-container');
+if (transcriptContainer) {
+    const observer = new MutationObserver(() => {
+        transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
+    });
+    observer.observe(transcriptContainer, { childList: true, subtree: true, characterData: true });
+}
+
+
