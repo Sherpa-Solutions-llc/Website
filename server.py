@@ -1876,6 +1876,56 @@ async def chat_proxy(request: Request):
         print(f"[Chat Proxy Error] {e}")
         return JSONResponse(status_code=500, content={"error": "Basecamp server unreachable"})
 
+@app.post("/api/generate-avatar-sad")
+async def generate_avatar_sad(req: AvatarRequest):
+    """
+    Triggers the SadTalker generation process.
+    Uses a hybrid approach with background processing and caching.
+    """
+    import hashlib
+    import subprocess
+    
+    # Ensure output directory exists
+    out_dir = "static/generated_avatars"
+    os.makedirs(out_dir, exist_ok=True)
+    
+    text_hash = hashlib.md5(req.text.encode()).hexdigest()
+    filename = f"{text_hash}.mp4"
+    file_path = os.path.join(out_dir, filename)
+    
+    # Check cache
+    if os.path.exists(file_path):
+        return {"status": "success", "video_url": f"/static/generated_avatars/{filename}", "cached": True}
+    
+    # Trigger worker (assuming venv_sadtalker is ready)
+    # Note: In production, we would use a task queue like Celery.
+    # For local dev, we run it as a subprocess.
+    try:
+        # Extract the relative path from the URL (handles both absolute and relative)
+        local_image_path = req.image_url.split('/static/')[-1]
+        full_image_path = os.path.join("static", local_image_path)
+        
+        cmd = [
+            "venv_sadtalker/bin/python", "sadtalker_worker.py",
+            "--text", req.text,
+            "--image", full_image_path,
+            "--out", file_path
+        ]
+        import asyncio
+        process = await asyncio.create_subprocess_exec(*cmd)
+        await process.wait()
+        
+        if os.path.exists(file_path):
+            return {
+                "status": "success", 
+                "video_url": f"/static/generated_avatars/{filename}",
+                "message": "High-fidelity avatar generated."
+            }
+        else:
+            raise Exception("Worker failed to generate video file.")
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/api/git-status")
 async def get_git_status(user: str = Depends(require_admin)):
     try:
@@ -1905,6 +1955,7 @@ async def get_git_status(user: str = Depends(require_admin)):
                 "osint_api_docs": "osint_api",
                 "freeme": "freeme",
                 "voice-chat": "voice-chat",
+                "sadtalker_worker": "voice-chat",
                 "arbitrage": "arbitrage",
                 "b2b_leads": "b2b_leads",
                 "launchpad": "launchpad",

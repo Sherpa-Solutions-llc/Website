@@ -65,4 +65,15 @@ strict_convoy_sherpas.py
 view_candidates.html
 advanced_convoy_sherpas.py
 check_logo.py
-align_nodes.py
+# AI Models and Processing (Local Only)
+SadTalker/
+gfpgan/
+venv_sadtalker/
+temp_results/
+temp_proc/
+static/generated_avatars/
+ngrok.tgz
+cloudflared.log
+server_output_*.log
+ngrok.log
+

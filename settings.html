@@ -408,7 +408,7 @@
 <span>Site Editor</span></a></li>
 <li><a id="btn-demo" onclick="showPanel('demo')"><i class="fa-solid fa-clapperboard"></i>
 <span>Demo Editor</span></a></li>
-<li><a onclick="openModal('deploy-modal')"><i class="fa-brands fa-github"></i>
+<li><a onclick="syncToGitHub()"><i class="fa-brands fa-github"></i>
 <span>Deploy to GitHub</span></a></li>
 <li><a id="btn-settings" onclick="showPanel('settings')"><i class="fa-solid fa-gear"></i>
 <span>Settings</span></a></li>
@@ -826,7 +826,7 @@
 <div id="deploy-modal-form">
 <div style="text-align: left; display: grid; gap: 0.8rem; margin-bottom: 1.5rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); max-height: 450px; overflow-y: auto;">
 <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
-<input checked="" class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="heavenly_melody"/>
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="heavenly_melody"/>
 <span style="line-height: 1.4;">🕊️ Heavenly Melody Portal</span>
 </label>
 <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">

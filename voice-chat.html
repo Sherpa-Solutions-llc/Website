@@ -169,6 +169,48 @@
             to { box-shadow: 0 0 70px rgba(192, 108, 59, 0.8); border-color: #ff9e79; }
         }
 
+        #avatar-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            z-index: 4;
+            transition: opacity 0.5s ease;
+        }
+
+        .avatar-container.has-video #avatar-video {
+            display: block;
+        }
+
+        .avatar-container.has-video img,
+        .avatar-container.has-video .mouth-overlay,
+        .avatar-container.has-video .scanlines {
+            display: none;
+        }
+
+        .generation-progress {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .avatar-container.generating .generation-progress {
+            opacity: 1;
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--glow-color)); }
             50% { transform: scale(1.1); filter: drop-shadow(0 0 30px var(--accent)); }
@@ -385,9 +427,11 @@
         </div>
 
         <div id="avatar-btn" class="avatar-container">
-            <img src="/static/realistic_female_sherpa.png" alt="Sherpa Avatar">
+            <img src="/static/ultra_realistic_female_sherpa.png" alt="Sherpa Avatar">
+            <video id="avatar-video" playsinline muted></video>
             <div class="mouth-overlay"></div>
             <div class="scanlines"></div>
+            <div class="generation-progress">Generating High-Fidelity...</div>
         </div>
 
         <div class="controls">

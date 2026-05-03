@@ -293,7 +293,13 @@ async function processCommand(text) {
         agentText.textContent = reply;
         statusBadge.textContent = 'Speaking...';
         if (audioEnabled) speak(reply);
-        else {
+        
+        // Trigger High-Fidelity Avatar Generation in background
+        if (config.visualMode === 'avatar') {
+            generateHighFidelityAvatar(reply);
+        }
+        
+        if (!audioEnabled) {
             statusBadge.textContent = 'Standby';
             if (config.interactionMode === 'tel') startListening();
         }
@@ -305,7 +311,16 @@ async function processCommand(text) {
     }
 }
 
-function speak(text) {
+async function speak(text) {
+    if (!text) return;
+
+    // Check if we have a high-fidelity video cached for this text
+    if (config.visualMode === 'avatar' && videoCache.has(text)) {
+        console.log("Playing cached high-fidelity video...");
+        playAvatarVideo(videoCache.get(text));
+        return; // Skip synthesis
+    }
+
     isSpeaking = true;
     currentUtterance = new SpeechSynthesisUtterance(text);
     const voices = synthesis.getVoices();
@@ -334,9 +349,15 @@ function speak(text) {
         statusBadge.textContent = 'Standby';
         mountainBtn.classList.remove('speaking');
         avatarBtn.classList.remove('speaking');
+        avatarBtn.classList.remove('has-video'); // Switch back to static idle
         stopVisualizer();
         if (config.interactionMode === 'tel') setTimeout(startListening, 500);
     };
+
+    if (config.visualMode === 'avatar') {
+        generateHighFidelityAvatar(text); // Background generation for next time
+    }
+
     synthesis.speak(currentUtterance);
 }
 
@@ -370,7 +391,7 @@ function getAvatarImage() {
             name.includes('alice')) {
             avatarBtn.classList.add('female-avatar');
             avatarBtn.classList.remove('male-avatar');
-            return '/static/realistic_female_sherpa.png';
+            return '/static/ultra_realistic_female_sherpa.png';
         }
 
         // Explicitly check for male keywords
@@ -381,12 +402,12 @@ function getAvatarImage() {
             name.includes('paul')) {
             avatarBtn.classList.add('male-avatar');
             avatarBtn.classList.remove('female-avatar');
-            return '/static/realistic_sherpa.png';
+            return '/static/ultra_realistic_male_sherpa.png';
         }
     }
 
     // Default to female avatar (matches default voice)
-    return '/static/realistic_female_sherpa.png';
+    return '/static/ultra_realistic_female_sherpa.png';
 }
 
 function applyVisualMode() {
@@ -423,9 +444,64 @@ function updateAvatarLipSync() {
     requestAnimationFrame(updateAvatarLipSync);
 }
 
+// High-Fidelity Avatar Generation
+let videoCache = new Map();
+const avatarVideo = document.getElementById('avatar-video');
+
+async function generateHighFidelityAvatar(text) {
+    if (videoCache.has(text)) {
+        playAvatarVideo(videoCache.get(text));
+        return;
+    }
+
+    avatarBtn.classList.add('generating');
+    try {
+        const response = await fetch('/api/generate-avatar-sad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                text: text, 
+                image_url: avatarBtn.querySelector('img').src 
+            })
+        });
+        const data = await response.json();
+        if (data.status === 'success' && data.video_url) {
+            videoCache.set(text, data.video_url);
+            playAvatarVideo(data.video_url);
+        }
+    } catch (e) {
+        console.error('High-Fidelity Generation failed:', e);
+    } finally {
+        avatarBtn.classList.remove('generating');
+    }
+}
+
+function playAvatarVideo(url) {
+    // Prevent overlapping with synthesis
+    if (synthesis.speaking) {
+        synthesis.cancel();
+    }
+    
+    avatarVideo.src = url;
+    avatarVideo.muted = false; // Enable audio for high-fidelity video
+    avatarVideo.onloadeddata = () => {
+        avatarBtn.classList.add('has-video');
+        avatarVideo.play().catch(e => {
+            console.error("Video play failed:", e);
+            // Fallback: try muted if blocked
+            avatarVideo.muted = true;
+            avatarVideo.play();
+        });
+    };
+    avatarVideo.onended = () => {
+        avatarBtn.classList.remove('has-video');
+        // If we were in phone mode, resume listening after video
+        if (config.interactionMode === 'tel') setTimeout(startListening, 500);
+    };
+}
+
 // Initial initialization
 applyVisualMode();
-window.speechSynthesis.onvoiceschanged = () => { applyVisualMode(); };
 updateAvatarLipSync();
 
 // Auto-scroll transcript container
