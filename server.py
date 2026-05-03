@@ -1841,15 +1841,76 @@ async def get_git_status(user: str = Depends(require_admin)):
         import subprocess
         # Get list of modified files in a format we can parse
         res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
-        files = []
+        
+        project_keys = set()
+        
+        # Mapping rules
         for line in res.stdout.splitlines():
             # git status --porcelain output: " M path/to/file.html" or "?? newfile.html"
             path = line[3:].strip()
-            if path.endswith(".html"):
-                # Extract filename without extension for easier matching
-                name = os.path.basename(path).replace(".html", "")
-                files.append(name)
-        return {"modified": files}
+            filename = os.path.basename(path)
+            name_no_ext = os.path.splitext(filename)[0]
+            
+            # 1. Direct Project Matches
+            DIRECT_MAP = {
+                "heavenly_melody": "heavenly_melody",
+                "open_vote": "open_vote",
+                "live_earth": "live_earth",
+                "live_earth2": "live_earth",
+                "skip_tracer": "traku",
+                "stock_agent": "stock_agent",
+                "productivity_agent": "productivity_agent",
+                "osint_api": "osint_api",
+                "osint_api_docs": "osint_api",
+                "freeme": "freeme",
+                "voice-chat": "voice-chat",
+                "arbitrage": "arbitrage",
+                "b2b_leads": "b2b_leads",
+                "launchpad": "launchpad",
+                "marion_va": "marion_va",
+                "train_your_brain": "train_your_brain",
+                "food_globe": "food_globe",
+                "fun_e_stick": "fun_e_stick",
+                "seo_sniper": "seo_sniper",
+                "brand_monitor": "brand_monitor",
+                "business_model": "business_model",
+                # Core Pages
+                "index": "core_site",
+                "about": "core_site",
+                "contact": "core_site",
+                "login": "core_site",
+                "services": "core_site",
+                "merchandise": "core_site",
+                "projects": "core_site",
+                "styles.css": "core_site"
+            }
+            
+            if name_no_ext in DIRECT_MAP:
+                project_keys.add(DIRECT_MAP[name_no_ext])
+            elif filename in DIRECT_MAP:
+                project_keys.add(DIRECT_MAP[filename])
+            
+            # 2. Prefix Rules
+            elif filename.startswith("dcsa_"):
+                project_keys.add("dcsa")
+            elif filename.startswith("service_") or filename.startswith("merch_") or filename.startswith("backpack_"):
+                project_keys.add("core_site")
+            
+            # 3. Static Assets Mapping
+            elif path.startswith("static/"):
+                if "open_vote" in filename: project_keys.add("open_vote")
+                elif "live_earth" in filename: project_keys.add("live_earth")
+                elif "dcsa" in filename: project_keys.add("dcsa")
+                elif "voice-chat" in filename: project_keys.add("voice-chat")
+                elif "productivity_agent" in filename: project_keys.add("productivity_agent")
+                elif "osint_api" in filename: project_keys.add("osint_api")
+                elif "launchpad" in filename: project_keys.add("launchpad")
+                elif "marion_va" in filename: project_keys.add("marion_va")
+                elif "food_globe" in filename: project_keys.add("food_globe")
+                elif "styles" in filename or "theme" in filename or "cms" in filename:
+                    project_keys.add("core_site")
+        
+        return {"modified": list(project_keys)}
     except Exception as e:
         return {"modified": [], "error": str(e)}
 
