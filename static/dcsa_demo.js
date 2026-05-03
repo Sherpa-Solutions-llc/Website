@@ -134,7 +134,7 @@
         },
         {
             url: 'dcsa_full_integration.html',
-            text: "Now we move to our long-term strategic priorities for 2030. First: Achieve Full Integration. We are actively transitioning from siloed departments into a fully integrated agency, ensuring data flows seamlessly.",
+            text: "Now we move to our long-term strategic priorities for 2030. First: Achieve Full Integration. We are actively transitioning from siloed departments into a fully integrated agency. By eliminating redundant databases, independent support costs, and duplicate hardware refreshes, we ensure data flows seamlessly while drastically reducing overhead.",
             actions: [{ time: 4000, type: 'scroll', value: 'bottom' }]
         },
         {
