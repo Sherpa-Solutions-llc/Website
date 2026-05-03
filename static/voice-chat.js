@@ -50,7 +50,7 @@ if (isLive) {
 
 // Persistent Settings
 let config = {
-    apiUrl: localStorage.getItem('hermes_api_url') || (window.location.origin + '/v1'),
+    apiUrl: localStorage.getItem('hermes_api_url') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? (window.location.origin + '/v1') : 'https://sherpa-solutions-api-production.up.railway.app/v1'),
     voiceName: localStorage.getItem('hermes_voice_name') || '',
     rate: parseFloat(localStorage.getItem('hermes_speech_rate')) || 1.0,
     pitch: parseFloat(localStorage.getItem('hermes_speech_pitch')) || 1.0,
