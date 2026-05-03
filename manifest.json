@@ -1,0 +1,21 @@
+{
+  "name": "Sherpa Solutions Wayfinder",
+  "short_name": "SherpaNav",
+  "description": "Offline-capable 3D indoor wayfinding and navigation for enterprise and hospital environments.",
+  "start_url": "/marion_va.html",
+  "display": "standalone",
+  "background_color": "#0b0c0b",
+  "theme_color": "#2d3f2e",
+  "icons": [
+    {
+      "src": "/static/sherpa_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/sherpa_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

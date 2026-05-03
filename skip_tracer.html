@@ -1,23 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Traku: Professional grade skip tracing lookup tool powered by Sherpa Solutions LLC.">
-    <meta name="keywords"
-        content="Traku, Skip Tracing, OSINT, Person Lookup, Information Gathering, Intelligence">
-    <title>Traku | Sherpa Solutions</title>
-    <!-- Modern Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css?v=1.6">
-    <script src="static/theme.js"></script>
-
-
-    <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Traku: Professional grade skip tracing lookup tool powered by Sherpa Solutions LLC." name="description"/>
+<meta content="Traku, Skip Tracing, OSINT, Person Lookup, Information Gathering, Intelligence" name="keywords"/>
+<title>Traku | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.6" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
         .skip-tracer-container {
             max-width: 1000px;
             margin: 4rem auto;
@@ -781,700 +777,619 @@
             }
         }
     </style>
-    
-
-    <style>
-        .font-bold { font-weight: bold; }
-        .text-na { color: var(--text-muted); }
-        .text-value { color: #00e5ff; }
-        .text-danger { color: #ff4d4d; }
-        .text-white { color: white; }
-        .searched-term { font-family: monospace; font-weight: 600; color: var(--dynamic-color, #00e5ff); }
-        .person-card { background: var(--surface-color, rgba(0,0,0,0.4)); border: 1px solid var(--border-color, rgba(255,255,255,0.06)); border-radius: 8px; padding: 1.4rem; margin-bottom: 0; }
-        .border-top-dynamic { border-top: 2px solid var(--dynamic-color, #00e5ff); }
-        .icon-dynamic { width: 18px; color: var(--dynamic-color, #00e5ff); }
-        .email-dynamic { /* dynamically styled via JS class */ }
-    </style>
-    </head>
-
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
 <body>
-
-    <header>
-        <div class="logo-container">
-            <a href="index.html">
-                <img src="static/sherpa_logo.png" alt="Sherpa Solutions LLC">
-            </a>
-        </div>
-        <div class="menu-toggle" id="mobile-menu-btn">
-            <i class="fa-solid fa-bars"></i>
-        </div>
-        <ul class="nav-links" id="nav-menu">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="services.html">Our Services</a></li>
-            <li><a href="projects.html" class="active">Projects</a></li>
-            <li><a href="merchandise.html">Merchandise</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="header-actions auto-style-0dd05134" >
-            <button id="btn-auth-header" onclick="openAuthModal()" class="auto-style-fa9533f5" ><i class="fa-solid fa-user"></i> Sign In</button>
-            <button id="btn-audio-toggle" class="audio-toggle-btn enabled" onclick="toggleAudio()"><i class="fa-solid fa-volume-high"></i> Audio On</button>
-            <button id="btn-demo-toggle" class="demo-btn auto-style-56323fc7"  onclick="toggleDemo()"><i class="fa-solid fa-play"></i> DEMO OFF</button>
-                <div id="demo-volume-control" class="auto-style-6a44f565" >
-                <span class="auto-style-9961f6bd" ><i class="fa-solid fa-volume-low"></i></span>
-                <input title="Demo Volume Slider" type="range" id="demo-volume-slider" min="0" max="100" value="50"
-                    class="auto-style-970860c6" 
-                    oninput="setDemoVolume(this.value)">
-                <span class="auto-style-9961f6bd" ><i class="fa-solid fa-volume-high"></i></span>
-            </div>
-            <button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
-        </div>
-    </header>
-
-    <div class="page-header auto-style-b546cd8b" >
-        <div class="auto-style-729703df" >
-            <h1 class="auto-style-e2b74ba6" >Traku</h1>
-            <button type="button" class="btn-search auto-style-e877540d" id="btn-view-api"  onclick="switchView('api')"><b>&lt;/&gt;</b> API</button>
-            <button type="button" class="btn-search auto-style-e877540d"  onclick="openArchitectureModal()"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
-        </div>
-        <p class="auto-style-4a00a1ee" >Enterprise-grade OSINT personnel intelligence and location tracking.</p>
-    </div>
-
-    <!-- Consulting CTA Banner -->
-    <div class="auto-style-a01c2e4d" >
-        <div>
-            <h3 class="auto-style-d7484cbc" ><i class="fa-solid fa-briefcase"></i> Enterprise OSINT Consulting</h3>
-            <p class="auto-style-954c8c26" >Need a custom intelligence dashboard or data integration for your firm?</p>
-        </div>
-        <button onclick="openConsultingModal('Traku / OSINT Dashboard')" class="btn-search auto-style-802eee84" >
+<header>
+<div class="logo-container">
+<a href="index.html">
+<img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png"/>
+</a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn">
+<i class="fa-solid fa-bars"></i>
+</div>
+<ul class="nav-links" id="nav-menu">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a class="active" href="projects.html">Projects</a></li>
+<li><a href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+<button id="btn-auth-header" onclick="openAuthModal()" style="background:transparent;border:1px solid var(--border-color);color:var(--text-dark);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.85rem;"><i class="fa-solid fa-user"></i> Sign In</button>
+<button class="audio-toggle-btn enabled" id="btn-audio-toggle" onclick="toggleAudio()"><i class="fa-solid fa-volume-high"></i> Audio On</button>
+<button class="demo-btn" id="btn-demo-toggle" onclick="toggleDemo()" style="margin-right: 15px;"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+<div id="demo-volume-control" style="display:none;align-items:center;gap:6px;margin-left:8px;">
+<span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-low"></i></span>
+<input id="demo-volume-slider" max="100" min="0" oninput="setDemoVolume(this.value)" style="width:80px;height:4px;cursor:pointer;accent-color:var(--accent, #C06C3B);" type="range" value="50"/>
+<span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-high"></i></span>
+</div>
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+</div>
+</header>
+<div class="page-header" style="display: flex; flex-direction: column; align-items: center;">
+<div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 0.5rem;">
+<h1 style="margin: 0;">Traku</h1>
+<button class="btn-search" id="btn-view-api" onclick="switchView('api')" style="padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); color: white; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;" type="button"><b>&lt;/&gt;</b> API</button>
+<button class="btn-search" onclick="openArchitectureModal()" style="padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.05); color: white; font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer;" type="button"><i class="fa-solid fa-diagram-project"></i> Engine Architecture</button>
+</div>
+<p style="margin: 0; text-align: center;">Enterprise-grade OSINT personnel intelligence and location tracking.</p>
+</div>
+<!-- Consulting CTA Banner -->
+<div style="max-width: 1200px; margin: 0 auto 2rem auto; background: linear-gradient(90deg, rgba(209,117,64,0.1), rgba(46,160,67,0.1)); border: 1px solid var(--accent); border-radius: 8px; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+<div>
+<h3 style="margin: 0 0 0.2rem 0; font-size: 1.1rem; color: var(--text-dark);"><i class="fa-solid fa-briefcase"></i> Enterprise OSINT Consulting</h3>
+<p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Need a custom intelligence dashboard or data integration for your firm?</p>
+</div>
+<button class="btn-search" onclick="openConsultingModal('Traku / OSINT Dashboard')" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; border-radius: 6px; box-shadow: 0 0 10px rgba(192,108,59,0.3); margin:0;">
             Schedule Architecture Call
         </button>
-    </div>
-
-    <div class="skip-tracer-container">
-        
-        <div class="error-message" id="error-alert">
-            <i class="fa-solid fa-triangle-exclamation auto-style-7f4ee4f3" ></i> <span id="error-text">An error occurred during the search.</span>
-        </div>
-
-        <div class="search-panel">
-            <div class="search-header auto-style-bc05b7d8" >
-                <div class="auto-style-5029516c" >
-                    <h2>Target Acquisition</h2>
-                    <p>Toggle your known intelligence pivot points to expand and define the trace parameters.</p>
-                </div>
-            </div>
-
-            <!-- GLOBAL NAVIGATION TABS (Tabbed Box Design) -->
-            <div class="view-toggles auto-style-ffa1ec34" >
-                <button type="button" class="btn-search active-view auto-style-09bc3154" id="btn-view-omni" onclick="switchView('omni')" ><i class="fa-solid fa-cloud-bolt"></i> Target Profile</button>
-                <button type="button" class="btn-search auto-style-2532a1d8" id="btn-view-results" onclick="switchView('results')" ><i class="fa-solid fa-list-check"></i> Search Results</button>
-                <button type="button" class="btn-search auto-style-2532a1d8" id="btn-view-data" onclick="switchView('data')" ><i class="fa-solid fa-database"></i> Data Sources</button>
-            </div>
-
-            <!-- TAB CONTENT CONTAINER -->
-            <div class="auto-style-57393dff" >
-            
-                <!-- OMNI-BAR REDESIGN -->
-                <div id="omni-search-view" class="auto-style-8961d53a" >
-                    
-                    <h2 class="auto-style-8dae36db" >Smart Search</h2>
-                    <p class="auto-style-63fc4524" >Enter a Phone Number, Email Address, Name, or Address snippet to begin.</p>
-
-                <form id="omni-search-form" onsubmit="executeOmniSearch(event)" class="auto-style-3e01490b" >
-                    
-                    <!-- PILL MATRIX FOR DATA SOURCES -->
-                    <div class="auto-style-8e9509ca" >
-                        <button type="button" class="data-pill active" onclick="toggleDataField('name', this)"><i class="fa-solid fa-user"></i> Name</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('phone', this)"><i class="fa-solid fa-phone"></i> Phone</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('email', this)"><i class="fa-solid fa-envelope"></i> Email</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('address', this)"><i class="fa-solid fa-map-location-dot"></i> Address</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('ssn', this)"><i class="fa-solid fa-id-card"></i> SSN</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('dl', this)"><i class="fa-solid fa-id-badge"></i> Driver's License</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('bank', this)"><i class="fa-solid fa-building-columns"></i> Bank Account</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('cc', this)"><i class="fa-solid fa-credit-card"></i> Credit Card</button>
-                        <button type="button" class="data-pill" onclick="toggleDataField('ip', this)"><i class="fa-solid fa-network-wired"></i> IP Address</button>
-                        <button type="button" class="data-pill" id="pill-plate" onclick="toggleDataField('plate', this)"><i class="fa-solid fa-car-side"></i> LPR / Vehicle Tag</button>
-                        <button type="button" class="data-pill" id="pill-socialMedia" onclick="toggleDataField('socialMedia', this)"><i class="fa-solid fa-users-viewfinder"></i> Social Media</button>
-                    </div>
-
-                    <!-- DYNAMIC INPUT CONTAINERS -->
-                    <div id="dynamic-inputs-container" class="auto-style-2c7d84a9" >
-                        
-                        <!-- Name Field (Default Active) -->
-                        <div id="field-name" class="dynamic-field visible">
-                            <label><i class="fa-solid fa-user auto-style-cf978794" ></i> Target Name</label>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="First Name..." type="text" id="input-fname" placeholder="First Name..."  class="standard-input auto-style-49cdf874" autocomplete="off">
-                                <input title="Last Name..." type="text" id="input-lname" placeholder="Last Name..."  class="standard-input auto-style-49cdf874" autocomplete="off">
-                            </div>
-                        </div>
-
-                        <!-- Phone Field -->
-                        <div id="field-phone" class="dynamic-field">
-                            <label><i class="fa-solid fa-phone auto-style-cf978794" ></i> Phone Number</label>
-                            <div class="auto-style-0ed0e90f" >
-                                <select title="Input Phone Code" id="input-phone-code" class="standard-input auto-style-14175304" >
-                                    <option value="+1">🇺🇸 +1 (US)</option>
-                                    <option value="+44">🇬🇧 +44 (UK)</option>
-                                    <option value="+61">🇦🇺 +61 (AU)</option>
-                                    <option value="+81">🇯🇵 +81 (JP)</option>
-                                    <option value="+49">🇩🇪 +49 (DE)</option>
-                                    <option value="+33">🇫🇷 +33 (FR)</option>
-                                    <option value="+52">🇲🇽 +52 (MX)</option>
-                                    <option value="+91">🇮🇳 +91 (IN)</option>
-                                    <option value="+86">🇨🇳 +86 (CN)</option>
-                                    <option value="+971">🇦🇪 +971 (UAE)</option>
-                                </select>
-                                <input title="e.g. (555) 123-4567..." type="text" id="input-phone" placeholder="e.g. (555) 123-4567..." class="standard-input auto-style-49cdf874"  autocomplete="off">
-                            </div>
-                        </div>
-
-                        <!-- Email Field -->
-                        <div id="field-email" class="dynamic-field">
-                            <label><i class="fa-solid fa-envelope auto-style-cf978794" ></i> Email Address</label>
-                            <input title="e.g. target@domain.com..." type="email" id="input-email" placeholder="e.g. target@domain.com..." class="standard-input" autocomplete="off">
-                        </div>
-
-                        <!-- Address Field -->
-                        <div id="field-address" class="dynamic-field">
-                            <label><i class="fa-solid fa-map-location-dot auto-style-cf978794" ></i> Last Known Location / Address</label>
-                            <input title="e.g. 123 Main St, City, ST..." type="text" id="input-address" placeholder="e.g. 123 Main St, City, ST..." class="standard-input" autocomplete="off">
-                        </div>
-
-                        <!-- SSN Field -->
-                        <div id="field-ssn" class="dynamic-field">
-                            <label><i class="fa-solid fa-id-card auto-style-cf978794" ></i> Social Security Number</label>
-                            <input title="XXX-XX-XXXX" type="text" id="input-ssn" placeholder="XXX-XX-XXXX" class="standard-input" autocomplete="off" maxlength="11">
-                        </div>
-
-                        <!-- Driver's License Field -->
-                        <div id="field-dl" class="dynamic-field">
-                            <label><i class="fa-solid fa-id-badge auto-style-cf978794" ></i> Driver's License / State ID</label>
-                            
-                            <div class="auto-style-2de535b4" >
-                                <select title="Input Dl Country" id="input-dl-country" class="standard-input auto-style-934a8496" >
-                                    <option value="" disabled selected>Loading Countries...</option>
-                                </select>
-                                
-                                <select title="Input Dl State" id="input-dl-state" class="standard-input auto-style-934a8496"  disabled>
-                                    <option value="" disabled selected>Select State / Region</option>
-                                </select>
-                            </div>
-
-                            <div class="auto-style-2de535b4" >
-                                <input title="ID Number..." type="text" id="input-dl" placeholder="ID Number..."  class="standard-input auto-style-49cdf874" autocomplete="off">
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <div class="file-dropzone auto-style-f4fe901d"  onclick="document.getElementById('input-dl-front').click()">
-                                    <i class="fa-solid fa-image auto-style-9ab92025" ></i>
-                                    <h5 class="auto-style-4968f890" >Front Image</h5>
-                                    <input title="Input Dl Front" type="file" id="input-dl-front" accept="image/*" class="auto-style-224b51a7" >
-                                </div>
-                                <div class="file-dropzone auto-style-f4fe901d"  onclick="document.getElementById('input-dl-back').click()">
-                                    <i class="fa-solid fa-barcode auto-style-9ab92025" ></i>
-                                    <h5 class="auto-style-4968f890" >Back Image (Barcode)</h5>
-                                    <input title="Input Dl Back" type="file" id="input-dl-back" accept="image/*" class="auto-style-224b51a7" >
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bank Account Field -->
-                        <div id="field-bank" class="dynamic-field">
-                            <label><i class="fa-solid fa-building-columns auto-style-cf978794" ></i> Routing / Account Number</label>
-                            <div id="bank-inputs-container" class="auto-style-0d86e12e" >
-                                <div  class="bank-input-row auto-style-c6235d4d">
-                                    <input title="Routing #..." type="text" placeholder="Routing #..."  class="standard-input routing-input auto-style-49cdf874" autocomplete="off" maxlength="9">
-                                    <input title="Account #..." type="text" placeholder="Account #..."  class="standard-input account-input auto-style-36ae11e9" autocomplete="off">
-                                </div>
-                            </div>
-                            <button type="button" class="btn-search auto-style-2a02e0fa" onclick="addBankAccountField()" ><i class="fa-solid fa-plus"></i> Add Account</button>
-                        </div>
-
-                        <!-- Credit Card Field -->
-                        <div id="field-cc" class="dynamic-field">
-                            <label><i class="fa-solid fa-credit-card auto-style-cf978794" ></i> Primary Account Number (PAN)</label>
-                            <div id="cc-inputs-container" class="auto-style-0d86e12e" >
-                                <div  class="cc-input-row auto-style-c6235d4d">
-                                    <input title="XXXX-XXXX-XXXX-XXXX" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" class="standard-input cc-input-element auto-style-49cdf874" autocomplete="off" maxlength="19" >
-                                </div>
-                            </div>
-                            <button type="button" class="btn-search auto-style-2a02e0fa" onclick="addCreditCardField()" ><i class="fa-solid fa-plus"></i> Add Card</button>
-                        </div>
-
-                        <!-- IP Address Field -->
-                        <div id="field-ip" class="dynamic-field">
-                            <label><i class="fa-solid fa-network-wired auto-style-cf978794" ></i> IP Address (v4/v6)</label>
-                            <input title="e.g. 192.168.1.1..." type="text" id="input-ip" placeholder="e.g. 192.168.1.1..." class="standard-input" autocomplete="off">
-                        </div>
-
-                        <!-- License Plate Field -->
-                        <div id="field-plate" class="dynamic-field">
-                            <label><i class="fa-solid fa-car-side auto-style-cf978794" ></i> LPR / Vehicle Tag</label>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="State (e.g. TX)" type="text" id="input-plate-state" placeholder="State (e.g. TX)"  class="standard-input auto-style-b15addac" autocomplete="off" maxlength="2">
-                                <input title="Plate Number..." type="text" id="input-plate" placeholder="Plate Number..."  class="standard-input auto-style-49cdf874 auto-style-90fefe9a" autocomplete="off" >
-                            </div>
-                        </div>
-
-                        <!-- Social Media Field -->
-                        <div id="field-socialMedia" class="dynamic-field">
-                            <label><i class="fa-solid fa-users-viewfinder auto-style-cf978794" ></i> Social Media</label>
-                            <div class="auto-style-8b36cc73" >
-                                <p class="auto-style-51c3a9eb" >
+</div>
+<div class="skip-tracer-container">
+<div class="error-message" id="error-alert">
+<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i> <span id="error-text">An error occurred during the search.</span>
+</div>
+<div class="search-panel">
+<div class="search-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; position: relative; margin-bottom: 2rem;">
+<div style="flex: 1; min-width: 300px;">
+<h2>Target Acquisition</h2>
+<p>Toggle your known intelligence pivot points to expand and define the trace parameters.</p>
+</div>
+</div>
+<!-- GLOBAL NAVIGATION TABS (Tabbed Box Design) -->
+<div class="view-toggles" style="display: flex; gap: 4px; margin-bottom: 0;">
+<button class="btn-search active-view" id="btn-view-omni" onclick="switchView('omni')" style="margin: 0; background: var(--surface-color); border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--accent); font-weight: 600; padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 2;" type="button"><i class="fa-solid fa-cloud-bolt"></i> Target Profile</button>
+<button class="btn-search" id="btn-view-results" onclick="switchView('results')" style="margin: 0; background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--text-muted); padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 1;" type="button"><i class="fa-solid fa-list-check"></i> Search Results</button>
+<button class="btn-search" id="btn-view-data" onclick="switchView('data')" style="margin: 0; background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); border-bottom: none; border-radius: 8px 8px 0 0; color: var(--text-muted); padding: 1rem 2rem; box-shadow: none; position: relative; z-index: 1;" type="button"><i class="fa-solid fa-database"></i> Data Sources</button>
+</div>
+<!-- TAB CONTENT CONTAINER -->
+<div style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 0 8px 8px 8px; padding: 2rem; position: relative; z-index: 1; margin-top: -1px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+<!-- OMNI-BAR REDESIGN -->
+<div id="omni-search-view" style="padding: 2rem 0; text-align: center;">
+<h2 style="color: var(--text-dark); font-size: 2.2rem; font-weight: 300; margin-bottom: 0.5rem; letter-spacing: 1px;">Smart Search</h2>
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem;">Enter a Phone Number, Email Address, Name, or Address snippet to begin.</p>
+<form id="omni-search-form" onsubmit="executeOmniSearch(event)" style="max-width: 900px; margin: 0 auto; position: relative;">
+<!-- PILL MATRIX FOR DATA SOURCES -->
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 2rem;">
+<button class="data-pill active" onclick="toggleDataField('name', this)" type="button"><i class="fa-solid fa-user"></i> Name</button>
+<button class="data-pill" onclick="toggleDataField('phone', this)" type="button"><i class="fa-solid fa-phone"></i> Phone</button>
+<button class="data-pill" onclick="toggleDataField('email', this)" type="button"><i class="fa-solid fa-envelope"></i> Email</button>
+<button class="data-pill" onclick="toggleDataField('address', this)" type="button"><i class="fa-solid fa-map-location-dot"></i> Address</button>
+<button class="data-pill" onclick="toggleDataField('ssn', this)" type="button"><i class="fa-solid fa-id-card"></i> SSN</button>
+<button class="data-pill" onclick="toggleDataField('dl', this)" type="button"><i class="fa-solid fa-id-badge"></i> Driver's License</button>
+<button class="data-pill" onclick="toggleDataField('bank', this)" type="button"><i class="fa-solid fa-building-columns"></i> Bank Account</button>
+<button class="data-pill" onclick="toggleDataField('cc', this)" type="button"><i class="fa-solid fa-credit-card"></i> Credit Card</button>
+<button class="data-pill" onclick="toggleDataField('ip', this)" type="button"><i class="fa-solid fa-network-wired"></i> IP Address</button>
+<button class="data-pill" id="pill-plate" onclick="toggleDataField('plate', this)" type="button"><i class="fa-solid fa-car-side"></i> LPR / Vehicle Tag</button>
+<button class="data-pill" id="pill-socialMedia" onclick="toggleDataField('socialMedia', this)" type="button"><i class="fa-solid fa-users-viewfinder"></i> Social Media</button>
+</div>
+<!-- DYNAMIC INPUT CONTAINERS -->
+<div id="dynamic-inputs-container" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
+<!-- Name Field (Default Active) -->
+<div class="dynamic-field visible" id="field-name">
+<label><i class="fa-solid fa-user" style="color:var(--text-muted); margin-right:5px;"></i> Target Name</label>
+<div style="display: flex; gap: 10px;">
+<input autocomplete="off" class="standard-input" id="input-fname" placeholder="First Name..." style="flex: 1;" type="text"/>
+<input autocomplete="off" class="standard-input" id="input-lname" placeholder="Last Name..." style="flex: 1;" type="text"/>
+</div>
+</div>
+<!-- Phone Field -->
+<div class="dynamic-field" id="field-phone">
+<label><i class="fa-solid fa-phone" style="color:var(--text-muted); margin-right:5px;"></i> Phone Number</label>
+<div style="display: flex; gap: 10px;">
+<select class="standard-input" id="input-phone-code" style="width: 140px;">
+<option value="+1">🇺🇸 +1 (US)</option>
+<option value="+44">🇬🇧 +44 (UK)</option>
+<option value="+61">🇦🇺 +61 (AU)</option>
+<option value="+81">🇯🇵 +81 (JP)</option>
+<option value="+49">🇩🇪 +49 (DE)</option>
+<option value="+33">🇫🇷 +33 (FR)</option>
+<option value="+52">🇲🇽 +52 (MX)</option>
+<option value="+91">🇮🇳 +91 (IN)</option>
+<option value="+86">🇨🇳 +86 (CN)</option>
+<option value="+971">🇦🇪 +971 (UAE)</option>
+</select>
+<input autocomplete="off" class="standard-input" id="input-phone" placeholder="e.g. (555) 123-4567..." style="flex: 1;" type="text"/>
+</div>
+</div>
+<!-- Email Field -->
+<div class="dynamic-field" id="field-email">
+<label><i class="fa-solid fa-envelope" style="color:var(--text-muted); margin-right:5px;"></i> Email Address</label>
+<input autocomplete="off" class="standard-input" id="input-email" placeholder="e.g. target@domain.com..." type="email"/>
+</div>
+<!-- Address Field -->
+<div class="dynamic-field" id="field-address">
+<label><i class="fa-solid fa-map-location-dot" style="color:var(--text-muted); margin-right:5px;"></i> Last Known Location / Address</label>
+<input autocomplete="off" class="standard-input" id="input-address" placeholder="e.g. 123 Main St, City, ST..." type="text"/>
+</div>
+<!-- SSN Field -->
+<div class="dynamic-field" id="field-ssn">
+<label><i class="fa-solid fa-id-card" style="color:var(--text-muted); margin-right:5px;"></i> Social Security Number</label>
+<input autocomplete="off" class="standard-input" id="input-ssn" maxlength="11" placeholder="XXX-XX-XXXX" type="text"/>
+</div>
+<!-- Driver's License Field -->
+<div class="dynamic-field" id="field-dl">
+<label><i class="fa-solid fa-id-badge" style="color:var(--text-muted); margin-right:5px;"></i> Driver's License / State ID</label>
+<div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+<select class="standard-input" id="input-dl-country" style="flex: 1; min-width: 150px;">
+<option disabled="" selected="" value="">Loading Countries...</option>
+</select>
+<select class="standard-input" disabled="" id="input-dl-state" style="flex: 1; min-width: 150px;">
+<option disabled="" selected="" value="">Select State / Region</option>
+</select>
+</div>
+<div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+<input autocomplete="off" class="standard-input" id="input-dl" placeholder="ID Number..." style="flex: 1;" type="text"/>
+</div>
+<div style="display: flex; gap: 10px;">
+<div class="file-dropzone" onclick="document.getElementById('input-dl-front').click()" style="flex: 1; padding: 1.5rem 1rem;">
+<i class="fa-solid fa-image" style="font-size: 1.5rem; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+<h5 style="color: var(--text-dark); margin: 0; font-size: 0.85rem;">Front Image</h5>
+<input accept="image/*" id="input-dl-front" style="display: none;" type="file"/>
+</div>
+<div class="file-dropzone" onclick="document.getElementById('input-dl-back').click()" style="flex: 1; padding: 1.5rem 1rem;">
+<i class="fa-solid fa-barcode" style="font-size: 1.5rem; color: var(--text-muted); margin-bottom: 0.5rem;"></i>
+<h5 style="color: var(--text-dark); margin: 0; font-size: 0.85rem;">Back Image (Barcode)</h5>
+<input accept="image/*" id="input-dl-back" style="display: none;" type="file"/>
+</div>
+</div>
+</div>
+<!-- Bank Account Field -->
+<div class="dynamic-field" id="field-bank">
+<label><i class="fa-solid fa-building-columns" style="color:var(--text-muted); margin-right:5px;"></i> Routing / Account Number</label>
+<div id="bank-inputs-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
+<div class="bank-input-row" style="display: flex; gap: 10px; align-items: center;">
+<input autocomplete="off" class="standard-input routing-input" maxlength="9" placeholder="Routing #..." style="flex: 1;" type="text"/>
+<input autocomplete="off" class="standard-input account-input" placeholder="Account #..." style="flex: 2;" type="text"/>
+</div>
+</div>
+<button class="btn-search" onclick="addBankAccountField()" style="background: rgba(192, 108, 59, 0.2); border: 1px dashed var(--accent); padding: 5px 15px; font-size: 0.8rem; margin: 0;" type="button"><i class="fa-solid fa-plus"></i> Add Account</button>
+</div>
+<!-- Credit Card Field -->
+<div class="dynamic-field" id="field-cc">
+<label><i class="fa-solid fa-credit-card" style="color:var(--text-muted); margin-right:5px;"></i> Primary Account Number (PAN)</label>
+<div id="cc-inputs-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
+<div class="cc-input-row" style="display: flex; gap: 10px; align-items: center;">
+<input autocomplete="off" class="standard-input cc-input-element" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX" style="flex: 1;" type="text"/>
+</div>
+</div>
+<button class="btn-search" onclick="addCreditCardField()" style="background: rgba(192, 108, 59, 0.2); border: 1px dashed var(--accent); padding: 5px 15px; font-size: 0.8rem; margin: 0;" type="button"><i class="fa-solid fa-plus"></i> Add Card</button>
+</div>
+<!-- IP Address Field -->
+<div class="dynamic-field" id="field-ip">
+<label><i class="fa-solid fa-network-wired" style="color:var(--text-muted); margin-right:5px;"></i> IP Address (v4/v6)</label>
+<input autocomplete="off" class="standard-input" id="input-ip" placeholder="e.g. 192.168.1.1..." type="text"/>
+</div>
+<!-- License Plate Field -->
+<div class="dynamic-field" id="field-plate">
+<label><i class="fa-solid fa-car-side" style="color:var(--text-muted); margin-right:5px;"></i> LPR / Vehicle Tag</label>
+<div style="display: flex; gap: 10px;">
+<input autocomplete="off" class="standard-input" id="input-plate-state" maxlength="2" placeholder="State (e.g. TX)" style="width: 120px;" type="text"/>
+<input autocomplete="off" class="standard-input" id="input-plate" placeholder="Plate Number..." style="text-transform: uppercase;" type="text"/>
+</div>
+</div>
+<!-- Social Media Field -->
+<div class="dynamic-field" id="field-socialMedia">
+<label><i class="fa-solid fa-users-viewfinder" style="color:var(--text-muted); margin-right:5px;"></i> Social Media</label>
+<div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: left;">
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; margin-top: 0;">
                                     Provide a known alias or upload a target image. The engine will scan the selected social networks utilizing facial geometry matches and handle extraction.
                                 </p>
-
-                                <div class="auto-style-d3297f95" >
-                                    <h4 class="auto-style-33e50428" >Target Profile Name or Nickname</h4>
-                                    <div class="auto-style-75d62d47" >
-                                        <span class="auto-style-af26082e" >@</span>
-                                        <input title="e.g. ghost_protocol, JohnD, etc." type="text" id="social-nickname" placeholder="e.g. ghost_protocol, JohnD, etc." class="auto-style-31d9fb10"  autocomplete="off">
-                                    </div>
-                                </div>
-
-                                <div class="auto-style-d3297f95" >
-                                    <h4 class="auto-style-33e50428" >Social Media Face Match <span class="auto-style-fd2bb50d" >(Optional)</span></h4>
-                                    <div class="auto-style-1dd45eaf"  id="social-upload-zone">
-                                        <i class="fa-solid fa-cloud-arrow-up auto-style-7cbdcc96" ></i>
-                                        <p class="auto-style-0df9ff6e" >Drag & Drop target image here</p>
-                                        <p class="auto-style-7a706263" >or click to browse local files (JPG, PNG)</p>
-                                        <input title="Social File Input" type="file" id="social-file-input" class="auto-style-f4ae1739"  accept="image/*" multiple onchange="handleSocialFiles(this)">
-                                        <div id="social-file-name" class="auto-style-c4685871" ></div>
-                                    </div>
-                                </div>
-
-                                <div class="auto-style-d3297f95" >
-                                    <h4 class="auto-style-a637ed8d" >Targeted Platforms</h4>
-                                    <div class="auto-style-7e7ff148"  id="social-checkbox-group">
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="Facebook" checked > Facebook
+<div style="margin-bottom: 1.5rem;">
+<h4 style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 0.9rem;">Target Profile Name or Nickname</h4>
+<div style="display: flex; align-items: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
+<span style="color: var(--text-muted); padding: 0.8rem 0.5rem 0.8rem 1rem;">@</span>
+<input autocomplete="off" id="social-nickname" placeholder="e.g. ghost_protocol, JohnD, etc." style="flex: 1; background: transparent; border: none; outline: none; color: var(--text-dark); padding: 0.8rem 1rem 0.8rem 0; font-family: 'Inter', sans-serif;" type="text"/>
+</div>
+</div>
+<div style="margin-bottom: 1.5rem;">
+<h4 style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 0.9rem;">Social Media Face Match <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></h4>
+<div id="social-upload-zone" style="border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; position: relative;">
+<i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--accent); margin-bottom: 0.5rem;"></i>
+<p style="font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.2rem;">Drag &amp; Drop target image here</p>
+<p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">or click to browse local files (JPG, PNG)</p>
+<input accept="image/*" id="social-file-input" multiple="" onchange="handleSocialFiles(this)" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" type="file"/>
+<div id="social-file-name" style="margin-top: 1rem; color: #00e5ff; font-weight: bold; display: none;"></div>
+</div>
+</div>
+<div style="margin-bottom: 1.5rem;">
+<h4 style="color: var(--text-dark); margin-bottom: 0.8rem; font-size: 0.9rem;">Targeted Platforms</h4>
+<div id="social-checkbox-group" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="Facebook"/> Facebook
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="X" checked > X (Twitter)
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="X"/> X (Twitter)
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="Instagram" checked > Instagram
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="Instagram"/> Instagram
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="Snap Chat" checked > Snap Chat
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="Snap Chat"/> Snap Chat
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="LinkedIn" checked > LinkedIn
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="LinkedIn"/> LinkedIn
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="TikTok" checked > TikTok
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="TikTok"/> TikTok
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="Reddit" checked > Reddit
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="Reddit"/> Reddit
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="Pinterest" checked > Pinterest
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="Pinterest"/> Pinterest
                                         </label>
-                                        <label class="auto-style-5c94a86c" >
-                                            <input title="Input field" type="checkbox" class="social-checkbox auto-style-fc5aba7a" value="Github" checked > Github
+<label style="color: var(--text-dark); display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+<input checked="" class="social-checkbox" style="accent-color: var(--accent);" type="checkbox" value="Github"/> Github
                                         </label>
-                                    </div>
-                                </div>
-
-                                <div id="social-progress-container" class="auto-style-badf2e0a" >
-                                    <!-- Progress bars injected here dynamically based on selected checkboxes -->
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Submit Button Row is disabled here. We use the master Execute Trace in Search Results tab instead -->
-                    <div class="auto-style-feebfcbf" >
-                        <button type="submit" id="omni-btn-submit" class="btn-search auto-style-d470a197" >
-                            <i class="fa-solid fa-satellite-dish"></i> Engage Trace
+</div>
+</div>
+<div id="social-progress-container" style="display: none; margin-top: 1.5rem;">
+<!-- Progress bars injected here dynamically based on selected checkboxes -->
+</div>
+</div>
+</div>
+</div>
+<!-- Submit Button Row is disabled here. We use the master Execute Trace in Search Results tab instead -->
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; display: none;">
+<button class="btn-search" id="omni-btn-submit" style="border-radius: 40px; padding: 1rem 3rem; margin: 0; font-size: 1.1rem; box-shadow: 0 0 15px rgba(192, 108, 59, 0.4);" type="submit">
+<i class="fa-solid fa-satellite-dish"></i> Engage Trace
                         </button>
-
-                        <!-- Compliance Inline Row -->
-                        <div class="auto-style-a8ae0222" >
-                            <span onclick="showComplianceInfo()" class="auto-style-c8236563"  onmouseover="this.style.color='white'" onmouseout="this.style.color=''">
-                                <i class="fa-solid fa-scale-balanced auto-style-6eb4b668" ></i>
-                                <span class="auto-style-64784dc7" >Regulatory Purpose Required:</span>
-                            </span>
-                            <select title="Permissible Purpose" id="permissible-purpose" class="auto-style-0e591d45" >
-                                <option value="" class="auto-style-ea8eea3d" >-- Select --</option>
-                                <option value="debt_collection" class="auto-style-ea8eea3d" >Debt Collection</option>
-                                <option value="fraud_prevention" class="auto-style-ea8eea3d" >Fraud Prevention</option>
-                                <option value="legal_process" class="auto-style-ea8eea3d" >Legal Process</option>
-                                <option value="real_estate" class="auto-style-ea8eea3d" >Real Estate Investment</option>
-                                <option value="law_enforcement" class="auto-style-ea8eea3d" >Law Enforcement</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
-
-                <!-- Search Button -->
-                <div class="search-btn-container auto-style-528f4563" >
-                    <button type="button" id="btn-omni-search" class="btn-search auto-style-dce0bfeb" onclick="executeOmniSearch(event)" >
-                        <i class="fa-solid fa-magnifying-glass"></i> Search
+<!-- Compliance Inline Row -->
+<div style="display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.85rem;">
+<span onclick="showComplianceInfo()" onmouseout="this.style.color=''" onmouseover="this.style.color='white'" style="cursor: pointer; display: flex; align-items: center; gap: 8px; transition: color 0.2s ease;">
+<i class="fa-solid fa-scale-balanced" style="color: var(--accent);"></i>
+<span style="text-decoration: underline dotted; text-underline-offset: 4px;">Regulatory Purpose Required:</span>
+</span>
+<select id="permissible-purpose" style="background: transparent; border: none; border-bottom: 1px dashed var(--accent); color: white; padding: 2px 5px; outline: none; cursor: pointer; font-size: 0.85rem; appearance: none; -webkit-appearance: none;">
+<option style="background: #050b14;" value="">-- Select --</option>
+<option style="background: #050b14;" value="debt_collection">Debt Collection</option>
+<option style="background: #050b14;" value="fraud_prevention">Fraud Prevention</option>
+<option style="background: #050b14;" value="legal_process">Legal Process</option>
+<option style="background: #050b14;" value="real_estate">Real Estate Investment</option>
+<option style="background: #050b14;" value="law_enforcement">Law Enforcement</option>
+</select>
+</div>
+</div>
+</form>
+<!-- Search Button -->
+<div class="search-btn-container" style="margin-top: 2.5rem; display: flex; justify-content: center;">
+<button class="btn-search" id="btn-omni-search" onclick="executeOmniSearch(event)" style="padding: 1rem 4rem; font-size: 1.15rem; border-radius: 40px; box-shadow: 0 0 24px rgba(192,108,59,0.5); letter-spacing: 0.05em;" type="button">
+<i class="fa-solid fa-magnifying-glass"></i> Search
                     </button>
-                </div>
-
-                <div class="auto-style-3909dd0d" >
-                    <button type="button" class="btn-search auto-style-e3e6854a"  onmouseover="this.style.color='white'; this.style.borderColor='var(--accent)';" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';" onclick="document.getElementById('toggle-batch').checked = true; toggleBatchProcessing();">
-                        <i class="fa-solid fa-file-csv auto-style-c02c7d9c" ></i> Upload .CSV for Batching
+</div>
+<div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+<button class="btn-search" onclick="document.getElementById('toggle-batch').checked = true; toggleBatchProcessing();" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';" onmouseover="this.style.color='white'; this.style.borderColor='var(--accent)';" style="margin: 0; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-muted);" type="button">
+<i class="fa-solid fa-file-csv" style="margin-right: 5px;"></i> Upload .CSV for Batching
                     </button>
-                    <button type="button" class="btn-search auto-style-e3e6854a"  onmouseover="this.style.color='white'; this.style.borderColor='var(--accent)';" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';" onclick="const pill = document.getElementById('pill-socialMedia'); if(pill && !pill.classList.contains('active')){ toggleDataField('socialMedia', pill); } document.getElementById('social-file-input').click();">
-                        <i class="fa-solid fa-image-portrait auto-style-c02c7d9c" ></i> Upload Image for Face Match
+<button class="btn-search" onclick="const pill = document.getElementById('pill-socialMedia'); if(pill &amp;&amp; !pill.classList.contains('active')){ toggleDataField('socialMedia', pill); } document.getElementById('social-file-input').click();" onmouseout="this.style.color='var(--text-muted)'; this.style.borderColor='var(--border-color)';" onmouseover="this.style.color='white'; this.style.borderColor='var(--accent)';" style="margin: 0; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-muted);" type="button">
+<i class="fa-solid fa-image-portrait" style="margin-right: 5px;"></i> Upload Image for Face Match
                     </button>
-                </div>
-
-            </div><!-- /omni-search-view -->
-
-            <div id="batch-processing-view" class="auto-style-344164cd" >
-                <h3 class="auto-style-a0725a16" ><i class="fa-solid fa-cloud-arrow-up auto-style-6eb4b668" ></i> Upload Batch File</h3>
-                <p class="auto-style-90f7c158" >
+</div>
+</div><!-- /omni-search-view -->
+<div id="batch-processing-view" style="display: none; text-align: center; padding: 2rem 0;">
+<h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent);"></i> Upload Batch File</h3>
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
                     Upload a CSV containing names, addresses, or partial contact info. The Traku automated engine will cross-reference OSINT databases and append matched phone numbers, emails, and confidence scores to standard format output.
                 </p>
-                
-                <div class="auto-style-54f7fec2"  id="drop-zone">
-                    <i class="fa-solid fa-file-csv auto-style-d8e76151" ></i>
-                    <h4 class="auto-style-be93e358" >Drag & Drop CSV</h4>
-                    <p class="auto-style-44ded870" >or click to select file from your computer</p>
-                    <input title="Batch File Input" type="file" id="batch-file-input" accept=".csv" class="auto-style-224b51a7" >
-                </div>
-
-                <div class="input-field auto-style-72b12f64" >
-                    <label class="auto-style-d07b9ad2" >Batch Permissible Purpose <span class="auto-style-89185d7d" >*</span></label>
-                    <select title="Batch Permissible Purpose" id="batch-permissible-purpose" class="form-control auto-style-5f170a93"  onchange="validateBatchPurpose()">
-                        <option value="">-- Select Compliant Purpose --</option>
-                        <option value="debt_collection">Debt Collection / Asset Recovery</option>
-                        <option value="real_estate">Real Estate Investment Analysis</option>
-                    </select>
-                </div>
-
-                <div class="search-btn-container">
-                    <button type="button" class="btn-search auto-style-64eeac3b" id="btn-batch-submit" disabled  onclick="initiateBatch()"><i class="fa-solid fa-gears"></i> Process Batch</button>
-                </div>
-                
-                <div id="batch-progress-container" class="auto-style-5c757651" >
-                    <div class="auto-style-33f0c456" >
-                        <span class="auto-style-34d51ac0"  id="batch-status-text">Processing records...</span>
-                        <span class="auto-style-53b3cda6"  id="batch-percent">0%</span>
-                    </div>
-                    <div class="auto-style-6f0d73b0" >
-                        <div id="batch-progress-bar" class="auto-style-5b423add" ></div>
-                    </div>
-                    <button id="btn-download-batch" class="btn-search auto-style-635450b5"  onclick="downloadBatchRessults()"><i class="fa-solid fa-download"></i> Download Enriched CSV</button>
-                </div>
-            </div><!-- /batch-processing-view -->
-
-            <!-- API Integration View -->
-            <div id="api-integration-view" class="auto-style-cc61cfe7" >
-                <div class="auto-style-f8cd0a73" >
-                    <h3 class="auto-style-a0725a16" ><i class="fa-solid fa-plug auto-style-6eb4b668" ></i> Traku REST API Connect</h3>
-                    <p class="auto-style-ef38c8bd" >
+<div id="drop-zone" style="border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 4rem 2rem; background: rgba(0,0,0,0.2); max-width: 500px; margin: 0 auto 2rem; cursor: pointer; transition: all 0.3s ease;">
+<i class="fa-solid fa-file-csv" style="font-size: 3rem; color: var(--text-dark); margin-bottom: 1rem;"></i>
+<h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">Drag &amp; Drop CSV</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">or click to select file from your computer</p>
+<input accept=".csv" id="batch-file-input" style="display: none;" type="file"/>
+</div>
+<div class="input-field" style="max-width: 400px; margin: 0 auto 2rem; text-align: center;">
+<label style="margin-bottom: 10px; display: block;">Batch Permissible Purpose <span style="color:var(--accent); font-weight: bold;">*</span></label>
+<select class="form-control" id="batch-permissible-purpose" onchange="validateBatchPurpose()" style="background: var(--surface-color); border: 1px solid var(--accent); color: white; padding: 0.8rem; border-radius: 8px; width: 100%; text-align: center; font-size: 0.95rem; cursor: pointer;">
+<option value="">-- Select Compliant Purpose --</option>
+<option value="debt_collection">Debt Collection / Asset Recovery</option>
+<option value="real_estate">Real Estate Investment Analysis</option>
+</select>
+</div>
+<div class="search-btn-container">
+<button class="btn-search" disabled="" id="btn-batch-submit" onclick="initiateBatch()" style="opacity: 0.5; margin: 0 auto;" type="button"><i class="fa-solid fa-gears"></i> Process Batch</button>
+</div>
+<div id="batch-progress-container" style="display: none; max-width: 500px; margin: 2rem auto 0;">
+<div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+<span id="batch-status-text" style="color: var(--text-light); font-size: 0.85rem;">Processing records...</span>
+<span id="batch-percent" style="color: var(--accent); font-size: 0.85rem; font-weight: bold;">0%</span>
+</div>
+<div style="width: 100%; height: 8px; background: var(--bg-color); border-radius: 4px; overflow: hidden;">
+<div id="batch-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.3s ease;"></div>
+</div>
+<button class="btn-search" id="btn-download-batch" onclick="downloadBatchRessults()" style="margin: 2rem auto 0; background: #28a745; display: none;"><i class="fa-solid fa-download"></i> Download Enriched CSV</button>
+</div>
+</div><!-- /batch-processing-view -->
+<!-- API Integration View -->
+<div id="api-integration-view" style="display: none; padding: 2rem 0; text-align: left;">
+<div style="max-width: 800px; margin: 0 auto; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem;">
+<h3 style="color: var(--text-dark); margin-bottom: 1rem;"><i class="fa-solid fa-plug" style="color: var(--accent);"></i> Traku REST API Connect</h3>
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
                         Automate your skip tracing workflow by connecting your CRM or internal systems directly to the Traku architecture. Retrieve identity resolution and confidence scores instantly.
                     </p>
-                    
-                    <h4 class="auto-style-c8835ecd" >POST /api/v1/osint/batch</h4>
-                    <p class="auto-style-bc6d373e" >Upload a CSV payload for bulk enrichment.</p>
-                    <div class="auto-style-0ea4417f" >
-<pre class="auto-style-d9b57228" >curl -X POST https://api.sherpa-solutions.com/v1/osint/batch \
+<h4 style="color: #00e5ff; margin-bottom: 0.5rem; font-family: monospace;">POST /api/v1/osint/batch</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Upload a CSV payload for bulk enrichment.</p>
+<div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color); overflow-x: auto;">
+<pre style="color: #a5d6ff; font-family: monospace; font-size: 0.85rem; margin: 0;">curl -X POST https://api.sherpa-solutions.com/v1/osint/batch \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@leads_list.csv" \
   -F "purpose=debt_collection"</pre>
-                    </div>
-
-                    <h4 class="auto-style-c8835ecd" >Webhook Configuration</h4>
-                    <p class="auto-style-bc6d373e" >Receive asynchronous JSON payloads when batch processing completes.</p>
-                    <div class="auto-style-8a0b6c92" >
-<pre class="auto-style-7c001f7e" >{
+</div>
+<h4 style="color: #00e5ff; margin-bottom: 0.5rem; font-family: monospace;">Webhook Configuration</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Receive asynchronous JSON payloads when batch processing completes.</p>
+<div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto;">
+<pre style="color: #7ee787; font-family: monospace; font-size: 0.85rem; margin: 0;">{
   "event": "batch_completed",
   "batch_id": "trk_batch_98723",
   "records_enriched": 450,
   "download_url": "https://api.sherpa-solutions.com/v1/download/trk_batch_98723.csv"
 }</pre>
-                    </div>
-                </div>
-        </div><!-- /api-integration-view -->
-
-        <!-- Search Results View -->
-        <div id="search-results-view" class="auto-style-dee75cf6" >
-            <div class="auto-style-8b4499f8" >
-                
-                <!-- Execute Trace Header Area -->
-                <div class="auto-style-d7e6d519"  id="trace-execution-header">
-                    <h2 class="auto-style-20640709" ><i class="fa-solid fa-satellite-dish auto-style-6eb4b668" ></i> Intelligence Matrix Scan</h2>
-                    <p class="auto-style-dcba6ed8" >Ensure target profile footprint is submitted before executing payload simulation.</p>
-                    <button type="button" id="btn-execute-trace" onclick="executeDetailedTrace()" class="btn-search auto-style-64f55f18" >
-                        <i class="fa-solid fa-bolt"></i> Search
+</div>
+</div>
+</div><!-- /api-integration-view -->
+<!-- Search Results View -->
+<div id="search-results-view" style="display: none; padding: 2rem 0;">
+<div style="max-width: 1000px; margin: 0 auto; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; position: relative;">
+<!-- Execute Trace Header Area -->
+<div id="trace-execution-header" style="text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color);">
+<h2 style="color: white; margin-bottom: 1rem;"><i class="fa-solid fa-satellite-dish" style="color: var(--accent);"></i> Intelligence Matrix Scan</h2>
+<p style="color: var(--text-muted); margin-bottom: 2rem;">Ensure target profile footprint is submitted before executing payload simulation.</p>
+<button class="btn-search" id="btn-execute-trace" onclick="executeDetailedTrace()" style="border-radius: 40px; padding: 1rem 4rem; font-size: 1.2rem; box-shadow: 0 0 20px rgba(192, 108, 59, 0.5);" type="button">
+<i class="fa-solid fa-bolt"></i> Search
                     </button>
-                </div>
-
-                <!-- Live Progress Tracking Grid -->
-                <div id="trace-progress-grid" class="auto-style-25cc59d9" >
-                    
-                    <!-- Social Media Column -->
-                    <div>
-                        <h4 class="auto-style-a6af9714" >
-                            <i class="fa-solid fa-users-viewfinder auto-style-b4b63308" ></i> Social Media Extraction
+</div>
+<!-- Live Progress Tracking Grid -->
+<div id="trace-progress-grid" style="display: none; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem;">
+<!-- Social Media Column -->
+<div>
+<h4 style="color: var(--text-dark, #fff); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-users-viewfinder" style="color: #00e5ff;"></i> Social Media Extraction
                         </h4>
-                        <div id="progress-container-social">
-                            <!-- Injected dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Other Sources Column -->
-                    <div>
-                        <h4 class="auto-style-a6af9714" >
-                            <i class="fa-solid fa-server auto-style-b4b63308" ></i> Public & Deep Records
+<div id="progress-container-social">
+<!-- Injected dynamically -->
+</div>
+</div>
+<!-- Other Sources Column -->
+<div>
+<h4 style="color: var(--text-dark, #fff); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-server" style="color: #00e5ff;"></i> Public &amp; Deep Records
                         </h4>
-                        <div id="progress-container-other">
-                            <!-- Injected dynamically -->
-                        </div>
-                    </div>
-
-                </div>
-                
-                <!-- Final Global Completion Badge -->
-                <div id="trace-complete-badge" class="auto-style-b12675c2" >
-                    <span class="auto-style-5831da80" >
-                        <i class="fa-solid fa-check-double"></i> Multi-Source Intelligence Scan Complete
+<div id="progress-container-other">
+<!-- Injected dynamically -->
+</div>
+</div>
+</div>
+<!-- Final Global Completion Badge -->
+<div id="trace-complete-badge" style="display: none; text-align: center; margin-bottom: 3rem;">
+<span style="background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.5); padding: 0.8rem 2rem; border-radius: 40px; font-weight: bold; font-size: 1.1rem; display: inline-block;">
+<i class="fa-solid fa-check-double"></i> Multi-Source Intelligence Scan Complete
                     </span>
-                </div>
-
-                <!-- Simulation Output Dossier -->
-                <div id="trace-results-dossier" class="auto-style-224b51a7" >
-                    <!-- Filled by JavaScript after progress completes -->
-                </div>
-
-                <!-- Search History Panel -->
-                <div id="search-history-panel" class="auto-style-00c9e770" >
-                    <div class="auto-style-bbc98b25" >
-                        <h3 class="auto-style-074a8a03" ><i class="fa-solid fa-clock-rotate-left auto-style-74274bb4" ></i>Search History</h3>
-                        <span id="search-history-count" class="auto-style-d77719f5" ></span>
-                    </div>
-                    <div id="search-history-container" class="auto-style-f48bc238" >
-                        <p class="auto-style-b20a13f3" ><i class="fa-solid fa-ghost auto-style-2bc7cf97" ></i>No search history yet. Run a trace to get started.</p>
-                    </div>
-                </div>
-
-            </div>
-        </div><!-- /search-results-view -->
-
-
-            <!-- Data Sources View -->
-            <div id="data-sources-view" class="auto-style-cc61cfe7" >
-                <div class="auto-style-5d1d2e9b" >
-                    
-                    <h3 class="auto-style-5b040df1" >
-                        <i class="fa-solid fa-network-wired auto-style-6afb6513" ></i> Master Provider Selection
+</div>
+<!-- Simulation Output Dossier -->
+<div id="trace-results-dossier" style="display: none;">
+<!-- Filled by JavaScript after progress completes -->
+</div>
+<!-- Search History Panel -->
+<div id="search-history-panel" style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<h3 style="color: var(--text-dark); margin: 0;"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent); margin-right: 8px;"></i>Search History</h3>
+<span id="search-history-count" style="color: var(--text-muted); font-size: 0.85rem;"></span>
+</div>
+<div id="search-history-container" style="display: flex; flex-direction: column; gap: 1rem;">
+<p style="color: var(--text-muted); text-align: center; padding: 2rem;"><i class="fa-solid fa-ghost" style="font-size: 1.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block;"></i>No search history yet. Run a trace to get started.</p>
+</div>
+</div>
+</div>
+</div><!-- /search-results-view -->
+<!-- Data Sources View -->
+<div id="data-sources-view" style="display: none; padding: 2rem 0; text-align: left;">
+<div style="max-width: 600px; margin: 0 auto; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 2.5rem;">
+<h3 style="color: var(--text-dark); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+<i class="fa-solid fa-network-wired" style="color: var(--accent); margin-right: 10px;"></i> Master Provider Selection
                     </h3>
-                    <p class="auto-style-ef38c8bd" >
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
                         Securely manage your API keys for premium OSINT data engines. Keys are encrypted and stored locally on the Sherpa hardware appliance.
                     </p>
-
-                    <div class="api-vault auto-style-2ee324e7" >
-                        
-                        <!-- Mock Data Source -->
-                        <div class="provider-card auto-style-5e8c0b8d" >
-                            <div class="auto-style-31bd90a9" >Default Engine</div>
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-server auto-style-b4b63308" ></i> Mock Data Traku Engine
+<div class="api-vault" style="display: flex; flex-direction: column; gap: 1.5rem;">
+<!-- Mock Data Source -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid #00e5ff; border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="position: absolute; top: -10px; right: 20px; background: #00e5ff; color: #000; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Default Engine</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-server" style="color: #00e5ff;"></i> Mock Data Traku Engine
                                 </h4>
-                                <div class="auto-style-99129a50" >
-                                    <div id="limit-mock" class="auto-style-99be506b" >-- / -- Searches</div>
-                                    <div class="auto-style-fa6c8d0b" >
-                                        <label class="switch">
-                                            <input title="Toggle Mock" type="checkbox" id="toggle-mock" onchange="toggleTrakuProvider('mock')" checked>
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span id="status-mock" class="status-badge auto-style-c6811262" >Connected</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="auto-style-0b39b12a" >
-                                <input title="Key Mock" type="password" id="key-mock" value="mk_sk_sherpa_engine_local_8f9c2a1b" readonly class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" >Locked</button>
-                            </div>
-                            <p class="auto-style-6ba69539" >The internal secure mock engine is used when live external APIs are offline or rate-limited.</p>
-                        </div>
-
-                        <!-- Batch Processing -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-948e6d6e" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-file-csv auto-style-6eb4b668" ></i> Batch CSV Processing
+<div style="display: flex; align-items: center; gap: 15px;">
+<div id="limit-mock" style="font-size: 0.8rem; color: var(--text-muted); text-align: right; display: none;">-- / -- Searches</div>
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input checked="" id="toggle-mock" onchange="toggleTrakuProvider('mock')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-mock" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: rgba(0, 229, 255, 0.1); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.3);">Connected</span>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 10px; opacity: 0.5; pointer-events: none;">
+<input id="key-mock" readonly="" style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password" value="mk_sk_sherpa_engine_local_8f9c2a1b"/>
+<button class="btn-search" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Locked</button>
+</div>
+<p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">The internal secure mock engine is used when live external APIs are offline or rate-limited.</p>
+</div>
+<!-- Batch Processing -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-file-csv" style="color: var(--accent);"></i> Batch CSV Processing
                                 </h4>
-                                <div class="auto-style-fa6c8d0b" >
-                                    <label class="switch">
-                                        <input title="Toggle Batch" type="checkbox" id="toggle-batch" onchange="toggleBatchProcessing()">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="status-batch" class="status-badge auto-style-b33b1551" >Inactive</span>
-                                </div>
-                            </div>
-                            <p class="auto-style-6ba69539" >Upload a CSV file for bulk enrichment. Drag and drop or select a file to process multiple targets at once.</p>
-                        </div>
-                        
-                        <!-- AbstractAPI (IP Geolocation) -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-network-wired auto-style-7abb3a4e" ></i> AbstractAPI (IP Trace)
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-batch" onchange="toggleBatchProcessing()" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-batch" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Inactive</span>
+</div>
+</div>
+<p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);">Upload a CSV file for bulk enrichment. Drag and drop or select a file to process multiple targets at once.</p>
+</div>
+<!-- AbstractAPI (IP Geolocation) -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-network-wired" style="color: var(--text-muted);"></i> AbstractAPI (IP Trace)
                                 </h4>
-                                <div class="auto-style-99129a50" >
-                                    <div id="limit-abstractapi" class="auto-style-99be506b" >-- / -- Searches</div>
-                                    <div class="auto-style-fa6c8d0b" >
-                                        <label class="switch">
-                                            <input title="Toggle Abstractapi" type="checkbox" id="toggle-abstractapi" onchange="toggleTrakuProvider('abstractapi')">
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span id="status-abstractapi" class="status-badge auto-style-b33b1551" >Not Configured</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="Enter API Key..." type="password" id="key-abstractapi" placeholder="Enter API Key..." class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" onclick="saveTrakuProvider('abstractapi')" >Save</button>
-                            </div>
-                            <p class="auto-style-6ba69539" ><a href="https://app.abstractapi.com/api/ip-geolocation/pricing" target="_blank" class="auto-style-6eb4b668" >Free Tier</a>: 10,000 requests / month</p>
-                        </div>
-
-                        <!-- Numverify API -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-phone auto-style-7abb3a4e" ></i> Numverify
+<div style="display: flex; align-items: center; gap: 15px;">
+<div id="limit-abstractapi" style="font-size: 0.8rem; color: var(--text-muted); text-align: right; display: none;">-- / -- Searches</div>
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-abstractapi" onchange="toggleTrakuProvider('abstractapi')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-abstractapi" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 10px;">
+<input id="key-abstractapi" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password"/>
+<button class="btn-search" onclick="saveTrakuProvider('abstractapi')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Save</button>
+</div>
+<p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);"><a href="https://app.abstractapi.com/api/ip-geolocation/pricing" style="color: var(--accent);" target="_blank">Free Tier</a>: 10,000 requests / month</p>
+</div>
+<!-- Numverify API -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-phone" style="color: var(--text-muted);"></i> Numverify
                                 </h4>
-                                <div class="auto-style-99129a50" >
-                                    <div id="limit-numverify" class="auto-style-99be506b" >-- / -- Searches</div>
-                                    <div class="auto-style-fa6c8d0b" >
-                                        <label class="switch">
-                                            <input title="Toggle Numverify" type="checkbox" id="toggle-numverify" onchange="toggleTrakuProvider('numverify')">
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span id="status-numverify" class="status-badge auto-style-b33b1551" >Not Configured</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="Enter API Key..." type="password" id="key-numverify" placeholder="Enter API Key..." class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" onclick="saveTrakuProvider('numverify')" >Save</button>
-                            </div>
-                            <p class="auto-style-6ba69539" ><a href="https://apilayer.com/marketplace/numverify-api" target="_blank" class="auto-style-6eb4b668" >Free Tier</a>: 100 requests / month. Validates MSISDN telecom status.</p>
-                        </div>
-
-                        <!-- USA People Search -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-flag-usa auto-style-7abb3a4e" ></i> USA People Search
+<div style="display: flex; align-items: center; gap: 15px;">
+<div id="limit-numverify" style="font-size: 0.8rem; color: var(--text-muted); text-align: right; display: none;">-- / -- Searches</div>
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-numverify" onchange="toggleTrakuProvider('numverify')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-numverify" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 10px;">
+<input id="key-numverify" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password"/>
+<button class="btn-search" onclick="saveTrakuProvider('numverify')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Save</button>
+</div>
+<p style="margin: 0.75rem 0 0 0; font-size: 0.8rem; color: var(--text-muted);"><a href="https://apilayer.com/marketplace/numverify-api" style="color: var(--accent);" target="_blank">Free Tier</a>: 100 requests / month. Validates MSISDN telecom status.</p>
+</div>
+<!-- USA People Search -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-flag-usa" style="color: var(--text-muted);"></i> USA People Search
                                 </h4>
-                                <div class="auto-style-fa6c8d0b" >
-                                    <label class="switch">
-                                        <input title="Toggle Usa_People_Search" type="checkbox" id="toggle-usa_people_search" onchange="toggleTrakuProvider('usa_people_search')">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="status-usa_people_search" class="status-badge auto-style-b33b1551" >Not Configured</span>
-                                </div>
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="Enter API Key..." type="password" id="key-usa_people_search" placeholder="Enter API Key..." class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" onclick="saveTrakuProvider('usa_people_search')" >Save</button>
-                            </div>
-                        </div>
-
-                        <!-- PIPL API -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-code-branch auto-style-7abb3a4e" ></i> PIPL API
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-usa_people_search" onchange="toggleTrakuProvider('usa_people_search')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-usa_people_search" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
+</div>
+</div>
+<div style="display: flex; gap: 10px;">
+<input id="key-usa_people_search" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password"/>
+<button class="btn-search" onclick="saveTrakuProvider('usa_people_search')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Save</button>
+</div>
+</div>
+<!-- PIPL API -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> PIPL API
                                 </h4>
-                                <div class="auto-style-fa6c8d0b" >
-                                    <label class="switch">
-                                        <input title="Toggle Pipl" type="checkbox" id="toggle-pipl" onchange="toggleTrakuProvider('pipl')">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="status-pipl" class="status-badge auto-style-b33b1551" >Not Configured</span>
-                                </div>
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="Enter API Key..." type="password" id="key-pipl" placeholder="Enter API Key..." class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" onclick="saveTrakuProvider('pipl')" >Save</button>
-                            </div>
-                        </div>
-
-                        <!-- Spokeo -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-address-book auto-style-7abb3a4e" ></i> Spokeo / Whitepages
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-pipl" onchange="toggleTrakuProvider('pipl')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-pipl" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
+</div>
+</div>
+<div style="display: flex; gap: 10px;">
+<input id="key-pipl" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password"/>
+<button class="btn-search" onclick="saveTrakuProvider('pipl')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Save</button>
+</div>
+</div>
+<!-- Spokeo -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-address-book" style="color: var(--text-muted);"></i> Spokeo / Whitepages
                                 </h4>
-                                <div class="auto-style-fa6c8d0b" >
-                                    <label class="switch">
-                                        <input title="Toggle Spokeo" type="checkbox" id="toggle-spokeo" onchange="toggleTrakuProvider('spokeo')">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="status-spokeo" class="status-badge auto-style-b33b1551" >Not Configured</span>
-                                </div>
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="Enter API Key..." type="password" id="key-spokeo" placeholder="Enter API Key..." class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" onclick="saveTrakuProvider('spokeo')" >Save</button>
-                            </div>
-                        </div>
-
-                        <!-- Enhanced People Search -->
-                        <div class="provider-card auto-style-44683321" >
-                            <div class="auto-style-6e2da476" >
-                                <h4 class="auto-style-d7595ca0" >
-                                    <i class="fa-solid fa-user-ninja auto-style-7abb3a4e" ></i> Enhanced People Search
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-spokeo" onchange="toggleTrakuProvider('spokeo')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-spokeo" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
+</div>
+</div>
+<div style="display: flex; gap: 10px;">
+<input id="key-spokeo" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password"/>
+<button class="btn-search" onclick="saveTrakuProvider('spokeo')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Save</button>
+</div>
+</div>
+<!-- Enhanced People Search -->
+<div class="provider-card" style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<h4 style="color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 10px;">
+<i class="fa-solid fa-user-ninja" style="color: var(--text-muted);"></i> Enhanced People Search
                                 </h4>
-                                <div class="auto-style-fa6c8d0b" >
-                                    <label class="switch">
-                                        <input title="Toggle Enhanced_People" type="checkbox" id="toggle-enhanced_people" onchange="toggleTrakuProvider('enhanced_people')">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="status-enhanced_people" class="status-badge auto-style-b33b1551" >Not Configured</span>
-                                </div>
-                            </div>
-                            <div class="auto-style-0ed0e90f" >
-                                <input title="Enter API Key..." type="password" id="key-enhanced_people" placeholder="Enter API Key..." class="auto-style-a9e20a16" >
-                                <button type="button" class="btn-search auto-style-5d5d29c8" onclick="saveTrakuProvider('enhanced_people')" >Save</button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div><!-- /data-sources-view -->
-
-            </div> <!-- /TAB CONTENT CONTAINER -->
-        </div>
-
-        <div class="loading-spinner" id="loading-spinner">
-            <i class="fa-solid fa-circle-notch"></i>
-            <p class="auto-style-7c6b1eb7" >Accessing OSINT Databases...</p>
-        </div>
-
-        <div class="results-panel" id="results-panel">
-            <div class="results-header">
-                <h3>Intelligence Report</h3>
-                <span class="badge" id="results-count">0 Hits Found</span>
-            </div>
-            
-            <div id="results-container">
-                <!-- Data injected here -->
-            </div>
-        </div>
-
-    </div>
-
-    <footer>
-        <div class="hero-badge auto-style-772d7868" ><i class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
-        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
-    </footer>
-
-    <script>
+<div style="display: flex; align-items: center;">
+<label class="switch">
+<input id="toggle-enhanced_people" onchange="toggleTrakuProvider('enhanced_people')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="status-badge" id="status-enhanced_people" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: var(--bg-color); color: var(--text-muted);">Not Configured</span>
+</div>
+</div>
+<div style="display: flex; gap: 10px;">
+<input id="key-enhanced_people" placeholder="Enter API Key..." style="flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 0.8rem; border-radius: 4px; color: var(--text-dark); font-family: monospace; outline: none;" type="password"/>
+<button class="btn-search" onclick="saveTrakuProvider('enhanced_people')" style="margin: 0; padding: 0 1.5rem; border-radius: 4px; font-size: 0.9rem;" type="button">Save</button>
+</div>
+</div>
+</div>
+</div>
+</div><!-- /data-sources-view -->
+</div> <!-- /TAB CONTENT CONTAINER -->
+</div>
+<div class="loading-spinner" id="loading-spinner">
+<i class="fa-solid fa-circle-notch"></i>
+<p style="color: var(--text-dark); margin-top: 1rem; font-weight: 500;">Accessing OSINT Databases...</p>
+</div>
+<div class="results-panel" id="results-panel">
+<div class="results-header">
+<h3>Intelligence Report</h3>
+<span class="badge" id="results-count">0 Hits Found</span>
+</div>
+<div id="results-container">
+<!-- Data injected here -->
+</div>
+</div>
+</div>
+<footer>
+<div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+</footer>
+<script>
         // --- Global Drag & Drop Listener for Auto-Routing ---
         window.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -1658,9 +1573,9 @@
         function handleBatchFileSelect() {
             const file = batchFileInput.files[0];
             if(file) {
-                dropZone.innerHTML = `<i class="fa-solid fa-file-circle-check auto-style-ed37e86d" ></i>
-                                      <h4 class="auto-style-be93e358" >${file.name}</h4>
-                                      <p class="auto-style-44ded870" >${(file.size / 1024).toFixed(2)} KB Ready to Process</p>`;
+                dropZone.innerHTML = `<i class="fa-solid fa-file-circle-check" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem;"></i>
+                                      <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">${file.name}</h4>
+                                      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">${(file.size / 1024).toFixed(2)} KB Ready to Process</p>`;
                 validateBatchPurpose();
             }
         }
@@ -1746,15 +1661,15 @@
 
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `
-                    <div class="auto-style-b4b124d9" >
-                        <span class="auto-style-d19faa54" ><i class="${iconClass} auto-style-375019e7" ></i> ${sourceName}</span>
-                        <span class="auto-style-c49b3f79"  id="hits-${idSafe}"></span>
-                        <span class="auto-style-a5bee52d"  id="status-${idSafe}">0%</span>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
+                        <span style="color: var(--text-dark, #fff); font-weight: 500; flex: 2;"><i class="${iconClass}" style="width:20px;"></i> ${sourceName}</span>
+                        <span style="color: var(--text-muted); flex: 1; text-align: center;" id="hits-${idSafe}"></span>
+                        <span style="color: var(--accent); font-weight: bold; flex: 1; text-align: right;" id="status-${idSafe}">0%</span>
                     </div>
-                    <div class="auto-style-70090ec8"  id="bar-wrap-${idSafe}">
-                        <div id="bar-${idSafe}" class="auto-style-f0f34c6e" ></div>
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; margin-bottom: 1.2rem;" id="bar-wrap-${idSafe}">
+                        <div id="bar-${idSafe}" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.3s ease-out;"></div>
                     </div>
-                    <div id="results-box-${idSafe}" class="auto-style-8f4520d7" >
+                    <div id="results-box-${idSafe}" style="display: none; padding: 12px; margin-bottom: 1.5rem; background: var(--surface-color, rgba(0,0,0,0.4)); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 0.85rem;">
                     </div>
                 `;
                 container.appendChild(wrapper);
@@ -1854,11 +1769,11 @@
                             p.statusEl.style.color = '#28a745';
                             p.statusEl.innerHTML = '<i class="fa-solid fa-check"></i> Completed';
                             const hits = p.simulatedHits;
-                            p.hitsEl.innerHTML = `<span class="${hits > 0 ? 'text-value font-bold' : 'text-na'}">Results: ${hits}</span>`;
+                            p.hitsEl.innerHTML = `<span style="color: ${hits > 0 ? '#00e5ff' : 'var(--text-muted)'}; font-weight: ${hits > 0 ? 'bold' : 'normal'};">Results: ${hits}</span>`;
                         } else if (!p.completedMarker) {
                             p.statusEl.innerText = pct + '%';
                             if (pct > 5) {
-                                p.hitsEl.innerHTML = '<span class="auto-style-7abb3a4e" >Scanning...</span>';
+                                p.hitsEl.innerHTML = '<span style="color: var(--text-muted);">Scanning...</span>';
                             }
                         }
                     }
@@ -1905,63 +1820,63 @@
             let html = '';
             
             if (sourceName.includes('Facebook')) {
-                html += `<div class="auto-style-7b067805" >Profile Identified: <span class="auto-style-6eb4b668" >John Doe ('johndoe85')</span></div>
-                         <div class="auto-style-293ccbf5" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Profile Identified: <span style="color: var(--accent);">John Doe ('johndoe85')</span></div>
+                         <div style="color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                              <span>Created: 2011</span>
                              <span>Friends: 492 Public</span>
                              <span>Last Login: 4 hrs ago</span>
                              <span>Location: Dallas, TX</span>
                          </div>`;
             } else if (sourceName.includes('Twitter') || sourceName.includes('X')) {
-                html += `<div class="auto-style-7b067805" >Handle: <span class="auto-style-6eb4b668" >@johndoe_crypto</span></div>
-                         <div class="auto-style-293ccbf5" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Handle: <span style="color: var(--accent);">@johndoe_crypto</span></div>
+                         <div style="color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                              <span>Tweets: 1,402</span>
                              <span>Followers: 890</span>
                              <span>Last Tweet: Yesterday</span>
                          </div>`;
             } else if (sourceName.includes('Instagram')) {
-                html += `<div class="auto-style-7b067805" >Account: <span class="auto-style-6eb4b668" >@jd_adventures</span></div>
-                         <div class="auto-style-293ccbf5" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Account: <span style="color: var(--accent);">@jd_adventures</span></div>
+                         <div style="color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                              <span>Posts: 45</span>
                              <span>Linked FB: Yes</span>
                          </div>`;
             } else if (sourceName.includes('LinkedIn')) {
-                html += `<div class="auto-style-7b067805" >Profile: <span class="auto-style-6eb4b668" >Johnathan Doe</span></div>
-                         <div class="auto-style-293ccbf5" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Profile: <span style="color: var(--accent);">Johnathan Doe</span></div>
+                         <div style="color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                              <span>Company: Tech Innovators Inc.</span>
                              <span>Title: Senior Engineer</span>
                              <span>Location: Greater Dallas Area</span>
                          </div>`;
             } else if (sourceName.includes('Snap Chat')) {
-                html += `<div class="auto-style-7b067805" >Ephemeral Map Node <span class="auto-style-e118d5ea" >(Live Ping)</span></div>
-                         <div class="auto-style-91cd9f69" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Ephemeral Map Node <span style="color: #28a745;">(Live Ping)</span></div>
+                         <div style="color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
                              <span>Alias: jdoe_spectre</span>
                              <span>Latest Ping: Austin MSA (1.2 mi radius)</span>
                          </div>`;
             } else if (sourceName.includes('WhitePages') || sourceName.includes('LexisNexis')) {
-                html += `<div class="auto-style-7b067805" >Identity Match <span class="auto-style-e118d5ea" >(High Confidence)</span></div>
-                         <div class="auto-style-91cd9f69" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Identity Match <span style="color: #28a745;">(High Confidence)</span></div>
+                         <div style="color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
                              <span>Phone: (555) 019-2834 (Active)</span>
                              <span>Address History: 1492 Elm Street, Dallas TX</span>
                              <span>Known Relatives: Jane Doe (Spouse)</span>
                          </div>`;
             } else if (sourceName.includes('DMV')) {
-                html += `<div class="auto-style-7b067805" >Vehicle Registration Found</div>
-                         <div class="auto-style-293ccbf5" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Vehicle Registration Found</div>
+                         <div style="color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                              <span>License Plate: TX MJR-9382</span>
                              <span>Vehicle: 2021 Toyota Tacoma</span>
                              <span>Status: Active</span>
                          </div>`;
             } else if (sourceName.includes('TransUnion')) {
-                html += `<div class="auto-style-7b067805" >Credit Header Match</div>
-                         <div class="auto-style-91cd9f69" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Credit Header Match</div>
+                         <div style="color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
                              <span>SSN Match: XXX-XX-4921</span>
                              <span>Last Reported: 12 days ago</span>
                              <span>Address: 1492 Elm Street, Dallas TX</span>
                          </div>`;
             } else {
-                html += `<div class="auto-style-7b067805" >Intelligence Fragments Recovered</div>
-                         <div class="auto-style-7abb3a4e" >
+                html += `<div style="color: white; font-weight: bold; margin-bottom: 5px;">Intelligence Fragments Recovered</div>
+                         <div style="color: var(--text-muted);">
                              <span>${hitCount} unstructured cross-references observed. Data appended to final dossier.</span>
                          </div>`;
             }
@@ -1973,18 +1888,18 @@
 
             function section(icon, title, color, searched, rows) {
                 const rowsHtml = rows.map(([label, value]) => `
-                    <div class="auto-style-b3c6219e" >
-                        <span class="auto-style-42290d66" >${label}</span>
-                        <span class="auto-style-7f375f62" >${value}</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border-color, rgba(255,255,255,0.04));">
+                        <span style="color:var(--text-muted);font-size:0.88rem;flex:1;">${label}</span>
+                        <span style="color:var(--text-dark, #fff);font-size:0.88rem;text-align:right;flex:1.5;font-weight:600;">${value}</span>
                     </div>`).join('');
-                const searchedHtml = searched ? `<div class="auto-style-3b022750" >Searched: <span class="searched-term">${searched}</span></div>` : '';
+                const searchedHtml = searched ? `<div style="background:var(--surface-color, rgba(255,255,255,0.04));border-radius:4px;padding:6px 12px;margin-bottom:1rem;font-size:0.8rem;color:var(--text-muted);">Searched: <span style="color:${color};font-family:monospace;font-weight:600;">${searched}</span></div>` : '';
                 return `
-                    <div class="person-card border-top-dynamic" class="person-card">
-                        <div class="auto-style-37ff55eb" >
-                            <h4 class="auto-style-49e47e80" >
-                                <i class="${icon}" class="icon-dynamic"></i> ${title}
+                    <div style="background:var(--surface-color, rgba(0,0,0,0.4));border:1px solid var(--border-color, rgba(255,255,255,0.06));border-top:2px solid ${color};border-radius:8px;padding:1.4rem;margin-bottom:0;" class="person-card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                            <h4 style="color:var(--text-dark, #fff);margin:0;font-size:0.95rem;display:flex;align-items:center;gap:8px;">
+                                <i class="${icon}" style="color:${color};width:18px;"></i> ${title}
                             </h4>
-                            <span class="auto-style-226c4160" >&#10003; MATCH FOUND</span>
+                            <span style="background:rgba(40,167,69,0.15);color:#28a745;border:1px solid rgba(40,167,69,0.3);font-size:0.72rem;padding:2px 10px;border-radius:20px;font-weight:600;white-space:nowrap;">&#10003; MATCH FOUND</span>
                         </div>
                         ${searchedHtml}
                         <div>${rowsHtml}</div>
@@ -1995,10 +1910,10 @@
             const searchedText = Object.values(searchPayload).join(' | ');
 
             if (!apiResults || apiResults.length === 0) {
-                sections.push(`<div class="auto-style-cf8d1f3f" >
-                    <i class="fa-solid fa-ghost auto-style-ce9a46b9" ></i>
+                sections.push(`<div style="text-align:center;padding:3rem;color:var(--text-muted);grid-column:1/-1;">
+                    <i class="fa-solid fa-ghost" style="font-size:2.5rem;margin-bottom:1rem;opacity:0.4;display:block;"></i>
                     <p>No digital footprint discovered for these parameters.</p>
-                    <p class="auto-style-33dd45cd" >Try adjusting the search criteria or broadening the operational scope.</p>
+                    <p style="font-size: 0.9rem;">Try adjusting the search criteria or broadening the operational scope.</p>
                 </div>`);
             } else {
                 apiResults.forEach((person, index) => {
@@ -2015,8 +1930,8 @@
                     // PHONES
                     if (person.Phones && person.Phones.length > 0) {
                         let phoneRows = person.Phones.map((p, i) => {
-                            let statusHtml = p.status === 'Active' ? '<span class="auto-style-caaaed57" >Active</span>' : '<span class="auto-style-78cb6a98" >Disconnected</span>';
-                            let litHtml = p.is_litigator ? '<span class="auto-style-061da737" >[LITIGATOR]</span>' : '';
+                            let statusHtml = p.status === 'Active' ? '<span style="color:#28a745;">Active</span>' : '<span style="color:#e74c3c;">Disconnected</span>';
+                            let litHtml = p.is_litigator ? '<span style="color:#e74c3c;font-size:0.7rem;margin-left:5px;">[LITIGATOR]</span>' : '';
                             return [`Phone ${i+1}`, `${p.number} ${statusHtml} ${litHtml}`];
                         });
                         sections.push(section('fa-solid fa-phone', `Telephony Records #${index + 1}`, '#00e5ff', '', phoneRows));
@@ -2026,7 +1941,7 @@
                     if (person.Emails && person.Emails.length > 0) {
                         let emailRows = person.Emails.map((e, i) => {
                             let style = e.email.includes('FLAG:') ? 'color:#e74c3c;font-weight:bold;' : 'color:#00e5ff;';
-                            return [`Email ${i+1}`, `<span class="email-dynamic">${e.email}</span>`];
+                            return [`Email ${i+1}`, `<span style="${style}">${e.email}</span>`];
                         });
                         sections.push(section('fa-solid fa-envelope', `Digital Fingerprint #${index + 1}`, '#a78bfa', '', emailRows));
                     }
@@ -2034,11 +1949,11 @@
             }
 
             dossier.innerHTML = `
-                <hr class="auto-style-febb6488" >
-                <h3 class="auto-style-dd5a1417" >
+                <hr style="border-color:rgba(255,255,255,0.1);margin:3rem 0 2rem;">
+                <h3 style="color:#00e5ff;margin-bottom:2rem;border-bottom:2px solid rgba(0,229,255,0.3);padding-bottom:1rem;display:inline-block;">
                     <i class="fa-solid fa-folder-open"></i> Intelligence Dossier
                 </h3>
-                <div id="main-dossier-grid" class="auto-style-aa0c74cf" >
+                <div id="main-dossier-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
                     ${sections.join('')}
                 </div>`;
 
@@ -2086,12 +2001,12 @@
                 const wrapper = document.createElement('div');
                 wrapper.style.marginBottom = '1.5rem';
                 wrapper.innerHTML = `
-                    <div class="auto-style-33f0c456" >
-                        <span class="auto-style-4dd2065d" ><i class="fa-brands fa-${icon}"></i> ${platform} DB</span>
-                        <span class="auto-style-4b115b91"  id="social-status-${platform.replace(/\s+/g,'')}">Scanning 0 / ${totalProfiles} Profiles</span>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: white; font-size: 0.9rem; font-weight: bold;"><i class="fa-brands fa-${icon}"></i> ${platform} DB</span>
+                        <span style="color: var(--accent); font-size: 0.85rem;" id="social-status-${platform.replace(/\s+/g,'')}">Scanning 0 / ${totalProfiles} Profiles</span>
                     </div>
-                    <div class="auto-style-6f0d73b0" >
-                        <div id="social-bar-${platform.replace(/\s+/g,'')}" class="auto-style-85eba15b" ></div>
+                    <div style="width: 100%; height: 8px; background: var(--bg-color); border-radius: 4px; overflow: hidden;">
+                        <div id="social-bar-${platform.replace(/\s+/g,'')}" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.2s linear;"></div>
                     </div>
                 `;
                 container.appendChild(wrapper);
@@ -2150,7 +2065,7 @@
                 resContainer.style.paddingTop = '2rem';
                 document.getElementById('social-progress-container').appendChild(resContainer);
             }
-            resContainer.innerHTML = '<h4 class="auto-style-af835371" ><i class="fa-solid fa-bullseye auto-style-e118d5ea" ></i> Facial Geometry Matches Found</h4>';
+            resContainer.innerHTML = '<h4 style="color: var(--text-dark); margin-bottom: 1.5rem;"><i class="fa-solid fa-bullseye" style="color: #28a745;"></i> Facial Geometry Matches Found</h4>';
             
             // Generate 1-3 mock results randomly
             const hitCount = Math.floor(Math.random() * 3) + 1;
@@ -2181,18 +2096,18 @@
                 card.style.alignItems = 'flex-start';
                 
                 card.innerHTML = `
-                    <div class="auto-style-23798389" >
+                    <div style="width: 80px; height: 80px; background: var(--bg-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #00e5ff;">
                         <i class="fa-solid fa-user-astronaut"></i>
                     </div>
-                    <div class="auto-style-49cdf874" >
-                        <h4 class="auto-style-4a537a56" >${handle} <span class="auto-style-685e2ddc" >${(92 + (Math.random() * 7)).toFixed(1)}% Biometric Match</span></h4>
-                        <p class="auto-style-6a7da107" ><i class="fa-brands fa-${icon} auto-style-9ad50939" ></i> <strong class="auto-style-b4b63308" >${platform}</strong> | Status: Active | Last Seen: Today</p>
+                    <div style="flex: 1;">
+                        <h4 style="color: var(--text-dark); margin: 0 0 0.5rem 0;">${handle} <span style="font-size: 0.8rem; background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745; padding: 2px 8px; border-radius: 4px; margin-left: 10px; font-weight: bold;">${(92 + (Math.random() * 7)).toFixed(1)}% Biometric Match</span></h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1rem 0;"><i class="fa-brands fa-${icon}" style="color: white; margin-right: 5px;"></i> <strong style="color: #00e5ff;">${platform}</strong> | Status: Active | Last Seen: Today</p>
                         
-                        <div class="auto-style-3117a098" >
-                            <div><strong class="auto-style-7abb3a4e" >Associated Email:</strong><br>${handle}@proton.me</div>
-                            <div><strong class="auto-style-7abb3a4e" >Account Created:</strong><br>March 2019</div>
-                            <div><strong class="auto-style-7abb3a4e" >Followers/Friends:</strong><br>${Math.floor(Math.random()*5000)}</div>
-                            <div><strong class="auto-style-7abb3a4e" >Location ID:</strong><br>Dallas, TX Node Analysis</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 6px;">
+                            <div><strong style="color: var(--text-muted);">Associated Email:</strong><br>${handle}@proton.me</div>
+                            <div><strong style="color: var(--text-muted);">Account Created:</strong><br>March 2019</div>
+                            <div><strong style="color: var(--text-muted);">Followers/Friends:</strong><br>${Math.floor(Math.random()*5000)}</div>
+                            <div><strong style="color: var(--text-muted);">Location ID:</strong><br>Dallas, TX Node Analysis</div>
                         </div>
                     </div>
                 `;
@@ -2250,9 +2165,9 @@
             document.getElementById('batch-permissible-purpose').disabled = false;
             
             // Reset Dropzone UI
-            dropZone.innerHTML = `<i class="fa-solid fa-file-csv auto-style-d8e76151" ></i>
-                                  <h4 class="auto-style-be93e358" >Drag & Drop CSV</h4>
-                                  <p class="auto-style-44ded870" >or click to select file from your computer</p>`;
+            dropZone.innerHTML = `<i class="fa-solid fa-file-csv" style="font-size: 3rem; color: var(--text-dark); margin-bottom: 1rem;"></i>
+                                  <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">Drag & Drop CSV</h4>
+                                  <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">or click to select file from your computer</p>`;
             batchFileInput.value = '';
             validateBatchPurpose();
         }
@@ -2321,7 +2236,7 @@
                             if (limitDisplay && providerData.limit_max > 0) {
                                 limitDisplay.style.display = "block";
                                 const remaining = Math.max(0, providerData.limit_max - providerData.limit_used);
-                                limitDisplay.innerHTML = `<span class="${remaining < 20 ? 'text-danger font-bold' : 'text-white font-bold'}">${remaining.toLocaleString()}</span> / ${providerData.limit_max.toLocaleString()} Remaining`;
+                                limitDisplay.innerHTML = `<span style="color: ${remaining < 20 ? '#ff4d4d' : 'white'}; font-weight:bold;">${remaining.toLocaleString()}</span> / ${providerData.limit_max.toLocaleString()} Remaining`;
                             }
 
                             // Update Toggle checked status
@@ -2604,8 +2519,8 @@
             row.style.cssText = "display: flex; gap: 10px; align-items: center;";
             row.className = "cc-input-row";
             row.innerHTML = `
-                <input title="XXXX-XXXX-XXXX-XXXX" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" class="standard-input cc-input-element auto-style-49cdf874" autocomplete="off" maxlength="19" >
-                <button type="button" onclick="this.parentElement.remove()" class="auto-style-8b404db1" ><i class="fa-solid fa-trash-can"></i></button>
+                <input type="text" placeholder="XXXX-XXXX-XXXX-XXXX" class="standard-input cc-input-element" autocomplete="off" maxlength="19" style="flex: 1;">
+                <button type="button" onclick="this.parentElement.remove()" style="background: transparent; border: none; color: #dc3545; cursor: pointer; padding: 5px;"><i class="fa-solid fa-trash-can"></i></button>
             `;
             container.appendChild(row);
         }
@@ -2616,9 +2531,9 @@
             row.style.cssText = "display: flex; gap: 10px; align-items: center;";
             row.className = "bank-input-row";
             row.innerHTML = `
-                <input title="Routing #..." type="text" placeholder="Routing #..."  class="standard-input routing-input auto-style-49cdf874" autocomplete="off" maxlength="9">
-                <input title="Account #..." type="text" placeholder="Account #..."  class="standard-input account-input auto-style-36ae11e9" autocomplete="off">
-                <button type="button" onclick="this.parentElement.remove()" class="auto-style-8b404db1" ><i class="fa-solid fa-trash-can"></i></button>
+                <input type="text" placeholder="Routing #..." style="flex: 1;" class="standard-input routing-input" autocomplete="off" maxlength="9">
+                <input type="text" placeholder="Account #..." style="flex: 2;" class="standard-input account-input" autocomplete="off">
+                <button type="button" onclick="this.parentElement.remove()" style="background: transparent; border: none; color: #dc3545; cursor: pointer; padding: 5px;"><i class="fa-solid fa-trash-can"></i></button>
             `;
             container.appendChild(row);
         }
@@ -2769,13 +2684,13 @@
                 fbCard.className = "stat-group";
                 fbCard.style.cssText = "border-left: 3px solid #1877F2; padding-left: 15px;";
                 fbCard.innerHTML = `
-                    <div class="stat-label auto-style-4880b80d" ><i class="fa-brands fa-facebook"></i> Facebook Profile (Active)</div>
-                    <div class="stat-value auto-style-d6a2acf2" >
-                        <ul class="auto-style-d7b8ceae" >
-                            <li class="auto-style-7d2d11b9" ><strong>Profile:</strong> John Doe ('johndoe85')</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Created:</strong> 2011</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Friends:</strong> 492 Public</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Last Login:</strong> 4 hrs ago</li>
+                    <div class="stat-label" style="color: #1877F2;"><i class="fa-brands fa-facebook"></i> Facebook Profile (Active)</div>
+                    <div class="stat-value" style="font-size: 0.9rem; margin-top: 10px;">
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 5px;"><strong>Profile:</strong> John Doe ('johndoe85')</li>
+                            <li style="margin-bottom: 5px;"><strong>Created:</strong> 2011</li>
+                            <li style="margin-bottom: 5px;"><strong>Friends:</strong> 492 Public</li>
+                            <li style="margin-bottom: 5px;"><strong>Last Login:</strong> 4 hrs ago</li>
                             <li><strong>Location:</strong> Dallas, TX</li>
                         </ul>
                     </div>
@@ -2788,12 +2703,12 @@
                 xCard.className = "stat-group";
                 xCard.style.cssText = "border-left: 3px solid #1DA1F2; padding-left: 15px;"; // Standard blue for old twitter or white for X depending on theme, using blue for visual pop
                 xCard.innerHTML = `
-                    <div class="stat-label auto-style-b1824794" ><i class="fa-brands fa-twitter"></i> X / Twitter Feed</div>
-                    <div class="stat-value auto-style-d6a2acf2" >
-                         <ul class="auto-style-d7b8ceae" >
-                            <li class="auto-style-7d2d11b9" ><strong>Handle:</strong> @johndoe_crypto</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Tweets:</strong> 1,402</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Followers:</strong> 890</li>
+                    <div class="stat-label" style="color: #1DA1F2;"><i class="fa-brands fa-twitter"></i> X / Twitter Feed</div>
+                    <div class="stat-value" style="font-size: 0.9rem; margin-top: 10px;">
+                         <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 5px;"><strong>Handle:</strong> @johndoe_crypto</li>
+                            <li style="margin-bottom: 5px;"><strong>Tweets:</strong> 1,402</li>
+                            <li style="margin-bottom: 5px;"><strong>Followers:</strong> 890</li>
                             <li><strong>Last Tweet:</strong> Yesterday</li>
                         </ul>
                     </div>
@@ -2806,13 +2721,13 @@
                 igCard.className = "stat-group";
                 igCard.style.cssText = "border-left: 3px solid #E1306C; padding-left: 15px;";
                 igCard.innerHTML = `
-                    <div class="stat-label auto-style-921a623d" ><i class="fa-brands fa-instagram"></i> Instagram Presence</div>
-                    <div class="stat-value auto-style-d6a2acf2" >
-                        <div class="auto-style-808c4d04" >
-                            <span class="auto-style-04d9d821" >Public Profile</span>
+                    <div class="stat-label" style="color: #E1306C;"><i class="fa-brands fa-instagram"></i> Instagram Presence</div>
+                    <div class="stat-value" style="font-size: 0.9rem; margin-top: 10px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                            <span style="background: rgba(225, 48, 108, 0.1); padding: 2px 6px; border-radius: 4px;">Public Profile</span>
                         </div>
-                        <ul class="auto-style-d7b8ceae" >
-                            <li class="auto-style-7d2d11b9" ><strong>Username:</strong> john_d_photography</li>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 5px;"><strong>Username:</strong> john_d_photography</li>
                             <li><strong>Bio:</strong> "Just exploring" | <strong>Posts:</strong> 47</li>
                         </ul>
                     </div>
@@ -2825,11 +2740,11 @@
                 dmvCard.className = "stat-group";
                 dmvCard.style.cssText = "border-left: 3px solid var(--accent); padding-left: 15px;";
                 dmvCard.innerHTML = `
-                    <div class="stat-label auto-style-6eb4b668" ><i class="fa-solid fa-car"></i> DMV Public Records</div>
-                    <div class="stat-value auto-style-d6a2acf2" >
-                         <ul class="auto-style-d7b8ceae" >
-                            <li class="auto-style-7d2d11b9" ><strong>Vehicle:</strong> 2019 Toyota Tacoma (Black)</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Plate:</strong> TX - RKJ9422 <span class="auto-style-697a247b" >(Expires 2025)</span></li>
+                    <div class="stat-label" style="color: var(--accent);"><i class="fa-solid fa-car"></i> DMV Public Records</div>
+                    <div class="stat-value" style="font-size: 0.9rem; margin-top: 10px;">
+                         <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 5px;"><strong>Vehicle:</strong> 2019 Toyota Tacoma (Black)</li>
+                            <li style="margin-bottom: 5px;"><strong>Plate:</strong> TX - RKJ9422 <span style="color:var(--text-muted);">(Expires 2025)</span></li>
                             <li><strong>Status:</strong> Clear</li>
                         </ul>
                     </div>
@@ -2842,11 +2757,11 @@
                 wpCard.className = "stat-group";
                 wpCard.style.cssText = "border-left: 3px solid #0088cc; padding-left: 15px;";
                 wpCard.innerHTML = `
-                    <div class="stat-label auto-style-1d77483f" ><i class="fa-solid fa-file-invoice"></i> WhitePages Premium</div>
-                    <div class="stat-value auto-style-d6a2acf2" >
-                         <ul class="auto-style-d7b8ceae" >
-                            <li class="auto-style-7d2d11b9" ><strong>Property:</strong> Multi-Family Unit, Dallas TX</li>
-                            <li class="auto-style-7d2d11b9" ><strong>Financial:</strong> No Bankruptcies</li>
+                    <div class="stat-label" style="color: #0088cc;"><i class="fa-solid fa-file-invoice"></i> WhitePages Premium</div>
+                    <div class="stat-value" style="font-size: 0.9rem; margin-top: 10px;">
+                         <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 5px;"><strong>Property:</strong> Multi-Family Unit, Dallas TX</li>
+                            <li style="margin-bottom: 5px;"><strong>Financial:</strong> No Bankruptcies</li>
                             <li><strong>Lien Status:</strong> Clear</li>
                         </ul>
                     </div>
@@ -3005,7 +2920,7 @@
             alertBox.style.padding = '1rem';
             alertBox.style.borderRadius = '8px';
             alertBox.style.zIndex = '9999';
-            alertBox.innerHTML = '<i class="fa-solid fa-microphone-lines auto-style-680b7cb1" ></i> Guided Tour Active. Use the volume slider to adjust.';
+            alertBox.innerHTML = '<i class="fa-solid fa-microphone-lines" style="color: #ff4757; margin-right: 10px;"></i> Guided Tour Active. Use the volume slider to adjust.';
             document.body.appendChild(alertBox);
 
             // Start Guided Tour
@@ -3087,9 +3002,9 @@
 
             // Fake file drop
             const fDrop = document.getElementById('drop-zone');
-            fDrop.innerHTML = `<i class="fa-solid fa-file-circle-check auto-style-ed37e86d" ></i>
-                                      <h4 class="auto-style-be93e358" >skip_trace_targets_v2.csv</h4>
-                                      <p class="auto-style-44ded870" >2,450.2 KB Ready to Process</p>`;
+            fDrop.innerHTML = `<i class="fa-solid fa-file-circle-check" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem;"></i>
+                                      <h4 style="color: var(--text-dark); margin-bottom: 0.5rem;">skip_trace_targets_v2.csv</h4>
+                                      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">2,450.2 KB Ready to Process</p>`;
             document.getElementById('batch-permissible-purpose').value = 'real_estate';
             document.getElementById('btn-batch-submit').disabled = false;
             document.getElementById('btn-batch-submit').style.opacity = '1';
@@ -3225,7 +3140,7 @@
                 const history = await res.json();
                 
                 if (!history || history.length === 0) {
-                    container.innerHTML = '<p class="auto-style-b20a13f3" ><i class="fa-solid fa-ghost auto-style-2bc7cf97" ></i>No search history yet. Run a trace to get started.</p>';
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;"><i class="fa-solid fa-ghost" style="font-size: 1.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block;"></i>No search history yet. Run a trace to get started.</p>';
                     countEl.textContent = '';
                     return;
                 }
@@ -3256,16 +3171,16 @@
                     card.onmouseleave = () => card.style.borderColor = 'var(--border-color)';
                     
                     card.innerHTML = `
-                        <div class="auto-style-49cdf874" >
-                            <div class="auto-style-d773f47f" >${summary}</div>
-                            <div class="auto-style-ad231d66" >
-                                <i class="fa-solid fa-clock auto-style-8190fa45" ></i>${date}
+                        <div style="flex: 1;">
+                            <div style="color: var(--text-dark, #fff); font-weight: 600; margin-bottom: 4px;">${summary}</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">
+                                <i class="fa-solid fa-clock" style="margin-right: 4px;"></i>${date}
                                 &nbsp;&nbsp;·&nbsp;&nbsp;
-                                <i class="fa-solid fa-users auto-style-8190fa45" ></i>${resultCount} result${resultCount !== 1 ? 's' : ''}
+                                <i class="fa-solid fa-users" style="margin-right: 4px;"></i>${resultCount} result${resultCount !== 1 ? 's' : ''}
                             </div>
                         </div>
                         <a href="/api/v1/traku/search-history/${entry.id}/export" 
-                           class="auto-style-daa1d04c" 
+                           style="display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap; transition: opacity 0.2s;"
                            onmouseenter="this.style.opacity='0.8'" onmouseleave="this.style.opacity='1'"
                            title="Download CSV">
                             <i class="fa-solid fa-file-csv"></i> CSV
@@ -3352,7 +3267,7 @@
         }
         function toggleAuthMode() {
             authMode = authMode === 'login' ? 'register' : 'login';
-            document.getElementById('auth-modal-title').innerHTML = authMode === 'login' ? '<i class="fa-solid fa-user auto-style-7066c4b1" ></i>Sign In' : '<i class="fa-solid fa-user-plus auto-style-7066c4b1" ></i>Create Account';
+            document.getElementById('auth-modal-title').innerHTML = authMode === 'login' ? '<i class="fa-solid fa-user" style="color: var(--accent); margin-right:10px;"></i>Sign In' : '<i class="fa-solid fa-user-plus" style="color: var(--accent); margin-right:10px;"></i>Create Account';
             document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
             document.getElementById('auth-toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
         }
@@ -3476,109 +3391,87 @@
             }
         });
     </script>
-    
-    <!-- Architecture Modal -->
-    <div id="architecture-modal" class="auto-style-a279968b" >
-        <div class="auto-style-5c39a901" >
-            <div class="auto-style-86731da6" >
-                <h2 class="auto-style-c1596049" ><i class="fa-solid fa-diagram-project auto-style-7066c4b1" ></i>Architecture & Data Flows</h2>
-                <button onclick="closeArchitectureModal()" class="auto-style-1bd09704" >&times;</button>
-            </div>
-            <div class="auto-style-d271ab13" >
-                <h3 class="auto-style-cb643dd3" >API Orchestration (FastAPI)</h3>
-                <p>Traku utilizes a high-performance ASGI Python framework to orchestrate parallel API calls across distinct OSINT data vendors (AbstractAPI, Numverify, People Data Labs) minimizing search resolution time.</p>
-                
-                <h3 class="auto-style-01b0190f" >Identity Resolution Engine</h3>
-                <p>Raw JSON returns are synthesized in real-time, matching overlapping identity keys (phone, email hashes) to build a unified Target Profile dynamically.</p>
-                
-                <h3 class="auto-style-01b0190f" >Batch Processing Pipeline</h3>
-                <p>The system natively supports asynchronous bulk processing of flat files (.CSV), utilizing background Web Workers to prevent UI blocking during massive data ingestion.</p>
-                
-                <div class="auto-style-78759c28" >
-                    <button onclick="closeArchitectureModal(); openConsultingModal('Traku / OSINT Dashboard');" class="btn-search auto-style-a7c7ef08" >
+<!-- Architecture Modal -->
+<div id="architecture-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center;">
+<div style="background: var(--bg-color); border: 1px solid var(--accent); width: 90%; max-width: 800px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(192, 108, 59, 0.2);">
+<div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+<h2 style="margin: 0; font-size: 1.3rem; color: var(--text-dark);"><i class="fa-solid fa-diagram-project" style="color: var(--accent); margin-right:10px;"></i>Architecture &amp; Data Flows</h2>
+<button onclick="closeArchitectureModal()" style="background: transparent; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer;">×</button>
+</div>
+<div style="padding: 2rem; max-height: 70vh; overflow-y: auto; color: var(--text-muted); line-height: 1.6;">
+<h3 style="color: var(--text-dark); margin-top:0;">API Orchestration (FastAPI)</h3>
+<p>Traku utilizes a high-performance ASGI Python framework to orchestrate parallel API calls across distinct OSINT data vendors (AbstractAPI, Numverify, People Data Labs) minimizing search resolution time.</p>
+<h3 style="color: var(--text-dark);">Identity Resolution Engine</h3>
+<p>Raw JSON returns are synthesized in real-time, matching overlapping identity keys (phone, email hashes) to build a unified Target Profile dynamically.</p>
+<h3 style="color: var(--text-dark);">Batch Processing Pipeline</h3>
+<p>The system natively supports asynchronous bulk processing of flat files (.CSV), utilizing background Web Workers to prevent UI blocking during massive data ingestion.</p>
+<div style="margin-top: 2rem; text-align: center;">
+<button class="btn-search" onclick="closeArchitectureModal(); openConsultingModal('Traku / OSINT Dashboard');" style="border-radius: 30px; padding: 0.8rem 2rem;">
                         Discuss Custom Implementation
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Consulting Modal -->
-    <div id="consulting-modal" class="auto-style-eba935eb" >
-        <div class="auto-style-e937eefd" >
-            <div class="auto-style-86731da6" >
-                <h2 class="auto-style-ab11e47d" ><i class="fa-solid fa-briefcase auto-style-f7ab4d91" ></i>Request Enterprise Pitch</h2>
-                <button onclick="closeConsultingModal()" class="auto-style-1bd09704" >&times;</button>
-            </div>
-            <div class="auto-style-46105dcd" >
-                <p class="auto-style-06607fee" >Interested in customizing this technology for your organization? Send us your details and an architect will reach out.</p>
-                <form id="consulting-form" onsubmit="submitConsultingLead(event)">
-                    <input type="hidden" id="consulting-project-interest">
-                    
-                    <div class="auto-style-4986ecf7" >
-                        <label class="auto-style-45b0316a" >Full Name *</label>
-                        <input title="Consulting Name" type="text" id="consulting-name" required class="auto-style-e8e23344" >
-                    </div>
-                    
-                    <div class="auto-style-4986ecf7" >
-                        <label class="auto-style-45b0316a" >Work Email *</label>
-                        <input title="Consulting Email" type="email" id="consulting-email" required class="auto-style-e8e23344" >
-                    </div>
-                    
-                    <div class="auto-style-d3297f95" >
-                        <label class="auto-style-45b0316a" >Company Name (Optional)</label>
-                        <input title="Consulting Company" type="text" id="consulting-company" class="auto-style-e8e23344" >
-                    </div>
-                    
-                    <button type="submit" id="consulting-submit-btn" class="btn-search auto-style-c922d622" >
+</div>
+</div>
+</div>
+</div>
+<!-- Consulting Modal -->
+<div id="consulting-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2500; align-items: center; justify-content: center;">
+<div style="background: var(--bg-color); border: 1px solid #2ea043; width: 90%; max-width: 500px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(46, 160, 67, 0.2);">
+<div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+<h2 style="margin: 0; font-size: 1.2rem; color: var(--text-dark);"><i class="fa-solid fa-briefcase" style="color: #2ea043; margin-right:10px;"></i>Request Enterprise Pitch</h2>
+<button onclick="closeConsultingModal()" style="background: transparent; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer;">×</button>
+</div>
+<div style="padding: 2rem;">
+<p style="color: var(--text-muted); margin-top: 0; margin-bottom: 1.5rem;">Interested in customizing this technology for your organization? Send us your details and an architect will reach out.</p>
+<form id="consulting-form" onsubmit="submitConsultingLead(event)">
+<input id="consulting-project-interest" type="hidden"/>
+<div style="margin-bottom: 1rem;">
+<label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Full Name *</label>
+<input id="consulting-name" required="" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;" type="text"/>
+</div>
+<div style="margin-bottom: 1rem;">
+<label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Work Email *</label>
+<input id="consulting-email" required="" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;" type="email"/>
+</div>
+<div style="margin-bottom: 1.5rem;">
+<label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Company Name (Optional)</label>
+<input id="consulting-company" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;" type="text"/>
+</div>
+<button class="btn-search" id="consulting-submit-btn" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0; background-color: #2ea043; border-color: #2ea043; color: white;" type="submit">
                         Submit Request
                     </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="auto-style-4df2be3c" >
-        <div class="auto-style-3dcd99bc" >
-            <div class="auto-style-86731da6" >
-                <h2 class="auto-style-ab11e47d"  id="auth-modal-title"><i class="fa-solid fa-user auto-style-7066c4b1" ></i>Sign In</h2>
-                <button onclick="closeAuthModal()" class="auto-style-1bd09704" >&times;</button>
-            </div>
-            <div class="auto-style-46105dcd" >
-                <form id="auth-form" onsubmit="submitAuth(event)">
-                    <p id="auth-error" class="auto-style-f198e499" ></p>
-                    
-                    <div class="auto-style-4986ecf7" >
-                        <label class="auto-style-45b0316a" >Email Address</label>
-                        <input title="Auth Email" type="email" id="auth-email" required class="auto-style-e8e23344" >
-                    </div>
-                    
-                    <div class="auto-style-d3297f95" >
-                        <label class="auto-style-45b0316a" >Password</label>
-                        <input title="Auth Password" type="password" id="auth-password" required class="auto-style-e8e23344" >
-                    </div>
-                    
-                    <button type="submit" id="auth-submit-btn" class="btn-search auto-style-8e66fcc7" >
+</form>
+</div>
+</div>
+</div>
+<!-- Auth Modal -->
+<div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 3000; align-items: center; justify-content: center;">
+<div style="background: var(--bg-color); border: 1px solid var(--accent); width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(192, 108, 59, 0.2);">
+<div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+<h2 id="auth-modal-title" style="margin: 0; font-size: 1.2rem; color: var(--text-dark);"><i class="fa-solid fa-user" style="color: var(--accent); margin-right:10px;"></i>Sign In</h2>
+<button onclick="closeAuthModal()" style="background: transparent; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer;">×</button>
+</div>
+<div style="padding: 2rem;">
+<form id="auth-form" onsubmit="submitAuth(event)">
+<p id="auth-error" style="color: #ff4444; font-size: 0.85rem; display: none; margin-top: 0; margin-bottom: 1rem;"></p>
+<div style="margin-bottom: 1rem;">
+<label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Email Address</label>
+<input id="auth-email" required="" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;" type="email"/>
+</div>
+<div style="margin-bottom: 1.5rem;">
+<label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-size: 0.9rem;">Password</label>
+<input id="auth-password" required="" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-dark); border-radius: 4px; box-sizing: border-box;" type="password"/>
+</div>
+<button class="btn-search" id="auth-submit-btn" style="width: 100%; border-radius: 6px; padding: 1rem; margin: 0;" type="submit">
                         Sign In
                     </button>
-                    
-                    <div class="auto-style-8bb47317" >
-                        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link" class="auto-style-bd04ff7a" >Need an account? Sign up</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <script src="/static/cms.js"></script>
-
-    <script src="static/analytics.js"></script>
+<div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+<a href="#" id="auth-toggle-link" onclick="toggleAuthMode()" style="color: var(--accent); text-decoration: none;">Need an account? Sign up</a>
+</div>
+</form>
+</div>
+</div>
+</div>
+<script src="/static/cms.js"></script>
+<script src="static/analytics.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-

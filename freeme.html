@@ -350,7 +350,6 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
             z-index: 9999;
             display: flex;
@@ -526,17 +525,18 @@
             }
         }
     </style>
-    
-
-    <style>
-        .risk-high-icon { color: #ef4444; background: #ef444422; }
-        .risk-medium-icon { color: #f59e0b; background: #f59e0b22; }
-        .risk-high-badge { font-size: 0.6rem; padding: 2px 6px; background: #ef444444; color: #ef4444; border-radius: 4px; text-transform: uppercase; }
-        .risk-medium-badge { font-size: 0.6rem; padding: 2px 6px; background: #f59e0b44; color: #f59e0b; border-radius: 4px; text-transform: uppercase; }
-        .text-na { color: var(--text-muted); font-size: 1.1rem; }
-        .text-value { color: #00e5ff; font-size: 1.1rem; }
-    </style>
-    </head>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
 <body>
 <header>
 <div class="logo-container">
@@ -551,26 +551,26 @@
 <li><a href="merchandise.html">Merchandise</a></li>
 <li><a href="contact.html">Contact</a></li>
 </ul>
-<div class="header-actions auto-style-a2d15cf2" >
-<div id="demo-header-container" class="auto-style-38b0f6f5" >
-    <button id="btn-play-demo" onclick="runGuidedDemo()" class="auto-style-928ec852" >
-        <i class="fa-solid fa-play"></i> Demo
+<div class="header-actions" style="gap: 1.5rem;">
+<div id="demo-header-container" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+<button id="btn-play-demo" onclick="runGuidedDemo()" style="background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+<i class="fa-solid fa-play"></i> Demo
     </button>
-    <div id="demo-volume-control" class="auto-style-8c673298" >
-        <span class="auto-style-328fb2ec" ><i class="fa-solid fa-volume-low"></i></span>
-        <input title="Demo Volume Slider" id="demo-volume-slider" max="100" min="0" class="auto-style-5b942a3a"  type="range" value="50"/>
-        <span class="auto-style-328fb2ec" ><i class="fa-solid fa-volume-high"></i></span>
-    </div>
+<div id="demo-volume-control" style="display:flex;align-items:center;gap:6px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 0.8rem;">
+<span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-low"></i></span>
+<input id="demo-volume-slider" max="100" min="0" style="width:60px;height:3px;cursor:pointer;accent-color:var(--accent);" type="range" value="50"/>
+<span style="color:var(--text-muted);font-size:0.7rem;"><i class="fa-solid fa-volume-high"></i></span>
 </div>
-<button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
-<a class="btn btn-primary nav-cta" href="index.html"><i class="fa-solid fa-arrow-left auto-style-1e5c8846" ></i> Back Home</a>
+</div>
+<button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+<a class="btn btn-primary nav-cta" href="index.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back Home</a>
 </div>
 </header>
-<div class="page-header auto-style-6d07a17d" >
-<h1 class="auto-style-970c11fd" >FreeMe App Dashboard</h1>
-<p class="auto-style-90968838" >Autonomous AI web agents actively removing your data footprint.</p>
+<div class="page-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+<h1 style="margin: 0; color: var(--accent);">FreeMe App Dashboard</h1>
+<p style="margin: 0.5rem 0 1rem 0; text-align: center;">Autonomous AI web agents actively removing your data footprint.</p>
 <div id="_cms_ignore_header_btns">
-<div class="auto-style-aea1acb6" >
+<div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
 <!-- Relocated to Header -->
 </div>
 </div>
@@ -836,7 +836,6 @@
             document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
-
 <div class="app-container">
 <div class="search-panel">
 <!-- Tabs -->
@@ -845,79 +844,78 @@
 <button class="btn-tab" id="btn-tab-brokers" onclick="switchTab('brokers')" type="button"><i class="fa-solid fa-database"></i> Data Brokers</button>
 <button class="btn-tab" id="btn-tab-results" onclick="switchTab('results')" type="button"><i class="fa-solid fa-list-check"></i> Live Results Dashboard</button>
 <button class="btn-tab" id="btn-tab-ai" onclick="switchTab('ai')" type="button"><i class="fa-solid fa-gear"></i> Settings</button>
-<button class="btn-tab" id="btn-tab-about" onclick="switchTab('about')" type="button"><i class="fa-solid fa-circle-info"></i> About</button>
-<button class="btn-tab" id="btn-tab-google" onclick="switchTab('google')" type="button"><i class="fa-brands fa-google"></i> Google</button></div>
+<button class="btn-tab" id="btn-tab-about" onclick="switchTab('about')" type="button"><i class="fa-solid fa-circle-info"></i> About</button></div>
 <!-- Content Area -->
 <div class="tab-content-container">
 <!-- Profile Tab -->
 <div id="tab-profile">
-<h3 class="auto-style-9c696433" >Personal Information to Scrub</h3>
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 2rem;">Personal Information to Scrub</h3>
 <form id="freeme-form">
-<div class="dynamic-list-container auto-style-d3297f95" id="list-aliases" >
-<label>
-<span data-cms="profile-label-alias">Names / Aliases</span>
-<button data-cms="btn-add-alias" onclick="addDynamicField('list-aliases', 'alias-input', 'text', 'e.g. John Doe')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<div class="dynamic-list-container" id="list-aliases" style="margin-bottom: 1.5rem;">
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Names / Aliases</span>
+<button onclick="addDynamicField('list-aliases', 'alias-input', 'text', 'e.g. John Doe')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
-<input title="e.g. John Doe" class="standard-input alias-input" placeholder="e.g. John Doe" type="text"/>
+<input class="standard-input alias-input" placeholder="e.g. John Doe" type="text"/>
 </div>
 </div>
 <div class="row">
 <div class="col dynamic-list-container" id="list-emails">
-<label>
-<span data-cms="profile-label-email">Email</span>
-<button data-cms="btn-add-email" onclick="addDynamicField('list-emails', 'email-input', 'email', 'e.g. user@domain.com')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Email</span>
+<button onclick="addDynamicField('list-emails', 'email-input', 'email', 'e.g. user@domain.com')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
-<input title="e.g. user@domain.com" class="standard-input email-input" placeholder="e.g. user@domain.com" type="email"/>
+<input class="standard-input email-input" placeholder="e.g. user@domain.com" type="email"/>
 </div>
 </div>
 <div class="col dynamic-list-container" id="list-phones">
-<label>
-<span data-cms="profile-label-phone">Phone Number</span>
-<button data-cms="btn-add-phone" onclick="addDynamicField('list-phones', 'phone-input', 'tel', 'e.g. 555-123-4567')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Phone number</span>
+<button onclick="addDynamicField('list-phones', 'phone-input', 'tel', 'e.g. 555-123-4567')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
-<input title="e.g. 555-123-4567" class="standard-input phone-input" placeholder="e.g. 555-123-4567" type="tel"/>
+<input class="standard-input phone-input" placeholder="e.g. 555-123-4567" type="tel"/>
 </div>
 </div>
 </div>
-<div class="dynamic-list-container auto-style-185d793c" id="list-addresses" >
-<label>
-<span data-cms="profile-label-address">Address</span>
-<button data-cms="btn-add-address" onclick="addDynamicField('list-addresses', 'address-input', 'text', 'e.g. 123 Main St, City, ST 12345')" class="auto-style-2c4bad07"  type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
+<div class="dynamic-list-container" id="list-addresses" style="margin-top: 1.5rem;">
+<label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; color: #a1a1aa; font-weight: 500;">
+<span>Address</span>
+<button onclick="addDynamicField('list-addresses', 'address-input', 'text', 'e.g. 123 Main St, City, ST 12345')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem;" type="button"><i class="fa-solid fa-plus"></i> Add Another</button>
 </label>
 <div class="dynamic-inputs">
-<input title="e.g. 123 Main St, City, ST 12345" class="standard-input address-input" placeholder="e.g. 123 Main St, City, ST 12345" type="text"/>
+<input class="standard-input address-input" placeholder="e.g. 123 Main St, City, ST 12345" type="text"/>
 </div>
 </div>
-<div class="row auto-style-185d793c" >
+<div class="row" style="margin-top: 1.5rem;">
 <div class="col input-group">
 <label>Date of Birth</label>
-<input title="Dob" class="standard-input" id="dob" type="date"/>
+<input class="standard-input" id="dob" type="date"/>
 </div>
 <div class="col input-group">
 <label>Driver's License Number</label>
-<input title="e.g. D1234567" class="standard-input" id="drivers-license" placeholder="e.g. D1234567" type="text"/>
+<input class="standard-input" id="drivers-license" placeholder="e.g. D1234567" type="text"/>
 </div>
 </div>
-<div class="input-group auto-style-185d793c" >
+<div class="input-group" style="margin-top: 1.5rem;">
 <label>Current Photo (For referencing facial-recognition oriented data brokers)</label>
-<input title="Photo Upload" accept="image/*" class="standard-input auto-style-fa85fbc9" id="photo-upload"  type="file"/>
+<input accept="image/*" class="standard-input" id="photo-upload" style="padding: 0.5rem;" type="file"/>
 </div>
-<p class="auto-style-d450ca60" ><i class="fa-solid fa-lock"></i> <strong>Pillars of Privacy:</strong> This data is encrypted and passed locally to our privacy parser. It is only used to directly input into broker opt-out flows.</p>
-<button data-cms="btn-profile-next" class="btn-run auto-style-be7cdf7a" onclick="switchTab('brokers')"  type="button">Next: Select Brokers <i class="fa-solid fa-arrow-right"></i></button>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1.5rem;"><i class="fa-solid fa-lock"></i> <strong>Pillars of Privacy:</strong> This data is encrypted and passed locally to our privacy parser. It is only used to directly input into broker opt-out flows.</p>
+<button class="btn-run" onclick="switchTab('brokers')" style="max-width: 300px; margin-left: auto;" type="button">Next: Select Brokers <i class="fa-solid fa-arrow-right"></i></button>
 </form>
 </div>
 <!-- Brokers Tab -->
 <div class="hidden" id="tab-brokers">
-<div class="auto-style-aa52f124" >
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
 <div>
-<h3 class="auto-style-f9876087" >Target Data Brokers</h3>
-<p class="auto-style-7cd6d86b" >Select the sources you want the autonomous agents to process.</p>
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem;">Target Data Brokers</h3>
+<p style="color: var(--text-muted); margin: 0;">Select the sources you want the autonomous agents to process.</p>
 </div>
-<button id="btn-scan-brokers" class="btn-run auto-style-75471192"  onclick="discoverNewBrokers()" type="button">
-    <i class="fa-solid fa-magnifying-glass"></i> Search New Data Brokers
+<button class="btn-run" id="btn-scan-brokers" onclick="discoverNewBrokers()" style="margin-left: 1rem; width: fit-content; padding: 0.8rem 1.5rem; font-size: 1rem; white-space: nowrap;" type="button">
+<i class="fa-solid fa-magnifying-glass"></i> Search New Data Brokers
 </button>
 </div>
 <div class="broker-grid" id="main-broker-grid">
@@ -928,7 +926,7 @@
 <p>Major directory, high volume.</p>
 </div>
 <div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Whitepages"/>
+<input checked="" class="broker-checkbox" type="checkbox" value="Whitepages"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
@@ -939,7 +937,7 @@
 <p>Email &amp; phone aggregator.</p>
 </div>
 <div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Spokeo"/>
+<input checked="" class="broker-checkbox" type="checkbox" value="Spokeo"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
@@ -950,7 +948,7 @@
 <p>Background check platform.</p>
 </div>
 <div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="BeenVerified"/>
+<input checked="" class="broker-checkbox" type="checkbox" value="BeenVerified"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
@@ -958,10 +956,10 @@
 <div class="broker-icon"><i class="fa-solid fa-user-secret"></i></div>
 <div class="broker-info">
 <h3>Intelius</h3>
-<p>Extensive background and public records.</p>
+<p>Select the data brokers you want our autonomous agents to scrub your data from.</p>
 </div>
 <div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Intelius"/>
+<input checked="" class="broker-checkbox" type="checkbox" value="Intelius"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
@@ -972,7 +970,7 @@
 <p>100% free people search.</p>
 </div>
 <div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="TruePeopleSearch"/>
+<input checked="" class="broker-checkbox" type="checkbox" value="TruePeopleSearch"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
@@ -983,171 +981,61 @@
 <p>Global marketing data.</p>
 </div>
 <div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Acxiom"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-star"></i></div>
-<div class="broker-info">
-<h3>MyLife</h3>
-<p>Reputation scores and background reports.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="MyLife"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-satellite-dish"></i></div>
-<div class="broker-info">
-<h3>Radaris</h3>
-<p>Public records and social media search.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Radaris"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-regular fa-id-card"></i></div>
-<div class="broker-info">
-<h3>Nuwber</h3>
-<p>People search and public records.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="Nuwber"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-<div class="broker-info">
-<h3>TruthFinder</h3>
-<p>Detailed background checks.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="TruthFinder"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-bolt"></i></div>
-<div class="broker-info">
-<h3>InstantCheckmate</h3>
-<p>Public record searches.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="InstantCheckmate"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
-<div class="broker-info">
-<h3>FastPeopleSearch</h3>
-<p>Fast and free people search.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="FastPeopleSearch"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-eye"></i></div>
-<div class="broker-info">
-<h3>PeekYou</h3>
-<p>People search engine.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="PeekYou"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-circle-question"></i></div>
-<div class="broker-info">
-<h3>AnyWho</h3>
-<p>Yellow and white pages directory.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="AnyWho"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-user-group"></i></div>
-<div class="broker-info">
-<h3>PeopleFinders</h3>
-<p>Background checks and public records.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="PeopleFinders"/>
-<span class="toggle-slider"></span>
-</div>
-</label>
-<label class="broker-card">
-<div class="broker-icon"><i class="fa-solid fa-flag-usa"></i></div>
-<div class="broker-info">
-<h3>USSearch</h3>
-<p>Background checks and public records.</p>
-</div>
-<div class="toggle-switch">
-<input title="Input field" checked="" class="broker-checkbox" type="checkbox" value="USSearch"/>
+<input checked="" class="broker-checkbox" type="checkbox" value="Acxiom"/>
 <span class="toggle-slider"></span>
 </div>
 </label>
 </div>
-<button class="btn-run auto-style-be7cdf7a" id="btn-start" onclick="startOptOutCampaign()"  type="button">
+<button class="btn-run" id="btn-start" onclick="startOptOutCampaign()" style="max-width: 300px; margin-left: auto;" type="button">
                         Scrub My Data <i class="fa-solid fa-play"></i>
 </button>
 </div>
 <!-- Settings Tab -->
 <div class="hidden" id="tab-ai">
-<h3 class="auto-style-f9876087" >Settings &amp; Automation</h3>
-<p class="auto-style-dcba6ed8" >Configure the underlying LLMs, execution behavior, and automated scan frequency.</p>
-<div class="auto-style-b79abe40" >
-<h4 class="auto-style-193692df" ><i class="fa-solid fa-brain"></i> Vision-Language Agent Selection</h4>
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem;">Settings &amp; Automation</h3>
+<p style="color: var(--text-muted); margin-bottom: 2rem;">Configure the underlying LLMs, execution behavior, and automated scan frequency.</p>
+<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem;">
+<h4 style="color: var(--accent); margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem;"><i class="fa-solid fa-brain"></i> Vision-Language Agent Selection</h4>
 <div class="input-group">
 <label>Primary Navigation VLM (Controls Playwright)</label>
-<select title="Llm Model" class="standard-input auto-style-161dc61c" id="llm-model" onchange="updateApiRates()" >
+<select class="standard-input" id="llm-model" onchange="updateApiRates()" style="background: var(--bg-color); color: white;">
 <option value="claude-3-opus">Claude 3.5 Sonnet (Recommended - Best UI parsing)</option>
 <option value="gpt-4-vision">GPT-4o (High Accuracy Vision)</option>
 <option value="local-llama-vision">Local LLaMA-V (Max Privacy, Requires GPU)</option>
 </select>
 </div>
 <!-- Live API Rate Limits Monitor -->
-<div class="auto-style-345afd4b" >
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
 <div>
-<h4 class="auto-style-4f906308" >Live Status per Model</h4>
-<p class="auto-style-154822ff" >View live API rate limits and capacity used for the selected VLM.</p>
+<h4 style="color: var(--text-color); margin: 0; font-size: 1rem;">Live Status per Model</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.2rem 0 0 0;">View live API rate limits and capacity used for the selected VLM.</p>
 </div>
 <label class="toggle-switch">
-<input title="Api Status Toggle" id="api-status-toggle" onchange="toggleApiStatus()" type="checkbox"/>
+<input id="api-status-toggle" onchange="toggleApiStatus()" type="checkbox"/>
 <span class="toggle-slider"></span>
 </label>
 </div>
-<div class="hidden auto-style-8223d973" id="api-status-panel" >
-<div id="api-status-content" class="auto-style-9156260e" >
-<span class="auto-style-7abb3a4e" >Toggle to fetch live telemetry...</span>
+<div class="hidden" id="api-status-panel" style="margin-top: 1rem; padding: 1.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px;">
+<div id="api-status-content" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+<span style="color: var(--text-muted);">Toggle to fetch live telemetry...</span>
 </div>
-<div class="auto-style-bece4851" >
-<div id="api-status-bar" class="auto-style-6690f6cc" ></div>
+<div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 1rem;">
+<div id="api-status-bar" style="height: 100%; width: 0%; background: var(--accent); transition: width 0.5s ease-out;"></div>
 </div>
 </div>
-<div class="auto-style-345afd4b" >
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
 <div>
-<h4 class="auto-style-4f906308" >Email Notifications</h4>
-<p class="auto-style-154822ff" >Receive a summary report when a scan finishes.</p>
+<h4 style="color: var(--text-color); margin: 0; font-size: 1rem;">Email Notifications</h4>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.2rem 0 0 0;">Receive a summary report when a scan finishes.</p>
 </div>
 <label class="toggle-switch">
-<input title="Email Notifications Toggle" checked="" id="email-notifications-toggle" type="checkbox"/>
+<input checked="" id="email-notifications-toggle" type="checkbox"/>
 <span class="toggle-slider"></span>
 </label>
 </div>
-<div class="input-group auto-style-185d793c" >
+<div class="input-group" style="margin-top: 1.5rem;">
 <label>Frequency of AI scan</label>
-<select title="Scan Frequency" class="standard-input auto-style-161dc61c" id="scan-frequency" >
+<select class="standard-input" id="scan-frequency" style="background: var(--bg-color); color: white;">
 <option value="Once">Once</option>
 <option value="Weekly">Weekly</option>
 <option value="Monthly">Monthly</option>
@@ -1155,26 +1043,26 @@
 </select>
 </div>
 </div>
-<div class="auto-style-b79abe40" >
-<div class="auto-style-bbc98b25" >
-<h4 class="auto-style-439a0ea0" ><i class="fa-solid fa-flask"></i> Demo Mode</h4>
-<div class="auto-style-ee8a4bb2" >
-<span class="auto-style-073fcba2" >Demo</span>
+<div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<h4 style="color: var(--accent); margin: 0; font-size: 1.2rem;"><i class="fa-solid fa-flask"></i> Demo Mode</h4>
+<div style="display: flex; align-items: center; gap: 1rem;">
+<span style="color: white; font-weight: 500; font-size: 0.95rem;">Demo</span>
 <label class="toggle-switch">
-<input title="Live Mode Toggle" id="live-mode-toggle" type="checkbox"/>
+<input checked="" id="live-mode-toggle" type="checkbox"/>
 <span class="toggle-slider"></span>
 </label>
 </div>
 </div>
-<p class="auto-style-5cf6eb6d" >
+<p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">
 <strong>Demo Mode (ON):</strong> Bypasses the Playwright engine and fast-forwards through simulated agent logs. Prevents using actual API credits or submitting real opt-outs while testing the UI workflow. 
                         </p>
-<p class="auto-style-0967e752" >
+<p style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 1.5rem;">
 <strong>Autonomous Opt-Out Engine (OFF):</strong> Submits real requests via Playwright parsing. <em>Note: If Cloudflare Anti-Bot triggers, the physical browser will forcefully respawn on your monitor for manual Captcha clearance.</em>
-                        </p>
-<div class="input-group auto-style-185d793c" id="mock-data-container" >
+</p>
+<div class="input-group" id="mock-data-container" style="margin-top: 1.5rem;">
 <label>Inject Random Mock Data (Overwrites Target Profile tab)</label>
-<button onclick="injectMockData()" class="auto-style-481a564f"  type="button">
+<button onclick="injectMockData()" style="padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;" type="button">
 <i class="fa-solid fa-random"></i> Generate Fake Identity
                             </button>
 </div>
@@ -1190,39 +1078,21 @@
 </div>
 <!-- Results Tab -->
 <div class="hidden" id="tab-results">
-<div class="auto-style-bbc98b25" >
-<h3 class="auto-style-dd4a4c33" >Campaign Dashboard</h3>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+<h3 style="color: white; font-size: 1.8rem; font-weight: 300; margin: 0;">Campaign Dashboard</h3>
 <span class="status-badge status-pending" id="campaign-status">Awaiting Deployment</span>
 </div>
 <div class="agent-log" id="agent-log">
 <div class="log-info"><span class="log-time">[System]</span> FreeMe Agent Orchestrator Ready.</div>
 <div class="log-info"><span class="log-time">[System]</span> Awaiting profile and target broker list...</div>
 </div>
-<h4 class="auto-style-8b5a997e" >Live Status per Broker</h4>
+<h4 style="color: var(--text-dark); margin-bottom: 1rem; font-size: 1.2rem;">Live Status per Broker</h4>
 <div id="results-list">
 <!-- Populated dynamically -->
-<div class="result-item auto-style-0dbc0f09" >
+<div class="result-item" style="opacity: 0.5;">
 <div class="result-name">Targeting profiles will appear here</div>
 <div class="status-badge status-pending">—</div>
 </div>
-</div>
-</div>
-<!-- Google Tab -->
-<div class="hidden" id="tab-google">
-<div class="auto-style-bbc98b25" >
-<h3 class="auto-style-dd4a4c33" ><i class="fa-brands fa-google google-tab-icon"></i>Remove Data from Google</h3>
-</div>
-<div class="about-panel google-tab-panel">
-<p class="about-text google-tab-desc">To remove your personal information from Google Search results, Google provides a dedicated tool. You can request the removal of personal info such as phone numbers, email addresses, or physical addresses.</p>
-<ol class="about-text google-tab-list">
-    <li>Visit the <a href="https://support.google.com/websearch/answer/9673730" target="_blank" rel="noopener noreferrer" class="google-tab-link">Google Search Help page for removing personal information</a>.</li>
-    <li>Review the types of information Google will remove (e.g., non-consensual explicit imagery, doxxing info, financial/medical data, or personal contact info).</li>
-    <li>Click the <strong>"Start removal request"</strong> button on the page to open the form.</li>
-    <li>Provide the exact URLs (web addresses) of the pages showing your information, as well as the URLs of the Google search results pages.</li>
-    <li>Submit any required screenshots showing where your information appears.</li>
-    <li>Google will review your request and notify you of the outcome via email.</li>
-</ol>
-<p class="about-text"><em>Note:</em> Removing information from Google does not remove it from the internet. You must still contact the website owner or use FreeMe to opt out of the source data brokers.</p>
 </div>
 </div>
 <div class="hidden" id="tab-about"><div class="about-panel">
@@ -1238,25 +1108,25 @@
 <!-- Core Architecture & Tech Stack -->
 <div class="about-section-title"><i class="fa-solid fa-layer-group"></i> Core Architecture &amp; Tech Stack</div>
 <div class="tech-stack-grid">
-<div class="auto-style-3783d31a" >
-<i class="fa-brands fa-react auto-style-a7fdd670" ></i>
-<div class="auto-style-240fbb09" >React (Next.js)</div>
-<div class="auto-style-11fdf9f8" >Phone number</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-brands fa-react" style="font-size: 2.5rem; color: #61DAFB; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">React (Next.js)</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Phone number</div>
 </div>
-<div class="auto-style-3783d31a" >
-<i class="fa-brands fa-python auto-style-cb6a9323" ></i>
-<div class="auto-style-240fbb09" >Python (FastAPI)</div>
-<div class="auto-style-11fdf9f8" >Address</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-brands fa-python" style="font-size: 2.5rem; color: #FFD43B; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Python (FastAPI)</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Address</div>
 </div>
-<div class="auto-style-3783d31a" >
-<i class="fa-solid fa-robot auto-style-7f8c3dfc" ></i>
-<div class="auto-style-240fbb09" >Playwright + LangChain</div>
-<div class="auto-style-11fdf9f8" >Dev Environment</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-solid fa-robot" style="font-size: 2.5rem; color: #b070e0; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Playwright + LangChain</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Dev Environment</div>
 </div>
-<div class="auto-style-3783d31a" >
-<i class="fa-solid fa-cloud auto-style-bd58d957" ></i>
-<div class="auto-style-240fbb09" >Cloud IDE (Replit)</div>
-<div class="auto-style-11fdf9f8" >Cloud IDE (Replit)</div>
+<div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem 1rem; text-align: center;">
+<i class="fa-solid fa-cloud" style="font-size: 2.5rem; color: #38bdf8; display: block; margin-bottom: 0.75rem;"></i>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Cloud IDE (Replit)</div>
+<div style="color: var(--text-dark); font-size: 1rem; font-weight: 700;">Cloud IDE (Replit)</div>
 </div>
 </div>
 <hr class="about-divider"/>
@@ -1294,20 +1164,20 @@
 <!-- Discovery Modal -->
 <div class="broker-modal-overlay" id="discovery-modal">
 <div class="broker-modal">
-<h3 class="auto-style-e24b722b" ><i class="fa-solid fa-radar"></i> New Threats Discovered</h3>
-<p class="auto-style-91207c28" >AI has identified emerging data brokers. Choose which to add to your scrubbing list.</p>
-<div id="discovered-brokers-list" class="auto-style-0f1a0e46" >
+<h3 style="color: white; font-size: 1.5rem; margin-top: 0; margin-bottom: 0.5rem;"><i class="fa-solid fa-radar"></i> New Threats Discovered</h3>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">AI has identified emerging data brokers. Choose which to add to your scrubbing list.</p>
+<div id="discovered-brokers-list" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; padding-right: 0.5rem;">
 <!-- Populated by JS -->
 </div>
-<div class="auto-style-b4034f17" >
-<button onclick="closeDiscoveryModal()" class="auto-style-7dba8c00"  type="button">Ignore</button>
-<button class="btn-primary auto-style-401bb692" onclick="addSelectedBrokers()"  type="button">Add Selected to Target List</button>
+<div style="display: flex; justify-content: flex-end; gap: 1rem;">
+<button onclick="closeDiscoveryModal()" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;" type="button">Ignore</button>
+<button class="btn-primary" onclick="addSelectedBrokers()" style="padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;" type="button">Add Selected to Target List</button>
 </div>
 </div>
 </div>
 <!-- Footer -->
 <footer>
-<p>© 2026 Sherpa Solutions LLC. All rights reserved. <a href="login.html" id="admin-login-link" class="auto-style-27201cde"  title="Admin Login">.</a></p>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. <a href="login.html" id="admin-login-link" style="color:transparent;" title="Admin Login">.</a></p>
 </footer>
 <!-- CMS Script -->
 <script src="static/cms.js"></script>
@@ -1383,11 +1253,11 @@
                 
                 item.innerHTML = `
                     <div>
-                        <strong class="auto-style-f01a367e" >${broker.name}</strong>
-                        <span class="auto-style-ad231d66" >${broker.description}</span>
+                        <strong style="color: white; display: block; margin-bottom: 0.2rem;">${broker.name}</strong>
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">${broker.description}</span>
                     </div>
                     <div class="toggle-switch">
-                        <input title="Pending Broker ${Index}" type="checkbox" id="pending-broker-${index}" class="pending-broker-checkbox" value="${index}" checked>
+                        <input type="checkbox" id="pending-broker-${index}" class="pending-broker-checkbox" value="${index}" checked>
                         <span class="toggle-slider"></span>
                     </div>
                 `;
@@ -1418,16 +1288,16 @@
                     newCard.style.boxShadow = `0 0 10px ${riskColor}22`;
                     
                     newCard.innerHTML = `
-                        <div class="broker-icon ${broker.risk_level === 'High' ? 'risk-high-icon' : 'risk-medium-icon'}"><i class="fa-solid fa-spider"></i></div>
+                        <div class="broker-icon" style="color: ${riskColor}; background: ${riskColor}22;"><i class="fa-solid fa-spider"></i></div>
                         <div class="broker-info">
-                            <h3 class="auto-style-d2afe5e3" >
+                            <h3 style="display: flex; align-items: center; gap: 0.5rem;">
                                 ${broker.name} 
-                                <span class="${broker.risk_level === 'High' ? 'risk-high-badge' : 'risk-medium-badge'}">New Threat</span>
+                                <span style="font-size: 0.6rem; padding: 2px 6px; background: ${riskColor}44; color: ${riskColor}; border-radius: 4px; text-transform: uppercase;">New Threat</span>
                             </h3>
                             <p>${broker.description}</p>
                         </div>
                         <div class="toggle-switch">
-                            <input title="Input field" type="checkbox" class="broker-checkbox" value="${broker.name}" checked>
+                            <input type="checkbox" class="broker-checkbox" value="${broker.name}" checked>
                             <span class="toggle-slider"></span>
                         </div>
                     `;
@@ -1457,7 +1327,6 @@
             document.getElementById('tab-ai').classList.add('hidden');
             document.getElementById('tab-results').classList.add('hidden');
             document.getElementById('tab-about').classList.add('hidden');
-            document.getElementById('tab-google').classList.add('hidden');
             document.getElementById('tab-' + tabId).classList.remove('hidden');
         }
 
@@ -1469,8 +1338,8 @@
             wrapper.style.marginTop = '0.5rem';
             
             wrapper.innerHTML = `
-                <input title="${placeholder}" type="${type}" class="standard-input ${inputClass}" placeholder="${placeholder}">
-                <button type="button" onclick="this.parentElement.remove()" class="auto-style-046c9dfa" ><i class="fa-solid fa-trash"></i></button>
+                <input type="${type}" class="standard-input ${inputClass}" placeholder="${placeholder}">
+                <button type="button" onclick="this.parentElement.remove()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 6px; padding: 0 1rem; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
             `;
             container.appendChild(wrapper);
         }
@@ -1522,7 +1391,7 @@
             const bar = document.getElementById('api-status-bar');
             const model = document.getElementById('llm-model').value;
             
-            panelContent.innerHTML = '<span class="auto-style-7abb3a4e" ><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live API telemetry...</span>';
+            panelContent.innerHTML = '<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live API telemetry...</span>';
             bar.style.width = '0%';
             
             try {
@@ -1534,12 +1403,12 @@
                     color = '#c06c3b';
                     panelContent.innerHTML = `
                         <div>
-                            <strong class="auto-style-f6234f9f" ><i class="fa-solid fa-server"></i> Local Execution Node</strong>
-                            <div class="auto-style-40edc9c9" >Requests Per Minute (RPM)</div>
+                            <strong style="color: white;"><i class="fa-solid fa-server"></i> Local Execution Node</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Requests Per Minute (RPM)</div>
                         </div>
-                        <div class="auto-style-7851dbc0" >
-                            <strong class="text-na">N/A</strong>
-                            <div class="auto-style-40edc9c9" >/ Unlimited Capacity</div>
+                        <div style="text-align: right;">
+                            <strong style="color: ${color}; font-size: 1.1rem;">N/A</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">/ Unlimited Capacity</div>
                         </div>`;
                     bar.style.width = '100%';
                     bar.style.backgroundColor = color;
@@ -1550,18 +1419,18 @@
                     
                     panelContent.innerHTML = `
                         <div>
-                            <strong class="auto-style-f6234f9f" ><i class="fa-solid fa-cloud"></i> Cloud Provider API</strong>
-                            <div class="auto-style-40edc9c9" >Requests Per Minute (RPM)</div>
+                            <strong style="color: white;"><i class="fa-solid fa-cloud"></i> Cloud Provider API</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Requests Per Minute (RPM)</div>
                         </div>
-                        <div class="auto-style-7851dbc0" >
-                            <strong class="text-value">${data.used_rpm.toLocaleString()}</strong>
-                            <div class="auto-style-40edc9c9" >/ ${data.max_rpm.toLocaleString()} Quota</div>
+                        <div style="text-align: right;">
+                            <strong style="color: ${color}; font-size: 1.1rem;">${data.used_rpm.toLocaleString()}</strong>
+                            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">/ ${data.max_rpm.toLocaleString()} Quota</div>
                         </div>`;
                     bar.style.width = `${percent}%`;
                     bar.style.backgroundColor = color;
                 }
             } catch (err) {
-                panelContent.innerHTML = '<span class="auto-style-ecc5dd78" ><i class="fa-solid fa-triangle-exclamation"></i> Telemetry Offline</span>';
+                panelContent.innerHTML = '<span style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Telemetry Offline</span>';
             }
         }
 
@@ -1625,16 +1494,16 @@
                     newCard.style.boxShadow = `0 0 10px ${riskColor}22`;
                     
                     newCard.innerHTML = `
-                        <div class="broker-icon ${broker.risk_level === 'High' ? 'risk-high-icon' : 'risk-medium-icon'}"><i class="fa-solid fa-spider"></i></div>
+                        <div class="broker-icon" style="color: ${riskColor}; background: ${riskColor}22;"><i class="fa-solid fa-spider"></i></div>
                         <div class="broker-info">
-                            <h3 class="auto-style-d2afe5e3" >
+                            <h3 style="display: flex; align-items: center; gap: 0.5rem;">
                                 ${broker.name} 
-                                <span class="${broker.risk_level === 'High' ? 'risk-high-badge' : 'risk-medium-badge'}">New Threat</span>
+                                <span style="font-size: 0.6rem; padding: 2px 6px; background: ${riskColor}44; color: ${riskColor}; border-radius: 4px; text-transform: uppercase;">New Threat</span>
                             </h3>
                             <p>${broker.description}</p>
                         </div>
                         <div class="toggle-switch">
-                            <input title="Input field" type="checkbox" class="broker-checkbox" value="${broker.name}" checked>
+                            <input type="checkbox" class="broker-checkbox" value="${broker.name}" checked>
                             <span class="toggle-slider"></span>
                         </div>
                     `;
@@ -1666,7 +1535,7 @@
             brokers.forEach(b => {
                 resultsList.innerHTML += `
                     <div class="result-item" id="result-${b}">
-                        <div class="result-name"><i class="fa-solid fa-robot auto-style-70bdd4e7" ></i> ${b}</div>
+                        <div class="result-name"><i class="fa-solid fa-robot" style="margin-right: 8px; color: var(--text-muted);"></i> ${b}</div>
                         <div class="status-badge status-pending" id="badge-${b}">Queued</div>
                     </div>
                 `;
@@ -1903,7 +1772,6 @@
             document.getElementById('btn-play-demo').innerHTML = '<i class="fa-solid fa-play"></i> Play Voice Demo Tour';
         }
     </script>
-
-    <script src="static/analytics.js"></script>
+<script src="static/analytics.js"></script>
 </body>
 </html>

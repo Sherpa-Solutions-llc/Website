@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html data-theme="light" lang="en"><head>
+<html data-theme="dark" lang="en"><head>
 <link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -19,6 +19,11 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <link href="static/styles.css?v=1.4" rel="stylesheet"/>
 <script src="static/theme.js"></script>
+<style id="antigravity-scroll-lock-style">
+  html:root body.antigravity-scroll-lock {
+    overflow: hidden !important;
+  }
+</style>
 <style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
@@ -35,22 +40,27 @@
 <header>
 <div class="logo-container">
 <a data-cms="auto-services-a-1" href="index.html">
-                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC" data-cms="global-navbar-logo">
-            </a>
+<img alt="Sherpa Solutions LLC" data-cms="global-navbar-logo" src="/static/sherpa_logo.png"/>
+</a>
 </div>
 <div class="menu-toggle" id="mobile-menu-btn">
 <i class="fa-solid fa-bars"></i>
 </div>
 <ul class="nav-links" id="nav-menu">
-<li data-cms="auto-services-li-2"><a href="index.html" data-cms="auto-services-a-3">Home</a></li>
-<li data-cms="auto-services-li-4"><a href="about.html" data-cms="auto-services-a-5">About Us</a></li>
-<li data-cms="auto-services-li-6"><a href="services.html" class="active" data-cms="auto-services-a-7">Our Services</a></li>
+<li data-cms="auto-services-li-2"><a data-cms="auto-services-a-3" href="index.html">Home</a></li>
+<li data-cms="auto-services-li-4"><a data-cms="auto-services-a-5" href="about.html">About Us</a></li>
+<li data-cms="auto-services-li-6"><a class="active" data-cms="auto-services-a-7" href="services.html">Our Services</a></li>
 <li><a href="projects.html">Projects</a></li>
-<li data-cms="auto-services-li-8"><a href="merchandise.html" data-cms="auto-services-a-9">Merchandise</a></li>
-<li data-cms="auto-services-li-10"><a href="contact.html" data-cms="auto-services-a-11">Contact</a></li>
+<li data-cms="auto-services-li-8"><a data-cms="auto-services-a-9" href="merchandise.html">Merchandise</a></li>
+<li data-cms="auto-services-li-10"><a data-cms="auto-services-a-11" href="contact.html">Contact</a></li>
 </ul>
-<div class="header-actions"><button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button><a class="btn btn-primary nav-cta" data-cms="auto-services-a-12" href="contact.html">Schedule
-                Basecamp Consultation</a></div>
+<div class="header-actions">
+<button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;">
+<i class="fa-solid fa-sun"></i> Switch to Light Mode
+    </button>
+<a class="btn btn-primary nav-cta" data-cms="auto-services-a-12" href="contact.html">Schedule
+                Basecamp Consultation</a>
+</div>
 </header>
 <div class="page-header">
 <h1 data-cms="services-page-head">Our Services</h1>
@@ -145,7 +155,7 @@
 <span data-cms="math-1-lbl">Original Dev Throughput:</span>
 <strong data-cms="math-1-val">Baseline (1x)</strong>
 </div>
-<div class="math-row auto-style-e7ecf015" >
+<div class="math-row" style="color: #4a5c4a;">
 <span data-cms="math-2-lbl">AI-Augmented Velocity:</span>
 <strong data-cms="math-2-val">300% Increase (3x)</strong>
 </div>
@@ -156,16 +166,16 @@
 <div class="math-divider"></div>
 <div class="math-row">
 <span data-cms="math-4-lbl">Gross Revenue Gen:</span>
-<strong data-cms="math-4-val" class="auto-style-cf36fb90" >$560,000 / yr</strong>
+<strong data-cms="math-4-val" style="color:var(--primary);">$560,000 / yr</strong>
 </div>
 <div class="math-row">
 <span data-cms="math-5-lbl">Sherpa Performance Fee (27%):</span>
-<strong data-cms="math-5-val" class="auto-style-779890e0" >-$151,200</strong>
+<strong data-cms="math-5-val" style="color:#000;">-$151,200</strong>
 </div>
 </div>
-<div class="our-fee auto-style-778a42c4" >
+<div class="our-fee" style="background:#3C7A3C;">
 <span data-cms="fee-lbl">Net Additional Profit:</span>
-<strong data-cms="fee-val" class="auto-style-b5927153" >$408,800 / yr</strong>
+<strong data-cms="fee-val" style="color:#fff;">$408,800 / yr</strong>
 </div>
 </div>
 </div>
@@ -225,7 +235,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-38">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-39">The Problem</strong>
@@ -278,7 +288,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-57">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-58">The Problem</strong>
@@ -330,7 +340,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-76">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-77">The Problem</strong>
@@ -383,7 +393,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-95">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-96">The Problem</strong>
@@ -437,7 +447,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-114">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-115">The Problem</strong>
@@ -492,7 +502,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-133">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-134">The Problem</strong>
@@ -529,7 +539,7 @@
                 </div>
 <div class="service-cta">
 <p data-cms="auto-services-p-148">Is your project in trouble? Don't wait for total failure. Contact us immediately.</p>
-<a class="btn btn-primary auto-style-2bca393e" data-cms="auto-services-a-149" href="contact.html" >Emergency Program
+<a class="btn btn-primary" data-cms="auto-services-a-149" href="contact.html" style="background: #a13d3d;">Emergency Program
                         Rescue</a>
 </div>
 </div>
@@ -545,7 +555,7 @@
 <div class="accordion">
 <button class="accordion-header" data-cms="auto-services-button-152">
                         View Detailed Breakdown <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+</button>
 <div class="accordion-content">
 <div class="service-subsection">
 <strong data-cms="auto-services-strong-153">What the Summit Looks Like</strong>
@@ -592,12 +602,12 @@
 </section>
 <section class="cta-form-section">
 <h2 data-cms="auto-services-h2-169">Ready for the Climb?</h2>
-<a class="btn btn-primary auto-style-81d81c5a" data-cms="auto-services-a-170" href="contact.html" >Schedule Basecamp
+<a class="btn btn-primary" data-cms="auto-services-a-170" href="contact.html" style="display:inline-block; margin: 1rem 0;">Schedule Basecamp
             Consultation</a>
 <p class="trust-bullets" data-cms="auto-services-p-171">No upfront fees • Verifiable results only • 100% alignment</p>
 </section>
 <footer>
-<div class="hero-badge auto-style-772d7868" ><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+<div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
 <p data-cms="auto-services-p-172">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
 </footer>
 <script>
@@ -642,6 +652,6 @@
         });
     </script>
 <script src="static/cms.js"></script>
+<div id="preact-border-shadow-host" popover="manual" style="border: none; padding: 0px; margin: 0px; inset: 0px; position: fixed; width: 100vw; height: 100vh; background: transparent; pointer-events: none;"></div>
 <script src="static/analytics.js"></script>
-</body>
-</html>
+</body></html>

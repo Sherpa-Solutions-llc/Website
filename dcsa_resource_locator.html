@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html data-theme="dark" lang="en">
 <head><link href="/static/extracted_dcsa.css" rel="stylesheet"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -13,7 +13,7 @@
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Shared Styles -->
-<link href="static/styles.css?v=2.0" rel="stylesheet">
+<link href="static/styles.css?v=2.0" rel="stylesheet"/>
 <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: #050505; }
         
@@ -355,7 +355,18 @@
             font-size: 0.8rem;
         }
     </style>
-</link></head>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+</head>
 <body class="">
 <div class="no-cms" id="leafletContainer"></div>
 <div class="no-cms" id="cesiumContainer"></div>
@@ -392,11 +403,11 @@
 <div class="clean-style-10">
 <div class="search-box">
 <i class="fa-solid fa-user"></i>
-<input title="First Name..." id="locateSearchFirst" placeholder="First Name..." type="text"/>
+<input id="locateSearchFirst" placeholder="First Name..." type="text"/>
 </div>
 <div class="search-box">
 <i class="fa-solid fa-user"></i>
-<input title="Last Name..." id="locateSearchLast" placeholder="Last Name..." type="text"/>
+<input id="locateSearchLast" placeholder="Last Name..." type="text"/>
 </div>
 </div>
 <button class="btn-submit clean-style-11" id="executeLocateSearchBtn" type="button"><i class="fa-solid fa-satellite-dish clean-style-12"></i> EXECUTE SEARCH</button>
@@ -414,18 +425,18 @@
 <div class="clean-style-17">
 <div class="search-box">
 <i class="fa-solid fa-user"></i>
-<input title="First Name..." id="manageSearchFirst" placeholder="First Name..." type="text"/>
+<input id="manageSearchFirst" placeholder="First Name..." type="text"/>
 </div>
 <div class="search-box">
 <i class="fa-solid fa-user"></i>
-<input title="Last Name..." id="manageSearchLast" placeholder="Last Name..." type="text"/>
+<input id="manageSearchLast" placeholder="Last Name..." type="text"/>
 </div>
 </div>
 <button class="btn-submit clean-style-18" id="executeSearchBtn" type="button"><i class="fa-solid fa-satellite-dish clean-style-19"></i> EXECUTE SEARCH</button>
 </div>
 <div class="form-group clean-style-20">
 <label>Select Asset to Manage</label>
-<select title="Assetselector" class="form-control clean-style-21" id="assetSelector">
+<select class="form-control clean-style-21" id="assetSelector">
 <option value="NEW">[+] CREATE NEW ASSET</option>
 <!-- Options populated by JS -->
 </select>
@@ -434,16 +445,16 @@
 <div class="clean-style-22">
 <div class="form-group">
 <label>First Name</label>
-<input title="Fname" class="form-control" id="fName" type="text"/>
+<input class="form-control" id="fName" type="text"/>
 </div>
 <div class="form-group">
 <label>Last Name</label>
-<input title="Lname" class="form-control" id="lName" type="text"/>
+<input class="form-control" id="lName" type="text"/>
 </div>
 </div>
 <div class="form-group">
 <label>Department</label>
-<select title="Dept" class="form-control" id="dept">
+<select class="form-control" id="dept">
 <option value="Counterintelligence">Counterintelligence</option>
 <option value="Industrial Security">Industrial Security</option>
 <option value="Personnel Vetting">Personnel Vetting</option>
@@ -456,7 +467,7 @@
 <div class="clean-style-23">
 <div class="form-group">
 <label>Duty Station</label>
-<select title="Station" class="form-control" id="station">
+<select class="form-control" id="station">
 <option value="Quantico, VA">Quantico, VA</option>
 <option value="Fort Meade, MD">Fort Meade, MD</option>
 <option value="Washington, DC (HQ)">Washington, DC (HQ)</option>
@@ -469,13 +480,13 @@
 </div>
 <div class="form-group">
 <label>Location (Lat, Lng)</label>
-<input title="e.g. 38.89, -77.03" class="form-control" id="customLocation" placeholder="e.g. 38.89, -77.03" type="text"/>
+<input class="form-control" id="customLocation" placeholder="e.g. 38.89, -77.03" type="text"/>
 </div>
 </div>
 <div class="clean-style-24">
 <div class="form-group">
 <label>Clearance</label>
-<select title="Clearance" class="form-control" id="clearance">
+<select class="form-control" id="clearance">
 <option value="Secret">Secret</option>
 <option value="Top Secret">Top Secret</option>
 <option value="TS/SCI">TS/SCI</option>
@@ -485,7 +496,7 @@
 </div>
 <div class="form-group">
 <label>Duty Status</label>
-<select title="Dutystatus" class="form-control" id="dutyStatus">
+<select class="form-control" id="dutyStatus">
 <option value="ACTIVE - ON STATION">Active Duty Station</option>
 <option value="REMOTE WORK">Remote Work (Telework)</option>
 <option value="TDY">TDY (Temporary Duty)</option>
@@ -497,7 +508,7 @@
 <div class="clean-style-25">
 <div class="form-group">
 <label>Schedule</label>
-<select title="Schedule" class="form-control" id="schedule">
+<select class="form-control" id="schedule">
 <option value="0700 - 1500 EST">0700 - 1500 EST</option>
 <option value="0800 - 1700 EST">0800 - 1700 EST</option>
 <option value="0900 - 1800 PST">0900 - 1800 PST</option>
@@ -509,17 +520,17 @@
 </div>
 <div class="form-group">
 <label>Manager</label>
-<input title="Manager" class="form-control" id="manager" type="text"/>
+<input class="form-control" id="manager" type="text"/>
 </div>
 </div>
 <div class="clean-style-26">
 <div class="form-group">
 <label>Email</label>
-<input title="Email" class="form-control" id="email" type="text"/>
+<input class="form-control" id="email" type="text"/>
 </div>
 <div class="form-group">
 <label>Phone</label>
-<input title="Phone" class="form-control" id="phone" type="text"/>
+<input class="form-control" id="phone" type="text"/>
 </div>
 </div>
 <!-- Hidden input for Nationality -->

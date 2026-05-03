@@ -204,13 +204,19 @@ async def sync_progress(user: str = Depends(require_admin)):
 
 SAFE_EDIT_PAGES = ['index', 'about', 'services', 'contact', 'merchandise']
 
-@app.get("/api/edit-page/{page_name}")
+@app.get("/api/edit-page/{page_name:path}")
 async def edit_page_view(page_name: str, user: str = Depends(require_admin)):
+    page_name = page_name.strip()
+    if page_name.endswith('.html'):
+        page_name = page_name[:-5]
+    if page_name.endswith('/'):
+        page_name = page_name[:-1]
+        
     if page_name not in SAFE_EDIT_PAGES:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail=f"Page '{page_name}' not in SAFE_EDIT_PAGES")
     html_path = os.path.join(BASE_DIR, f"{page_name}.html")
     if not os.path.exists(html_path):
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail=f"File '{html_path}' not found")
     with open(html_path, 'r', encoding='utf-8') as f:
         html = f.read()
 

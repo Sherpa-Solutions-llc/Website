@@ -1,8 +1,9 @@
 import asyncio
 import os
 import base64
-from google import genai
-from google.genai import types
+from typing import cast
+from google import genai  # type: ignore[import-untyped]
+from google.genai import types  # type: ignore[import-untyped]
 
 class BaseAgent:
     def __init__(self, callback_manager, agent_name: str):
@@ -10,7 +11,7 @@ class BaseAgent:
         self.agent_name = agent_name
         self.conversation_history = []  # Store past context
         self._memory_loaded = False
-        self.pending_question_future = None
+        self.pending_question_future: asyncio.Future | None = None
         self.api_key = os.environ.get("GEMINI_API_KEY", "")
         if self.api_key and self.api_key != "your_gemini_api_key_here":
             self.client = genai.Client(api_key=self.api_key)
@@ -20,8 +21,9 @@ class BaseAgent:
     def reset_memory(self):
         self.conversation_history = []
         self._memory_loaded = False
-        if self.pending_question_future and not self.pending_question_future.done():
-            self.pending_question_future.cancel()
+        fut = self.pending_question_future
+        if isinstance(fut, asyncio.Future) and not fut.done():
+            fut.cancel()
         self.pending_question_future = None
 
     async def log(self, message: str, level: str = "info"):
@@ -59,8 +61,9 @@ class BaseAgent:
 
     async def ask_user(self, question: str) -> str:
         """Suspend agent execution, broadcast a question to the UI, and wait for a reply"""
-        if self.pending_question_future and not self.pending_question_future.done():
-            self.pending_question_future.cancel()
+        fut = self.pending_question_future
+        if isinstance(fut, asyncio.Future) and not fut.done():
+            fut.cancel()
             
         self.pending_question_future = asyncio.Future()
         
@@ -72,20 +75,20 @@ class BaseAgent:
         await self.update_status("Waiting on User")
         
         # Wait until the main WebSocket handler sets the result of this future
-        response = await self.pending_question_future
+        response = await cast(asyncio.Future, self.pending_question_future)
         self.pending_question_future = None
         
         await self.update_status("Active")
         return response
         
-    async def prompt_llm(self, prompt: str, image_data: str = None, mime_type: str = None, tools: list = None, model_name: str = 'models/gemini-2.0-flash', system_instruction: str = None):
+    async def prompt_llm(self, prompt: str, image_data: str | None = None, mime_type: str | None = None, tools: list | None = None, model_name: str = 'gemini-2.5-flash', system_instruction: str | None = None):
         """Helper to invoke Gemini LLM with full chat memory"""
         if not self.client:
             import asyncio
             await asyncio.sleep(2)  # Simulate network request delay so UI animations can complete naturally
             return "Simulated LLM response (No valid API key provided)"
         try:
-            import agent_database as database
+            import agent_database as database  # type: ignore[import-not-found]
             
             # Lazily load history from DB once per agent instantiation
             if not getattr(self, "_memory_loaded", False) and hasattr(self.callback_manager, "session_id"):
@@ -112,9 +115,13 @@ class BaseAgent:
                 new_parts.append(types.Part.from_bytes(data=file_bytes, mime_type=mime_type))
             contents.append(types.Content(role="user", parts=new_parts))
 
-            config_kwargs = {}
+            config_kwargs: dict[str, object] = {}
             if tools:
                 config_kwargs["tools"] = tools
+                # Disable auto function calling — our stub functions just `pass`,
+                # so the new SDK (1.68+) would auto-call them and get None back.
+                # We handle function_calls manually in the master agent.
+                config_kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
             if system_instruction:
                 config_kwargs["system_instruction"] = system_instruction
 
@@ -141,6 +148,24 @@ class BaseAgent:
             
             return result_text
         except Exception as e:
-            import traceback
-            err_str = traceback.format_exc()
-            return f"Error connecting to Gemini: {str(e)}\n\n{err_str}"
+            import asyncio as _asyncio  # re-import to avoid UnboundLocalError from local import above
+            err_str = str(e)
+            # Handle Gemini rate-limit (429) gracefully: wait and retry once
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                await self.log("Rate limit hit — waiting 20s before retry...", "warning")
+                await _asyncio.sleep(20)
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=model_name,
+                        contents=contents,
+                        config=types.GenerateContentConfig(**config_kwargs) if config_kwargs else None
+                    )
+                    result_text: str = getattr(response, "text", None) or ""
+                    self.conversation_history.append({"role": "user", "content": prompt})
+                    self.conversation_history.append({"role": "model", "content": result_text})
+                    return result_text
+                except Exception as retry_e:
+                    retry_msg = str(retry_e)
+                    return f"The AI model is currently rate-limited. Please wait a moment and try again. ({retry_msg[:120]})"  # type: ignore[index]
+            err_msg = str(err_str)
+            return f"Error connecting to Gemini: {err_msg[:300]}"  # type: ignore[index]

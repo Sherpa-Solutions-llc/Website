@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Sherpa Solutions LLC | Premium Travel Backpacks</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
-        rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    <link href="static/styles.css" rel="stylesheet" />
-    <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sherpa Solutions LLC | Premium Travel Backpacks</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css" rel="stylesheet"/>
+<style>
         .backpack-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -113,8 +111,19 @@
             background: var(--accent);
         }
     </style>
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -126,126 +135,110 @@
 }
 </style>
 </head>
-
 <body>
-    <header>
-        <div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC" data-cms="global-navbar-logo"
-                    src="/static/sherpa_logo.png" /></a></div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="services.html">Our Services</a></li>
-            <li><a href="projects.html">Projects</a></li>
-            <li><a class="active" href="merchandise.html">Merchandise</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
-        <a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
-    </header>
-
-    <div class="page-header">
-        <h1 data-cms="merch-page-head">Merchandise</h1>
-        <p data-cms="merch-page-sub">Premium gear for the journey. Show your affiliation with the leaders of the climb.
+<header>
+<div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC" data-cms="global-navbar-logo" src="/static/sherpa_logo.png"/></a></div>
+<ul class="nav-links">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a href="projects.html">Projects</a></li>
+<li><a class="active" href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions"><button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button></div>
+<a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
+</header>
+<div class="page-header">
+<h1 data-cms="merch-page-head">Merchandise</h1>
+<p data-cms="merch-page-sub">Premium gear for the journey. Show your affiliation with the leaders of the climb.
         </p>
-    </div>
-
-    <section class="content-block" style="padding-bottom:0;">
-        <h2 class="section-title" style="text-align:center; margin-bottom:2rem; color:var(--primary);">Shop Our Backpack
+</div>
+<section class="content-block" style="padding-bottom:0;">
+<h2 class="section-title" style="text-align:center; margin-bottom:2rem; color:var(--primary);">Shop Our Backpack
             Collection</h2>
-        <div class="backpack-grid">
-
-            <!-- Peak Design 45L -->
-            <a class="bp-card" href="backpack_pd_45l.html">
-                <img alt="Peak Design Travel Backpack 45L" class="bp-card-img"
-                    src="static/thumb_pro_pd45.jpg?v=1772629919" />
-                <div class="bp-card-body">
-                    <div class="bp-brand">Peak Design</div>
-                    <div class="bp-name">Travel Backpack 45L</div>
-                    <div class="bp-price">$309.95</div>
-                    <div class="bp-specs">
-                        <span class="bp-tag">35–45L</span>
-                        <span class="bp-tag">4-Way Access</span>
-                        <span class="bp-tag">16" Laptop</span>
-                        <span class="bp-tag">Carry-On</span>
-                        <span class="bp-tag">Lifetime Warranty</span>
-                    </div>
-                    <div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
-                </div>
-            </a>
-
-            <!-- Peak Design 30L -->
-            <a class="bp-card" href="backpack_pd_30l.html">
-                <img alt="Peak Design Travel Backpack 30L" class="bp-card-img"
-                    src="static/thumb_pro_pd30.jpg?v=1772629919" />
-                <div class="bp-card-body">
-                    <div class="bp-brand">Peak Design</div>
-                    <div class="bp-name">Travel Backpack 30L</div>
-                    <div class="bp-price">$259.95</div>
-                    <div class="bp-specs">
-                        <span class="bp-tag">27–33L</span>
-                        <span class="bp-tag">Rear Hatch</span>
-                        <span class="bp-tag">15" Laptop</span>
-                        <span class="bp-tag">Carry-On</span>
-                        <span class="bp-tag">Lifetime Warranty</span>
-                    </div>
-                    <div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
-                </div>
-            </a>
-
-            <!-- NOMATIC Travel Pack -->
-            <a class="bp-card" href="backpack_nomatic_pack.html">
-                <img alt="NOMATIC Travel Pack" class="bp-card-img"
-                    src="static/bp_nomatic_pack_1_user.jpg?v=1772629919" />
-                <div class="bp-card-body">
-                    <div class="bp-brand">NOMATIC</div>
-                    <div class="bp-name">Travel Pack</div>
-                    <div class="bp-price">$359.99</div>
-                    <div class="bp-specs">
-                        <span class="bp-tag">20–30L</span>
-                        <span class="bp-tag">22 Pockets</span>
-                        <span class="bp-tag">TSA Ready</span>
-                        <span class="bp-tag">Briefcase Mode</span>
-                        <span class="bp-tag">RFID Safe</span>
-                    </div>
-                    <div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
-                </div>
-            </a>
-
-            <!-- NOMATIC Travel Bag 40L -->
-            <a class="bp-card" href="backpack_nomatic_bag.html">
-                <img alt="NOMATIC Travel Bag 40L" class="bp-card-img" src="static/thumb_pro_nbag.png?v=1772629919" />
-                <div class="bp-card-body">
-                    <div class="bp-brand">NOMATIC</div>
-                    <div class="bp-name">Travel Bag 40L</div>
-                    <div class="bp-price">$339.99</div>
-                    <div class="bp-specs">
-                        <span class="bp-tag">40L</span>
-                        <span class="bp-tag">Duffel + Backpack</span>
-                        <span class="bp-tag">16" Laptop</span>
-                        <span class="bp-tag">3–7 Day Trips</span>
-                        <span class="bp-tag">Laundry Bag</span>
-                    </div>
-                    <div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
-                </div>
-            </a>
-
-        </div>
-    </section>
-
-    <section class="cta-banner">
-        <div class="cta-content">
-            <h2 data-cms="merch-cta-head">Outfit Your Team</h2>
-            <p data-cms="merch-cta-desc">We offer bulk discounts for corporate orders to ensure your entire team is
+<div class="backpack-grid">
+<!-- Peak Design 45L -->
+<a class="bp-card" href="backpack_pd_45l.html">
+<img alt="Peak Design Travel Backpack 45L" class="bp-card-img" src="static/thumb_pro_pd45.jpg?v=1772629919"/>
+<div class="bp-card-body">
+<div class="bp-brand">Peak Design</div>
+<div class="bp-name">Travel Backpack 45L</div>
+<div class="bp-price">$309.95</div>
+<div class="bp-specs">
+<span class="bp-tag">35–45L</span>
+<span class="bp-tag">4-Way Access</span>
+<span class="bp-tag">16" Laptop</span>
+<span class="bp-tag">Carry-On</span>
+<span class="bp-tag">Lifetime Warranty</span>
+</div>
+<div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
+</div>
+</a>
+<!-- Peak Design 30L -->
+<a class="bp-card" href="backpack_pd_30l.html">
+<img alt="Peak Design Travel Backpack 30L" class="bp-card-img" src="static/thumb_pro_pd30.jpg?v=1772629919"/>
+<div class="bp-card-body">
+<div class="bp-brand">Peak Design</div>
+<div class="bp-name">Travel Backpack 30L</div>
+<div class="bp-price">$259.95</div>
+<div class="bp-specs">
+<span class="bp-tag">27–33L</span>
+<span class="bp-tag">Rear Hatch</span>
+<span class="bp-tag">15" Laptop</span>
+<span class="bp-tag">Carry-On</span>
+<span class="bp-tag">Lifetime Warranty</span>
+</div>
+<div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
+</div>
+</a>
+<!-- NOMATIC Travel Pack -->
+<a class="bp-card" href="backpack_nomatic_pack.html">
+<img alt="NOMATIC Travel Pack" class="bp-card-img" src="static/bp_nomatic_pack_1_user.jpg?v=1772629919"/>
+<div class="bp-card-body">
+<div class="bp-brand">NOMATIC</div>
+<div class="bp-name">Travel Pack</div>
+<div class="bp-price">$359.99</div>
+<div class="bp-specs">
+<span class="bp-tag">20–30L</span>
+<span class="bp-tag">22 Pockets</span>
+<span class="bp-tag">TSA Ready</span>
+<span class="bp-tag">Briefcase Mode</span>
+<span class="bp-tag">RFID Safe</span>
+</div>
+<div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
+</div>
+</a>
+<!-- NOMATIC Travel Bag 40L -->
+<a class="bp-card" href="backpack_nomatic_bag.html">
+<img alt="NOMATIC Travel Bag 40L" class="bp-card-img" src="static/thumb_pro_nbag.png?v=1772629919"/>
+<div class="bp-card-body">
+<div class="bp-brand">NOMATIC</div>
+<div class="bp-name">Travel Bag 40L</div>
+<div class="bp-price">$339.99</div>
+<div class="bp-specs">
+<span class="bp-tag">40L</span>
+<span class="bp-tag">Duffel + Backpack</span>
+<span class="bp-tag">16" Laptop</span>
+<span class="bp-tag">3–7 Day Trips</span>
+<span class="bp-tag">Laundry Bag</span>
+</div>
+<div class="bp-cta"><i class="fas fa-eye"></i> View Details</div>
+</div>
+</a>
+</div>
+</section>
+<section class="cta-banner">
+<div class="cta-content">
+<h2 data-cms="merch-cta-head">Outfit Your Team</h2>
+<p data-cms="merch-cta-desc">We offer bulk discounts for corporate orders to ensure your entire team is
                 equipped for the climb.</p>
-            <a class="btn btn-primary" href="contact.html"
-                style="background:var(--text-light);color:var(--primary);">Contact for Bulk Orders</a>
-        </div>
-    </section>
-
-    <footer>
-        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
-    </footer>
-    <script src="static/cms.js"></script>
+<a class="btn btn-primary" href="contact.html" style="background:var(--text-light);color:var(--primary);">Contact for Bulk Orders</a>
+</div>
+</section>
+<footer>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+</footer>
+<script src="static/cms.js"></script>
 </body>
-
 </html>

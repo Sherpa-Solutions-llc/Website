@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Train Your Brain - Master the art of professional communication and high-status presence.">
-    <title>Train Your Brain | Sherpa Solutions</title>
-    
-    <!-- Modern Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="static/styles.css?v=1.5">
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Train Your Brain - Master the art of professional communication and high-status presence." name="description"/>
+<title>Train Your Brain | Sherpa Solutions</title>
+<!-- Modern Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=1.5" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -24,8 +22,8 @@
     --text-dark: #1a241a !important;
     --text-light: #ffffff !important;
 }
-    </style>
-    <style>
+</style>
+<style>
 
 .metric-row { margin-bottom: 1.5rem; }
 .metric-row label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; letter-spacing: 1px; color: #aaa; text-transform: uppercase; }
@@ -222,137 +220,130 @@ html[data-theme="dark"] .demo-phrase {
     font-weight: 600;
 }
     </style>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
-
 <body>
-
-    <header>
-        <div class="logo-container">
-            <a href="index.html">
-                <img src="/static/sherpa_logo.png" alt="Sherpa Solutions LLC">
-            </a>
-        </div>
-        <div class="menu-toggle" id="mobile-menu-btn">
-            <i class="fa-solid fa-bars"></i>
-        </div>
-        <ul class="nav-links" id="nav-menu">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="services.html">Our Services</a></li>
-            <li><a href="projects.html" class="active">Projects</a></li>
-            <li><a href="merchandise.html">Merchandise</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="header-actions" style="display: flex; align-items: center; gap: 15px;">
-            <input type="color" id="accent-color-picker" value="#c06c3b" style="cursor: pointer; border: none; padding: 0; background: none; width: 30px; height: 30px; border-radius: 50%;" title="Change Theme Accent Color">
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
-            <a href="contact.html" class="btn btn-primary nav-cta">Schedule Basecamp Consultation</a>
-        </div>
-    </header>
-
-    <div class="train-hero">
-        <div class="hero-badge" style="margin-bottom: 1rem; display: inline-block; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-brain"></i> Train Your Brain</div>
-        <h1>The Art of <span class="highlight-accent">High-Status Communication</span></h1>
-        <p>Learn to command the room with executive presence. Discover the verbal, non-verbal, and psychological frameworks used by the world's most effective leaders to cultivate authority and trust.</p>
-        <div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 2rem; flex-wrap: wrap;">
-            <a data-cms="train-hero-cta1" href="#lessons" class="btn btn-primary btn-lg" style="margin: 0; min-width: 260px; height: 55px; display: flex; align-items: center; justify-content: center; white-space: nowrap;">Start the Masterclass</a>
-            <button data-cms="train-hero-demo1" id="btn-demo-toggle" class="btn btn-primary btn-lg" onclick="toggleDemo()" style="margin: 0; min-width: 260px; height: 55px; display: flex; align-items: center; justify-content: center; white-space: nowrap;"><i class="fa-solid fa-play" style="margin-right: 8px;"></i> Demo</button>
-        </div>
-    </div>
-
-    <section id="lessons" class="lesson-grid">
-        <div class="lesson-card">
-            <i class="fa-solid fa-stopwatch"></i>
-            <h3>Pacing & the Power of Silence</h3>
-            <p style="margin-bottom: 1rem;">High-value communicators convey confidence by refusing to rush. They own their space in the conversation.</p>
-            <ul>
-                <li><strong>Slow Down:</strong> Deliberate speaking signals that your words hold weight.</li>
-                <li><strong>The Strategic Pause:</strong> Use silence before a key point to build anticipation, and after to let it settle.</li>
-                <li><strong>Eliminate Fillers:</strong> Replace "um" and "uh" with comfortable silence.</li>
-            </ul>
-        </div>
-        
-        <div class="lesson-card">
-            <i class="fa-solid fa-comment-dots"></i>
-            <h3>High-Value Vocabulary</h3>
-            <p style="margin-bottom: 1rem;">Clarity and directness always win. Stripping away weak language instantly elevates your perceived authority.</p>
-            <ul>
-                <li><strong>Remove Qualifiers:</strong> Drop phrases like "I think maybe" or "I just wanted to."</li>
-                <li><strong>Be Direct:</strong> State the problem, then state the solution.</li>
-                <li><strong>Keep it Simple:</strong> True experts don't hide behind excessive jargon; they make complex things accessible.</li>
-            </ul>
-        </div>
-
-        <div class="lesson-card">
-            <i class="fa-solid fa-user-tie"></i>
-            <h3>Tonality & Physical Presence</h3>
-            <p style="margin-bottom: 1rem;">How you deliver the message is just as important as the words themselves. Project a grounded, unwavering energy.</p>
-            <ul>
-                <li><strong>Grounded Voice:</strong> Breathe from the diaphragm to create a richer, resonant tone instead of a thin, anxious voice.</li>
-                <li><strong>Stillness:</strong> Avoid erratic movements, fidgeting, or over-gesturing. Stillness commands respect.</li>
-                <li><strong>Steady Eye Contact:</strong> Maintain natural, unwavering eye contact without staring aggressively.</li>
-            </ul>
-        </div>
-    </section>
-
-
-    <!-- INTEL: INTERACTIVE HUD & AVATAR CHAMBER -->
-    <section class="simulator-section" style="padding: 5rem 10%; background: #080c10; color: white; position: relative;">
-        <h2 data-cms="train-sim-h2" style="font-size: 2.5rem; text-align: center; margin-bottom: 2rem; color: var(--accent);">Interactive Coaching Simulator</h2>
-        
-        <!-- STEP TABS -->
-        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap;">
-            <button data-cms="train-step-1" id="tab-step-1" class="step-tab active" onclick="setStep(1)" style="padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 1: Baseline Assessment</button>
-            <button data-cms="train-step-2" id="tab-step-2" class="step-tab" onclick="setStep(2)" style="padding: 10px 20px; background: transparent; border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 2: Echo Training</button>
-            <button data-cms="train-step-3" id="tab-step-3" class="step-tab" onclick="setStep(3)" style="padding: 10px 20px; background: transparent; border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 3: Teleprompter Run</button>
-        </div>
-
-        <div style="display: flex; flex-wrap: wrap; gap: 3rem; justify-content: center; align-items: stretch;">
-            <!-- Left: Voice Orb Interface -->
-            <div style="flex: 1; min-width: 300px; max-width: 500px; height: 500px; background: radial-gradient(circle at center, #0f1724 0%, #000000 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
-                <div class="orb-container">
-                    <div id="voice-orb" class="voice-orb idle-orb"></div>
-                    <div class="orb-ring ring-1"></div>
-                    <div class="orb-ring ring-2"></div>
+<header>
+<div class="logo-container">
+<a href="index.html">
+<img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/>
+</a>
+</div>
+<div class="menu-toggle" id="mobile-menu-btn">
+<i class="fa-solid fa-bars"></i>
+</div>
+<ul class="nav-links" id="nav-menu">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a class="active" href="projects.html">Projects</a></li>
+<li><a href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions" style="display: flex; align-items: center; gap: 15px;">
+<input id="accent-color-picker" style="cursor: pointer; border: none; padding: 0; background: none; width: 30px; height: 30px; border-radius: 50%;" title="Change Theme Accent Color" type="color" value="#c06c3b"/>
+<button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button>
+<a class="btn btn-primary nav-cta" href="contact.html">Schedule Basecamp Consultation</a>
+</div>
+</header>
+<div class="train-hero">
+<div class="hero-badge" style="margin-bottom: 1rem; display: inline-block; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-brain"></i> Train Your Brain</div>
+<h1>The Art of <span class="highlight-accent">High-Status Communication</span></h1>
+<p>Learn to command the room with executive presence. Discover the verbal, non-verbal, and psychological frameworks used by the world's most effective leaders to cultivate authority and trust.</p>
+<div class="hero-buttons" style="display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 2rem; flex-wrap: wrap;">
+<a class="btn btn-primary btn-lg" data-cms="train-hero-cta1" href="#lessons" style="margin: 0; min-width: 260px; height: 55px; display: flex; align-items: center; justify-content: center; white-space: nowrap;">Start the Masterclass</a>
+<button class="btn btn-primary btn-lg" data-cms="train-hero-demo1" id="btn-demo-toggle" onclick="toggleDemo()" style="margin: 0; min-width: 260px; height: 55px; display: flex; align-items: center; justify-content: center; white-space: nowrap;"><i class="fa-solid fa-play" style="margin-right: 8px;"></i> Demo</button>
+</div>
+</div>
+<section class="lesson-grid" id="lessons">
+<div class="lesson-card">
+<i class="fa-solid fa-stopwatch"></i>
+<h3>Pacing &amp; the Power of Silence</h3>
+<p style="margin-bottom: 1rem;">High-value communicators convey confidence by refusing to rush. They own their space in the conversation.</p>
+<ul>
+<li><strong>Slow Down:</strong> Deliberate speaking signals that your words hold weight.</li>
+<li><strong>The Strategic Pause:</strong> Use silence before a key point to build anticipation, and after to let it settle.</li>
+<li><strong>Eliminate Fillers:</strong> Replace "um" and "uh" with comfortable silence.</li>
+</ul>
+</div>
+<div class="lesson-card">
+<i class="fa-solid fa-comment-dots"></i>
+<h3>High-Value Vocabulary</h3>
+<p style="margin-bottom: 1rem;">Clarity and directness always win. Stripping away weak language instantly elevates your perceived authority.</p>
+<ul>
+<li><strong>Remove Qualifiers:</strong> Drop phrases like "I think maybe" or "I just wanted to."</li>
+<li><strong>Be Direct:</strong> State the problem, then state the solution.</li>
+<li><strong>Keep it Simple:</strong> True experts don't hide behind excessive jargon; they make complex things accessible.</li>
+</ul>
+</div>
+<div class="lesson-card">
+<i class="fa-solid fa-user-tie"></i>
+<h3>Tonality &amp; Physical Presence</h3>
+<p style="margin-bottom: 1rem;">How you deliver the message is just as important as the words themselves. Project a grounded, unwavering energy.</p>
+<ul>
+<li><strong>Grounded Voice:</strong> Breathe from the diaphragm to create a richer, resonant tone instead of a thin, anxious voice.</li>
+<li><strong>Stillness:</strong> Avoid erratic movements, fidgeting, or over-gesturing. Stillness commands respect.</li>
+<li><strong>Steady Eye Contact:</strong> Maintain natural, unwavering eye contact without staring aggressively.</li>
+</ul>
+</div>
+</section>
+<!-- INTEL: INTERACTIVE HUD & AVATAR CHAMBER -->
+<section class="simulator-section" style="padding: 5rem 10%; background: #080c10; color: white; position: relative;">
+<h2 data-cms="train-sim-h2" style="font-size: 2.5rem; text-align: center; margin-bottom: 2rem; color: var(--accent);">Interactive Coaching Simulator</h2>
+<!-- STEP TABS -->
+<div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap;">
+<button class="step-tab active" data-cms="train-step-1" id="tab-step-1" onclick="setStep(1)" style="padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 1: Baseline Assessment</button>
+<button class="step-tab" data-cms="train-step-2" id="tab-step-2" onclick="setStep(2)" style="padding: 10px 20px; background: transparent; border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 2: Echo Training</button>
+<button class="step-tab" data-cms="train-step-3" id="tab-step-3" onclick="setStep(3)" style="padding: 10px 20px; background: transparent; border: 1px solid var(--accent); color: white; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: bold;">Step 3: Teleprompter Run</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 3rem; justify-content: center; align-items: stretch;">
+<!-- Left: Voice Orb Interface -->
+<div style="flex: 1; min-width: 300px; max-width: 500px; height: 500px; background: radial-gradient(circle at center, #0f1724 0%, #000000 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
+<div class="orb-container">
+<div class="voice-orb idle-orb" id="voice-orb"></div>
+<div class="orb-ring ring-1"></div>
+<div class="orb-ring ring-2"></div>
+</div>
+</div>
+<!-- Right: Telemetry Dashboard -->
+<div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column;">
+<h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; color: white;"><i class="fa-solid fa-chart-line" style="color: var(--accent);"></i> Real-Time Vocal Telemetry</h3>
+<div class="metric-row">
+<label>Volume Projection (RMS):</label>
+<div class="progress-bg"><div class="progress-fill vol-fill" id="metric-vol"></div></div>
+</div>
+<div class="metric-row">
+<label>Resonant Tone (Hz):</label>
+<div class="progress-bg"><div class="progress-fill tone-fill" id="metric-tone"></div></div>
+</div>
+<div class="metric-row">
+<label>Execution Pace (WPM):</label>
+<div class="progress-bg"><div class="progress-fill pace-fill" id="metric-pace"></div></div>
+</div>
+<div id="assessment-result" style="margin-top: 2rem; flex-grow: 1; background: rgba(0,0,0,0.5); padding: 1.5rem; border-radius: 8px; font-family: monospace; font-size: 0.95rem; line-height: 1.5; border-left: 3px solid var(--accent); color: #ccc;">
+                    System Ready.<br/>Waiting for operator to initiate assessment...
                 </div>
-            </div>
-            
-            <!-- Right: Telemetry Dashboard -->
-            <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column;">
-                <h3 style="margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; color: white;"><i class="fa-solid fa-chart-line" style="color: var(--accent);"></i> Real-Time Vocal Telemetry</h3>
-                
-                <div class="metric-row">
-                    <label>Volume Projection (RMS):</label>
-                    <div class="progress-bg"><div id="metric-vol" class="progress-fill vol-fill"></div></div>
-                </div>
-                <div class="metric-row">
-                    <label>Resonant Tone (Hz):</label>
-                    <div class="progress-bg"><div id="metric-tone" class="progress-fill tone-fill"></div></div>
-                </div>
-                <div class="metric-row">
-                    <label>Execution Pace (WPM):</label>
-                    <div class="progress-bg"><div id="metric-pace" class="progress-fill pace-fill"></div></div>
-                </div>
-                
-                <div id="assessment-result" style="margin-top: 2rem; flex-grow: 1; background: rgba(0,0,0,0.5); padding: 1.5rem; border-radius: 8px; font-family: monospace; font-size: 0.95rem; line-height: 1.5; border-left: 3px solid var(--accent); color: #ccc;">
-                    System Ready.<br>Waiting for operator to initiate assessment...
-                </div>
-                
-                <button data-cms="train-start-btn" id="btn-assess-start" class="btn btn-primary" style="margin-top: 2rem; width: 100%;" onclick="initSpeechSimulator()">
-                    <i class="fa-solid fa-microphone"></i> Start Speech Assessment
+<button class="btn btn-primary" data-cms="train-start-btn" id="btn-assess-start" onclick="initSpeechSimulator()" style="margin-top: 2rem; width: 100%;">
+<i class="fa-solid fa-microphone"></i> Start Speech Assessment
                 </button>
-            </div>
-        </div>
-    </section>
-
-
-
-    <footer>
-        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
-        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
-    </footer>
-
-    <script>
+</div>
+</div>
+</section>
+<footer>
+<div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+</footer>
+<script>
         // Theme Color functionality
         const colorPicker = document.getElementById('accent-color-picker');
         colorPicker.addEventListener('input', (e) => {
@@ -428,9 +419,8 @@ html[data-theme="dark"] .demo-phrase {
             }
         }
     </script>
-    <script src="/static/cms.js"></script>
-
-    <!-- SPEECH METRICS DEPENDENCIES -->
-    <script src="static/speech-metrics.js"></script>
+<script src="/static/cms.js"></script>
+<!-- SPEECH METRICS DEPENDENCIES -->
+<script src="static/speech-metrics.js"></script>
 </body>
 </html>

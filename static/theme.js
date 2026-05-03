@@ -1,87 +1,75 @@
-// Execute immediately to prevent flash of wrong theme
-(function() {
-    const savedTheme = localStorage.getItem('sherpa_theme');
-    // Inherit from hardcoded HTML attribute, otherwise default to Light
-    const defaultTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const theme = savedTheme ? savedTheme : defaultTheme;
-    
-    if (theme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-    } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
-})();
+// Global theme management
+// Apply theme IMMEDIATELY (blocking) to prevent flash of light mode
+const savedTheme = localStorage.getItem('sherpa_theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
 
-document.addEventListener("DOMContentLoaded", () => {
-    const toggleBtn = document.getElementById('theme-toggle');
-    if (!toggleBtn) return;
+window.toggleTheme = function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     
-    const icon = toggleBtn.querySelector('i');
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('sherpa_theme', newTheme);
     
-    // Set initial icon
-    if (isLight) {
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
-    } else {
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-    }
+    updateThemeUI(newTheme);
+    syncThemeToIframes(newTheme);
+};
+
+function updateThemeUI(theme) {
+    const isLight = theme === 'light';
     
-    toggleBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    // Find all theme toggle buttons
+    const toggles = document.querySelectorAll('#theme-toggle, #btn-theme-toggle, .theme-toggle');
+    
+    toggles.forEach(btn => {
+        const icon = btn.querySelector('i');
+        const hasText = btn.textContent.toLowerCase().includes('switch to') || btn.classList.contains('btn');
         
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('sherpa_theme', newTheme);
-        
-        // Update Icon
-        if (newTheme === 'light') {
-            icon.classList.replace('fa-sun', 'fa-moon');
+        if (isLight) {
+            if (icon) icon.className = 'fa-solid fa-moon';
+            if (hasText) btn.innerHTML = `<i class="fa-solid fa-moon"></i> Switch to Dark Mode`;
         } else {
-            icon.classList.replace('fa-moon', 'fa-sun');
-        }
-
-        // Sync with CMS Editor Iframe if present
-        const cmsIframe = document.getElementById('cms-iframe');
-        if (cmsIframe && cmsIframe.contentWindow && cmsIframe.contentWindow.document) {
-            try {
-                cmsIframe.contentWindow.document.documentElement.setAttribute('data-theme', newTheme);
-            } catch (e) {
-                console.warn("Could not sync theme to iframe (cross-origin or not loaded yet)");
-            }
-        }
-        
-        // Sync with Streamlit Application Iframes if present
-        const sherpaFrame = document.getElementById('sherpa-frame');
-        if (sherpaFrame && sherpaFrame.contentWindow) {
-            sherpaFrame.contentWindow.postMessage({
-                stCommVersion: 1,
-                type: "SHERPA_THEME",
-                theme: {
-                    base: newTheme,
-                    primaryColor: "#ff6600",
-                    backgroundColor: newTheme === 'dark' ? "#0e1117" : "#ffffff",
-                    secondaryBackgroundColor: newTheme === 'dark' ? "#262730" : "#f0f2f6",
-                    textColor: newTheme === 'dark' ? "#fafafa" : "#31333F",
-                    font: "sans serif"
-                }
-            }, "*");
+            if (icon) icon.className = 'fa-solid fa-sun';
+            if (hasText) btn.innerHTML = `<i class="fa-solid fa-sun"></i> Switch to Light Mode`;
         }
     });
+}
+
+function syncThemeToIframes(theme) {
+    const iframes = ['cms-iframe', 'demo-iframe', 'sherpa-frame'];
+    iframes.forEach(id => {
+        const frame = document.getElementById(id);
+        if (frame && frame.contentWindow) {
+            try {
+                frame.contentWindow.document.documentElement.setAttribute('data-theme', theme);
+                if (id === 'sherpa-frame') {
+                    frame.contentWindow.postMessage({
+                        stCommVersion: 1,
+                        type: "SHERPA_THEME",
+                        theme: { base: theme }
+                    }, "*");
+                }
+            } catch (e) {}
+        }
+    });
+}
+
+// Global event delegation for theme toggles
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#theme-toggle, #btn-theme-toggle, .theme-toggle');
+    if (btn) {
+        e.preventDefault();
+        window.toggleTheme();
+    }
 });
 
-// Also sync iframe on load if it's the CMS page
+// Sync and UI update after DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+    const theme = document.documentElement.getAttribute('data-theme');
+    updateThemeUI(theme);
+});
+
+// Sync on load
 window.addEventListener('load', () => {
-    const cmsIframe = document.getElementById('cms-iframe');
-    if (cmsIframe) {
-        cmsIframe.addEventListener('load', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            try {
-                cmsIframe.contentWindow.document.documentElement.setAttribute('data-theme', currentTheme);
-            } catch (e) {
-                console.warn("Could not sync theme to iframe (cross-origin)");
-            }
-        });
-    }
+    const theme = document.documentElement.getAttribute('data-theme');
+    syncThemeToIframes(theme);
 });

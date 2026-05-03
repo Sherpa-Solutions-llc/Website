@@ -1,940 +1,481 @@
 <!DOCTYPE html>
 
-
-
-<html data-theme="light" lang="en">
-
+<html data-theme="dark" lang="en">
 <head>
-
 <link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
-
 <meta charset="utf-8"/>
-
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-
 <title>Industrial Security | DCSA Dashboard | Sherpa Solutions</title>
-
 <!-- Modern Fonts -->
-
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-
 <link href="static/styles.css?v=1.4" rel="stylesheet"/>
-
 <script src="static/theme.js"></script>
-
 <style>
-
     .dashboard-bg {
-
         background-color: var(--bg-color);
-
         background-image: linear-gradient(rgba(5, 5, 5, 0.92), rgba(5, 5, 5, 0.92)), url('static/dcsa_sherpa_logo.png');
-
         background-repeat: no-repeat;
-
         background-position: center center;
-
         background-attachment: fixed;
-
         background-size: min(70vw, 65vh);
-
     }
-
-    html[data-theme="light"] .dashboard-bg {
-
+    html[data-theme="dark"] .dashboard-bg {
         background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('static/dcsa_sherpa_logo.png');
-
     }
-
 </style>
-
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
-
 <body class="dashboard-bg">
-
 <header>
-
 <div class="logo-container">
-
-<a data-cms="auto-dcsa-industrial-security-a-14" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_industrial_security-img-1"></a>
-
+<a data-cms="auto-dcsa-industrial-security-a-14" href="index.html"><img alt="Sherpa Solutions LLC" data-cms="auto-dcsa_industrial_security-img-1" src="static/sherpa_logo.png"/></a>
 </div>
-
 <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
-
 <ul class="nav-links" id="nav-menu">
-
 <li data-cms="auto-dcsa-industrial-security-li-26"><a data-cms="auto-dcsa-industrial-security-a-15" href="index.html" style="pointer-events: none;">Home</a></li>
-
 <li data-cms="auto-dcsa-industrial-security-li-27"><a data-cms="auto-dcsa-industrial-security-a-16" href="about.html" style="pointer-events: none;">About Us</a></li>
-
 <li data-cms="auto-dcsa-industrial-security-li-28"><a data-cms="auto-dcsa-industrial-security-a-17" href="services.html" style="pointer-events: none;">Our Services</a></li>
-
 <li data-cms="auto-dcsa-industrial-security-li-29"><a class="active" data-cms="auto-dcsa-industrial-security-a-18" href="projects.html" style="pointer-events: none;">Projects</a></li>
-
 <li data-cms="auto-dcsa-industrial-security-li-30"><a data-cms="auto-dcsa-industrial-security-a-19" href="merchandise.html" style="pointer-events: none;">Merchandise</a></li>
-
 <li data-cms="auto-dcsa-industrial-security-li-31"><a data-cms="auto-dcsa-industrial-security-a-20" href="contact.html" style="pointer-events: none;">Contact</a></li>
-
 </ul>
-
 <div class="header-actions">
-
-<button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
-
+<button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-industrial-security-a-21" href="contact.html">Schedule Basecamp Consultation</a>
-
 </div>
-
 </header>
-
-<div class="auto-style-d298fd6b page-header">
-
-<h1 data-cms="auto-dcsa-industrial-security-h1-1" class="auto-style-d8936d92"><i class="fa-solid fa-industry" style="color: var(--accent); margin-right: 1rem;"></i> Industrial Security</h1>
-
-<p data-cms="auto-dcsa-industrial-security-p-8" class="auto-style-f54c33d0">National Industrial Security Program (NISP) Facility Oversight</p>
-
+<div class="page-header" style="background: transparent; padding: 12rem 5% 1rem 5%;">
+<h1 data-cms="auto-dcsa-industrial-security-h1-1" style="color: var(--primary); font-size: 3.5rem; font-weight: 800; margin-bottom: 0;"><i class="fa-solid fa-industry" style="color: var(--accent); margin-right: 1rem;"></i> Industrial Security</h1>
+<p data-cms="auto-dcsa-industrial-security-p-8" style="color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">National Industrial Security Program (NISP) Facility Oversight</p>
 </div>
-
-<section class="auto-style-caa45fcf content-block">
-
+<section class="content-block" style="padding-top: 1rem;">
 <div class="content-container">
-
-<div class="auto-style-e509a544">
-
-<div class="auto-style-85008827">
-
-<h3 data-cms="auto-dcsa-industrial-security-h3-2" class="auto-style-f695edc0">Cleared Facilities</h3>
-
-<div class="auto-style-0a7efd5e">12,450</div>
-
-<div class="auto-style-deab60e5"><i class="fa-solid fa-shield-halved"></i> 98% Compliance Rate</div>
-
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-industrial-security-h3-2" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Cleared Facilities</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">12,450</div>
+<div style="color: #28a745; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-shield-halved"></i> 98% Compliance Rate</div>
 </div>
-
-<div class="auto-style-85008827">
-
-<h3 data-cms="auto-dcsa-industrial-security-h3-3" class="auto-style-f695edc0">Pending Assessments</h3>
-
-<div class="auto-style-0a7efd5e">342</div>
-
-<div class="auto-style-b722676c"><i class="fa-solid fa-calendar-days"></i> Scheduled for Q3</div>
-
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-industrial-security-h3-3" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Pending Assessments</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">342</div>
+<div style="color: #ffc107; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-calendar-days"></i> Scheduled for Q3</div>
 </div>
-
-<div class="auto-style-85008827">
-
-<h3 data-cms="auto-dcsa-industrial-security-h3-4" class="auto-style-f695edc0">Cyber Infractions</h3>
-
-<div class="auto-style-0a7efd5e">17</div>
-
-<div class="auto-style-35ca3d96"><i class="fa-solid fa-bug"></i> Active mitigations</div>
-
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-industrial-security-h3-4" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Cyber Infractions</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">17</div>
+<div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-bug"></i> Active mitigations</div>
 </div>
-
 </div>
-
 <!-- Advanced Search Section -->
-
-<div class="auto-style-132d3ced">
-
-<h3 data-cms="auto-dcsa-industrial-security-h3-5" class="auto-style-f6e8c7f6"><i class="fa-solid fa-magnifying-glass" style="margin-right: 0.5rem;"></i> Advanced Facility Search</h3>
-
-<div class="auto-style-bd274328">
-
-<div class="auto-style-d5a8f179">
-
-<label class="auto-style-52a1c5ec">Search By</label>
-
-<select title="Search Criteria" id="search-criteria" onchange="updateSearchUI()" class="auto-style-8a070dae">
-
+<div style="background: var(--surface-color); padding: 1.5rem 2rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+<h3 data-cms="auto-dcsa-industrial-security-h3-5" style="color: var(--primary); margin-bottom: 1rem; font-size:1.1rem;"><i class="fa-solid fa-magnifying-glass" style="margin-right: 0.5rem;"></i> Advanced Facility Search</h3>
+<div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
+<div style="flex:0 0 200px;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Search By</label>
+<select id="search-criteria" onchange="updateSearchUI()" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="name">Contractor Name</option>
-
 <option value="cage">CAGE Code</option>
-
 <option value="region">Region</option>
-
 <option value="status">FCL Status</option>
-
 <option value="agent">Agent Assigned</option>
-
 </select>
-
 </div>
-
 <!-- Dynamic Input Containers -->
-
-<div id="input-container-name" class="auto-style-b99748dd">
-
-<div class="auto-style-d5e8c5f3">
-
-<label class="auto-style-52a1c5ec">Contractor Name</label>
-
-<input title="Search Name" id="search-name" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. Lockheed Martin" class="auto-style-8d424c20" type="text"/>
-
+<div id="input-container-name" style="display:flex; flex:1;">
+<div style="flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Contractor Name</label>
+<input id="search-name" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. Lockheed Martin" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
 </div>
-
 </div>
-
-<div id="input-container-cage" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">CAGE Code</label>
-
-<input title="Search Cage" id="search-cage" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. 01234" class="auto-style-8d424c20" type="text"/>
-
+<div id="input-container-cage" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">CAGE Code</label>
+<input id="search-cage" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. 01234" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
 </div>
-
-<div id="input-container-region" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">Region</label>
-
-<select title="Search Region" id="search-region" class="auto-style-8a070dae">
-
+<div id="input-container-region" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Region</label>
+<select id="search-region" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="Eastern">Eastern</option>
-
 <option value="Southern">Southern</option>
-
 <option value="Western">Western</option>
-
 </select>
-
 </div>
-
-<div id="input-container-status" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">FCL Status</label>
-
-<select title="Search Status" id="search-status" class="auto-style-8a070dae">
-
+<div id="input-container-status" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">FCL Status</label>
+<select id="search-status" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="VALID">VALID</option>
-
 <option value="REVIEW PENDING">REVIEW PENDING</option>
-
 </select>
-
 </div>
-
-<div id="input-container-agent" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">Assigned Agent</label>
-
-<select title="Search Agent" id="search-agent" class="auto-style-8a070dae">
-
+<div id="input-container-agent" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Assigned Agent</label>
+<select id="search-agent" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="SA Johnson">SA Johnson</option>
-
 <option value="SA Smith">SA Smith</option>
-
 <option value="SA Davis">SA Davis</option>
-
 </select>
-
 </div>
-
 <div>
-
-<button onclick="executeSearch()" class="auto-style-16e06746">Search</button>
-
+<button onclick="executeSearch()" style="padding:0.75rem 2rem; background:var(--accent); color:#fff; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.95rem; transition:background 0.2s;">Search</button>
 </div>
-
 <div>
-
-<button onclick="resetSearch()" class="auto-style-42a7cc11" title="Clear Search"><i class="fa-solid fa-rotate-left"></i></button>
-
+<button onclick="resetSearch()" style="padding:0.75rem 1rem; background:transparent; color:var(--text-dark); border:1px solid var(--border-color); border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.95rem; transition:background 0.2s; opacity:0.7;" title="Clear Search"><i class="fa-solid fa-rotate-left"></i></button>
 </div>
-
 </div>
-
 </div>
-
-<div class="auto-style-2e4b5b9d">
-
-<div class="auto-style-8a5a58f8">
-
-<h3 data-cms="auto-dcsa-industrial-security-h3-6" class="auto-style-c4e9f69c"><i class="fa-solid fa-building-shield" style="margin-right: 0.5rem;"></i> Facility Clearance Status</h3>
-
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 4rem;">
+<div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+<h3 data-cms="auto-dcsa-industrial-security-h3-6" style="color: var(--primary); margin:0;"><i class="fa-solid fa-building-shield" style="margin-right: 0.5rem;"></i> Facility Clearance Status</h3>
 </div>
-
-<div class="auto-style-8ea955b0">
-
-<table class="auto-style-b5f79722 no-cms">
-
-<thead class="auto-style-5c1d556e">
-
-<tr class="auto-style-f8e7cbce">
-
-<th class="auto-style-6116b933">Contractor</th>
-
-<th class="auto-style-6116b933">CAGE Code</th>
-
-<th class="auto-style-6116b933">Region</th>
-
-<th class="auto-style-6116b933">FCL Status</th>
-
-<th class="auto-style-6116b933">Agent Assigned</th>
-
-<th class="auto-style-6116b933">Next Review</th>
-
+<div style="max-height: 600px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+<table class="no-cms" style="width: 100%; border-collapse: collapse; text-align: left; position: relative;">
+<thead style="position: sticky; top: 0; background: var(--surface-color); z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+<tr style="background: rgba(0,0,0,0.1);">
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Contractor</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">CAGE Code</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Region</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">FCL Status</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Agent Assigned</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Next Review</th>
 </tr>
-
 </thead>
-
 <tbody id="facility-tbody">
-
 </tbody>
-
 </table>
-
 </div>
-
 </div>
-
-<div class="auto-style-cdd8ca06">
-
+<div style="text-align: center;">
 <a class="btn btn-primary" data-cms="auto-dcsa-industrial-security-a-22" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
-
 </div>
-
 </div>
-
 </section>
-
 <!-- Facility Detail Modal -->
-
-<div id="facility-modal" class="auto-style-4bf5bee2">
-
-<div class="auto-style-acebe207">
-
+<div id="facility-modal" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.65); backdrop-filter:blur(5px); align-items:flex-start; justify-content:center; overflow-y:auto; padding:2rem 1rem;">
+<div style="background:var(--surface-color); border-radius:16px; padding:0; max-width:900px; width:100%; position:relative; box-shadow:0 30px 70px rgba(0,0,0,0.4); border:1px solid var(--border-color); animation:modalIn 0.25s ease; margin:auto;">
 <!-- Modal Header -->
-
-<div id="fac-header" class="auto-style-3e394faf">
-
-<div class="auto-style-de42fb69">
-
-<i class="auto-style-1339520e fa-solid fa-building"></i>
-
+<div id="fac-header" style="padding:1.75rem 2rem; border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:1.25rem; border-radius:16px 16px 0 0;">
+<div style="width:56px; height:56px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+<i class="fa-solid fa-building" style="font-size:1.6rem; color:var(--accent);"></i>
 </div>
-
-<div class="auto-style-d5e8c5f3">
-
-<div id="fac-id" class="auto-style-186b4b07"></div>
-
-<div class="auto-style-c24afe58">
-
+<div style="flex:1;">
+<div id="fac-id" style="font-family:monospace; font-size:1.4rem; font-weight:800; color:var(--primary);"></div>
+<div style="display:flex; gap:0.75rem; margin-top:0.35rem; flex-wrap:wrap;">
 <span data-cms="auto-dcsa-industrial-security-span-11" id="fac-status-badge"></span>
-
 </div>
-
 </div>
-
-<button onclick="closeFacilityModal()" class="auto-style-0f63f71f" title="Close">×</button>
-
+<button onclick="closeFacilityModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-dark); opacity:0.5; flex-shrink:0;" title="Close">×</button>
 </div>
-
 <!-- Modal Body -->
-
-<div class="auto-style-0ffe4f40">
-
+<div style="padding:2rem; display:flex; flex-direction:column; gap:1.5rem;">
 <!-- Identity -->
-
-<div class="auto-style-317a1681">
-
-<div><div class="auto-style-47416124">Contractor Name</div><div id="fac-name" class="auto-style-39d40c61"></div></div>
-
-<div><div class="auto-style-47416124">CAGE Code</div><div id="fac-cage" class="auto-style-1bf119c1"></div></div>
-
-<div><div class="auto-style-47416124">Region</div><div id="fac-region" class="auto-style-39d40c61"></div></div>
-
-<div><div class="auto-style-47416124">Phone</div><div id="fac-phone" class="auto-style-39d40c61"></div></div>
-
-<div><div class="auto-style-47416124">Email</div><div id="fac-email" class="auto-style-39d40c61"></div></div>
-
-<div class="auto-style-8588e44d"><div class="auto-style-47416124">Address</div><div id="fac-address" class="auto-style-39d40c61"></div></div>
-
+<div style="background:var(--bg-color); border-radius:10px; padding:1.25rem; border:1px solid var(--border-color); display:flex; flex-wrap:wrap; gap:2rem;">
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Contractor Name</div><div id="fac-name" style="font-weight:600; color:var(--primary); font-size:1.1rem;"></div></div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">CAGE Code</div><div id="fac-cage" style="font-weight:600; color:var(--primary); font-size:1.1rem; font-family:monospace;"></div></div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Region</div><div id="fac-region" style="font-weight:600; color:var(--primary); font-size:1.1rem;"></div></div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Phone</div><div id="fac-phone" style="font-weight:600; color:var(--primary); font-size:1.1rem;"></div></div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Email</div><div id="fac-email" style="font-weight:600; color:var(--primary); font-size:1.1rem;"></div></div>
+<div style="width:100%;"><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Address</div><div id="fac-address" style="font-weight:600; color:var(--primary); font-size:1.1rem;"></div></div>
 </div>
-
 <!-- CE Flags -->
-
-<div id="fac-flags-box" class="auto-style-b53b8052">
-
-<div class="auto-style-2918bf0c"><i class="auto-style-8ceafa5f fa-solid fa-triangle-exclamation"></i>Security Infractions</div>
-
-<div id="fac-flags" class="auto-style-338874e1"></div>
-
+<div id="fac-flags-box" style="background:#fff3cd; border-radius:10px; padding:1.25rem; border:1px solid #ffc107; display:none;">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#856404; font-weight:700; margin-bottom:0.75rem;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:0.4rem;"></i>Security Infractions</div>
+<div id="fac-flags" style="font-size:0.9rem; color:#664d03;"></div>
 </div>
-
 <!-- 10-Step Timeline -->
-
-<div class="auto-style-bac9e67e">
-
-<div class="auto-style-48e36689"><i class="auto-style-8ceafa5f fa-solid fa-list-check"></i>10-Step Clearance Process</div>
-
-<table class="auto-style-2a2975a7 no-cms">
-
+<div style="background:var(--bg-color); border-radius:10px; padding:1.25rem; border:1px solid var(--border-color); overflow-x:auto;">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:1rem;"><i class="fa-solid fa-list-check" style="margin-right:0.4rem;"></i>10-Step Clearance Process</div>
+<table class="no-cms" style="width:100%; border-collapse:collapse; text-align:left; min-width:700px;">
 <thead>
-
-<tr class="auto-style-cf9e9d1f">
-
-<th class="auto-style-44015c62">Step</th>
-
-<th class="auto-style-44015c62">Assigned Agent</th>
-
-<th class="auto-style-44015c62">Duration</th>
-
-<th class="auto-style-44015c62">Result</th>
-
-<th class="auto-style-44015c62">Action Required</th>
-
+<tr style="border-bottom:2px solid var(--border-color);">
+<th style="padding:0.75rem; font-size:0.8rem; color:var(--text-dark); opacity:0.8;">Step</th>
+<th style="padding:0.75rem; font-size:0.8rem; color:var(--text-dark); opacity:0.8;">Assigned Agent</th>
+<th style="padding:0.75rem; font-size:0.8rem; color:var(--text-dark); opacity:0.8;">Duration</th>
+<th style="padding:0.75rem; font-size:0.8rem; color:var(--text-dark); opacity:0.8;">Result</th>
+<th style="padding:0.75rem; font-size:0.8rem; color:var(--text-dark); opacity:0.8;">Action Required</th>
 </tr>
-
 </thead>
-
 <tbody id="fac-steps-tbody">
-
 </tbody>
-
 </table>
-
 </div>
-
 </div>
-
 </div>
-
 </div>
-
 <!-- Agent Contact Modal -->
-
-<div id="agent-modal" class="auto-style-9742f1c0">
-
-<div class="auto-style-ed18cfbd">
-
-<button onclick="closeAgentModal()" class="auto-style-41f0f204" title="Close">×</button>
-
-<div class="auto-style-9c1f14b2">
-
-<div id="agent-icon-wrap" class="auto-style-219a369c">
-
-<i class="auto-style-c2509dbe fa-solid fa-user-tie" id="agent-icon"></i>
-
+<div id="agent-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div style="background:var(--surface-color); border-radius:16px; padding:2.5rem; max-width:420px; width:90%; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color); animation: modalIn 0.25s ease;">
+<button onclick="closeAgentModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-dark); opacity:0.6;" title="Close">×</button>
+<div style="text-align:center; margin-bottom:1.5rem;">
+<div id="agent-icon-wrap" style="width:80px; height:80px; border-radius:50%; background:var(--primary); display:inline-flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:0 0 0 6px rgba(45,63,46,0.15);">
+<i class="fa-solid fa-user-tie" id="agent-icon" style="font-size:2.2rem; color:var(--accent);"></i>
 </div>
-
-<div id="agent-name" class="auto-style-3cc8c9fc"></div>
-
-<div id="agent-title" class="auto-style-7346b6da"></div>
-
+<div id="agent-name" style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:var(--primary);"></div>
+<div id="agent-title" style="font-size:0.95rem; color:var(--text-dark); opacity:0.7; margin-top:0.25rem;"></div>
 </div>
-
-<div class="auto-style-49d9c816">
-
-<div class="auto-style-7691d8a6">
-
-<i class="auto-style-64b7ea43 fa-solid fa-building"></i>
-
-<span data-cms="auto-dcsa-industrial-security-span-12" id="agent-division" class="auto-style-cc994a66"></span>
-
+<div style="border-top:1px solid var(--border-color); padding-top:1.5rem; display:flex; flex-direction:column; gap:1rem;">
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-building" style="color:var(--accent); width:20px; text-align:center;"></i>
+<span data-cms="auto-dcsa-industrial-security-span-12" id="agent-division" style="color:var(--text-dark); font-size:0.95rem;"></span>
 </div>
-
-<div class="auto-style-7691d8a6">
-
-<i class="auto-style-64b7ea43 fa-solid fa-envelope"></i>
-
-<a data-cms="auto-dcsa-industrial-security-a-23" href="#" id="agent-email" class="auto-style-0f199d59" aria-label="Email" title="Email" aria-label="Email" title="Email"></a>
-
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-envelope" style="color:var(--accent); width:20px; text-align:center;"></i>
+<a data-cms="auto-dcsa-industrial-security-a-23" href="#" id="agent-email" style="color:var(--accent); font-size:0.95rem; text-decoration:none;"></a>
 </div>
-
-<div class="auto-style-7691d8a6">
-
-<i class="auto-style-64b7ea43 fa-solid fa-phone"></i>
-
-<a data-cms="auto-dcsa-industrial-security-a-24" href="#" id="agent-phone" class="auto-style-da1eada9" aria-label="Phone" title="Phone" aria-label="Phone" title="Phone"></a>
-
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-phone" style="color:var(--accent); width:20px; text-align:center;"></i>
+<a data-cms="auto-dcsa-industrial-security-a-24" href="#" id="agent-phone" style="color:var(--text-dark); font-size:0.95rem; text-decoration:none;"></a>
 </div>
-
 </div>
-
-<a data-cms="auto-dcsa-industrial-security-a-25" href="#" id="agent-compose" class="auto-style-5815f71e">
+<a data-cms="auto-dcsa-industrial-security-a-25" href="#" id="agent-compose" style="display:block; margin-top:1.75rem; background:var(--accent); color:#fff; text-align:center; padding:0.85rem; border-radius:8px; text-decoration:none; font-family:'Outfit',sans-serif; font-weight:600; transition:background 0.2s;">
 <i class="fa-solid fa-envelope" style="margin-right:0.5rem;"></i>Send Message
             </a>
-
 </div>
-
 </div>
-
 <!-- Artifact Viewer Modal -->
-
-<div id="artifact-modal" class="auto-style-15a3a077">
-
-<div class="auto-style-772b064a">
-
-<div class="auto-style-7bf54eaa">
-
-<div class="auto-style-dce924c4">
-
-<i class="auto-style-091dd042 fa-solid fa-file-pdf"></i>
-
+<div id="artifact-modal" style="display:none; position:fixed; inset:0; z-index:10001; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1rem;">
+<div style="background:#fff; border-radius:12px; width:100%; max-width:700px; box-shadow:0 25px 60px rgba(0,0,0,0.4); border:1px solid var(--border-color); animation: modalIn 0.25s ease; display:flex; flex-direction:column; overflow:hidden;">
+<div style="background:#f4f6f4; padding:1rem 1.5rem; border-bottom:1px solid #ddd; display:flex; align-items:center; justify-content:space-between;">
+<div style="font-weight:700; color:#111; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+<i class="fa-solid fa-file-pdf" style="color:#d32f2f; font-size:1.4rem;"></i>
 <span data-cms="auto-dcsa-industrial-security-span-13" id="artifact-title">Artifact Viewer</span>
-
 </div>
-
-<button onclick="closeArtifactModal()" onmouseout="this.style.opacity=1" onmouseover="this.style.opacity=0.6" class="auto-style-0756ddc4" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
-
+<button onclick="closeArtifactModal()" onmouseout="this.style.opacity=1" onmouseover="this.style.opacity=0.6" style="background:none; border:none; font-size:1.2rem; font-weight:600; cursor:pointer; color:#000; display:flex; align-items:center; gap:0.4rem; transition:opacity 0.2s;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
-
-<div class="auto-style-d93cd64e">
-
-<i class="auto-style-1e99dfd2 fa-regular fa-file-code"></i>
-
-<h4 data-cms="auto-dcsa-industrial-security-h4-7" id="artifact-name-display" class="auto-style-e1ac92b9"></h4>
-
-<p data-cms="auto-dcsa-industrial-security-p-9" id="artifact-status-display" class="auto-style-8296997d"></p>
-
-<div class="auto-style-8e4cd6c0">
-
-<i class="auto-style-8ceafa5f fa-solid fa-lock"></i> View Classified Document (CUI/NOFORN)
-
+<div style="padding:3rem 2rem; text-align:center; background:#fafafa;">
+<i class="fa-regular fa-file-code" style="font-size:4rem; color:#999; margin-bottom:1rem;"></i>
+<h4 data-cms="auto-dcsa-industrial-security-h4-7" id="artifact-name-display" style="color:#111; margin-bottom:0.5rem; font-size:1.2rem;"></h4>
+<p data-cms="auto-dcsa-industrial-security-p-9" id="artifact-status-display" style="color:#444; opacity:0.9; font-size:0.95rem; margin-bottom:1.5rem;"></p>
+<div style="display:inline-block; padding:0.5rem 1rem; background:#333; color:#fff; border-radius:4px; font-weight:600; font-size:0.85rem; opacity:0.8; cursor:not-allowed;">
+<i class="fa-solid fa-lock" style="margin-right:0.4rem;"></i> View Classified Document (CUI/NOFORN)
                 </div>
-
 </div>
-
 </div>
-
 </div>
-
 <style>
-
         @keyframes modalIn {
-
             from { opacity:0; transform:scale(0.92) translateY(10px); }
-
             to   { opacity:1; transform:scale(1) translateY(0); }
-
         }
-
         .agent-link:hover { text-decoration: underline !important; }
-
     </style>
-
 <script src="static/facilityDB.js"></script>
-
 <script>
-
         var agents = {
-
             'SA Johnson': { name:'SA Johnson', title:'Eastern Region Field Agent', email:'t.johnson@dcsa.mil', phone:'(571) 305-1111', div:'Industrial Security Directorate', icon:'fa-user-tie' },
-
             'SA Smith': { name:'SA Smith', title:'Southern Region Field Agent', email:'m.smith@dcsa.mil', phone:'(571) 305-2222', div:'Industrial Security Directorate', icon:'fa-user-shield' },
-
             'SA Davis': { name:'SA Davis', title:'Western Region Field Agent', email:'s.davis@dcsa.mil', phone:'(571) 305-3333', div:'Industrial Security Directorate', icon:'fa-user-secret' },
-
             'Analyst Wu': { name:'Analyst Wu', title:'Vetting Risk Analyst', email:'c.wu@dcsa.mil', phone:'(571) 305-4444', div:'Personnel Vetting Directorate', icon:'fa-user' },
-
             'Analyst Lee': { name:'Analyst Lee', title:'Vetting Risk Analyst', email:'k.lee@dcsa.mil', phone:'(571) 305-5555', div:'Personnel Vetting Directorate', icon:'fa-user' },
-
             'Analyst Patel': { name:'Analyst Patel', title:'Vetting Risk Analyst', email:'r.patel@dcsa.mil', phone:'(571) 305-6666', div:'Personnel Vetting Directorate', icon:'fa-user' },
-
             'DCSA FOCI Branch': { name:'FOCI Analyst', title:'Foreign Ownership Reviewer', email:'foci@dcsa.mil', phone:'(571) 305-7777', div:'Industrial Security Directorate', icon:'fa-globe' },
-
             'DCSA Adjudication': { name:'Adjudicator', title:'Final Adjudication Officer', email:'adjudication@dcsa.mil', phone:'(571) 305-8888', div:'Consolidated Adjudication Services', icon:'fa-gavel' }
-
         };
 
 
 
-
-
-
-
         function updateSearchUI() {
-
             var criteria = document.getElementById('search-criteria').value;
-
             document.getElementById('input-container-name').style.display = (criteria === 'name') ? 'flex' : 'none';
-
             document.getElementById('input-container-cage').style.display = (criteria === 'cage') ? 'flex' : 'none';
-
             document.getElementById('input-container-region').style.display = (criteria === 'region') ? 'flex' : 'none';
-
             document.getElementById('input-container-status').style.display = (criteria === 'status') ? 'flex' : 'none';
-
             document.getElementById('input-container-agent').style.display = (criteria === 'agent') ? 'flex' : 'none';
-
         }
-
-
 
         function executeSearch() {
-
             var criteria = document.getElementById('search-criteria').value;
-
             var filteredIds = [];
-
             
-
             Object.keys(facilityDB).forEach(function(id) {
-
                 var fac = facilityDB[id];
-
                 var match = false;
-
                 
-
                 if (criteria === 'name') {
-
                     var qName = document.getElementById('search-name').value.toLowerCase().trim();
-
                     if (!qName || fac.contractor.toLowerCase().startsWith(qName)) match = true;
-
                 } else if (criteria === 'cage') {
-
                     var qCage = document.getElementById('search-cage').value.toLowerCase().trim();
-
                     if (!qCage || id.includes(qCage)) match = true;
-
                 } else if (criteria === 'region') {
-
                     var qRegion = document.getElementById('search-region').value;
-
                     if (fac.region === qRegion) match = true;
-
                 } else if (criteria === 'status') {
-
                     var qStatus = document.getElementById('search-status').value;
-
                     if (fac.status === qStatus) match = true;
-
                 } else if (criteria === 'agent') {
-
                     var qAgent = document.getElementById('search-agent').value;
-
                     if (fac.agentName === qAgent) match = true;
-
                 }
-
                 
-
                 if (match) filteredIds.push(id);
-
             });
-
             renderTable(filteredIds);
-
         }
-
         
-
         function resetSearch() {
-
             document.getElementById('search-name').value = '';
-
             document.getElementById('search-cage').value = '';
-
             renderTable(Object.keys(facilityDB));
-
         }
-
-
 
         function renderTable(idsToRender) {
-
             var tbody = document.getElementById('facility-tbody');
-
             tbody.innerHTML = '';
-
             
-
             idsToRender.sort(function(a, b) {
-
                 var nameA = facilityDB[a].contractor.toLowerCase();
-
                 var nameB = facilityDB[b].contractor.toLowerCase();
-
                 if (nameA < nameB) return -1;
-
                 if (nameA > nameB) return 1;
-
                 return 0;
-
             });
-
             
-
             var initialItems = idsToRender.slice(0, 30);
-
             var remainingItems = idsToRender.slice(30);
-
             
-
             function renderBatch(batch) {
-
                 var html = '';
-
                 batch.forEach(function(id) {
-
                     var fac = facilityDB[id];
-
                     html += '<tr>' +
-
-                        '<td class="auto-style-f00637c2">' +
-
-                            '<a href="#" onclick="showFacility(\''+id+'\'); return false;" class="auto-style-3b2b3267" title="View Facility Detail">' +
-
-                                '<i class="auto-style-37f1d65d fa-solid fa-magnifying-glass"></i>'+fac.contractor+'</a></td>' +
-
-                        '<td class="auto-style-a86d1ae1">'+id+'</td>' +
-
-                        '<td class="auto-style-767d65ae">'+fac.region+'</td>' +
-
-                        '<td class="auto-style-767d65ae"><span ' + 'sty' + 'le="background: '+fac.statusBg+'; color: '+fac.statusColor+'; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">'+fac.status+'</span></td>' +
-
-                        '<td class="auto-style-767d65ae">' +
-
-                            '<a href="#" class="auto-style-7657e5d6 agent-link" onclick="showAgent(\''+fac.agentName+'\', \''+fac.agentTitle+'\', \''+fac.agentEmail+'\', \''+fac.agentPhone+'\', \''+fac.agentDiv+'\', \''+fac.agentIcon+'\'); return false;">' +
-
-                                '<i class="auto-style-3e26b9a7 fa-solid '+fac.agentIcon+'"></i>'+fac.agentName+'</a>' +
-
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color); font-weight: bold;">' +
+                            '<a href="#" onclick="showFacility(\''+id+'\'); return false;" style="color: var(--accent); font-weight: 700; text-decoration: none; letter-spacing: 0.03em;" title="View Facility Detail">' +
+                                '<i class="fa-solid fa-magnifying-glass" style="font-size:0.75rem; margin-right:0.35rem; opacity:0.7;"></i>'+fac.contractor+'</a></td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color); font-family: monospace;">'+id+'</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+fac.region+'</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);"><span style="background: '+fac.statusBg+'; color: '+fac.statusColor+'; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">'+fac.status+'</span></td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">' +
+                            '<a href="#" class="agent-link" onclick="showAgent(\''+fac.agentName+'\', \''+fac.agentTitle+'\', \''+fac.agentEmail+'\', \''+fac.agentPhone+'\', \''+fac.agentDiv+'\', \''+fac.agentIcon+'\'); return false;" style="color: var(--accent); font-weight: 600; text-decoration: none;">' +
+                                '<i class="fa-solid '+fac.agentIcon+'" style="margin-right: 0.4rem;"></i>'+fac.agentName+'</a>' +
                         '</td>' +
-
-                        '<td class="auto-style-767d65ae">'+fac.nextReview+'</td>' +
-
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+fac.nextReview+'</td>' +
                         '</tr>';
-
                 });
-
                 tbody.insertAdjacentHTML('beforeend', html);
-
             }
-
             
-
             renderBatch(initialItems);
-
             
-
             if (remainingItems.length > 0) {
-
                 setTimeout(function() {
-
                     renderBatch(remainingItems);
-
                 }, 100);
-
             }
-
         }
-
         
-
         renderTable(Object.keys(facilityDB));
 
-
-
         function showFacility(id) {
-
             var f = facilityDB[id];
-
             if (!f) return;
-
             document.getElementById('fac-id').textContent = id + " - " + f.contractor;
-
             document.getElementById('fac-status-badge').innerHTML =
-
-                '<span class="auto-style-19541406">'+f.status+'</span>';
-
+                '<span style="background:'+f.statusBg+';color:'+f.statusColor+';padding:0.2rem 0.6rem;border-radius:4px;font-size:0.78rem;font-weight:700;">'+f.status+'</span>';
             document.getElementById('fac-name').textContent = f.contractor;
-
             document.getElementById('fac-region').textContent = f.region;
-
             
-
             document.getElementById('fac-cage').textContent = id;
-
             var sum = 0;
-
             for(var i=0; i<id.length; i++) sum += id.charCodeAt(i);
-
             var phoneStr = "(555) " + (sum%900 + 100) + "-" + ((sum*7)%9000 + 1000);
-
             document.getElementById('fac-phone').textContent = phoneStr;
-
             document.getElementById('fac-email').textContent = "fso@" + f.contractor.toLowerCase().replace(/[^a-z0-9]/g, '') + ".com";
-
             var cityStateZip = "Washington, DC 20001";
-
             if (f.region === "Eastern") cityStateZip = "Arlington, VA " + (22201 + (sum % 10));
-
             else if (f.region === "Southern") cityStateZip = "Huntsville, AL " + (35801 + (sum % 10));
-
             else if (f.region === "Western") cityStateZip = "San Diego, CA " + (92101 + (sum % 10));
-
             else if (f.region === "Northern" || f.region === "Central") cityStateZip = "Chicago, IL " + (60601 + (sum % 10));
-
             
-
             document.getElementById('fac-address').textContent = (sum*3) + " Industrial Parkway, " + cityStateZip;
-
             
-
             var flagsBox = document.getElementById('fac-flags-box');
-
             if (f.flags) {
-
                 document.getElementById('fac-flags').innerHTML = f.flags.replace(/\n/g, '<br>');
-
                 flagsBox.style.display = 'block';
-
             } else {
-
                 flagsBox.style.display = 'none';
-
             }
-
             
-
             var tbody = document.getElementById('fac-steps-tbody');
-
             tbody.innerHTML = '';
-
             f.steps.forEach(function(s) {
-
                 var statusColor = s.status === 'Completed' ? '#28a745' : (s.status === 'Blocked' ? '#dc3545' : (s.status === 'Pending' ? '#aaa' : 'var(--text-dark)'));
-
-                var actionHtml = s.action === 'None' || s.action === '-' ? '<span class="auto-style-f0867e70">'+s.action+'</span>' : '<span class="auto-style-cd949307">'+s.action+'</span>';
-
+                var actionHtml = s.action === 'None' || s.action === '-' ? '<span style="opacity:0.5;">'+s.action+'</span>' : '<span style="color:#dc3545; font-weight:600;">'+s.action+'</span>';
                 
-
                 var a = agents[s.agentKey];
-
-                var agentHtml = '<a href="#" class="auto-style-638bf150 agent-link" onclick="showAgent(\''+a.name+'\', \''+a.title+'\', \''+a.email+'\', \''+a.phone+'\', \''+a.div+'\', \''+a.icon+'\'); return false;"><i class="auto-style-de3b9f82 fa-solid '+a.icon+'"></i>'+a.name+'</a>';
-
+                var agentHtml = '<a href="#" class="agent-link" onclick="showAgent(\''+a.name+'\', \''+a.title+'\', \''+a.email+'\', \''+a.phone+'\', \''+a.div+'\', \''+a.icon+'\'); return false;" style="color:var(--accent); text-decoration:none;"><i class="fa-solid '+a.icon+'" style="margin-right:0.3rem;"></i>'+a.name+'</a>';
                 
-
-                var rowHtml = '<tr class="auto-style-e66df431" onmouseover="this.style.background=\'rgba(0,0,0,0.03)\'" onmouseout="this.style.background=\'transparent\'" title="'+s.tooltip.replace(/"/g, '&quot;')+'" onclick="showArtifact(\''+s.artifact.replace(/"/g, '&quot;')+'\', \''+s.status+'\');">' +
-
-                    '<td class="auto-style-876ddead"><i class="auto-style-3e98b1f8 fa-regular fa-file-lines"></i>'+s.name+'</td>' +
-
-                    '<td class="auto-style-b6f098c1" onclick="event.stopPropagation();">'+agentHtml+'</td>' +
-
-                    '<td class="auto-style-9b100d3c">'+s.duration+'</td>' +
-
-                    '<td class="auto-style-655b81b2">'+s.status+'</td>' +
-
-                    '<td class="auto-style-1ad8c875">'+actionHtml+'</td>' +
-
+                var rowHtml = '<tr style="border-bottom:1px solid var(--border-color); cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background=\'rgba(0,0,0,0.03)\'" onmouseout="this.style.background=\'transparent\'" title="'+s.tooltip.replace(/"/g, '&quot;')+'" onclick="showArtifact(\''+s.artifact.replace(/"/g, '&quot;')+'\', \''+s.status+'\');">' +
+                    '<td style="padding:0.75rem; font-weight:600; color:var(--primary); font-size:0.85rem;"><i class="fa-regular fa-file-lines" style="color:var(--accent); margin-right:0.4rem; opacity:0.7;"></i>'+s.name+'</td>' +
+                    '<td style="padding:0.75rem; font-size:0.85rem;" onclick="event.stopPropagation();">'+agentHtml+'</td>' +
+                    '<td style="padding:0.75rem; font-size:0.85rem; font-family:monospace;">'+s.duration+'</td>' +
+                    '<td style="padding:0.75rem; font-size:0.85rem; font-weight:bold; color:'+statusColor+';">'+s.status+'</td>' +
+                    '<td style="padding:0.75rem; font-size:0.8rem;">'+actionHtml+'</td>' +
                     '</tr>';
-
                 tbody.innerHTML += rowHtml;
-
             });
-
             var modal = document.getElementById('facility-modal');
-
             modal.style.display = 'flex';
-
             modal.scrollTop = 0;
-
         }
-
         function closeFacilityModal() {
-
             document.getElementById('facility-modal').style.display = 'none';
-
         }
-
         document.getElementById('facility-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closeFacilityModal();
-
         });
-
-
 
         function showAgent(name, title, email, phone, division, iconClass) {
-
             document.getElementById('agent-name').textContent = name;
-
             document.getElementById('agent-title').textContent = title;
-
             document.getElementById('agent-email').textContent = email;
-
             document.getElementById('agent-email').href = 'mailto:' + email;
-
             document.getElementById('agent-phone').textContent = phone;
-
             document.getElementById('agent-phone').href = 'tel:' + phone.replace(/[^0-9]/g,'');
-
             document.getElementById('agent-division').textContent = division;
-
             document.getElementById('agent-compose').href = 'mailto:' + email;
-
             var icon = document.getElementById('agent-icon');
-
             icon.className = 'fa-solid ' + iconClass;
-
             icon.style.fontSize = '2.2rem';
-
             icon.style.color = 'var(--accent)';
-
             var modal = document.getElementById('agent-modal');
-
             modal.style.display = 'flex';
-
         }
-
         function closeAgentModal() {
-
             document.getElementById('agent-modal').style.display = 'none';
-
         }
-
         document.getElementById('agent-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closeAgentModal();
-
         });
-
-
 
         function showArtifact(artifactName, status) {
-
             document.getElementById('artifact-title').textContent = 'Document Viewer';
-
             document.getElementById('artifact-name-display').textContent = artifactName;
-
             var statusText = status === 'Completed' ? 'Document has been submitted and reviewed.' : (status === 'Pending' ? 'Document is awaiting submission.' : 'Document has unresolved issues.');
-
             document.getElementById('artifact-status-display').textContent = statusText;
-
             var modal = document.getElementById('artifact-modal');
-
             modal.style.display = 'flex';
-
         }
-
         function closeArtifactModal() {
-
             document.getElementById('artifact-modal').style.display = 'none';
-
         }
-
         document.getElementById('artifact-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closeArtifactModal();
-
         });
-
     </script>
-
-
-
 <script src="static/cms.js"></script>
-
 <script src="static/analytics.js"></script>
-
 <script src="static/dcsa_demo.js"></script>
-
 </body>
-
 </html>
-

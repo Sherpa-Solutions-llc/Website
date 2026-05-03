@@ -1,1366 +1,693 @@
 <!DOCTYPE html>
 
-
-
-<html data-theme="light" lang="en">
-
+<html data-theme="dark" lang="en">
 <head>
-
 <link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
-
 <meta charset="utf-8"/>
-
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-
 <title>Personnel Vetting | DCSA Dashboard | Sherpa Solutions</title>
-
 <!-- Modern Fonts -->
-
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-
 <link href="static/styles.css?v=1.4" rel="stylesheet"/>
-
 <script src="static/theme.js"></script>
-
 <style>
-
     .dashboard-bg {
-
         background-color: var(--bg-color);
-
         background-image: linear-gradient(rgba(5, 5, 5, 0.92), rgba(5, 5, 5, 0.92)), url('static/dcsa_sherpa_logo.png');
-
         background-repeat: no-repeat;
-
         background-position: center center;
-
         background-attachment: fixed;
-
         background-size: min(70vw, 65vh);
-
     }
-
-    html[data-theme="light"] .dashboard-bg {
-
+    html[data-theme="dark"] .dashboard-bg {
         background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('static/dcsa_sherpa_logo.png');
-
     }
-
 </style>
-
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
 </head>
-
 <body class="dashboard-bg">
-
 <header>
-
 <div class="logo-container">
-
-<a data-cms="auto-dcsa-personnel-vetting-a-19" href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png" data-cms="auto-dcsa_personnel_vetting-img-1"></a>
-
+<a data-cms="auto-dcsa-personnel-vetting-a-19" href="index.html"><img alt="Sherpa Solutions LLC" data-cms="auto-dcsa_personnel_vetting-img-1" src="static/sherpa_logo.png"/></a>
 </div>
-
 <div class="menu-toggle" id="mobile-menu-btn"><i class="fa-solid fa-bars"></i></div>
-
 <ul class="nav-links" id="nav-menu">
-
 <li data-cms="auto-dcsa-personnel-vetting-li-31"><a data-cms="auto-dcsa-personnel-vetting-a-20" href="index.html">Home</a></li>
-
 <li data-cms="auto-dcsa-personnel-vetting-li-32"><a data-cms="auto-dcsa-personnel-vetting-a-21" href="about.html">About Us</a></li>
-
 <li data-cms="auto-dcsa-personnel-vetting-li-33"><a data-cms="auto-dcsa-personnel-vetting-a-22" href="services.html">Our Services</a></li>
-
 <li data-cms="auto-dcsa-personnel-vetting-li-34"><a class="active" data-cms="auto-dcsa-personnel-vetting-a-23" href="projects.html">Projects</a></li>
-
 <li data-cms="auto-dcsa-personnel-vetting-li-35"><a data-cms="auto-dcsa-personnel-vetting-a-24" href="merchandise.html">Merchandise</a></li>
-
 <li data-cms="auto-dcsa-personnel-vetting-li-36"><a data-cms="auto-dcsa-personnel-vetting-a-25" href="contact.html">Contact</a></li>
-
 </ul>
-
 <div class="header-actions">
-
-<button class="theme-toggle-btn theme-toggle" id="theme-toggle" aria-label="Toggle Theme Day/Night" title="Toggle Light/Dark Mode"><i class="fa-solid fa-sun"></i> Theme Day/Night</button>
-
+<button class="theme-toggle" id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
 <a class="btn btn-primary nav-cta" data-cms="auto-dcsa-personnel-vetting-a-26" href="contact.html">Schedule Basecamp Consultation</a>
-
 </div>
-
 </header>
-
-<div class="auto-style-d298fd6b page-header">
-
-<h1 data-cms="auto-dcsa-personnel-vetting-h1-1" class="auto-style-d8936d92"><i class="fa-solid fa-id-card-clip" style="color: var(--accent); margin-right: 1rem;"></i> Personnel Vetting</h1>
-
-<p data-cms="auto-dcsa-personnel-vetting-p-8" class="auto-style-f54c33d0">National Security Clearances &amp; Continuous Vetting</p>
-
+<div class="page-header" style="background: transparent; padding: 12rem 5% 1rem 5%;">
+<h1 data-cms="auto-dcsa-personnel-vetting-h1-1" style="color: var(--primary); font-size: 3.5rem; font-weight: 800; margin-bottom: 0;"><i class="fa-solid fa-id-card-clip" style="color: var(--accent); margin-right: 1rem;"></i> Personnel Vetting</h1>
+<p data-cms="auto-dcsa-personnel-vetting-p-8" style="color: var(--text-dark); opacity: 0.8; font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">National Security Clearances &amp; Continuous Vetting</p>
 </div>
-
-<section class="auto-style-caa45fcf content-block">
-
+<section class="content-block" style="padding-top: 1rem;">
 <div class="content-container">
-
-<div class="auto-style-e509a544">
-
-<div class="auto-style-85008827">
-
-<h3 data-cms="auto-dcsa-personnel-vetting-h3-2" class="auto-style-f695edc0">Active Investigations</h3>
-
-<div class="auto-style-0a7efd5e">42,891</div>
-
-<div class="auto-style-deab60e5"><i class="fa-solid fa-arrow-trend-down"></i> -12% backlog reduction</div>
-
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-personnel-vetting-h3-2" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Active Investigations</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">42,891</div>
+<div style="color: #28a745; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-arrow-trend-down"></i> -12% backlog reduction</div>
 </div>
-
-<div class="auto-style-85008827">
-
-<h3 data-cms="auto-dcsa-personnel-vetting-h3-3" class="auto-style-f695edc0">Continuous Vetting Hits</h3>
-
-<div class="auto-style-0a7efd5e">1,402</div>
-
-<div class="auto-style-35ca3d96"><i class="fa-solid fa-triangle-exclamation"></i> Action required on 84</div>
-
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-personnel-vetting-h3-3" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Continuous Vetting Hits</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">1,402</div>
+<div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Action required on 84</div>
 </div>
-
-<div class="auto-style-85008827">
-
-<h3 data-cms="auto-dcsa-personnel-vetting-h3-4" class="auto-style-f695edc0">Avg Processing Time</h3>
-
-<div class="auto-style-0a7efd5e">14 <span data-cms="auto-dcsa-personnel-vetting-span-13" class="auto-style-fa415b95">days</span></div>
-
-<div class="auto-style-deab60e5"><i class="fa-solid fa-check-circle"></i> Ahead of 21-day target</div>
-
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; border-bottom: 4px solid var(--accent);">
+<h3 data-cms="auto-dcsa-personnel-vetting-h3-4" style="color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Avg Processing Time</h3>
+<div style="font-size: 3rem; font-weight: 800; color: var(--primary);">14 <span data-cms="auto-dcsa-personnel-vetting-span-13" style="font-size: 1.5rem;">days</span></div>
+<div style="color: #28a745; font-size: 0.9rem; margin-top: 0.5rem;"><i class="fa-solid fa-check-circle"></i> Ahead of 21-day target</div>
 </div>
-
 </div>
-
 <!-- Advanced Search Section -->
-
-<div class="auto-style-132d3ced">
-
-<h3 data-cms="auto-dcsa-personnel-vetting-h3-5" class="auto-style-f6e8c7f6"><i class="fa-solid fa-magnifying-glass" style="margin-right: 0.5rem;"></i> Advanced Case Search</h3>
-
-<div class="auto-style-bd274328">
-
-<div class="auto-style-d5a8f179">
-
-<label class="auto-style-52a1c5ec">Search By</label>
-
-<select title="Search Criteria" id="search-criteria" onchange="updateSearchUI()" class="auto-style-8a070dae">
-
+<div style="background: var(--surface-color); padding: 1.5rem 2rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+<h3 data-cms="auto-dcsa-personnel-vetting-h3-5" style="color: var(--primary); margin-bottom: 1rem; font-size:1.1rem;"><i class="fa-solid fa-magnifying-glass" style="margin-right: 0.5rem;"></i> Advanced Case Search</h3>
+<div style="display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;">
+<div style="flex:0 0 200px;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Search By</label>
+<select id="search-criteria" onchange="updateSearchUI()" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="name">Name</option>
-
 <option value="caseId">Case ID</option>
-
 <option value="status">Status</option>
-
 <option value="agent">Assigned Agent</option>
-
 </select>
-
 </div>
-
 <!-- Dynamic Input Containers -->
-
-<div id="input-container-name" class="auto-style-3ca0cdf7">
-
-<div class="auto-style-d5e8c5f3">
-
-<label class="auto-style-52a1c5ec">First Name</label>
-
-<input title="Search First Name" id="search-first-name" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="Enter first name..." class="auto-style-8d424c20" type="text"/>
-
+<div id="input-container-name" style="display:flex; gap:1rem; flex:1;">
+<div style="flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">First Name</label>
+<input id="search-first-name" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="Enter first name..." style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
 </div>
-
-<div class="auto-style-d5e8c5f3">
-
-<label class="auto-style-52a1c5ec">Last Name</label>
-
-<input title="Search Last Name" id="search-last-name" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="Enter last name..." class="auto-style-8d424c20" type="text"/>
-
+<div style="flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Last Name</label>
+<input id="search-last-name" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="Enter last name..." style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
 </div>
-
 </div>
-
-<div id="input-container-caseId" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">Case ID</label>
-
-<input title="Search Case Id" id="search-case-id" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. US-993-8472" class="auto-style-8d424c20" type="text"/>
-
+<div id="input-container-caseId" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Case ID</label>
+<input id="search-case-id" oninput="executeSearch()" onkeypress="if(event.key==='Enter') executeSearch()" placeholder="e.g. US-993-8472" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none;" type="text"/>
 </div>
-
-<div id="input-container-status" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">Status</label>
-
-<select title="Search Status" id="search-status" class="auto-style-8a070dae">
-
+<div id="input-container-status" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Status</label>
+<select id="search-status" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="Granted">Granted</option>
-
 <option value="In Progress">In Progress</option>
-
 <option value="Flagged (CE)">Flagged (CE)</option>
-
 </select>
-
 </div>
-
-<div id="input-container-agent" class="auto-style-6050f106">
-
-<label class="auto-style-52a1c5ec">Assigned Agent</label>
-
-<select title="Search Agent" id="search-agent" class="auto-style-8a070dae">
-
+<div id="input-container-agent" style="display:none; flex:1;">
+<label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--text-dark); opacity:0.7; margin-bottom:0.5rem; letter-spacing:1px;">Assigned Agent</label>
+<select id="search-agent" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-dark); font-family:'Outfit',sans-serif; font-size:0.95rem; outline:none; cursor:pointer;">
 <option value="SSA Martinez">SSA Martinez</option>
-
 <option value="SSA Okonkwo">SSA Okonkwo</option>
-
 <option value="SA Whitfield">SA Whitfield</option>
-
 </select>
-
 </div>
-
 <div>
-
-<button onclick="executeSearch()" class="auto-style-16e06746">Search</button>
-
+<button onclick="executeSearch()" style="padding:0.75rem 2rem; background:var(--accent); color:#fff; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.95rem; transition:background 0.2s;">Search</button>
 </div>
-
 <div>
-
-<button onclick="resetSearch()" class="auto-style-42a7cc11" title="Clear Search"><i class="fa-solid fa-rotate-left"></i></button>
-
+<button onclick="resetSearch()" style="padding:0.75rem 1rem; background:transparent; color:var(--text-dark); border:1px solid var(--border-color); border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:0.95rem; transition:background 0.2s; opacity:0.7;" title="Clear Search"><i class="fa-solid fa-rotate-left"></i></button>
 </div>
-
 </div>
-
 </div>
-
-<div class="auto-style-2e4b5b9d">
-
-<div class="auto-style-8a5a58f8">
-
-<h3 data-cms="auto-dcsa-personnel-vetting-h3-6" class="auto-style-c4e9f69c"><i class="fa-solid fa-list-check" style="margin-right: 0.5rem;"></i> Recent Adjudications</h3>
-
+<div style="background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 4rem;">
+<div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+<h3 data-cms="auto-dcsa-personnel-vetting-h3-6" style="color: var(--primary); margin:0;"><i class="fa-solid fa-list-check" style="margin-right: 0.5rem;"></i> Recent Adjudications</h3>
 </div>
-
-<div class="auto-style-4e8a95e0 no-cms">
-
-<table class="auto-style-fe41d0c4 no-cms">
-
-<thead class="auto-style-e628e207">
-
-<tr class="auto-style-ed8e20a6">
-
-<th class="auto-style-6116b933">Case ID</th>
-
-<th class="auto-style-6116b933">Clearance Level</th>
-
-<th class="auto-style-6116b933">Status</th>
-
-<th class="auto-style-6116b933">Case Worker</th>
-
-<th class="auto-style-6116b933">Last Updated</th>
-
+<div class="no-cms" style="max-height: 500px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+<table class="no-cms" style="width: 100%; border-collapse: collapse; text-align: left;">
+<thead style="position: sticky; top: 0; z-index: 10; background: var(--surface-color);">
+<tr style="background: rgba(0,0,0,0.05);">
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Case ID</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Clearance Level</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Status</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Case Worker</th>
+<th style="padding: 1rem; border-bottom: 2px solid var(--border-color);">Last Updated</th>
 </tr>
-
 </thead>
-
 <tbody id="adjudications-tbody">
-
 </tbody>
-
 </table>
-
 </div>
-
-
-
 </div>
-
-<div class="auto-style-cdd8ca06">
-
+<div style="text-align: center;">
 <a class="btn btn-primary" data-cms="auto-dcsa-personnel-vetting-a-27" href="dcsa_dashboard.html"><i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem;"></i> Back to Main Dashboard</a>
-
 </div>
-
 </div>
-
 </section>
-
 <!-- Subject Detail Modal -->
-
-<div id="subject-modal" class="auto-style-4bf5bee2">
-
-<div class="auto-style-2ce74546">
-
+<div id="subject-modal" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.65); backdrop-filter:blur(5px); align-items:flex-start; justify-content:center; overflow-y:auto; padding:2rem 1rem;">
+<div style="background:var(--surface-color); border-radius:16px; padding:0; max-width:680px; width:100%; position:relative; box-shadow:0 30px 70px rgba(0,0,0,0.4); border:1px solid var(--border-color); animation:modalIn 0.25s ease; margin:auto;">
 <!-- Modal Header -->
-
-<div id="subj-header" class="auto-style-3e394faf">
-
-<div class="auto-style-de42fb69">
-
-<i class="auto-style-1339520e fa-solid fa-id-card-clip"></i>
-
+<div id="subj-header" style="padding:1.75rem 2rem; border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:1.25rem; border-radius:16px 16px 0 0;">
+<div style="width:56px; height:56px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+<i class="fa-solid fa-id-card-clip" style="font-size:1.6rem; color:var(--accent);"></i>
 </div>
-
-<div class="auto-style-d5e8c5f3">
-
-<div id="subj-id" class="auto-style-186b4b07"></div>
-
-<div class="auto-style-c24afe58">
-
+<div style="flex:1;">
+<div id="subj-id" style="font-family:monospace; font-size:1.4rem; font-weight:800; color:var(--primary);"></div>
+<div style="display:flex; gap:0.75rem; margin-top:0.35rem; flex-wrap:wrap;">
 <span data-cms="auto-dcsa-personnel-vetting-span-14" id="subj-clearance-badge"></span>
-
 <span data-cms="auto-dcsa-personnel-vetting-span-15" id="subj-status-badge"></span>
-
 </div>
-
 </div>
-
-<button class="auto-style-ad3aa54a no-cms" onclick="closeSubjectModal()" title="Close" aria-label="Close Case Details">Close <i class="fa-solid fa-xmark"></i></button>
-
+<button aria-label="Close Case Details" class="no-cms" onclick="closeSubjectModal()" style="background:none; border:none; font-size:1.1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); display:flex; align-items:center; gap:0.5rem; font-family:'Outfit',sans-serif; text-transform:uppercase; opacity:0.7; flex-shrink:0;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
-
 <!-- Modal Body -->
-
-<div class="auto-style-baf36759">
-
+<div style="padding:2rem; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
 <!-- Identity -->
-
-<div class="auto-style-363433d8">
-
-<div class="auto-style-48e36689"><i class="auto-style-8ceafa5f fa-solid fa-user"></i>Identity</div>
-
-<div class="auto-style-c61ed472">
-
-<div><div class="auto-style-47416124">Full Name</div><div id="subj-name" class="auto-style-d5112e79"></div></div>
-
-<div><div class="auto-style-47416124">Date of Birth</div><div id="subj-dob" class="auto-style-d5112e79"></div></div>
-
-<div><div class="auto-style-47416124">Citizenship</div><div id="subj-citizenship" class="auto-style-d5112e79"></div></div>
-
+<div style="grid-column:1/-1; background:var(--bg-color); border-radius:10px; padding:1.25rem; border:1px solid var(--border-color);">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:1rem;"><i class="fa-solid fa-user" style="margin-right:0.4rem;"></i>Identity</div>
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Full Name</div><div id="subj-name" style="font-weight:600; color:var(--primary);"></div></div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Date of Birth</div><div id="subj-dob" style="font-weight:600; color:var(--primary);"></div></div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Citizenship</div><div id="subj-citizenship" style="font-weight:600; color:var(--primary);"></div></div>
 </div>
-
 </div>
-
 <!-- Employment -->
-
-<div class="auto-style-dbe422df">
-
-<div class="auto-style-48e36689"><i class="auto-style-8ceafa5f fa-solid fa-briefcase"></i>Employment</div>
-
-<div><div class="auto-style-47416124">Agency / Organization</div><div id="subj-agency" class="auto-style-d5112e79"></div></div>
-
-<div class="auto-style-001c279f"><div class="auto-style-47416124">Position</div><div id="subj-position" class="auto-style-d5112e79"></div></div>
-
+<div style="background:var(--bg-color); border-radius:10px; padding:1.25rem; border:1px solid var(--border-color);">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:1rem;"><i class="fa-solid fa-briefcase" style="margin-right:0.4rem;"></i>Employment</div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Agency / Organization</div><div id="subj-agency" style="font-weight:600; color:var(--primary);"></div></div>
+<div style="margin-top:0.75rem;"><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Position</div><div id="subj-position" style="font-weight:600; color:var(--primary);"></div></div>
 </div>
-
 <!-- Investigation -->
-
-<div class="auto-style-dbe422df">
-
-<div class="auto-style-48e36689"><i class="auto-style-8ceafa5f fa-solid fa-file-shield"></i>Investigation</div>
-
-<div><div class="auto-style-47416124">Investigation Type</div><div id="subj-inv-type" class="auto-style-d5112e79"></div></div>
-
-<div class="auto-style-001c279f"><div class="auto-style-47416124">Initiated</div><div id="subj-initiated" class="auto-style-d5112e79"></div></div>
-
-<div class="auto-style-001c279f"><div class="auto-style-47416124">Prior Clearance</div><div id="subj-prior" class="auto-style-d5112e79"></div></div>
-
+<div style="background:var(--bg-color); border-radius:10px; padding:1.25rem; border:1px solid var(--border-color);">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:1rem;"><i class="fa-solid fa-file-shield" style="margin-right:0.4rem;"></i>Investigation</div>
+<div><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Investigation Type</div><div id="subj-inv-type" style="font-weight:600; color:var(--primary);"></div></div>
+<div style="margin-top:0.75rem;"><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Initiated</div><div id="subj-initiated" style="font-weight:600; color:var(--primary);"></div></div>
+<div style="margin-top:0.75rem;"><div style="font-size:0.75rem; opacity:0.6; margin-bottom:0.2rem;">Prior Clearance</div><div id="subj-prior" style="font-weight:600; color:var(--primary);"></div></div>
 </div>
-
 <!-- CE Flags -->
-
-<div id="subj-flags-box" class="auto-style-9f62c937">
-
-<div class="auto-style-2918bf0c"><i class="auto-style-8ceafa5f fa-solid fa-triangle-exclamation"></i>Continuous Evaluation Flags</div>
-
-<div id="subj-flags" class="auto-style-338874e1"></div>
-
+<div id="subj-flags-box" style="grid-column:1/-1; background:#fff3cd; border-radius:10px; padding:1.25rem; border:1px solid #ffc107; display:none;">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#856404; font-weight:700; margin-bottom:0.75rem;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:0.4rem;"></i>Continuous Evaluation Flags</div>
+<div id="subj-flags" style="font-size:0.9rem; color:#664d03;"></div>
 </div>
-
 <!-- Timeline -->
-
-<div class="auto-style-363433d8">
-
-<div class="auto-style-48e36689"><i class="auto-style-8ceafa5f fa-solid fa-timeline"></i>Investigation Activities</div>
-
-<div id="subj-timeline" class="auto-style-15f7f2f5"></div>
-
+<div style="grid-column:1/-1; background:var(--bg-color); border-radius:10px; padding:1.25rem; border:1px solid var(--border-color);">
+<div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:1rem;"><i class="fa-solid fa-timeline" style="margin-right:0.4rem;"></i>Investigation Activities</div>
+<div id="subj-timeline" style="display:flex; flex-direction:column; gap:0.6rem;"></div>
 </div>
-
 </div>
-
 </div>
-
 </div>
-
 <!-- Case Worker Contact Modal -->
-
-<div id="caseworker-modal" class="auto-style-287d37ed">
-
-<div class="auto-style-ed18cfbd">
-
-<button class="auto-style-9faa4d07 no-cms" onclick="closeModal()" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
-
-<div class="auto-style-9c1f14b2">
-
-<div id="modal-icon-wrap" class="auto-style-6fc7b319">
-
-<i class="auto-style-c2509dbe fa-solid fa-user-tie" id="modal-icon"></i>
-
+<div id="caseworker-modal" style="display:none; position:fixed; inset:0; z-index:10005; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div style="background:var(--surface-color); border-radius:16px; padding:2.5rem; max-width:420px; width:90%; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid var(--border-color); animation: modalIn 0.25s ease;">
+<button class="no-cms" onclick="closeModal()" style="position:absolute; top:1.25rem; right:1.5rem; background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); opacity:0.6; display:flex; align-items:center; gap:0.4rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
+<div style="text-align:center; margin-bottom:1.5rem;">
+<div id="modal-icon-wrap" style="width:80px; height:80px; border-radius:50%; background:rgba(211,84,0,0.1); display:inline-flex; align-items:center; justify-content:center; margin-bottom:1rem; box-shadow:0 0 0 6px rgba(211,84,0,0.05);">
+<i class="fa-solid fa-user-tie" id="modal-icon" style="font-size:2.2rem; color:var(--accent);"></i>
 </div>
-
-<div id="modal-name" class="auto-style-12becec7"></div>
-
-<div id="modal-title" class="auto-style-7346b6da"></div>
-
+<div id="modal-name" style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:var(--text-dark);"></div>
+<div id="modal-title" style="font-size:0.95rem; color:var(--text-dark); opacity:0.7; margin-top:0.25rem;"></div>
 </div>
-
-<div class="auto-style-49d9c816">
-
-<div class="auto-style-7691d8a6">
-
-<i class="auto-style-64b7ea43 fa-solid fa-building"></i>
-
-<span data-cms="auto-dcsa-personnel-vetting-span-16" id="modal-division" class="auto-style-cc994a66"></span>
-
+<div style="border-top:1px solid var(--border-color); padding-top:1.5rem; display:flex; flex-direction:column; gap:1rem;">
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-building" style="color:var(--accent); width:20px; text-align:center;"></i>
+<span data-cms="auto-dcsa-personnel-vetting-span-16" id="modal-division" style="color:var(--text-dark); font-size:0.95rem;"></span>
 </div>
-
-<div class="auto-style-7691d8a6">
-
-<i class="auto-style-64b7ea43 fa-solid fa-envelope"></i>
-
-<a data-cms="auto-dcsa-personnel-vetting-a-28" href="#" id="modal-email" class="auto-style-0f199d59" aria-label="Email" title="Email"></a>
-
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-envelope" style="color:var(--accent); width:20px; text-align:center;"></i>
+<a data-cms="auto-dcsa-personnel-vetting-a-28" href="#" id="modal-email" style="color:var(--accent); font-size:0.95rem; text-decoration:none;"></a>
 </div>
-
-<div class="auto-style-7691d8a6">
-
-<i class="auto-style-64b7ea43 fa-solid fa-phone"></i>
-
-<a data-cms="auto-dcsa-personnel-vetting-a-29" href="#" id="modal-phone" class="auto-style-da1eada9" aria-label="Phone" title="Phone"></a>
-
+<div style="display:flex; align-items:center; gap:1rem;">
+<i class="fa-solid fa-phone" style="color:var(--accent); width:20px; text-align:center;"></i>
+<a data-cms="auto-dcsa-personnel-vetting-a-29" href="#" id="modal-phone" style="color:var(--text-dark); font-size:0.95rem; text-decoration:none;"></a>
 </div>
-
 </div>
-
-<a data-cms="auto-dcsa-personnel-vetting-a-30" href="#" id="modal-compose" class="auto-style-5815f71e">
+<a data-cms="auto-dcsa-personnel-vetting-a-30" href="#" id="modal-compose" style="display:block; margin-top:1.75rem; background:var(--accent); color:#fff; text-align:center; padding:0.85rem; border-radius:8px; text-decoration:none; font-family:'Outfit',sans-serif; font-weight:600; transition:background 0.2s;">
 <i class="fa-solid fa-envelope" style="margin-right:0.5rem;"></i>Send Message
             </a>
-
 </div>
-
 </div>
-
 <!-- Classified Password Modal -->
-
-<div id="password-modal" class="auto-style-5ae99a1b">
-
-<div class="auto-style-e0d8ea20">
-
-<button class="auto-style-9faa4d07 no-cms" onclick="closePasswordModal()" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
-
-<i class="auto-style-28e1c653 fa-solid fa-lock"></i>
-
-<h3 data-cms="auto-dcsa-personnel-vetting-h3-7" class="auto-style-7e1d4b1f">CLASSIFIED ACCESS</h3>
-
-<p data-cms="auto-dcsa-personnel-vetting-p-9" class="auto-style-7cc43111">The requested artifact contains sensitive compartmented information. Please enter your authorization credential.</p>
-
-<input title="Classified Password" id="classified-password" onkeypress="if(event.key === 'Enter') submitPassword()" placeholder="Enter Password..." class="auto-style-bf616d3e" type="password"/>
-
-<button onclick="submitPassword()" class="auto-style-91bf8dc6">DECRYPT DOCUMENT</button>
-
+<div id="password-modal" style="display:none; position:fixed; inset:0; z-index:10001; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
+<div style="background:var(--surface-color); border-radius:12px; padding:2.5rem; max-width:400px; width:90%; position:relative; box-shadow:0 0 40px rgba(220,53,69,0.2); border:1px solid #dc3545; text-align:center; animation: modalIn 0.2s ease;">
+<button class="no-cms" onclick="closePasswordModal()" style="position:absolute; top:1.25rem; right:1.5rem; background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); opacity:0.6; display:flex; align-items:center; gap:0.4rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
+<i class="fa-solid fa-lock" style="font-size:2.5rem; color:#dc3545; margin-bottom:1rem;"></i>
+<h3 data-cms="auto-dcsa-personnel-vetting-h3-7" style="color:#dc3545; font-family:'Outfit',sans-serif; font-size:1.4rem; margin-bottom:0.5rem; font-weight:800;">CLASSIFIED ACCESS</h3>
+<p data-cms="auto-dcsa-personnel-vetting-p-9" style="color:var(--text-dark); font-size:0.9rem; margin-bottom:1.5rem; opacity:0.8;">The requested artifact contains sensitive compartmented information. Please enter your authorization credential.</p>
+<input id="classified-password" onkeypress="if(event.key === 'Enter') submitPassword()" placeholder="Enter Password..." style="width:100%; padding:0.85rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--primary); font-family:monospace; font-size:1rem; margin-bottom:1rem; outline:none; text-align:center;" type="password"/>
+<button onclick="submitPassword()" style="width:100%; padding:0.85rem; background:#dc3545; color:#fff; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; font-size:1rem; transition:background 0.2s;">DECRYPT DOCUMENT</button>
 </div>
-
 </div>
-
 <!-- Artifact Viewer Modal -->
-
-<div id="artifact-modal" class="auto-style-a3131f75">
-
-<div class="auto-style-73bc2e3f">
-
-<div class="auto-style-99d70e4f">
-
-<div class="auto-style-13f83e07">
-
-<i class="auto-style-68077b39 fa-solid fa-file-shield"></i>
-
-<span data-cms="auto-dcsa-personnel-vetting-span-17" id="artifact-title" class="auto-style-8e99de1f"></span>
-
+<div id="artifact-modal" style="display:none; position:fixed; inset:0; z-index:10002; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+<div style="background:var(--bg-color); border-radius:12px; max-width:800px; width:95%; height:80vh; display:flex; flex-direction:column; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.5); border:1px solid var(--border-color); animation: modalIn 0.25s ease;">
+<div style="padding:1rem 1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:var(--surface-color); border-radius:12px 12px 0 0;">
+<div style="display:flex; align-items:center; gap:0.75rem;">
+<i class="fa-solid fa-file-shield" style="color:var(--accent); font-size:1.2rem;"></i>
+<span data-cms="auto-dcsa-personnel-vetting-span-17" id="artifact-title" style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--primary); font-size:1.1rem;"></span>
 </div>
-
-<button class="auto-style-b25821a9 no-cms" onclick="closeArtifactModal()" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
-
+<button class="no-cms" onclick="closeArtifactModal()" style="background:none; border:none; font-size:1rem; font-weight:bold; cursor:pointer; color:var(--text-dark); opacity:0.6; display:flex; align-items:center; gap:0.4rem; font-family:'Outfit',sans-serif; text-transform:uppercase;" title="Close">Close <i class="fa-solid fa-xmark"></i></button>
 </div>
-
-<div class="auto-style-5ed76f6e">
-
-<div class="auto-style-48526240">
-
-<i class="auto-style-ce84720b fa-solid fa-stamp"></i>
-
-<div class="auto-style-94e2d936">TOP SECRET // SCI</div>
-
+<div style="flex:1; padding:2rem; overflow-y:auto; font-family:monospace; color:var(--text-dark); font-size:0.95rem; line-height:1.6;">
+<div style="text-align:center; opacity:0.3; margin-bottom:2rem; user-select:none;">
+<i class="fa-solid fa-stamp" style="font-size:4rem; color:#dc3545;"></i>
+<div style="font-size:1.5rem; font-weight:bold; color:#dc3545; margin-top:0.5rem; letter-spacing:4px;">TOP SECRET // SCI</div>
 </div>
-
 <p data-cms="auto-dcsa-personnel-vetting-p-10"><strong data-cms="auto-dcsa_personnel_vetting-strong-253">DOCUMENT ID:</strong> <span data-cms="auto-dcsa-personnel-vetting-span-18" id="artifact-doc-id"></span></p>
-
 <p data-cms="auto-dcsa-personnel-vetting-p-11"><strong data-cms="auto-dcsa_personnel_vetting-strong-254">STATUS:</strong> VERIFIED</p>
-
-<hr class="auto-style-3a0270c2"/>
-
-<div id="artifact-content" class="auto-style-d34d7671"></div>
-
+<hr style="border:none; border-top:1px dashed var(--border-color); margin:1.5rem 0;"/>
+<div id="artifact-content" style="white-space:pre-wrap; background:rgba(0,0,0,0.1); padding:1.5rem; border-radius:8px; border:1px solid var(--border-color);"></div>
 </div>
-
 </div>
-
 </div>
-
 <style>
-
         @keyframes modalIn {
-
             from { opacity:0; transform:scale(0.92) translateY(10px); }
-
             to   { opacity:1; transform:scale(1) translateY(0); }
-
         }
-
         .caseworker-link:hover { text-decoration: underline !important; }
-
     </style>
-
 <script>
-
         function showCaseworker(name, title, email, phone, division, iconClass) {
-
             document.getElementById('modal-name').textContent = name;
-
             document.getElementById('modal-title').textContent = title;
-
             document.getElementById('modal-email').textContent = email;
-
             document.getElementById('modal-email').href = 'mailto:' + email;
-
             document.getElementById('modal-phone').textContent = phone;
-
             document.getElementById('modal-phone').href = 'tel:' + phone.replace(/[^0-9]/g,'');
-
             document.getElementById('modal-division').textContent = division;
-
             document.getElementById('modal-compose').href = 'mailto:' + email;
-
             var icon = document.getElementById('modal-icon');
-
             icon.className = 'fa-solid ' + iconClass;
-
             icon.style.fontSize = '2.2rem';
-
             icon.style.color = 'var(--accent)';
-
             var modal = document.getElementById('caseworker-modal');
-
             modal.style.display = 'flex';
-
         }
-
         function closeModal() {
-
             document.getElementById('caseworker-modal').style.display = 'none';
-
         }
-
         // Close on backdrop click
-
         document.getElementById('caseworker-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closeModal();
-
         });
-
-
 
         // ── Subject Detail Modal ──────────────────────────────────────────────
-
         var subjectDB = {
-
             'US-993-8472': {
-
                 name:        'Michael A. Torres',
-
                 dob:         'March 14, 1985',
-
                 citizenship: 'U.S. Citizen',
-
                 agency:      'Defense Intelligence Agency (DIA)',
-
                 position:    'Intelligence Analyst, GS-13',
-
                 invType:     'Tier 5 — Top Secret / SCI Upgrade',
-
                 initiated:   'January 6, 2025',
-
                 prior:       'Secret (Granted 2018, DIA)',
-
                 clearance:   'SECRET',
-
                 clearanceBg: '#ffc107', clearanceColor: '#000',
-
                 status:      'Granted',
-
                 statusColor: '#28a745',
-
                 statusIcon:  'fa-circle-check',
-
                 flags:       null,
-
                 timeline: [
-
                     { date:'Jan 6, 2025',   label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
-
                     { date:'Jan 22, 2025',  label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
-
                     { date:'Feb 10, 2025',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
-
                     { date:'Feb 28, 2025',  label:'Background Investigation',        icon:'fa-magnifying-glass-chart', color:'var(--accent)'  },
-
                     { date:'Mar 5, 2025',   label:'Field Interviews',                icon:'fa-comments',             color:'var(--accent)'  },
-
                     { date:'Apr 1, 2025',   label:'Adjudication Review (DoDCAF)',    icon:'fa-scale-balanced',       color:'var(--accent)'  },
-
                     { date:'Apr 25, 2025',  label:'Determination (Granted)',         icon:'fa-shield-check',         color:'#28a745'        },
-
                     { date:'Active',        label:'Enrolled in Continuous Vetting',  icon:'fa-satellite-dish',       color:'#28a745'        }
-
                 ]
-
             },
-
             'US-993-8475': {
-
                 name:        'Renée L. Chambers',
-
                 dob:         'July 29, 1991',
-
                 citizenship: 'U.S. Citizen (Dual — Canada)',
-
                 agency:      'National Geospatial-Intelligence Agency (NGA)',
-
                 position:    'Imagery Analyst, GS-12',
-
                 invType:     'Tier 5R — Reinvestigation / TS-SCI',
-
                 initiated:   'February 18, 2025',
-
                 prior:       'Top Secret (Granted 2020, NGA)',
-
                 clearance:   'TOP SECRET',
-
                 clearanceBg: '#dc3545', clearanceColor: '#fff',
-
                 status:      'In Progress',
-
                 statusColor: '#17a2b8',
-
                 statusIcon:  'fa-spinner fa-spin',
-
                 flags:       null,
-
                 timeline: [
-
                     { date:'Feb 18, 2025',  label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
-
                     { date:'Mar 2, 2025',   label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
-
                     { date:'Mar 10, 2025',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
-
                     { date:'In Progress',   label:'Background Investigation',        icon:'fa-spinner fa-spin',      color:'#17a2b8'        },
-
                     { date:'Pending',       label:'Field Interviews',                icon:'fa-comments',             color:'#aaa'           },
-
                     { date:'Pending',       label:'Adjudication Review (DoDCAF)',    icon:'fa-scale-balanced',       color:'#aaa'           },
-
                     { date:'Pending',       label:'Determination',                   icon:'fa-shield-check',         color:'#aaa'           },
-
                     { date:'Pending',       label:'Continuous Vetting Enrollment',   icon:'fa-satellite-dish',       color:'#aaa'           }
-
                 ]
-
             },
-
             'US-993-8411': {
-
                 name:        'Derek J. Fontaine',
-
                 dob:         'November 3, 1978',
-
                 citizenship: 'U.S. Citizen',
-
                 agency:      'U.S. Army, G2 Intelligence',
-
                 position:    'Senior All-Source Analyst, GS-14',
-
                 invType:     'Tier 5 — Top Secret / SCI',
-
                 initiated:   'October 14, 2024',
-
                 prior:       'Top Secret (Granted 2016, Army G2)',
-
                 clearance:   'TOP SECRET',
-
                 clearanceBg: '#dc3545', clearanceColor: '#fff',
-
                 status:      'Flagged (CE)',
-
                 statusColor: '#dc3545',
-
                 statusIcon:  'fa-circle-xmark',
-
                 flags:       '• Unexplained foreign financial transactions detected via CE system (Oct 2024)\n• Subject failed to report contact with foreign national (per 13 Adjudicative Guidelines)\n• Security Officer referral submitted — awaiting adjudicator review',
-
                 timeline: [
-
                     { date:'Oct 14, 2024',  label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
-
                     { date:'Oct 30, 2024',  label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
-
                     { date:'Nov 10, 2024',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
-
                     { date:'Dec 15, 2024',  label:'Background Investigation',        icon:'fa-magnifying-glass-chart', color:'var(--accent)'  },
-
                     { date:'Jan 5, 2025',   label:'Field Interviews',                icon:'fa-comments',             color:'var(--accent)'  },
-
                     { date:'Feb 1, 2025',   label:'Adjudication Review (DoDCAF)',    icon:'fa-scale-balanced',       color:'var(--accent)'  },
-
                     { date:'Mar 1, 2025',   label:'Determination (Granted)',         icon:'fa-shield-check',         color:'#28a745'        },
-
                     { date:'Active',        label:'Enrolled in Continuous Vetting',  icon:'fa-satellite-dish',       color:'#28a745'        },
-
                     { date:'Yesterday',     label:'Continuous Vetting Flag Triggered',icon:'fa-triangle-exclamation',color:'#dc3545'        }
-
                 ]
-
             }
-
         };
-
-
 
         var caseWorkers = {
-
             'SSA Martinez': { name: 'SSA Martinez', title: 'Senior Security Analyst', email: 'l.martinez@dcsa.mil', phone: '(571) 305-2241', div: 'Personnel Vetting Division', icon: 'fa-user-tie' },
-
             'SSA Okonkwo': { name: 'SSA Okonkwo', title: 'Supervisory Security Analyst', email: 'c.okonkwo@dcsa.mil', phone: '(571) 305-3187', div: 'Continuous Evaluation Branch', icon: 'fa-user-shield' },
-
             'SA Whitfield': { name: 'SA Whitfield', title: 'Security Analyst II', email: 'd.whitfield@dcsa.mil', phone: '(571) 305-4892', div: 'Counterintelligence Integration', icon: 'fa-user-secret' }
-
         };
 
-
-
         // Add table fields to existing specific mock items
-
         subjectDB['US-993-8472'].workerKey = 'SSA Martinez';
-
         subjectDB['US-993-8472'].lastUpdated = 'Today, 09:41 AM';
-
         subjectDB['US-993-8475'].workerKey = 'SSA Okonkwo';
-
         subjectDB['US-993-8475'].lastUpdated = 'Today, 08:15 AM';
-
         subjectDB['US-993-8411'].workerKey = 'SA Whitfield';
-
         subjectDB['US-993-8411'].lastUpdated = 'Yesterday, 14:32 PM';
 
-
-
         // Generate 100 mock items
-
         var firstNames = ['James', 'Mary', 'Robert', 'Patricia', 'John', 'Jennifer', 'Michael', 'Linda', 'David', 'Elizabeth', 'William', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica'];
-
         var lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas'];
-
         var clearances = [
-
             { level: 'SECRET', bg: '#ffc107', color: '#000', inv: 'Tier 3 — Secret' },
-
             { level: 'TOP SECRET', bg: '#dc3545', color: '#fff', inv: 'Tier 5 — Top Secret' },
-
             { level: 'CONFIDENTIAL', bg: '#17a2b8', color: '#fff', inv: 'Tier 1 — Confidential' }
-
         ];
-
         var statuses = [
-
             { s: 'Granted', color: '#28a745', icon: 'fa-circle-check' },
-
             { s: 'In Progress', color: '#17a2b8', icon: 'fa-spinner fa-spin' },
-
             { s: 'Flagged (CE)', color: '#dc3545', icon: 'fa-circle-xmark' },
-
             { s: 'Pending Review', color: '#ffc107', icon: 'fa-hourglass-half' }
-
         ];
-
         var agencies = ['Dept of Defense', 'Dept of Energy', 'NGA', 'NSA', 'Defense Logistics Agency', 'Army', 'Navy', 'Air Force'];
-
         var workerKeys = Object.keys(caseWorkers);
 
-
-
         for(let i = 0; i < 100; i++) {
-
-      let id = 'US-' + Math.floor(100 + Math.random()*899) + '-' + Math.floor(1000 + Math.random()*8999);
-
-      // Ensure no duplicates with existing
-
-      if(subjectDB[id]) continue;
-
-
-
-      let clr = clearances[Math.floor(Math.random() * clearances.length)];
-
-      let stat = statuses[Math.floor(Math.random() * statuses.length)];
-
-      let worker = workerKeys[Math.floor(Math.random() * workerKeys.length)];
-
-      
-
-      subjectDB[id] = {
-
-        name: firstNames[Math.floor(Math.random() * firstNames.length)] + ' ' + lastNames[Math.floor(Math.random() * lastNames.length)],
-
-        dob: 'January 1, 1980',
-
-        citizenship: 'U.S. Citizen',
-
-        agency: agencies[Math.floor(Math.random() * agencies.length)],
-
-        position: 'Analyst',
-
-        invType: clr.inv,
-
-        initiated: 'Mar ' + Math.floor(1+Math.random()*28) + ', 2025',
-
-        prior: 'None',
-
-        clearance: clr.level,
-
-        clearanceBg: clr.bg,
-
-        clearanceColor: clr.color,
-
-        status: stat.s,
-
-        statusColor: stat.color,
-
-        statusIcon: stat.icon,
-
-        flags: stat.s === 'Flagged (CE)' ? '• Automated flag generated.' : null,
-
-        timeline: (function() {
-
-          if (stat.s === 'Granted') return [
-
-            { date:'Jan 6',  label:'Initiation & Sponsorship',    icon:'fa-play-circle',     color:'var(--primary)' },
-
-            { date:'Jan 22', label:'eApp (SF-86) Submission',     icon:'fa-file-circle-check',  color:'var(--accent)' },
-
-            { date:'Feb 10', label:'Fingerprints & Initial Check',  icon:'fa-fingerprint',     color:'var(--accent)' },
-
-            { date:'Feb 28', label:'Background Investigation',    icon:'fa-magnifying-glass-chart', color:'var(--accent)' },
-
-            { date:'Mar 5',  label:'Field Interviews',        icon:'fa-comments',       color:'var(--accent)' },
-
-            { date:'Apr 1',  label:'Adjudication Review (DoDCAF)',  icon:'fa-scale-balanced',    color:'var(--accent)' },
-
-            { date:'Apr 25', label:'Determination (Granted)',     icon:'fa-shield-check',     color:'#28a745'    },
-
-            { date:'Active', label:'Enrolled in Continuous Vetting', icon:'fa-satellite-dish',    color:'#28a745'    }
-
-          ];
-
-          if (stat.s === 'In Progress') return [
-
-            { date:'Feb 18', label:'Initiation & Sponsorship',    icon:'fa-play-circle',     color:'var(--primary)' },
-
-            { date:'Mar 2',  label:'eApp (SF-86) Submission',     icon:'fa-file-circle-check',  color:'var(--accent)' },
-
-            { date:'Mar 10', label:'Fingerprints & Initial Check',  icon:'fa-fingerprint',     color:'var(--accent)' },
-
-            { date:'In Progress',  label:'Background Investigation',    icon:'fa-spinner fa-spin',   color:'#17a2b8'    },
-
-            { date:'Pending',    label:'Field Interviews',        icon:'fa-comments',       color:'#aaa'      },
-
-            { date:'Pending',    label:'Adjudication Review (DoDCAF)',  icon:'fa-scale-balanced',    color:'#aaa'      },
-
-            { date:'Pending',    label:'Determination',          icon:'fa-shield-check',     color:'#aaa'      },
-
-            { date:'Pending',    label:'Continuous Vetting Enrollment',  icon:'fa-satellite-dish',    color:'#aaa'      }
-
-          ];
-
-          if (stat.s === 'Flagged (CE)') return [
-
-            { date:'Oct 14', label:'Initiation & Sponsorship',    icon:'fa-play-circle',     color:'var(--primary)' },
-
-            { date:'Oct 30', label:'eApp (SF-86) Submission',     icon:'fa-file-circle-check',  color:'var(--accent)' },
-
-            { date:'Nov 10', label:'Fingerprints & Initial Check',  icon:'fa-fingerprint',     color:'var(--accent)' },
-
-            { date:'Dec 15', label:'Background Investigation',    icon:'fa-magnifying-glass-chart', color:'var(--accent)' },
-
-            { date:'Jan 5',  label:'Field Interviews',        icon:'fa-comments',       color:'var(--accent)' },
-
-            { date:'Feb 1',  label:'Adjudication Review (DoDCAF)',  icon:'fa-scale-balanced',    color:'var(--accent)' },
-
-            { date:'Mar 1',  label:'Determination (Granted)',     icon:'fa-shield-check',     color:'#28a745'    },
-
-            { date:'Active', label:'Enrolled in Continuous Vetting', icon:'fa-satellite-dish',    color:'#28a745'    },
-
-            { date:'Yesterday',   label:'Continuous Vetting Flag Triggered',icon:'fa-triangle-exclamation',color:'#dc3545'    }
-
-          ];
-
-          return [ // Pending Review
-
-            { date:'Jan 6',  label:'Initiation & Sponsorship',    icon:'fa-play-circle',     color:'var(--primary)' },
-
-            { date:'Jan 22', label:'eApp (SF-86) Submission',     icon:'fa-file-circle-check',  color:'var(--accent)' },
-
-            { date:'Feb 10', label:'Fingerprints & Initial Check',  icon:'fa-fingerprint',     color:'var(--accent)' },
-
-            { date:'Feb 28', label:'Background Investigation',    icon:'fa-magnifying-glass-chart', color:'var(--accent)' },
-
-            { date:'Mar 5',  label:'Field Interviews',        icon:'fa-comments',       color:'var(--accent)' },
-
-            { date:'Pending', label:'Adjudication Review (DoDCAF)',  icon:'fa-hourglass-half',    color:'#ffc107'    },
-
-            { date:'Pending', label:'Determination',          icon:'fa-shield-check',     color:'#aaa'      },
-
-            { date:'Pending', label:'Continuous Vetting Enrollment',  icon:'fa-satellite-dish',    color:'#aaa'      }
-
-          ];
-
-        })(),
-
-        workerKey: worker,
-
-        lastUpdated: 'Mar ' + Math.floor(1+Math.random()*28) + ', 2025'
-
-      };
-
-    }
-
-
-
-    function updateSearchUI() {
-
-      var criteria = document.getElementById('search-criteria').value;
-
-      document.getElementById('input-container-name').style.display = (criteria === 'name') ? 'flex' : 'none';
-
-      document.getElementById('input-container-caseId').style.display = (criteria === 'caseId') ? 'flex' : 'none';
-
-      document.getElementById('input-container-status').style.display = (criteria === 'status') ? 'flex' : 'none';
-
-      document.getElementById('input-container-agent').style.display = (criteria === 'agent') ? 'flex' : 'none';
-
-    }
-
-
-
-    function executeSearch() {
-
-      var criteria = document.getElementById('search-criteria').value;
-
-      var filteredIds = [];
-
-      
-
-      Object.keys(subjectDB).forEach(function(id) {
-
-        var subj = subjectDB[id];
-
-        var worker = caseWorkers[subj.workerKey];
-
-        var match = false;
-
-        
-
-        if (criteria === 'name') {
-
-          var first = document.getElementById('search-first-name').value.toLowerCase().trim();
-
-          var last = document.getElementById('search-last-name').value.toLowerCase().trim();
-
-          var subjName = subj.name.toLowerCase();
-
-          var nameParts = subjName.split(' ');
-
-          var subjFirst = nameParts[0] || '';
-
-          var subjLast = nameParts.slice(1).join(' ') || '';
-
-          
-
-          if ((!first || subjFirst.startsWith(first)) && (!last || subjLast.startsWith(last))) {
-
-            match = true;
-
-          }
-
-        } else if (criteria === 'caseId') {
-
-          var qId = document.getElementById('search-case-id').value.toLowerCase().trim();
-
-          if (!qId || id.toLowerCase().includes(qId)) match = true;
-
-        } else if (criteria === 'status') {
-
-          var qStatus = document.getElementById('search-status').value;
-
-          if (subj.status === qStatus) match = true;
-
-        } else if (criteria === 'agent') {
-
-          var qAgent = document.getElementById('search-agent').value;
-
-          if (worker.name === qAgent) match = true;
-
+            let id = 'US-' + Math.floor(100 + Math.random()*899) + '-' + Math.floor(1000 + Math.random()*8999);
+            // Ensure no duplicates with existing
+            if(subjectDB[id]) continue;
+
+            let clr = clearances[Math.floor(Math.random() * clearances.length)];
+            let stat = statuses[Math.floor(Math.random() * statuses.length)];
+            let worker = workerKeys[Math.floor(Math.random() * workerKeys.length)];
+            
+            subjectDB[id] = {
+                name: firstNames[Math.floor(Math.random() * firstNames.length)] + ' ' + lastNames[Math.floor(Math.random() * lastNames.length)],
+                dob: 'January 1, 1980',
+                citizenship: 'U.S. Citizen',
+                agency: agencies[Math.floor(Math.random() * agencies.length)],
+                position: 'Analyst',
+                invType: clr.inv,
+                initiated: 'Mar ' + Math.floor(1+Math.random()*28) + ', 2025',
+                prior: 'None',
+                clearance: clr.level,
+                clearanceBg: clr.bg,
+                clearanceColor: clr.color,
+                status: stat.s,
+                statusColor: stat.color,
+                statusIcon: stat.icon,
+                flags: stat.s === 'Flagged (CE)' ? '• Automated flag generated.' : null,
+                timeline: (function() {
+                    if (stat.s === 'Granted') return [
+                        { date:'Jan 6',   label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
+                        { date:'Jan 22',  label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
+                        { date:'Feb 10',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
+                        { date:'Feb 28',  label:'Background Investigation',        icon:'fa-magnifying-glass-chart', color:'var(--accent)'  },
+                        { date:'Mar 5',   label:'Field Interviews',                icon:'fa-comments',             color:'var(--accent)'  },
+                        { date:'Apr 1',   label:'Adjudication Review (DoDCAF)',    icon:'fa-scale-balanced',       color:'var(--accent)'  },
+                        { date:'Apr 25',  label:'Determination (Granted)',         icon:'fa-shield-check',         color:'#28a745'        },
+                        { date:'Active',  label:'Enrolled in Continuous Vetting',  icon:'fa-satellite-dish',       color:'#28a745'        }
+                    ];
+                    if (stat.s === 'In Progress') return [
+                        { date:'Feb 18',  label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
+                        { date:'Mar 2',   label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
+                        { date:'Mar 10',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
+                        { date:'In Progress',   label:'Background Investigation',        icon:'fa-spinner fa-spin',      color:'#17a2b8'        },
+                        { date:'Pending',       label:'Field Interviews',                icon:'fa-comments',             color:'#aaa'           },
+                        { date:'Pending',       label:'Adjudication Review (DoDCAF)',    icon:'fa-scale-balanced',       color:'#aaa'           },
+                        { date:'Pending',       label:'Determination',                   icon:'fa-shield-check',         color:'#aaa'           },
+                        { date:'Pending',       label:'Continuous Vetting Enrollment',   icon:'fa-satellite-dish',       color:'#aaa'           }
+                    ];
+                    if (stat.s === 'Flagged (CE)') return [
+                        { date:'Oct 14',  label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
+                        { date:'Oct 30',  label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
+                        { date:'Nov 10',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
+                        { date:'Dec 15',  label:'Background Investigation',        icon:'fa-magnifying-glass-chart', color:'var(--accent)'  },
+                        { date:'Jan 5',   label:'Field Interviews',                icon:'fa-comments',             color:'var(--accent)'  },
+                        { date:'Feb 1',   label:'Adjudication Review (DoDCAF)',    icon:'fa-scale-balanced',       color:'var(--accent)'  },
+                        { date:'Mar 1',   label:'Determination (Granted)',         icon:'fa-shield-check',         color:'#28a745'        },
+                        { date:'Active',  label:'Enrolled in Continuous Vetting',  icon:'fa-satellite-dish',       color:'#28a745'        },
+                        { date:'Yesterday',     label:'Continuous Vetting Flag Triggered',icon:'fa-triangle-exclamation',color:'#dc3545'        }
+                    ];
+                    return [ // Pending Review
+                        { date:'Jan 6',   label:'Initiation & Sponsorship',        icon:'fa-play-circle',          color:'var(--primary)' },
+                        { date:'Jan 22',  label:'eApp (SF-86) Submission',         icon:'fa-file-circle-check',    color:'var(--accent)'  },
+                        { date:'Feb 10',  label:'Fingerprints & Initial Check',    icon:'fa-fingerprint',          color:'var(--accent)'  },
+                        { date:'Feb 28',  label:'Background Investigation',        icon:'fa-magnifying-glass-chart', color:'var(--accent)'  },
+                        { date:'Mar 5',   label:'Field Interviews',                icon:'fa-comments',             color:'var(--accent)'  },
+                        { date:'Pending', label:'Adjudication Review (DoDCAF)',    icon:'fa-hourglass-half',       color:'#ffc107'        },
+                        { date:'Pending', label:'Determination',                   icon:'fa-shield-check',         color:'#aaa'           },
+                        { date:'Pending', label:'Continuous Vetting Enrollment',   icon:'fa-satellite-dish',       color:'#aaa'           }
+                    ];
+                })(),
+                workerKey: worker,
+                lastUpdated: 'Mar ' + Math.floor(1+Math.random()*28) + ', 2025'
+            };
         }
 
-        
+        function updateSearchUI() {
+            var criteria = document.getElementById('search-criteria').value;
+            document.getElementById('input-container-name').style.display = (criteria === 'name') ? 'flex' : 'none';
+            document.getElementById('input-container-caseId').style.display = (criteria === 'caseId') ? 'flex' : 'none';
+            document.getElementById('input-container-status').style.display = (criteria === 'status') ? 'flex' : 'none';
+            document.getElementById('input-container-agent').style.display = (criteria === 'agent') ? 'flex' : 'none';
+        }
 
-        if (match) filteredIds.push(id);
-
-      });
-
-      renderTable(filteredIds);
-
-    }
-
-    
-
-    function resetSearch() {
-
-      document.getElementById('search-first-name').value = '';
-
-      document.getElementById('search-last-name').value = '';
-
-      document.getElementById('search-case-id').value = '';
-
-      renderTable(Object.keys(subjectDB));
-
-    }
-
-
-
-    function renderTable(idsToRender) {
-
-      var tbody = document.getElementById('adjudications-tbody');
-
-      tbody.innerHTML = '';
-
-      
-
-      var initialItems = idsToRender.slice(0, 30);
-
-      var remainingItems = idsToRender.slice(30);
-
-      
-
-      function renderBatch(batch) {
-
-        var html = '';
-
-        batch.forEach(function(id) {
-
-          var subj = subjectDB[id];
-
-          var worker = caseWorkers[subj.workerKey];
-
-          
-
-          var workerHtml = '<a href="#" class="auto-style-7657e5d6 caseworker-link" onclick="showCaseworker(\''+worker.name+'\', \''+worker.title+'\', \''+worker.email+'\', \''+worker.phone+'\', \''+worker.div+'\', \''+worker.icon+'\'); return false;">' +
-
-                                     '<i class="auto-style-3e26b9a7 fa-solid '+worker.icon+'"></i>'+worker.name+'</a>';
-
+        function executeSearch() {
+            var criteria = document.getElementById('search-criteria').value;
+            var filteredIds = [];
+            
+            Object.keys(subjectDB).forEach(function(id) {
+                var subj = subjectDB[id];
+                var worker = caseWorkers[subj.workerKey];
+                var match = false;
+                
+                if (criteria === 'name') {
+                    var first = document.getElementById('search-first-name').value.toLowerCase().trim();
+                    var last = document.getElementById('search-last-name').value.toLowerCase().trim();
+                    var subjName = subj.name.toLowerCase();
+                    var nameParts = subjName.split(' ');
+                    var subjFirst = nameParts[0] || '';
+                    var subjLast = nameParts.slice(1).join(' ') || '';
                     
-
-                    html += '<tr>' +
-
-                        '<td class="auto-style-a86d1ae1">' +
-
-                            '<a href="#" onclick="showSubject(\''+id+'\'); return false;" class="auto-style-3b2b3267" title="View Investigation Detail">' +
-
-                                '<i class="auto-style-37f1d65d fa-solid fa-magnifying-glass"></i>'+id+'</a></td>' +
-
-                        '<td class="auto-style-767d65ae"><span ' + 'sty' + 'le="background: '+subj.clearanceBg+'; color: '+subj.clearanceColor+'; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">'+subj.clearance+'</span></td>' +
-
-                        '<td class="auto-style-767d65ae"><i ' + 'sty' + 'le="color: '+subj.statusColor+';" class="fa-solid '+subj.statusIcon+'"></i> '+subj.status+'</td>' +
-
-                        '<td class="auto-style-767d65ae">'+workerHtml+'</td>' +
-
-                        '<td class="auto-style-767d65ae">'+subj.lastUpdated+'</td>' +
-
-                        '</tr>';
-
-                });
-
-                tbody.insertAdjacentHTML('beforeend', html);
-
-            }
-
-            
-
-            renderBatch(initialItems);
-
-            
-
-            if (remainingItems.length > 0) {
-
-                setTimeout(function() {
-
-                    renderBatch(remainingItems);
-
-                }, 100);
-
-            }
-
+                    if ((!first || subjFirst.startsWith(first)) && (!last || subjLast.startsWith(last))) {
+                        match = true;
+                    }
+                } else if (criteria === 'caseId') {
+                    var qId = document.getElementById('search-case-id').value.toLowerCase().trim();
+                    if (!qId || id.toLowerCase().includes(qId)) match = true;
+                } else if (criteria === 'status') {
+                    var qStatus = document.getElementById('search-status').value;
+                    if (subj.status === qStatus) match = true;
+                } else if (criteria === 'agent') {
+                    var qAgent = document.getElementById('search-agent').value;
+                    if (worker.name === qAgent) match = true;
+                }
+                
+                if (match) filteredIds.push(id);
+            });
+            renderTable(filteredIds);
+        }
+        
+        function resetSearch() {
+            document.getElementById('search-first-name').value = '';
+            document.getElementById('search-last-name').value = '';
+            document.getElementById('search-case-id').value = '';
+            renderTable(Object.keys(subjectDB));
         }
 
+        function renderTable(idsToRender) {
+            var tbody = document.getElementById('adjudications-tbody');
+            tbody.innerHTML = '';
+            
+            var initialItems = idsToRender.slice(0, 30);
+            var remainingItems = idsToRender.slice(30);
+            
+            function renderBatch(batch) {
+                var html = '';
+                batch.forEach(function(id) {
+                    var subj = subjectDB[id];
+                    var worker = caseWorkers[subj.workerKey];
+                    
+                    var workerHtml = '<a href="#" class="caseworker-link" onclick="showCaseworker(\''+worker.name+'\', \''+worker.title+'\', \''+worker.email+'\', \''+worker.phone+'\', \''+worker.div+'\', \''+worker.icon+'\'); return false;" style="color: var(--accent); font-weight: 600; text-decoration: none;">' +
+                                     '<i class="fa-solid '+worker.icon+'" style="margin-right: 0.4rem;"></i>'+worker.name+'</a>';
+                    
+                    html += '<tr>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color); font-family: monospace;">' +
+                            '<a href="#" onclick="showSubject(\''+id+'\'); return false;" style="color: var(--accent); font-weight: 700; text-decoration: none; letter-spacing: 0.03em;" title="View Investigation Detail">' +
+                                '<i class="fa-solid fa-magnifying-glass" style="font-size:0.75rem; margin-right:0.35rem; opacity:0.7;"></i>'+id+'</a></td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);"><span style="background: '+subj.clearanceBg+'; color: '+subj.clearanceColor+'; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">'+subj.clearance+'</span></td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);"><i class="fa-solid '+subj.statusIcon+'" style="color: '+subj.statusColor+';"></i> '+subj.status+'</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+workerHtml+'</td>' +
+                        '<td style="padding: 1rem; border-bottom: 1px solid var(--border-color);">'+subj.lastUpdated+'</td>' +
+                        '</tr>';
+                });
+                tbody.insertAdjacentHTML('beforeend', html);
+            }
+            
+            renderBatch(initialItems);
+            
+            if (remainingItems.length > 0) {
+                setTimeout(function() {
+                    renderBatch(remainingItems);
+                }, 100);
+            }
+        }
         renderTable(Object.keys(subjectDB));
 
-
-
         function showSubject(id) {
-
             var s = subjectDB[id];
-
             if (!s) return;
-
             document.getElementById('subj-id').textContent = id;
-
             document.getElementById('subj-clearance-badge').innerHTML =
-
-                '<span ' + 'sty' + 'le="background:'+s.clearanceBg+';color:'+s.clearanceColor+';padding:0.2rem 0.6rem;border-radius:4px;font-size:0.78rem;font-weight:700;">'+s.clearance+'</span>';
-
+                '<span style="background:'+s.clearanceBg+';color:'+s.clearanceColor+';padding:0.2rem 0.6rem;border-radius:4px;font-size:0.78rem;font-weight:700;">'+s.clearance+'</span>';
             document.getElementById('subj-status-badge').innerHTML =
-
-                '<span ' + 'sty' + 'le="color:'+s.statusColor+';font-size:0.85rem;font-weight:600;"><i class="auto-style-de3b9f82 fa-solid '+s.statusIcon+'"></i>'+s.status+'</span>';
-
+                '<span style="color:'+s.statusColor+';font-size:0.85rem;font-weight:600;"><i class="fa-solid '+s.statusIcon+'" style="margin-right:0.3rem;"></i>'+s.status+'</span>';
             document.getElementById('subj-name').textContent        = s.name;
-
             document.getElementById('subj-dob').textContent         = s.dob;
-
             document.getElementById('subj-citizenship').textContent = s.citizenship;
-
             document.getElementById('subj-agency').textContent      = s.agency;
-
             document.getElementById('subj-position').textContent    = s.position;
-
             document.getElementById('subj-inv-type').textContent    = s.invType;
-
             document.getElementById('subj-initiated').textContent   = s.initiated;
-
             document.getElementById('subj-prior').textContent       = s.prior;
-
             // CE Flags
-
             var flagsBox = document.getElementById('subj-flags-box');
-
             if (s.flags) {
-
                 document.getElementById('subj-flags').innerHTML = s.flags.replace(/\n/g, '<br>');
-
                 flagsBox.style.display = 'block';
-
             } else {
-
                 flagsBox.style.display = 'none';
-
             }
-
             // Timeline
-
             var tl = document.getElementById('subj-timeline');
-
             tl.innerHTML = '';
-
             var classifiedLabels = ['eApp (SF-86) Submission', 'Background Investigation', 'Field Interviews', 'Adjudication Review (DoDCAF)', 'Continuous Vetting Flag Triggered'];
-
             
-
             s.timeline.forEach(function(t) {
-
                 var isClassified = classifiedLabels.includes(t.label);
-
                 var isPending = (t.date === 'Pending');
-
                 var labelHtml = t.label;
-
                 
-
                 if (!isPending) {
-
                     var classifiedArg = isClassified ? 'true' : 'false';
-
-                    labelHtml = '<a href="#" onclick="openArtifact(\''+t.label+'\', '+classifiedArg+'); return false;" class="auto-style-638bf150" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'" title="View Artifact">' + t.label + ' <i class="auto-style-41f8a17c fa-solid fa-file-contract"></i></a>';
-
+                    labelHtml = '<a href="#" onclick="openArtifact(\''+t.label+'\', '+classifiedArg+'); return false;" style="color:var(--accent); text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'" title="View Artifact">' + t.label + ' <i class="fa-solid fa-file-contract" style="font-size:0.75rem; margin-left:0.3rem;"></i></a>';
                 }
-
                 var workerHtml = '';
-
                 if (!isPending) {
-
                     var worker = caseWorkers[s.workerKey];
-
-                    workerHtml = '<div class="auto-style-08a0ed40"><div class="auto-style-531d3539">Agent</div>' +
-
-                                 '<a href="#" onclick="showCaseworker(\''+worker.name+'\', \''+worker.title+'\', \''+worker.email+'\', \''+worker.phone+'\', \''+worker.div+'\', \''+worker.icon+'\'); return false;" class="auto-style-753c1c3b" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' +
-
-                                 '<i class="auto-style-0e4261ca fa-solid '+worker.icon+'"></i>'+worker.name+'</a></div>';
-
+                    workerHtml = '<div style="text-align:right;"><div style="font-size:0.7rem; opacity:0.5; margin-bottom:0.15rem; text-transform:uppercase; letter-spacing:0.05em;">Agent</div>' +
+                                 '<a href="#" onclick="showCaseworker(\''+worker.name+'\', \''+worker.title+'\', \''+worker.email+'\', \''+worker.phone+'\', \''+worker.div+'\', \''+worker.icon+'\'); return false;" style="color:var(--accent); font-size:0.85rem; font-weight:600; text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' +
+                                 '<i class="fa-solid '+worker.icon+'" style="margin-right:0.2rem;"></i>'+worker.name+'</a></div>';
                 }
 
-
-
-                tl.innerHTML += '<div class="auto-style-39de4109">' +
-
-                    '<div class="auto-style-c4f83cff">' +
-
-                        '<div class="auto-style-8ab570c3">' +
-
-                            '<i class="auto-style-cc5f1a5f fa-solid '+t.icon+'"></i></div>' +
-
-                        '<div><div class="auto-style-29298560">'+labelHtml+'</div>' +
-
-                        '<div class="auto-style-31b74383">'+t.date+'</div></div>' +
-
+                tl.innerHTML += '<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">' +
+                    '<div style="display:flex;align-items:center;gap:0.85rem;">' +
+                        '<div style="width:28px;height:28px;border-radius:50%;background:'+t.color+';display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+                            '<i class="fa-solid '+t.icon+'" style="font-size:0.75rem;color:#fff;"></i></div>' +
+                        '<div><div style="font-weight:600;font-size:0.9rem;color:var(--primary);">'+labelHtml+'</div>' +
+                        '<div style="font-size:0.78rem;opacity:0.6;">'+t.date+'</div></div>' +
                     '</div>' + workerHtml + '</div>';
-
             });
-
             var modal = document.getElementById('subject-modal');
-
             modal.style.display = 'flex';
-
             modal.scrollTop = 0;
-
         }
-
         function closeSubjectModal() {
-
             document.getElementById('subject-modal').style.display = 'none';
-
         }
-
         document.getElementById('subject-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closeSubjectModal();
-
         });
-
-
 
         // ── Artifact Viewer & Password Logic ─────────────────────────────────
-
         var pendingArtifactTitle = '';
-
         function openArtifact(title, isClassified) {
-
             pendingArtifactTitle = title;
-
             if (isClassified) {
-
                 document.getElementById('classified-password').value = '';
-
                 document.getElementById('password-modal').style.display = 'flex';
-
                 setTimeout(() => document.getElementById('classified-password').focus(), 50);
-
             } else {
-
                 showArtifact(title);
-
             }
-
         }
-
         function closePasswordModal() {
-
             document.getElementById('password-modal').style.display = 'none';
-
         }
-
         function submitPassword() {
-
             var pwd = document.getElementById('classified-password').value;
-
             if (pwd.trim().length > 0) {
-
                 closePasswordModal();
-
                 showArtifact(pendingArtifactTitle);
-
             }
-
         }
-
         function showArtifact(title) {
-
             document.getElementById('artifact-title').textContent = title + ' - Official Record';
-
             document.getElementById('artifact-doc-id').textContent = 'DOC-' + Math.floor(100000 + Math.random()*899999);
-
             document.getElementById('artifact-content').textContent = 'Retrieving secure artifact data...\n\n[MOCK DATA] This is a simulated record for: ' + title + '.\n\nAll standard protocols were followed and verified by assigned adjudicative personnel. Record securely stored in DCSA archives.';
-
             document.getElementById('artifact-modal').style.display = 'flex';
-
         }
-
         function closeArtifactModal() {
-
             document.getElementById('artifact-modal').style.display = 'none';
-
         }
-
         
-
         // Close modals on backdrop click
-
         document.getElementById('password-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closePasswordModal();
-
         });
-
         document.getElementById('artifact-modal').addEventListener('click', function(e) {
-
             if (e.target === this) closeArtifactModal();
-
         });
-
     </script>
-
-
-
 <script src="static/cms.js"></script>
-
 <script src="static/analytics.js"></script>
-
 <script src="static/dcsa_demo.js"></script>
-
 </body>
-
 </html>
-

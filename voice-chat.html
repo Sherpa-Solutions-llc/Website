@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Sherpa | Interactive AI Guide</title>
+    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/styles.css?v=2.0">
+    <script src="static/theme.js"></script>
+    <style>
+        :root {
+            --glow-color: rgba(210, 128, 82, 0.5);
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, var(--surface-color) 0%, var(--bg-color) 100%);
+            color: var(--text-dark);
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .voice-container {
+            text-align: center;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .mountain-trigger {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 3rem;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mountain-trigger i {
+            font-size: 8rem;
+            color: var(--accent);
+            filter: drop-shadow(0 0 10px var(--glow-color));
+            transition: var(--transition);
+        }
+
+        .mountain-trigger.listening i {
+            animation: pulse 1.5s infinite ease-in-out;
+            color: #ff9e79;
+        }
+
+        .mountain-trigger.thinking i {
+            animation: rotate 2s infinite linear;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--glow-color)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 30px var(--accent)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--glow-color)); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .transcript-container {
+            min-height: 100px;
+            margin-bottom: 2rem;
+        }
+
+        .transcript {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            opacity: 0.9;
+            transition: var(--transition);
+            line-height: 1.4;
+        }
+
+        .agent-response {
+            font-size: 1.2rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 1rem;
+            animation: slideUpFade 0.5s ease-out forwards;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        /* Waves animation */
+        .waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15vh;
+            margin-bottom: -7px;
+            min-height: 100px;
+            max-height: 150px;
+            opacity: 0.3;
+        }
+
+        .parallax > use {
+            animation: move-forever 25s cubic-bezier(.55, .5, .45, .5) infinite;
+        }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+
+        @keyframes move-forever {
+            0% { transform: translate3d(-90px, 0, 0); }
+            100% { transform: translate3d(85px, 0, 0); }
+        }
+
+        #visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+            margin-bottom: 1rem;
+        }
+
+        .bar {
+            width: 4px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Return to Basecamp
+    </a>
+
+
+
+    <div class="voice-container">
+        <div id="status" class="status-badge">Standby</div>
+        
+        <div class="transcript-container">
+            <div id="user-transcript" class="transcript">Tap the mountain to start the climb...</div>
+            <div id="agent-text" class="agent-response"></div>
+        </div>
+
+        <div id="visualizer">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+
+        <div id="mountain-btn" class="mountain-trigger">
+            <i class="fa-solid fa-mountain-sun"></i>
+        </div>
+
+        <div class="controls">
+            <div class="audio-control-wrapper">
+                <button id="toggle-audio" class="btn btn-outline">
+                    <i class="fa-solid fa-volume-high"></i> Audio On
+                </button>
+                <div class="volume-popover">
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+                </div>
+            </div>
+            <button id="demo-btn" class="btn btn-outline" title="Play Demo Intro">
+                <i class="fa-solid fa-play"></i> Demo
+            </button>
+            <button id="theme-toggle" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;">
+                <i class="fa-solid fa-sun"></i> Switch to Light Mode
+            </button>
+        </div>
+    </div>
+
+    <style>
+        .audio-control-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .volume-popover {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: var(--surface-color);
+            border: 1px solid var(--accent);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 100;
+        }
+
+        .audio-control-wrapper:hover .volume-popover {
+            display: block;
+        }
+
+        #volume-slider {
+            width: 80px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- Background Waves -->
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <defs>
+            <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+        </defs>
+        <g class="parallax">
+            <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(210, 128, 82, 0.7" />
+            <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(210, 128, 82, 0.5)" />
+            <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(210, 128, 82, 0.3)" />
+            <use xlink:href="#gentle-wave" x="48" y="7" fill="var(--bg-color)" />
+        </g>
+    </svg>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Sherpa Settings</h2>
+            
+            <div class="setting-group">
+                <label>Hermes API URL</label>
+                <input type="text" id="api-url-input" placeholder="http://localhost:8000/v1">
+            </div>
+
+            <div class="setting-group">
+                <label>Voice Selection</label>
+                <select id="voice-select"></select>
+            </div>
+
+            <div class="setting-group">
+                <label>Speech Rate: <span id="rate-val">1.0</span></label>
+                <input type="range" id="rate-input" min="0.5" max="2" step="0.1" value="1.0">
+            </div>
+
+            <div class="setting-group">
+                <label>Speech Pitch: <span id="pitch-val">1.0</span></label>
+                <input type="range" id="pitch-input" min="0.5" max="2" step="0.1" value="1.0">
+            </div>
+
+            <div class="setting-group">
+                <label>Interaction Mode</label>
+                <div class="mode-toggle">
+                    <button id="mode-ptt" class="mode-btn active" title="Click to speak">Push-to-Talk</button>
+                    <button id="mode-tel" class="mode-btn" title="Always listening">Telephone Mode</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>Change UI Passkey</label>
+                <input type="password" id="ui-passkey-input" placeholder="Enter new passkey...">
+            </div>
+
+            <button id="save-settings" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Save & Calibrate</button>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--surface-color);
+            margin: 10% auto;
+            padding: 2rem;
+            border: 1px solid var(--accent);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px var(--glow-color);
+            position: relative;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .close-modal:hover { opacity: 1; color: var(--accent); }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .setting-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .setting-group input[type="text"], 
+        .setting-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary);
+            font-family: inherit;
+        }
+
+        .setting-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-group label { margin-bottom: 0; }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+    </style>
+
+    <script src="static/voice-chat.js"></script>
+</body>
+</html>

@@ -1,27 +1,34 @@
 import os
 import glob
 
-directory = r"C:\Users\choos\Documents\Antigravity\sherpa_solutions"
+# Use current directory instead of hardcoded Windows path
+directory = os.path.dirname(os.path.abspath(__file__))
 html_files = glob.glob(os.path.join(directory, "**/*.html"), recursive=True)
 
 processed = 0
 for file in html_files:
-    if "static" in file or "mock_emails" in file:
+    if any(x in file for x in ["static", "mock_emails", "venv", "node_modules"]):
         continue
     
-    with open(file, "r", encoding="utf-8") as f:
-        content = f.read()
+    try:
+        with open(file, "r", encoding="utf-8") as f:
+            content = f.read()
+    except UnicodeDecodeError:
+        print(f"Skipping {file} due to encoding issue (possibly binary).")
+        continue
     
     original_content = content
     
-    # 1. Update data-theme attribute
-    content = content.replace('<html lang="en" data-theme="dark">', '<html lang="en" data-theme="light">')
+    # 1. Update data-theme attribute to DARK
+    content = content.replace('data-theme="light"', 'data-theme="dark"')
     
-    # Ensure all HTML tags that are missing data-theme get data-theme="light" (Except for those that shouldn't)
-    if '<html lang="en">' in content:
-        content = content.replace('<html lang="en">', '<html lang="en" data-theme="light">')
+    # Ensure all HTML tags that are missing data-theme get data-theme="dark"
+    if '<html' in content and 'data-theme' not in content:
+        # Avoid double data-theme if it was already there but different
+        if 'data-theme' not in content:
+            content = content.replace('<html', '<html data-theme="dark"')
     
-    # 2. Inject <style data-cms="custom-theme-colors"></style> before </head>
+    # 2. Inject <style data-cms="custom-theme-colors"></style> before </head> if missing
     target_tag = '<style data-cms="custom-theme-colors"></style>'
     if target_tag not in content:
         if '</head>' in content:
@@ -34,4 +41,4 @@ for file in html_files:
             f.write(content)
         processed += 1
         
-print(f"Successfully processed and updated {processed} HTML files.")
+print(f"Successfully processed and updated {processed} HTML files to DARK mode.")

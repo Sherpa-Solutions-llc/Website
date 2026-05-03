@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Sherpa Solutions LLC | Peak Design Travel Backpack 30L</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
-    rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link href="static/styles.css" rel="stylesheet" />
-  <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sherpa Solutions LLC | Peak Design Travel Backpack 30L</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css" rel="stylesheet"/>
+<style>
     .product-detail {
       max-width: 1100px;
       margin: 2rem auto;
@@ -197,8 +195,19 @@
       }
     }
   </style>
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -210,49 +219,44 @@
 }
 </style>
 </head>
-
 <body>
-  <header>
-    <div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC"
-          src="static/sherpa_logo_embroidered.jpg" /></a></div>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About Us</a></li>
-      <li><a href="services.html">Our Services</a></li>
-      <li><a href="projects.html">Projects</a></li>
-            <li><a class="active" href="merchandise.html">Merchandise</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
-    <a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
-  </header>
-
-  <div class="page-header">
-    <h1>Peak Design Travel Backpack 30L</h1>
-    <p>The rugged expandable daypack for shorter trips &amp; everyday carry.</p>
-  </div>
-
-  <div class="product-detail">
-    <div class="product-layout">
-      <div>
-        <div class="gallery-main">
-          <img alt="Peak Design Travel Backpack 30L" id="main-img" src="static/thumb_pro_pd30.jpg?v=1772630796" />
-        </div>
-        <div class="thumb-strip" id="thumb-strip">
-          <img alt="View 1" class="active" onclick="switchImg(this)" src="static/thumb_pro_pd30.jpg?v=1772630796" />
-          <img alt="View 2" onclick="switchImg(this)" src="static/bp_pd_30l_2.jpg?v=1772582868" />
-          <img alt="View 3" onclick="switchImg(this)" src="static/bp_pd_30l_3.jpg?v=1772582868" />
-          <img alt="View 4" onclick="switchImg(this)" src="static/bp_pd_30l_4.jpg?v=1772582868" />
-          <img alt="View 5" onclick="switchImg(this)" src="static/bp_pd_30l_5.jpg?v=1772582868" />
-          <img alt="View 6" onclick="switchImg(this)" src="static/bp_pd_30l_6.jpg?v=1772582868" />
-        </div>
-      </div>
-      <div>
-        <div class="product-brand">Peak Design </div>
-        <h2 class="product-title-lg">Travel Backpack 30L</h2>
-        
-        <div class="product-price-lg">$259.95</div>
-        <p class="product-desc">
+<header>
+<div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo_embroidered.jpg"/></a></div>
+<ul class="nav-links">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a href="projects.html">Projects</a></li>
+<li><a class="active" href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions"><button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button></div>
+<a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
+</header>
+<div class="page-header">
+<h1>Peak Design Travel Backpack 30L</h1>
+<p>The rugged expandable daypack for shorter trips &amp; everyday carry.</p>
+</div>
+<div class="product-detail">
+<div class="product-layout">
+<div>
+<div class="gallery-main">
+<img alt="Peak Design Travel Backpack 30L" id="main-img" src="static/thumb_pro_pd30.jpg?v=1772630796"/>
+</div>
+<div class="thumb-strip" id="thumb-strip">
+<img alt="View 1" class="active" onclick="switchImg(this)" src="static/thumb_pro_pd30.jpg?v=1772630796"/>
+<img alt="View 2" onclick="switchImg(this)" src="static/bp_pd_30l_2.jpg?v=1772582868"/>
+<img alt="View 3" onclick="switchImg(this)" src="static/bp_pd_30l_3.jpg?v=1772582868"/>
+<img alt="View 4" onclick="switchImg(this)" src="static/bp_pd_30l_4.jpg?v=1772582868"/>
+<img alt="View 5" onclick="switchImg(this)" src="static/bp_pd_30l_5.jpg?v=1772582868"/>
+<img alt="View 6" onclick="switchImg(this)" src="static/bp_pd_30l_6.jpg?v=1772582868"/>
+</div>
+</div>
+<div>
+<div class="product-brand">Peak Design </div>
+<h2 class="product-title-lg">Travel Backpack 30L</h2>
+<div class="product-price-lg">$259.95</div>
+<p class="product-desc">
           The smaller sibling of Peak Design's iconic 45L, the 30L is a rugged, expandable daypack ideal for
           shorter
           travel and everyday carry — because <em>No Two Trips The Same™</em>. A large rear hatch provides
@@ -263,78 +267,76 @@
           Certified
           and 100% carbon neutral. 
         </p>
-        <div class="section-head">Key Features</div>
-        <ul class="features-list">
-          <li>Large rear hatch for full, clam-shell packing access</li>
-          <li>Weatherproof #10 UltraZip built to withstand decades of use</li>
-          <li>Expands from 27L (compressed) to 33L (expanded)</li>
-          <li>Enlarged top pocket with stretch and zip sub-pockets</li>
-          <li>Padded laptop (15") and tablet sleeves</li>
-          <li>Tuck-away shoulder straps with optional hip belt accessory</li>
-          <li>360° grab handles for versatile carry</li>
-          <li>Cleverly concealed external carry straps</li>
-          <li>Expansive side pockets for water bottles and tripods</li>
-          <li>Meets international carry-on size requirements</li>
-          <li>Fair Trade Certified &bull; 100% carbon neutral &bull; Lifetime warranty</li>
-        </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
-        <div class="section-head">Specifications</div>
-        <table class="specs-table">
-          <tr>
-            <td>Capacity</td>
-            <td>27L compressed / 33L expanded</td>
-          </tr>
-          <tr>
-            <td>Weight</td>
-            <td>3.97 lbs (1.80 kg)</td>
-          </tr>
-          <tr>
-            <td>Dimensions</td>
-            <td>20" H × 12.5" W × 7.5–9" D</td>
-          </tr>
-          <tr>
-            <td>Laptop Compartment</td>
-            <td>Fits up to 15" laptops</td>
-          </tr>
-          <tr>
-            <td>Tablet Compartment</td>
-            <td>Fits up to 13" tablets</td>
-          </tr>
-          <tr>
-            <td>Shell Material</td>
-            <td>400D recycled nylon canvas</td>
-          </tr>
-          <tr>
-            <td>Base Material</td>
-            <td>900D recycled nylon</td>
-          </tr>
-          <tr>
-            <td>Zippers</td>
-            <td>Weatherproof UltraZip #10</td>
-          </tr>
-          <tr>
-            <td>Carry-On</td>
-            <td>Yes — international compliant</td>
-          </tr>
-          <tr>
-            <td>Certification</td>
-            <td>Fair Trade Certified, Carbon Neutral</td>
-          </tr>
-          <tr>
-            <td>Warranty</td>
-            <td>Lifetime guarantee</td>
-          </tr>
-          
-        </table>
-        <a class="btn-close-lg" href="merch_backpacks.html"><i class="fas fa-arrow-left"></i> Back to
+<div class="section-head">Key Features</div>
+<ul class="features-list">
+<li>Large rear hatch for full, clam-shell packing access</li>
+<li>Weatherproof #10 UltraZip built to withstand decades of use</li>
+<li>Expands from 27L (compressed) to 33L (expanded)</li>
+<li>Enlarged top pocket with stretch and zip sub-pockets</li>
+<li>Padded laptop (15") and tablet sleeves</li>
+<li>Tuck-away shoulder straps with optional hip belt accessory</li>
+<li>360° grab handles for versatile carry</li>
+<li>Cleverly concealed external carry straps</li>
+<li>Expansive side pockets for water bottles and tripods</li>
+<li>Meets international carry-on size requirements</li>
+<li>Fair Trade Certified • 100% carbon neutral • Lifetime warranty</li>
+</ul>
+<div class="header-actions"><button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button></div>
+<div class="section-head">Specifications</div>
+<table class="specs-table">
+<tr>
+<td>Capacity</td>
+<td>27L compressed / 33L expanded</td>
+</tr>
+<tr>
+<td>Weight</td>
+<td>3.97 lbs (1.80 kg)</td>
+</tr>
+<tr>
+<td>Dimensions</td>
+<td>20" H × 12.5" W × 7.5–9" D</td>
+</tr>
+<tr>
+<td>Laptop Compartment</td>
+<td>Fits up to 15" laptops</td>
+</tr>
+<tr>
+<td>Tablet Compartment</td>
+<td>Fits up to 13" tablets</td>
+</tr>
+<tr>
+<td>Shell Material</td>
+<td>400D recycled nylon canvas</td>
+</tr>
+<tr>
+<td>Base Material</td>
+<td>900D recycled nylon</td>
+</tr>
+<tr>
+<td>Zippers</td>
+<td>Weatherproof UltraZip #10</td>
+</tr>
+<tr>
+<td>Carry-On</td>
+<td>Yes — international compliant</td>
+</tr>
+<tr>
+<td>Certification</td>
+<td>Fair Trade Certified, Carbon Neutral</td>
+</tr>
+<tr>
+<td>Warranty</td>
+<td>Lifetime guarantee</td>
+</tr>
+</table>
+<a class="btn-close-lg" href="merch_backpacks.html"><i class="fas fa-arrow-left"></i> Back to
           Backpacks</a>
-      </div>
-    </div>
-  </div>
-  <footer>
-    <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
-  </footer>
-  <script>function switchImg(el) { document.getElementById('main-img').src = el.src; document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active')); el.classList.add('active'); }</script>
+</div>
+</div>
+</div>
+<footer>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+</footer>
+<script>function switchImg(el) { document.getElementById('main-img').src = el.src; document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active')); el.classList.add('active'); }</script>
 </body>
-
 </html>

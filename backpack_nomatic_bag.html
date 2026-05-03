@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
 
+<html data-theme="dark" lang="en">
 <head>
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Sherpa Solutions LLC | NOMATIC Travel Bag 40L</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
-    rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link href="static/styles.css" rel="stylesheet" />
-  <style>
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sherpa Solutions LLC | NOMATIC Travel Bag 40L</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css" rel="stylesheet"/>
+<style>
     .product-detail {
       max-width: 1100px;
       margin: 2rem auto;
@@ -197,8 +195,19 @@
       }
     }
   </style>
-    <script src="static/theme.js"></script>
-    <style data-cms="custom-theme-colors">
+<script src="static/theme.js"></script>
+<style data-cms="custom-theme-colors">
+:root[data-theme="light"], :root[data-theme="light"] body {
+    --primary: #2d3f2e !important;
+    --secondary: #ff0000 !important;
+    --accent: #c06c3b !important;
+    --bg-color: #fdfbf7 !important;
+    --surface-color: #ffffff !important;
+    --text-dark: #1a241a !important;
+    --text-light: #ffffff !important;
+}
+</style>
+<style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
     --secondary: #ff0000 !important;
@@ -210,49 +219,44 @@
 }
 </style>
 </head>
-
 <body>
-  <header>
-    <div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC"
-          src="static/sherpa_logo_embroidered.jpg" /></a></div>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About Us</a></li>
-      <li><a href="services.html">Our Services</a></li>
-      <li><a href="projects.html">Projects</a></li>
-            <li><a class="active" href="merchandise.html">Merchandise</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
-    <a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
-  </header>
-
-  <div class="page-header">
-    <h1>NOMATIC Travel Bag 40L</h1>
-    <p>One bag. Every journey, every mile.</p>
-  </div>
-
-  <div class="product-detail">
-    <div class="product-layout">
-      <div>
-        <div class="gallery-main">
-          <img alt="NOMATIC Travel Bag 40L" id="main-img" src="static/thumb_pro_nbag.png?v=1772630796" />
-        </div>
-        <div class="thumb-strip" id="thumb-strip">
-          <img alt="View 1" class="active" onclick="switchImg(this)" src="static/thumb_pro_nbag.png?v=1772630796" />
-          <img alt="View 2" onclick="switchImg(this)" src="static/bp_nomatic_bag_2.png?v=1772582868" />
-          <img alt="View 3" onclick="switchImg(this)" src="static/bp_nomatic_bag_3.png?v=1772582868" />
-          <img alt="View 4" onclick="switchImg(this)" src="static/bp_nomatic_bag_4.png?v=1772582868" />
-          <img alt="View 5" onclick="switchImg(this)" src="static/bp_nomatic_bag_5.png?v=1772582868" />
-          <img alt="View 6" onclick="switchImg(this)" src="static/bp_nomatic_bag_6.png?v=1772582868" />
-        </div>
-      </div>
-      <div>
-        <div class="product-brand">NOMATIC </div>
-        <h2 class="product-title-lg">NOMATIC Travel Bag 40L</h2>
-        
-        <div class="product-price-lg">$339.99</div>
-        <p class="product-desc">
+<header>
+<div class="logo-container"><a href="index.html"><img alt="Sherpa Solutions LLC" src="static/sherpa_logo_embroidered.jpg"/></a></div>
+<ul class="nav-links">
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About Us</a></li>
+<li><a href="services.html">Our Services</a></li>
+<li><a href="projects.html">Projects</a></li>
+<li><a class="active" href="merchandise.html">Merchandise</a></li>
+<li><a href="contact.html">Contact</a></li>
+</ul>
+<div class="header-actions"><button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button></div>
+<a class="btn btn-primary" href="contact.html">Schedule Basecamp Consultation</a>
+</header>
+<div class="page-header">
+<h1>NOMATIC Travel Bag 40L</h1>
+<p>One bag. Every journey, every mile.</p>
+</div>
+<div class="product-detail">
+<div class="product-layout">
+<div>
+<div class="gallery-main">
+<img alt="NOMATIC Travel Bag 40L" id="main-img" src="static/thumb_pro_nbag.png?v=1772630796"/>
+</div>
+<div class="thumb-strip" id="thumb-strip">
+<img alt="View 1" class="active" onclick="switchImg(this)" src="static/thumb_pro_nbag.png?v=1772630796"/>
+<img alt="View 2" onclick="switchImg(this)" src="static/bp_nomatic_bag_2.png?v=1772582868"/>
+<img alt="View 3" onclick="switchImg(this)" src="static/bp_nomatic_bag_3.png?v=1772582868"/>
+<img alt="View 4" onclick="switchImg(this)" src="static/bp_nomatic_bag_4.png?v=1772582868"/>
+<img alt="View 5" onclick="switchImg(this)" src="static/bp_nomatic_bag_5.png?v=1772582868"/>
+<img alt="View 6" onclick="switchImg(this)" src="static/bp_nomatic_bag_6.png?v=1772582868"/>
+</div>
+</div>
+<div>
+<div class="product-brand">NOMATIC </div>
+<h2 class="product-title-lg">NOMATIC Travel Bag 40L</h2>
+<div class="product-price-lg">$339.99</div>
+<p class="product-desc">
           One bag. Every journey, every mile. The Travel Bag 40L is built to take you further. From three-day
           getaways
           to week-long excursions, it adapts to the way you move. With a patented strap system that transforms
@@ -263,61 +267,59 @@
           while
           on the road. 
         </p>
-        <div class="section-head">Key Features</div>
-        <ul class="features-list">
-          <li>Converts seamlessly from duffel to backpack via patented strap system</li>
-          <li>Fits 3–7 day trips; carry-on sized for overhead bins</li>
-          <li>Dedicated 16" laptop &amp; tablet sleeve with TSA-ready access</li>
-          <li>12 internal pockets including shoe, tech, and travel essential storage</li>
-          <li>Internal waterproof-lined water bottle pocket</li>
-          <li>Luggage handle pass-through for roller bag integration</li>
-          <li>Removable waist straps for added comfort on long travel days</li>
-          <li>Includes custom laundry bag to separate clean and dirty clothes</li>
-          <li>Durable water-resistant materials with reinforced zippers throughout</li>
-          <li>Also available in 30L size</li>
-        </ul>
-        <div class="header-actions"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme"><i class="fa-solid fa-sun"></i></button></div>
-        <div class="section-head">Specifications</div>
-        <table class="specs-table">
-          <tr>
-            <td>Capacity</td>
-            <td>40L</td>
-          </tr>
-          <tr>
-            <td>Weight</td>
-            <td>3.42 lbs</td>
-          </tr>
-          <tr>
-            <td>Dimensions</td>
-            <td>21" W × 14" D × 9" H</td>
-          </tr>
-          <tr>
-            <td>Laptop Compartment</td>
-            <td>Fits devices up to 16" × 10.5" × 1.5"</td>
-          </tr>
-          <tr>
-            <td>Exterior Material</td>
-            <td>90% Polyester / 10% Nylon</td>
-          </tr>
-          <tr>
-            <td>Carry-On</td>
-            <td>Yes — designed for overhead bins</td>
-          </tr>
-          <tr>
-            <td>Included</td>
-            <td>Removable waist straps, laundry bag</td>
-          </tr>
-          
-        </table>
-        <a class="btn-close-lg" href="merch_backpacks.html"><i class="fas fa-arrow-left"></i> Back to
+<div class="section-head">Key Features</div>
+<ul class="features-list">
+<li>Converts seamlessly from duffel to backpack via patented strap system</li>
+<li>Fits 3–7 day trips; carry-on sized for overhead bins</li>
+<li>Dedicated 16" laptop &amp; tablet sleeve with TSA-ready access</li>
+<li>12 internal pockets including shoe, tech, and travel essential storage</li>
+<li>Internal waterproof-lined water bottle pocket</li>
+<li>Luggage handle pass-through for roller bag integration</li>
+<li>Removable waist straps for added comfort on long travel days</li>
+<li>Includes custom laundry bag to separate clean and dirty clothes</li>
+<li>Durable water-resistant materials with reinforced zippers throughout</li>
+<li>Also available in 30L size</li>
+</ul>
+<div class="header-actions"><button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;"><i class="fa-solid fa-sun"></i> Switch to Light Mode</button></div>
+<div class="section-head">Specifications</div>
+<table class="specs-table">
+<tr>
+<td>Capacity</td>
+<td>40L</td>
+</tr>
+<tr>
+<td>Weight</td>
+<td>3.42 lbs</td>
+</tr>
+<tr>
+<td>Dimensions</td>
+<td>21" W × 14" D × 9" H</td>
+</tr>
+<tr>
+<td>Laptop Compartment</td>
+<td>Fits devices up to 16" × 10.5" × 1.5"</td>
+</tr>
+<tr>
+<td>Exterior Material</td>
+<td>90% Polyester / 10% Nylon</td>
+</tr>
+<tr>
+<td>Carry-On</td>
+<td>Yes — designed for overhead bins</td>
+</tr>
+<tr>
+<td>Included</td>
+<td>Removable waist straps, laundry bag</td>
+</tr>
+</table>
+<a class="btn-close-lg" href="merch_backpacks.html"><i class="fas fa-arrow-left"></i> Back to
           Backpacks</a>
-      </div>
-    </div>
-  </div>
-  <footer>
-    <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
-  </footer>
-  <script>function switchImg(el) { document.getElementById('main-img').src = el.src; document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active')); el.classList.add('active'); }</script>
+</div>
+</div>
+</div>
+<footer>
+<p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+</footer>
+<script>function switchImg(el) { document.getElementById('main-img').src = el.src; document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active')); el.classList.add('active'); }</script>
 </body>
-
 </html>

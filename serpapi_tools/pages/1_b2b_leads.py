@@ -8,10 +8,45 @@ import streamlit.components.v1 as components
 # --- MACRO BRIDGE ---
 demo_bridge = """
 <script>
-    if (!window.parent.activatedSherpaDemo) {
-        window.parent.activatedSherpaDemo = true;
+    if (!window.parent.activatedSherpaDemoV2) {
+        window.parent.activatedSherpaDemoV2 = true;
         window.parent.addEventListener('message', function(e) {
-            if (!e.data || e.data.target !== 'SHERPA_DEMO') return;
+            if (!e.data) return;
+            
+            // Theme Sync Override
+            if (e.data.type === 'SHERPA_THEME') {
+                const doc = window.parent.document;
+                let style = doc.getElementById('sherpa-theme-override');
+                if (e.data.theme.base === 'light') {
+                    if (!style) {
+                        style = doc.createElement('style');
+                        style.id = 'sherpa-theme-override';
+                        doc.head.appendChild(style);
+                    }
+                    style.innerHTML = `
+                        .stApp { background-color: #ffffff !important; }
+                        [data-testid="stSidebar"] { background-color: #f0f2f6 !important; }
+                        .stApp, .stApp p, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp label, .stApp li { color: #31333F !important; }
+                        [data-testid="stHeader"] { background-color: rgba(255, 255, 255, 0.5) !important; }
+                        [data-testid="stExpander"] details, [data-testid="stExpander"] summary { background-color: #f0f2f6 !important; border-color: #cccccc !important; color: #31333F !important; }
+                        [data-testid="stExpander"] details * { color: #31333F !important; }
+                        .stTextInput input, div[data-testid="stSelectbox"] > div > div { background-color: #f0f2f6 !important; border-color: #cccccc !important; }
+                        .stTextInput input, div[data-testid="stSelectbox"] * { color: #31333F !important; }
+                        div[data-testid="stSelectbox"] svg { fill: #31333F !important; color: #31333F !important; }
+                        [data-baseweb="popover"], [data-baseweb="popover"] > div, [data-baseweb="menu"], ul[role="listbox"], [data-testid="stVirtualDropdown"] { background-color: #ffffff !important; border-color: #cccccc !important; }
+                        ul[role="listbox"] li, [data-testid="stVirtualDropdown"] li, [role="option"] { color: #31333F !important; background-color: #ffffff !important; }
+                        ul[role="listbox"] li:hover, [data-testid="stVirtualDropdown"] li:hover, [role="option"]:hover { background-color: #f0f2f6 !important; color: #ff6600 !important; }
+                        .stButton button[kind="secondary"] { color: #31333F !important; background-color: #f0f2f6 !important; border-color: #cccccc !important; }
+                        .stButton button[kind="primary"] { color: white !important; }
+                        .stDataFrame, .stTable { filter: invert(1) hue-rotate(180deg); }
+                    `;
+                } else {
+                    if (style) style.remove();
+                }
+                return;
+            }
+
+            if (e.data.target !== 'SHERPA_DEMO') return;
             const doc = window.parent.document;
             if (e.data.action === 'FILL') {
                 const inputs = doc.querySelectorAll('input[type="text"]');
