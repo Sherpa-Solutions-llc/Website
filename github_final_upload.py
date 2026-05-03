@@ -70,10 +70,13 @@ def git_push():
         subprocess.run(["git", "add", "."], check=True)
         
         update_progress(70, "Committing changes...")
-        # Check if there are changes to commit
-        status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True).stdout
-        if not status:
-            update_progress(100, "No changes to deploy.", "completed")
+        # Check if there are changes to commit and count them
+        status_res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+        lines = [l for l in status_res.stdout.splitlines() if l.strip()]
+        file_count = len(lines)
+        
+        if file_count == 0:
+            update_progress(100, "No new changes detected (Site is already up to date).", "completed")
             return
             
         subprocess.run(["git", "commit", "-m", f"Auto-deploy from Sherpa Admin - {time.ctime()}"], check=True)
@@ -82,7 +85,7 @@ def git_push():
         branch_res = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True)
         current_branch = branch_res.stdout.strip() or "master"
         
-        update_progress(80, f"Pushing to GitHub ({current_branch})...")
+        update_progress(80, f"Pushing {file_count} files to GitHub ({current_branch})...")
         result = subprocess.run(["git", "push"], capture_output=True, text=True)
         
         if result.returncode != 0:
@@ -92,7 +95,7 @@ def git_push():
             else:
                 raise Exception(result.stderr)
                 
-        update_progress(100, "Deployment Successful!", "completed")
+        update_progress(100, f"Deployment Successful! {file_count} files were synchronized.", "completed")
     except Exception as e:
         update_progress(100, f"Git Error: {str(e)}", "error")
 

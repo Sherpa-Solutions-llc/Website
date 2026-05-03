@@ -1,16 +1,30 @@
 :root {
-    --primary: #2D3F2E;
-    /* Deep Forest Green */
+    /* Dark Theme (Default) */
+    --primary: #C9D1C9; /* Soft light green-gray */
     --secondary: #7A8E63;
-    /* Sage/Olive Green */
     --accent: #C06C3B;
-    /* Earthy Terra Cotta/Orange */
-    --bg-color: #FDFBF7;
-    /* Creamy Off-White */
+    --bg-color: #0F140F; /* Deep Forest Dark */
+    --text-dark: #FDFBF7;
+    --text-light: #0F140F;
+    --header-bg: rgba(15, 20, 15, 0.95);
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --surface-color: #1A241A; /* Slightly lighter than bg */
+    --border-color: rgba(255, 255, 255, 0.1);
+    
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+[data-theme="light"] {
+    --primary: #2D3F2E; /* Deep Forest Green */
+    --secondary: #7A8E63;
+    --accent: #C06C3B;
+    --bg-color: #FDFBF7; /* Creamy Off-White */
     --text-dark: #1A241A;
     --text-light: #FFFFFF;
-
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --header-bg: rgba(253, 251, 247, 0.95);
+    --card-bg: #FFFFFF;
+    --surface-color: #FFFFFF;
+    --border-color: rgba(45, 63, 46, 0.05);
 }
 
 * {
@@ -42,13 +56,13 @@ header {
     align-items: center;
     padding: 1.5rem 5%;
     padding-top: calc(1.5rem + env(safe-area-inset-top, 0)); /* Notch support */
-    background: rgba(253, 251, 247, 0.95);
+    background: var(--header-bg);
     backdrop-filter: blur(10px);
     position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
     transition: var(--transition);
 }
 
@@ -63,7 +77,12 @@ header {
     object-fit: contain;
     border-radius: 8px;
     transition: var(--transition);
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+}
+
+[data-theme="light"] .logo-container img {
     mix-blend-mode: multiply;
+    filter: none;
 }
 
 .logo-container img:hover {
@@ -280,7 +299,7 @@ header {
 /* Features/Services Section */
 .features {
     padding: 8rem 5%;
-    background-color: #FFFFFF;
+    background-color: var(--bg-color);
 }
 
 .section-header {
@@ -395,12 +414,12 @@ header {
 }
 
 .product-card {
-    background: #FFFFFF;
+    background: var(--surface-color);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     transition: var(--transition);
-    border: 1px solid rgba(45, 63, 46, 0.05);
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
 }
@@ -413,7 +432,7 @@ header {
 .product-img {
     width: 100%;
     height: 280px;
-    background: #F5F5F5;
+    background: var(--card-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -494,10 +513,11 @@ header {
 }
 
 .contact-form {
-    background: #FFFFFF;
+    background: var(--surface-color);
     padding: 3rem;
     border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
 }
 
 .form-group {
