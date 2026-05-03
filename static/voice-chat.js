@@ -224,6 +224,23 @@ async function processCommand(text) {
     mountainBtn.classList.add('thinking');
     agentText.textContent = '';
 
+    // Live Internet Security Guard
+    const isLive = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    if (isLive) {
+        const currentPasskey = localStorage.getItem('sherpa_ui_passkey');
+        if (currentPasskey !== '8909') {
+            const entered = prompt("Sherpa Solutions Security: Please enter your interface passkey to proceed (Default: 8909):");
+            if (entered === '8909') {
+                localStorage.setItem('sherpa_ui_passkey', '8909');
+            } else {
+                statusBadge.textContent = 'Unauthorized';
+                mountainBtn.classList.remove('thinking');
+                agentText.textContent = "Access Denied. Please configure your passkey in Settings.";
+                return;
+            }
+        }
+    }
+
     try {
         const response = await fetch(`${config.apiUrl}/chat/completions`, {
             method: 'POST',
