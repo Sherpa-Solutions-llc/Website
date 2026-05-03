@@ -176,6 +176,57 @@
             border-radius: 2px;
             transition: height 0.1s ease;
         }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .voice-container {
+                padding: 1rem;
+            }
+
+            .mountain-trigger {
+                width: 150px;
+                height: 150px;
+                margin-bottom: 2rem;
+            }
+
+            .mountain-trigger i {
+                font-size: 6rem;
+            }
+
+            .transcript {
+                font-size: 1.2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+                margin: 2rem auto 0;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 1.5rem;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .mode-toggle {
+                flex-direction: column;
+            }
+
+            .back-link {
+                top: 1rem;
+                left: 1rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
