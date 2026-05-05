@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Engineering Demo</title>
     <style>
-        body { margin: 0; background-color: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Courier New', monospace; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .header { background-color: #333333; padding: 10px; display: flex; align-items: center; border-bottom: 1px solid #252526; }
+        body { margin: 0; background-color: #0F140F; color: #FDFBF7; font-family: 'Consolas', 'Courier New', monospace; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background-color: #1A241A; padding: 10px; display: flex; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
         .mac-buttons { display: flex; gap: 8px; margin-right: 20px; }
         .mac-btn { width: 12px; height: 12px; border-radius: 50%; }
         .mac-close { background-color: #ff5f56; }
         .mac-min { background-color: #ffbd2e; }
         .mac-max { background-color: #27c93f; }
-        .filename { color: #858585; font-size: 14px; }
+        .filename { color: #C9D1C9; font-size: 14px; }
         .editor { padding: 20px; font-size: 24px; line-height: 1.5; white-space: pre; flex-grow: 1; overflow: hidden; }
-        .keyword { color: #569cd6; }
-        .function { color: #dcdcaa; }
-        .string { color: #ce9178; }
-        .tag { color: #569cd6; }
-        .attr { color: #9cdcfe; }
-        .comment { color: #6A9955; }
-        .cursor { display: inline-block; width: 12px; height: 26px; background-color: #d4d4d4; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+        .keyword { color: #C06C3B; }
+        .function { color: #7A8E63; }
+        .string { color: #D68A5C; }
+        .tag { color: #C06C3B; }
+        .attr { color: #C9D1C9; }
+        .comment { color: rgba(253, 251, 247, 0.4); }
+        .cursor { display: inline-block; width: 12px; height: 26px; background-color: #C06C3B; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
         @keyframes blink { 50% { opacity: 0; } }
         
-        .back-btn { position: absolute; top: 10px; right: 20px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 6px 15px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 14px; }
-        .back-btn:hover { background: rgba(255, 107, 0, 0.2); border-color: #ff6b00; color: #ff6b00; }
+        .back-btn { position: absolute; top: 10px; right: 20px; background: rgba(255, 255, 255, 0.05); color: #C9D1C9; text-decoration: none; padding: 6px 15px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .back-btn:hover { background: rgba(192, 108, 59, 0.15); border-color: #C06C3B; color: #C06C3B; }
     </style>
 </head>
 <body>
@@ -79,7 +79,7 @@ export default function DashboardComponent() {
         <div className="dashboard-container">
             <Card title="Active Agents" value={agentData.length} />
             <Metrics data={agentData} type="throughput" />
-            <Chart type="line" dataset={agentData.history} color="#ff6b00" />
+            <Chart type="line" dataset={agentData.history} color="#C06C3B" />
         </div>
     );
 }`;

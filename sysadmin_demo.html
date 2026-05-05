@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SysAdmin Demo</title>
     <style>
-        body { margin: 0; background-color: #0c0c0c; color: #cccccc; font-family: 'Courier New', Courier, monospace; font-size: 20px; height: 100vh; overflow: hidden; padding: 20px; box-sizing: border-box; }
-        .prompt { color: #4af626; font-weight: bold; }
-        .dir { color: #3b8eea; font-weight: bold; }
+        body { margin: 0; background-color: #0F140F; color: #FDFBF7; font-family: 'Courier New', Courier, monospace; font-size: 20px; height: 100vh; overflow: hidden; padding: 20px; box-sizing: border-box; }
+        .prompt { color: #7A8E63; font-weight: bold; }
+        .dir { color: #C9D1C9; font-weight: bold; }
         .output { margin-bottom: 5px; line-height: 1.2; }
-        .cursor { display: inline-block; width: 12px; height: 22px; background-color: #cccccc; animation: blink 1s step-end infinite; vertical-align: middle; }
+        .cursor { display: inline-block; width: 12px; height: 22px; background-color: #C06C3B; animation: blink 1s step-end infinite; vertical-align: middle; }
         @keyframes blink { 50% { opacity: 0; } }
         #terminal { display: flex; flex-direction: column; }
-        .green { color: #4af626; }
-        .red { color: #ff5f56; }
-        .yellow { color: #ffbd2e; }
-        .cyan { color: #00bcd4; }
-        .white { color: #ffffff; }
+        .green { color: #7A8E63; }
+        .red { color: #C06C3B; }
+        .yellow { color: #D68A5C; }
+        .cyan { color: #C9D1C9; }
+        .white { color: #FDFBF7; }
         
-        .back-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
-        .back-btn:hover { background: rgba(255, 107, 0, 0.2); border-color: #ff6b00; color: #ff6b00; }
+        .back-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.05); color: #C9D1C9; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+        .back-btn:hover { background: rgba(192, 108, 59, 0.15); border-color: #C06C3B; color: #C06C3B; }
     </style>
 </head>
 <body>

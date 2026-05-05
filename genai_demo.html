@@ -5,30 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenAI Demo</title>
     <style>
-        body { margin: 0; background-color: #0d0d0d; color: #ffffff; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; box-sizing: border-box; }
+        body { margin: 0; background-color: #0F140F; color: #FDFBF7; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; box-sizing: border-box; }
         .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; }
-        .prompt-box { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; margin-bottom: 30px; transition: all 0.5s ease; }
-        .sparkle-icon { width: 24px; height: 24px; fill: #ff6b00; }
-        .prompt-text { font-size: 18px; color: #e0e0e0; flex-grow: 1; border-right: 2px solid transparent; white-space: pre-wrap; min-height: 24px; }
-        .typing .prompt-text { border-right: 2px solid #ff6b00; animation: blink 1s step-end infinite; }
-        .generate-btn { background: #ff6b00; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; opacity: 0.5; transition: opacity 0.3s; }
-        .generate-btn.active { opacity: 1; box-shadow: 0 0 15px rgba(255,107,0,0.5); }
+        .prompt-box { width: 100%; background: #1A241A; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; margin-bottom: 30px; transition: all 0.5s ease; }
+        .sparkle-icon { width: 24px; height: 24px; fill: #C06C3B; }
+        .prompt-text { font-size: 18px; color: #C9D1C9; flex-grow: 1; border-right: 2px solid transparent; white-space: pre-wrap; min-height: 24px; }
+        .typing .prompt-text { border-right: 2px solid #C06C3B; animation: blink 1s step-end infinite; }
+        .generate-btn { background: #C06C3B; color: #FDFBF7; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; opacity: 0.5; transition: opacity 0.3s; }
+        .generate-btn.active { opacity: 1; box-shadow: 0 0 15px rgba(192, 108, 59, 0.5); }
         
-        .generation-area { width: 100%; height: 450px; background: #141414; border: 1px dashed #444; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .generation-area { width: 100%; height: 450px; background: #151B15; border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         .progress-container { width: 60%; display: none; flex-direction: column; align-items: center; gap: 15px; z-index: 5; }
-        .progress-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff6b00, #ff9d00); transition: width 0.1s linear; }
-        .progress-text { font-size: 14px; color: #aaa; }
+        .progress-bar-bg { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #C06C3B, #D68A5C); transition: width 0.1s linear; }
+        .progress-text { font-size: 14px; color: #7A8E63; }
         
         .result-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease; z-index: 2; }
         
         @keyframes blink { 50% { border-color: transparent; } }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,107,0,0.4); } 70% { box-shadow: 0 0 0 15px rgba(255,107,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,107,0,0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192, 108, 59, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(192, 108, 59, 0); } 100% { box-shadow: 0 0 0 0 rgba(192, 108, 59, 0); } }
         
         .generating .generate-btn { animation: pulse 2s infinite; }
         
-        .back-btn { position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; }
-        .back-btn:hover { background: rgba(255, 107, 0, 0.2); border-color: #ff6b00; color: #ff6b00; }
+        .back-btn { position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.05); color: #C9D1C9; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: rgba(192, 108, 59, 0.15); border-color: #C06C3B; color: #C06C3B; }
     </style>
 </head>
 <body>
