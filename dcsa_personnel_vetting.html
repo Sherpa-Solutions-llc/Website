@@ -545,6 +545,11 @@
             var tbody = document.getElementById('adjudications-tbody');
             tbody.innerHTML = '';
             
+            if (idsToRender.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:3rem; color:var(--text-dark); opacity:0.6; font-style:italic;"><i class="fa-solid fa-folder-open" style="font-size:2rem; margin-bottom:1rem; opacity:0.5; display:block;"></i>No matching cases found for the selected criteria.</td></tr>';
+                return;
+            }
+            
             var initialItems = idsToRender.slice(0, 30);
             var remainingItems = idsToRender.slice(30);
             
