@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Demo</title>
+    <style>
+        body { margin: 0; background-color: #0d0d0d; color: #ffffff; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; }
+        .prompt-box { width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; margin-bottom: 30px; transition: all 0.5s ease; }
+        .sparkle-icon { width: 24px; height: 24px; fill: #ff6b00; }
+        .prompt-text { font-size: 18px; color: #e0e0e0; flex-grow: 1; border-right: 2px solid transparent; white-space: pre-wrap; min-height: 24px; }
+        .typing .prompt-text { border-right: 2px solid #ff6b00; animation: blink 1s step-end infinite; }
+        .generate-btn { background: #ff6b00; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; opacity: 0.5; transition: opacity 0.3s; }
+        .generate-btn.active { opacity: 1; box-shadow: 0 0 15px rgba(255,107,0,0.5); }
+        
+        .generation-area { width: 100%; height: 450px; background: #141414; border: 1px dashed #444; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .progress-container { width: 60%; display: none; flex-direction: column; align-items: center; gap: 15px; z-index: 5; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff6b00, #ff9d00); transition: width 0.1s linear; }
+        .progress-text { font-size: 14px; color: #aaa; }
+        
+        .result-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.5s ease; z-index: 2; }
+        
+        @keyframes blink { 50% { border-color: transparent; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,107,0,0.4); } 70% { box-shadow: 0 0 0 15px rgba(255,107,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,107,0,0); } }
+        
+        .generating .generate-btn { animation: pulse 2s infinite; }
+        
+        .back-btn { position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: rgba(255, 107, 0, 0.2); border-color: #ff6b00; color: #ff6b00; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn" onclick="if(document.referrer) { history.back(); return false; }">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Sherpa
+    </a>
+    <div class="container">
+        <div class="prompt-box typing" id="prompt-box">
+            <svg class="sparkle-icon" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+            <div class="prompt-text" id="prompt-text"></div>
+            <button class="generate-btn" id="generate-btn">Generate</button>
+        </div>
+        
+        <div class="generation-area">
+            <div class="progress-container" id="progress-container">
+                <div class="progress-text" id="progress-text">Initializing generation engine...</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+            </div>
+            <img src="static/worldview_dashboard_bg_1777970109156.png" alt="Generated Image" class="result-image" id="result-image">
+        </div>
+    </div>
+
+    <script>
+        const promptText = "Generate a cinematic 3D dashboard for a global surveillance network, dark theme, high tech, glowing orange accents, Palantir style.";
+        const textElement = document.getElementById('prompt-text');
+        const promptBox = document.getElementById('prompt-box');
+        const btn = document.getElementById('generate-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const resultImage = document.getElementById('result-image');
+        
+        let index = 0;
+        
+        function typePrompt() {
+            if (index < promptText.length) {
+                textElement.textContent += promptText.charAt(index);
+                index++;
+                setTimeout(typePrompt, Math.random() * 40 + 20);
+            } else {
+                promptBox.classList.remove('typing');
+                btn.classList.add('active');
+                setTimeout(startGeneration, 800);
+            }
+        }
+        
+        function startGeneration() {
+            promptBox.classList.add('generating');
+            progressContainer.style.display = 'flex';
+            
+            let progress = 0;
+            const steps = [
+                { p: 10, msg: "Allocating GPU resources..." },
+                { p: 30, msg: "Encoding text prompt..." },
+                { p: 50, msg: "Generating latent representation..." },
+                { p: 70, msg: "Applying style transfers (Cinematic, Palantir)..." },
+                { p: 85, msg: "Upscaling and refining details..." },
+                { p: 100, msg: "Finalizing image output..." }
+            ];
+            
+            let currentStep = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 2 + 0.5;
+                if (progress > 100) progress = 100;
+                
+                progressBar.style.width = progress + '%';
+                
+                if (currentStep < steps.length && progress >= steps[currentStep].p) {
+                    progressText.textContent = steps[currentStep].msg;
+                    currentStep++;
+                }
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    promptBox.classList.remove('generating');
+                    setTimeout(showResult, 500);
+                }
+            }, 50);
+        }
+        
+        function showResult() {
+            progressContainer.style.display = 'none';
+            resultImage.style.opacity = '1';
+            setTimeout(() => document.body.classList.add('done'), 1500);
+        }
+
+        setTimeout(typePrompt, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Demo</title>
+    <style>
+        body { margin: 0; background-color: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Courier New', monospace; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background-color: #333333; padding: 10px; display: flex; align-items: center; border-bottom: 1px solid #252526; }
+        .mac-buttons { display: flex; gap: 8px; margin-right: 20px; }
+        .mac-btn { width: 12px; height: 12px; border-radius: 50%; }
+        .mac-close { background-color: #ff5f56; }
+        .mac-min { background-color: #ffbd2e; }
+        .mac-max { background-color: #27c93f; }
+        .filename { color: #858585; font-size: 14px; }
+        .editor { padding: 20px; font-size: 24px; line-height: 1.5; white-space: pre; flex-grow: 1; overflow: hidden; }
+        .keyword { color: #569cd6; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .tag { color: #569cd6; }
+        .attr { color: #9cdcfe; }
+        .comment { color: #6A9955; }
+        .cursor { display: inline-block; width: 12px; height: 26px; background-color: #d4d4d4; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        .back-btn { position: absolute; top: 10px; right: 20px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 6px 15px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .back-btn:hover { background: rgba(255, 107, 0, 0.2); border-color: #ff6b00; color: #ff6b00; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn" onclick="if(document.referrer) { history.back(); return false; }">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Sherpa
+    </a>
+    <div class="header">
+        <div class="mac-buttons">
+            <div class="mac-btn mac-close"></div>
+            <div class="mac-btn mac-min"></div>
+            <div class="mac-btn mac-max"></div>
+        </div>
+        <div class="filename">DashboardComponent.jsx - VS Code</div>
+    </div>
+    <div class="editor" id="code-container"><span id="code"></span><span class="cursor"></span></div>
+
+    <script>
+        const codeText = `import React, { useState, useEffect } from 'react';
+import { Card, Metrics, Chart } from '@sherpa/ui-components';
+import { fetchAgentStatus } from '../api/agentServices';
+
+/**
+ * Advanced Dashboard Component for Sherpa Solutions
+ * Monitors AI Agent swarm activity in real-time.
+ */
+export default function DashboardComponent() {
+    const [agentData, setAgentData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadData = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchAgentStatus();
+                setAgentData(data);
+            } catch (error) {
+                console.error("Failed to load agent telemetry", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        loadData();
+        const interval = setInterval(loadData, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (isLoading) return <div className="loader">Initializing Swarm...</div>;
+
+    return (
+        <div className="dashboard-container">
+            <Card title="Active Agents" value={agentData.length} />
+            <Metrics data={agentData} type="throughput" />
+            <Chart type="line" dataset={agentData.history} color="#ff6b00" />
+        </div>
+    );
+}`;
+        
+        const codeElement = document.getElementById('code');
+        let index = 0;
+
+        function highlightCode(text) {
+            let highlighted = text
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/(import|from|export|default|function|const|let|var|await|async|try|catch|finally|return|if)\b/g, '<span class="keyword">$1</span>')
+                .replace(/([a-zA-Z_$][0-9a-zA-Z_$]*)(?=\()/g, '<span class="function">$1</span>')
+                .replace(/('.*?'|".*?"|`.*?`)/g, '<span class="string">$1</span>')
+                .replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, '<span class="comment">$1</span>')
+                .replace(/&lt;(\/?)([a-zA-Z0-9]+)/g, '&lt;$1<span class="tag">$2</span>')
+                .replace(/ ([a-zA-Z0-9-]+)=/g, ' <span class="attr">$1</span>=');
+            return highlighted;
+        }
+
+        function typeCode() {
+            if (index < codeText.length) {
+                const charsToType = Math.floor(Math.random() * 4) + 1;
+                const currentText = codeText.substring(0, index + charsToType);
+                codeElement.innerHTML = highlightCode(currentText);
+                index += charsToType;
+                setTimeout(typeCode, Math.random() * 40 + 10);
+            } else {
+                codeElement.innerHTML = highlightCode(codeText);
+                setTimeout(() => document.body.classList.add('done'), 1000);
+            }
+        }
+
+        setTimeout(typeCode, 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SysAdmin Demo</title>
+    <style>
+        body { margin: 0; background-color: #0c0c0c; color: #cccccc; font-family: 'Courier New', Courier, monospace; font-size: 20px; height: 100vh; overflow: hidden; padding: 20px; box-sizing: border-box; }
+        .prompt { color: #4af626; font-weight: bold; }
+        .dir { color: #3b8eea; font-weight: bold; }
+        .output { margin-bottom: 5px; line-height: 1.2; }
+        .cursor { display: inline-block; width: 12px; height: 22px; background-color: #cccccc; animation: blink 1s step-end infinite; vertical-align: middle; }
+        @keyframes blink { 50% { opacity: 0; } }
+        #terminal { display: flex; flex-direction: column; }
+        .green { color: #4af626; }
+        .red { color: #ff5f56; }
+        .yellow { color: #ffbd2e; }
+        .cyan { color: #00bcd4; }
+        .white { color: #ffffff; }
+        
+        .back-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; z-index: 100; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+        .back-btn:hover { background: rgba(255, 107, 0, 0.2); border-color: #ff6b00; color: #ff6b00; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn" onclick="if(document.referrer) { history.back(); return false; }">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Sherpa
+    </a>
+    <div id="terminal"></div>
+    <div><span class="prompt">root@sherpa-server</span>:<span class="dir">~</span># <span id="current-cmd"></span><span class="cursor" id="cursor"></span></div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const cmdSpan = document.getElementById('current-cmd');
+        const cursor = document.getElementById('cursor');
+
+        const script = [
+            { type: 'type', text: 'sudo apt-get update && sudo apt-get upgrade -y', delay: 1000 },
+            { type: 'output', text: 'Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease\nGet:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease [114 kB]\nGet:3 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]\nFetched 228 kB in 1s (228 kB/s)\nReading package lists... Done\nBuilding dependency tree\nReading state information... Done\nCalculating upgrade... Done\nThe following packages will be upgraded:\n  libssl1.1 openssl\n2 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\nNeed to get 1,598 kB of archives.\nAfter this operation, 4,096 B of additional disk space will be used.\nGet:1 http://archive.ubuntu.com/ubuntu focal-updates/main amd64 libssl1.1 amd64 1.1.1f-1ubuntu2.19 [1,318 kB]\nGet:2 http://archive.ubuntu.com/ubuntu focal-updates/main amd64 openssl amd64 1.1.1f-1ubuntu2.19 [280 kB]\nFetched 1,598 kB in 0s (15.2 MB/s)\n(Reading database ... 128392 files and directories currently installed.)\nPreparing to unpack .../libssl1.1_1.1.1f-1ubuntu2.19_amd64.deb ...\nUnpacking libssl1.1:amd64 (1.1.1f-1ubuntu2.19) over (1.1.1f-1ubuntu2.18) ...\nSetting up libssl1.1:amd64 (1.1.1f-1ubuntu2.19) ...\nPreparing to unpack .../openssl_1.1.1f-1ubuntu2.19_amd64.deb ...\nUnpacking openssl (1.1.1f-1ubuntu2.19) over (1.1.1f-1ubuntu2.18) ...\nSetting up openssl (1.1.1f-1ubuntu2.19) ...\nProcessing triggers for libc-bin (2.31-0ubuntu9.9) ...', time: 500 },
+            { type: 'pause', delay: 800 },
+            { type: 'clear' },
+            { type: 'type', text: 'htop', delay: 500 },
+            { type: 'output', html: '<div class="cyan">  1  [||||||||||||||||||                        45.0%]   Tasks: 87, 102 thr; 1 running</div><div class="cyan">  2  [||||||||||                                21.3%]   Load average: 1.05 1.10 1.03 </div><div class="cyan">  Mem[|||||||||||||||||||||||||||         2.45G/7.79G]   Uptime: 14 days, 08:12:44</div><div class="cyan">  Swp[                                          0K/2.00G]</div><br><div class="green" style="background-color: #222;">  PID USER      PRI  NI  VIRT   RES   SHR S CPU% MEM%   TIME+  Command</div><div class="white"> 1432 root       20   0 4892M  310M  283M S 14.3  3.9  1:02.13 dockerd --containerd</div><div class="white"> 2815 pimp       20   0 1521M  112M   45M S  8.5  1.4  0:45.81 node server.js</div><div class="white"> 9102 pimp       20   0 3105M  815M  150M R 12.1 10.2  0:12.33 python main.py --agent</div><div class="white"> 9110 root       20   0 2154M   45M   12M S  1.0  0.5  0:01.44 nginx: worker process</div><div class="white"> 1121 root       20   0  512M   10M    8M S  0.5  0.1  0:05.10 sshd: root@pts/0</div>', time: 0 },
+            { type: 'pause', delay: 2500 },
+            { type: 'done' }
+        ];
+
+        let stepIdx = 0;
+        
+        function runNextStep() {
+            if (stepIdx >= script.length) return;
+            const step = script[stepIdx];
+            
+            if (step.type === 'type') {
+                typeText(step.text, step.delay, () => {
+                    stepIdx++;
+                    setTimeout(runNextStep, 300);
+                });
+            } else if (step.type === 'output') {
+                cmdSpan.innerHTML = '';
+                const promptHtml = '<div><span class="prompt">root@sherpa-server</span>:<span class="dir">~</span># ' + script[stepIdx-1].text + '</div>';
+                const outputHtml = '<div class="output">' + (step.html ? step.html : step.text.replace(/\n/g, '<br>')) + '</div>';
+                terminal.innerHTML += promptHtml + outputHtml;
+                window.scrollTo(0, document.body.scrollHeight);
+                stepIdx++;
+                setTimeout(runNextStep, step.time);
+            } else if (step.type === 'pause') {
+                setTimeout(() => { stepIdx++; runNextStep(); }, step.delay);
+            } else if (step.type === 'clear') {
+                terminal.innerHTML = '';
+                cmdSpan.innerHTML = '';
+                stepIdx++;
+                runNextStep();
+            } else if (step.type === 'done') {
+                setTimeout(() => document.body.classList.add('done'), 500);
+            }
+        }
+
+        function typeText(text, delay, cb) {
+            let i = 0;
+            cmdSpan.innerHTML = '';
+            setTimeout(() => {
+                function typeChar() {
+                    if (i < text.length) {
+                        cmdSpan.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(typeChar, Math.random() * 50 + 20);
+                    } else {
+                        cb();
+                    }
+                }
+                typeChar();
+            }, delay);
+        }
+
+        setTimeout(runNextStep, 500);
+
+    </script>
+</body>
+</html>
