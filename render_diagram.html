@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sherpa Swarm Architecture Diagram</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+        .mermaid {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="mermaid">
+sequenceDiagram
+    participant User as Local User (Prompt)
+    participant Node1 as Swarm Node 1 (Layers 1-20)
+    participant Node2 as Swarm Node 2 (Layers 21-40)
+    participant Node3 as Swarm Node 3 (Layers 41-60)
+    participant FinalNode as Swarm Node N (Final Layers)
+    
+    Note over User: User types: "Analyze financial data..."
+    User->>User: 1. Convert text to Mathematical Embeddings
+    
+    Note over User,Node1: E2EE TLS 1.3 Tunnel
+    User->>Node1: 2. Send Encrypted Vectors
+    
+    Note over Node1: 3. Process Layers 1-20
+    Node1->>Node2: 4. Relay Intermediate Activations (Numbers)
+    
+    Note over Node2: 5. Process Layers 21-40<br/>(Zero-Knowledge of original prompt)
+    Node2->>Node3: 6. Relay Activations
+    
+    Note over Node3: 7. Process Layers 41-60
+    Node3-->>FinalNode: Relay through Swarm Pipeline
+    
+    Note over FinalNode: 8. Process Final Layers
+    FinalNode->>FinalNode: 9. Calculate Next Token Prediction
+    
+    Note over FinalNode,User: E2EE TLS 1.3 Tunnel
+    FinalNode->>User: 10. Return Output Token
+    Note over User: Tokens streamed to Chat UI
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

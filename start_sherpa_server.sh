@@ -24,4 +24,4 @@ pip install -r requirements.txt
 
 # Start the server
 echo "Starting Uvicorn server..."
-uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+uvicorn server:app --host 127.0.0.1 --port 8001 --reload

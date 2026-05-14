@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherpa Swarm | Distributed AI Network</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #000; color: var(--text-dark); font-family: 'Inter', sans-serif; position: relative; z-index: 0; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: url('static/sherpa_swarm_thumb.png') top center/cover no-repeat; opacity: 0.8; z-index: -1; pointer-events: none; }
+        .swarm-container { max-width: 1200px; margin: 4rem auto; padding: 2rem; position: relative; z-index: 1; }
+        .hero-section { text-align: center; padding: 6rem 2rem; margin-bottom: 4rem; border-radius: 12px; border: 1px solid rgba(192, 108, 59, 0.3); background: rgba(10, 14, 10, 0.85); backdrop-filter: blur(12px); box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .hero-content { position: relative; z-index: 1; }
+        .hero-section h1 { font-size: 3.5rem; color: var(--accent); margin-bottom: 1.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+        .hero-section p { font-size: 1.25rem; color: #ddd; max-width: 800px; margin: 0 auto; line-height: 1.8; text-shadow: 0 2px 5px rgba(0,0,0,0.8); font-weight: 500; }
+        
+        .control-panel { background: rgba(10, 14, 10, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(192, 108, 59, 0.3); border-radius: 12px; padding: 3rem; margin-bottom: 3rem; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .control-panel h2, .control-panel h3 { margin-bottom: 1.5rem; color: var(--accent); }
+        .selector-wrapper { display: flex; justify-content: center; gap: 1rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+        select.swarm-select { padding: 1rem 2rem; font-size: 1.1rem; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 1px solid var(--accent); outline: none; cursor: pointer; backdrop-filter: blur(5px); }
+
+        /* Modal Styles */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal { background: #111; border: 1px solid var(--accent); border-radius: 12px; width: 90%; max-width: 600px; padding: 2rem; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .modal-header h3 { margin: 0; color: var(--accent); font-size: 1.5rem; }
+        .close-btn { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: white; }
+        
+        .loading-state { text-align: center; padding: 3rem 0; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--accent); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .nodes-list { display: none; max-height: 400px; overflow-y: auto; padding-right: 10px; }
+        /* Custom scrollbar for nodes list */
+        .nodes-list::-webkit-scrollbar { width: 8px; }
+        .nodes-list::-webkit-scrollbar-track { background: #111; border-radius: 4px; }
+        .nodes-list::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        .nodes-list::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .node-item { display: flex; align-items: center; justify-content: space-between; background: #1a1a1a; padding: 1.2rem; margin-bottom: 0.8rem; border-radius: 8px; border-left: 4px solid var(--accent); transition: transform 0.2s; }
+        .node-item:hover { transform: translateX(5px); background: #222; }
+        .node-info { display: flex; flex-direction: column; gap: 0.3rem; }
+        .node-title { font-weight: bold; font-size: 1.1rem; color: white; }
+        .node-stats { font-size: 0.85rem; color: #aaa; display: flex; gap: 1rem; align-items: center; }
+        .node-score { font-weight: bold; color: #4ade80; background: rgba(74, 222, 128, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px; }
+        
+        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; }
+        
+        .modal-footer { margin-top: 1.5rem; border-top: 1px solid #333; padding-top: 1.5rem; text-align: right; display: none; align-items: center; justify-content: space-between; }
+
+        /* Demo Toggle Button */
+        .demo-btn { background: transparent; border: 2px solid #ff4757; color: #ff4757; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; box-shadow: 0 0 10px rgba(255, 71, 87, 0.2); text-transform: uppercase; font-size: 0.85rem; }
+        .demo-btn:hover:not(.active) { background: rgba(255, 71, 87, 0.1); box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
+        .demo-btn.active { background: #2ed573; border-color: #2ed573; color: #050b14; box-shadow: 0 0 20px rgba(46, 213, 115, 0.6); animation: demoPulse 2s infinite; }
+        @keyframes demoPulse { 0% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(46, 213, 115, 0); } 100% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0); } }
+        .audio-toggle-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #aaa; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
+        .audio-toggle-btn.enabled { color: #00e5ff; border-color: #00e5ff; background: rgba(0, 229, 255, 0.1); }
+
+        /* Chat Interface Styles */
+        #llm-chat-interface { background: rgba(10, 14, 10, 0.85); backdrop-filter: blur(15px); border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); overflow: hidden; display: flex; flex-direction: column; height: 75vh; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-header { background: rgba(0,0,0,0.6); border-bottom: 1px solid rgba(192, 108, 59, 0.3); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .chat-status { display: flex; align-items: center; gap: 10px; color: #4ade80; font-weight: bold; font-family: monospace; }
+        .pulse-indicator { width: 10px; height: 10px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
+        .model-selector { display: flex; align-items: center; gap: 10px; color: #aaa; font-size: 0.9rem; }
+        .chat-history { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; background: rgba(0,0,0,0.5); }
+        .message { max-width: 80%; padding: 1rem 1.5rem; border-radius: 12px; line-height: 1.5; word-wrap: break-word; font-size: 0.95rem; }
+        .system-message { align-self: center; background: rgba(255,255,255,0.05); color: #888; border: 1px dashed #444; font-size: 0.85rem; font-family: monospace; text-align: center; max-width: 90%; }
+        .user-message { align-self: flex-end; background: rgba(192, 108, 59, 0.25); border: 1px solid var(--accent); color: white; border-bottom-right-radius: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .ai-message { align-self: flex-start; background: rgba(0,0,0,0.7); border: 1px solid #445; color: #ddd; border-bottom-left-radius: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .chat-input-area { padding: 1.5rem; background: rgba(0,0,0,0.6); border-top: 1px solid rgba(192, 108, 59, 0.3); }
+        #chat-input { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid #555; color: white; padding: 1rem 1.5rem; border-radius: 8px; font-size: 1rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; backdrop-filter: blur(5px); }
+        #chat-input:focus { border-color: var(--accent); }
+        .file-staging-area { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 1.5rem 1rem; background: rgba(0,0,0,0.6); }
+        .staged-file { background: rgba(192, 108, 59, 0.2); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; color: white; animation: fadeIn 0.3s ease-out; }
+        .staged-file .remove-file { cursor: pointer; color: #ff6b6b; font-weight: bold; }
+        .staged-file .remove-file:hover { color: #ff4c4c; }
+        .attachment-btn { background: rgba(255,255,255,0.1); border: 1px solid #555; color: white; padding: 0 1.2rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .attachment-btn:hover { background: rgba(192, 108, 59, 0.3); border-color: var(--accent); color: var(--accent); }
+        .chat-attachment-bubble { margin-bottom: 10px; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="index.html"><img src="static/sherpa_logo.png" alt="Sherpa Solutions LLC"></a>
+        </div>
+        <div class="menu-toggle" id="mobile-menu-btn">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+        <ul class="nav-links" id="nav-menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="services.html">Our Services</a></li>
+            <li><a href="projects.html" class="active">Projects</a></li>
+            <li><a href="merchandise.html">Merchandise</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
+            <a href="static/sherpa_swarm_architecture.md" download="sherpa_swarm_architecture.md" style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.85rem;text-decoration:none;display:flex;align-items:center;gap:6px;font-weight:600;"><i class="fa-solid fa-book"></i> Documentation</a>
+            <button class="audio-toggle-btn enabled" id="btn-audio-toggle" onclick="toggleAudio()"><i class="fa-solid fa-volume-high"></i> Audio On</button>
+            <button class="demo-btn" id="btn-demo-toggle" onclick="toggleDemo()" style="margin-right: 15px;"><i class="fa-solid fa-play"></i> DEMO OFF</button>
+            <div id="demo-volume-control" style="display:none;align-items:center;gap:6px;margin-left:8px;">
+                <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-low"></i></span>
+                <input id="demo-volume-slider" max="100" min="0" oninput="setDemoVolume(this.value)" style="width:80px;height:4px;cursor:pointer;accent-color:var(--accent, #C06C3B);" type="range" value="50"/>
+                <span style="color:#aaa;font-size:0.75rem;white-space:nowrap;"><i class="fa-solid fa-volume-high"></i></span>
+            </div>
+            <button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle" style="background: transparent; border: none; color: var(--text-dark); cursor: pointer;"><i class="fa-solid fa-sun" id="theme-icon"></i></button>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 style="color: var(--accent);">Sherpa Swarm</h1>
+        <p style="color: var(--accent);">Decentralized Peer-to-Peer Enterprise AI Inference</p>
+    </div>
+
+    <main class="swarm-container">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>Join the AI Revolution</h1>
+                <p>Sherpa Swarm allows you to pool idle GPU hardware across a secure, encrypted peer-to-peer network to run massive enterprise-grade Large Language Models that no single machine could run alone.</p>
+            </div>
+        </section>
+
+        <section class="control-panel" id="main-control-panel">
+            <h2>Swarm Connection Settings</h2>
+            <p style="margin-bottom: 2.5rem; color: #aaa; font-size: 1.1rem;">Select your preferred node discovery method. All activation data is End-to-End Encrypted (E2EE) prior to network transmission.</p>
+            
+            <div class="selector-wrapper">
+                <select id="network-selector" class="swarm-select">
+                    <option value="" disabled>Select Network Mode...</option>
+                    <option value="lan">Local Area Network (LAN) - Ultra Low Latency</option>
+                    <option value="wan" selected>10 PCs Near Me (WAN) - Global Swarm</option>
+                </select>
+                <button id="connect-btn" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; border-radius: 8px;">Initialize Swarm</button>
+            </div>
+
+            <div style="margin-top: 4rem; border-top: 1px solid #333; padding-top: 3rem;">
+                <h3>System Architecture & Security</h3>
+                <p style="margin-bottom: 2rem; color: #aaa; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">Review our whitepaper detailing the tensor pipeline splitting mechanism, VRAM pooling architecture, and mathematical encryption standards.</p>
+                <div style="margin-top:2rem; text-align:center;">
+                    <a href="swarm_architecture.html" class="btn btn-primary" style="background:var(--accent); color:#111; padding:0.8rem 1.5rem; font-weight:700; font-size:1.1rem;">
+                        <i class="fa-solid fa-diagram-project"></i> Architecture
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat Interface (Hidden by default) -->
+        <section id="llm-chat-interface" style="display: none;">
+            <div class="chat-header">
+                <div class="chat-status">
+                    <div class="pulse-indicator"></div>
+                    <span>Swarm Pipeline Active</span>
+                </div>
+                <div class="model-selector">
+                    <label for="llm-model" style="font-weight: 600;"><i class="fa-solid fa-microchip" style="color: var(--accent);"></i> Active Model:</label>
+                    <select id="llm-model" class="swarm-select" style="padding: 0.5rem 1rem; font-size: 0.95rem; border-radius: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+                        <option value="llama3-70b">Meta Llama 3 (70B Instruct)</option>
+                        <option value="mixtral-8x22b">Mistral Large (8x22B)</option>
+                        <option value="falcon-180b">Falcon 180B</option>
+                        <option value="command-r-plus">Cohere Command R+</option>
+                        <option value="deepseek-v2">DeepSeek-V2 (236B)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="chat-history" class="chat-history">
+                <div class="message system-message">
+                    <i class="fa-solid fa-shield-halved" style="color: #4ade80; margin-right: 5px;"></i> Connection established. 10 peers active. TLS 1.3 encryption enabled. Ready for inference.
+                </div>
+            </div>
+            
+            <div id="file-staging-area" class="file-staging-area" style="display: none;"></div>
+            <div class="chat-input-area">
+                <form id="chat-form" style="display: flex; gap: 10px; width: 100%;">
+                    <input type="file" id="chat-file-input" multiple style="display: none;">
+                    <button type="button" id="attachment-btn" class="attachment-btn" title="Attach Files"><i class="fa-solid fa-paperclip"></i></button>
+                    <input type="text" id="chat-input" placeholder="Enter your prompt for the distributed Swarm..." autocomplete="off">
+                    <button type="submit" class="btn btn-primary" style="padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(192, 108, 59, 0.4);"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Swarm Matchmaking Modal -->
+    <div id="swarm-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-network-wired"></i> Swarm Node Matchmaker</h3>
+                <button class="close-btn" id="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="loading-state" class="loading-state">
+                <div class="spinner"></div>
+                <p id="loading-text" style="font-size: 1.2rem; font-weight: bold;">Pinging central Sherpa Tracker...</p>
+                <p style="font-size: 0.9rem; color: #888; margin-top: 0.5rem;">Scanning for high-bandwidth peers</p>
+            </div>
+
+            <div id="nodes-list" class="nodes-list">
+                <!-- Dynamically populated via JS -->
+            </div>
+
+            <div id="modal-footer" class="modal-footer">
+                <span style="color: #888; font-size: 0.95rem;"><i class="fa-solid fa-lock" style="color: #4ade80;"></i> TLS 1.3 Encryption Active</span>
+                <button class="btn btn-primary" id="confirm-swarm" style="padding: 0.75rem 2rem; border-radius: 6px; font-weight: bold;">Establish Pipeline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Download Modal -->
+    <div id="model-download-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-cloud-arrow-down"></i> Local Cache Configuration</h3>
+                <button class="close-btn" id="close-download-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div style="padding: 1.5rem;">
+                <p style="margin-bottom: 1rem; color: #ccc;">To join the swarm for <strong id="download-model-name" style="color: white;">Model Name</strong>, your node must cache the initial embedding layers and DHT routing tables.</p>
+                
+                <div style="background: rgba(192, 108, 59, 0.1); border: 1px solid rgba(192, 108, 59, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px;">
+                    <i class="fa-solid fa-hard-drive" style="font-size: 2rem; color: var(--accent);"></i>
+                    <div>
+                        <div style="font-size: 0.9rem; color: #888;">Required Storage Space</div>
+                        <div id="download-size-req" style="font-size: 1.2rem; font-weight: bold; color: white;">~4.2 GB</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="cache-dir-input" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #ccc; font-size: 0.95rem;">Cache Directory Path:</label>
+                    <div style="display: flex; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 6px; overflow: hidden;">
+                        <span style="padding: 0.8rem; background: #222; color: #888; border-right: 1px solid #444;"><i class="fa-solid fa-folder-open"></i></span>
+                        <input type="text" id="cache-dir-input" value="~/.cache/huggingface/hub" style="flex: 1; background: transparent; border: none; color: white; padding: 0.8rem; outline: none; font-family: monospace; font-size: 0.9rem;">
+                    </div>
+                </div>
+
+                <div id="download-progress-container" style="display: none; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem; color: #ccc;">
+                        <span id="download-status-text">Downloading embeddings...</span>
+                        <span id="download-percentage">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden;">
+                        <div id="download-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.2s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <span style="color: #888; font-size: 0.95rem;">Encrypted local storage only</span>
+                <button class="btn btn-primary" id="confirm-download" style="padding: 0.75rem 2rem; border-radius: 6px; font-weight: bold;">Allocate & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="hero-badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned & Operated</div>
+        <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
+    </footer>
+
+    <script>
+        const connectBtn = document.getElementById('connect-btn');
+        const networkSelector = document.getElementById('network-selector');
+        const modal = document.getElementById('swarm-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const loadingState = document.getElementById('loading-state');
+        const loadingText = document.getElementById('loading-text');
+        const nodesList = document.getElementById('nodes-list');
+        const modalFooter = document.getElementById('modal-footer');
+        const confirmBtn = document.getElementById('confirm-swarm');
+
+        // Mock data reflecting the ranking mechanism
+        const mockNodes = [
+            { id: "Node-Alpha-92", vram: "24GB", gpu: "RTX 4090", ping: "8ms", score: 98.4 },
+            { id: "Node-Sigma-11", vram: "16GB", gpu: "RTX 4080", ping: "12ms", score: 94.1 },
+            { id: "Node-Beta-88", vram: "24GB", gpu: "RTX 3090", ping: "15ms", score: 92.5 },
+            { id: "Node-Delta-04", vram: "16GB", gpu: "RX 7900 XTX", ping: "18ms", score: 89.2 },
+            { id: "Node-Gamma-77", vram: "12GB", gpu: "RTX 4070 Ti", ping: "14ms", score: 86.8 },
+            { id: "Node-Zeta-55", vram: "11GB", gpu: "GTX 1080 Ti", ping: "22ms", score: 81.3 },
+            { id: "Node-Epsilon-33", vram: "12GB", gpu: "RTX 3060", ping: "25ms", score: 78.9 },
+            { id: "Node-Theta-22", vram: "8GB", gpu: "RTX 4060", ping: "19ms", score: 76.4 },
+            { id: "Node-Omega-99", vram: "8GB", gpu: "RTX 3060 Ti", ping: "31ms", score: 72.1 },
+            { id: "Node-Kappa-44", vram: "8GB", gpu: "RX 6600 XT", ping: "35ms", score: 68.5 }
+        ];
+
+        connectBtn.addEventListener('click', () => {
+            const mode = networkSelector.value;
+            if (mode === 'wan') {
+                openModal();
+            } else if (mode === 'lan') {
+                alert("Scanning Local Area Network for Sherpa Nodes... (None found on subnet)");
+            } else {
+                alert("Please select a network mode first.");
+            }
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            // Hide connection panel and hero
+            document.querySelector('.hero-section').style.display = 'none';
+            document.getElementById('main-control-panel').style.display = 'none';
+            
+            // Show Chat UI
+            document.getElementById('llm-chat-interface').style.display = 'flex';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        function openModal() {
+            modal.style.display = 'flex';
+            loadingState.style.display = 'block';
+            nodesList.style.display = 'none';
+            modalFooter.style.display = 'none';
+            nodesList.innerHTML = '';
+            loadingText.innerText = "Pinging central Sherpa Tracker...";
+
+            // Simulate network delay and scoring algorithm processing
+            setTimeout(() => {
+                loadingText.innerText = "Evaluating node performance metrics...";
+            }, 1200);
+
+            setTimeout(() => {
+                loadingState.style.display = 'none';
+                renderNodes();
+                nodesList.style.display = 'block';
+                modalFooter.style.display = 'flex';
+            }, 3000);
+        }
+
+        function renderNodes() {
+            mockNodes.forEach((node, index) => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node-item';
+                nodeEl.innerHTML = `
+                    <div class="node-info">
+                        <span class="node-title">${index + 1}. ${node.id}</span>
+                        <span class="node-stats">
+                            <span><i class="fa-solid fa-microchip"></i> ${node.gpu} (${node.vram})</span>
+                            <span><i class="fa-solid fa-wifi"></i> ${node.ping}</span>
+                            <span class="node-score"><i class="fa-solid fa-star"></i> ${node.score}</span>
+                        </span>
+                    </div>
+                    <input type="checkbox" checked id="check-${index}" title="Include this node in pipeline">
+                `;
+                nodesList.appendChild(nodeEl);
+            });
+        }
+        // --- CHAT INTERFACE LOGIC ---
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatHistory = document.getElementById('chat-history');
+        const fileInput = document.getElementById('chat-file-input');
+        const attachmentBtn = document.getElementById('attachment-btn');
+        const stagingArea = document.getElementById('file-staging-area');
+
+        let stagedFiles = [];
+        
+        attachmentBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                for (let i = 0; i < e.target.files.length; i++) {
+                    stagedFiles.push({
+                        name: e.target.files[i].name,
+                        size: e.target.files[i].size,
+                        type: e.target.files[i].type || 'unknown'
+                    });
+                }
+                renderStagingArea();
+            }
+            fileInput.value = ''; // Reset input so same file can be selected again
+        });
+        
+        function renderStagingArea() {
+            stagingArea.innerHTML = '';
+            if (stagedFiles.length === 0) {
+                stagingArea.style.display = 'none';
+                return;
+            }
+            stagingArea.style.display = 'flex';
+            
+            stagedFiles.forEach((file, index) => {
+                const el = document.createElement('div');
+                el.className = 'staged-file';
+                
+                let iconClass = 'fa-file';
+                if (file.type.startsWith('image/')) iconClass = 'fa-file-image';
+                else if (file.type.startsWith('text/')) iconClass = 'fa-file-lines';
+                else if (file.type.includes('pdf')) iconClass = 'fa-file-pdf';
+                
+                el.innerHTML = `
+                    <i class="fa-solid ${iconClass}"></i>
+                    <span>${file.name}</span>
+                    <i class="fa-solid fa-xmark remove-file" data-index="${index}"></i>
+                `;
+                stagingArea.appendChild(el);
+            });
+            
+            document.querySelectorAll('.remove-file').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.getAttribute('data-index'));
+                    stagedFiles.splice(idx, 1);
+                    renderStagingArea();
+                });
+            });
+        }
+
+        let ws = null;
+        
+        function connectWebSocket() {
+            if (ws) return;
+            ws = new WebSocket('ws://localhost:8002/ws/chat');
+            
+            ws.onopen = () => {
+                console.log("Connected to Swarm Backend WebSocket");
+            };
+            
+            let currentAiMsgElement = null;
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                // Remove typing indicator if it exists
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+
+                if (data.status === "complete") {
+                    currentAiMsgElement = null; // Reset for next message
+                } else if (data.token) {
+                    if (!currentAiMsgElement) {
+                        currentAiMsgElement = document.createElement('div');
+                        currentAiMsgElement.className = 'chat-msg ai';
+                        currentAiMsgElement.innerHTML = `
+                            <div class="msg-avatar"><i class="fa-solid fa-server"></i></div>
+                            <div class="msg-content"></div>
+                        `;
+                        chatHistory.appendChild(currentAiMsgElement);
+                    }
+                    const contentDiv = currentAiMsgElement.querySelector('.msg-content');
+                    contentDiv.textContent += data.token;
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log("Disconnected from Swarm Backend");
+                ws = null;
+                // Optionally attempt reconnect
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+        
+        // Connect immediately
+        connectWebSocket();
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text && stagedFiles.length === 0) return;
+
+            // Build attachment HTML
+            let attachmentsHtml = '';
+            if (stagedFiles.length > 0) {
+                stagedFiles.forEach(file => {
+                    let iconClass = 'fa-file';
+                    if (file.type.startsWith('image/')) iconClass = 'fa-file-image';
+                    else if (file.type.startsWith('text/')) iconClass = 'fa-file-lines';
+                    else if (file.type.includes('pdf')) iconClass = 'fa-file-pdf';
+                    
+                    attachmentsHtml += `
+                        <div class="chat-attachment-bubble">
+                            <i class="fa-solid ${iconClass}" style="color: var(--accent);"></i> ${file.name}
+                        </div><br>
+                    `;
+                });
+            }
+
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-msg user';
+            userMsg.innerHTML = `
+                <div class="msg-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="msg-content">
+                    ${attachmentsHtml}
+                    ${text}
+                </div>
+            `;
+            chatHistory.appendChild(userMsg);
+            
+            chatInput.value = '';
+            const filesToSend = [...stagedFiles];
+            stagedFiles = [];
+            renderStagingArea();
+            
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // Show typing indicator
+            const typingMsg = document.createElement('div');
+            typingMsg.className = 'chat-msg ai';
+            typingMsg.id = 'typing-indicator';
+            typingMsg.innerHTML = `
+                <div class="msg-avatar"><i class="fa-solid fa-server"></i></div>
+                <div class="msg-content typing-indicator">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>
+            `;
+            chatHistory.appendChild(typingMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ prompt: text, files: filesToSend }));
+            } else {
+                typingMsg.querySelector('.msg-content').textContent = "Connection to Swarm backend offline. Please start FastAPI server.";
+            }
+        });
+
+        // Demo Mode Logic
+        let isDemoRunning = false;
+        let audioEnabled = true;
+        let demoVolume = 0.5;
+        
+        function setDemoVolume(val) {
+            demoVolume = parseInt(val) / 100;
+        }
+        function showDemoVolumeControl(show) {
+            const vc = document.getElementById('demo-volume-control');
+            if (vc) vc.style.display = show ? 'flex' : 'none';
+        }
+        
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('btn-audio-toggle');
+            if (audioEnabled) {
+                btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Audio On';
+                btn.classList.add('enabled');
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Audio Off';
+                btn.classList.remove('enabled');
+            }
+        }
+        
+        function demoDelay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function speak(text) {
+            return new Promise(resolve => {
+                if (!isDemoRunning) {
+                    resolve();
+                    return;
+                }
+                if (!audioEnabled || !('speechSynthesis' in window)) {
+                    demoDelay(text.length * 40).then(resolve); 
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = window.speechSynthesis.getVoices();
+                let femaleVoice = voices.find(v => v.lang.includes('en-GB') && (v.name.includes('Female') || v.name.includes('Hazel') || v.name.includes('Google')));
+                if (!femaleVoice) {
+                    femaleVoice = voices.find(v => (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Victoria')) && v.lang.includes('en'));
+                }
+                let engVoice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+                
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                } else if (engVoice) {
+                    utterance.voice = engVoice;
+                }
+                
+                utterance.pitch = femaleVoice ? 1.0 : 1.2; 
+                utterance.rate = 1.0; 
+                utterance.volume = demoVolume; 
+                utterance.onend = resolve;
+                utterance.onerror = resolve; 
+                
+                window.speechSynthesis.speak(utterance);
+                
+                const checkCancel = setInterval(() => {
+                    if (!isDemoRunning) {
+                        clearInterval(checkCancel);
+                        window.speechSynthesis.cancel();
+                        resolve();
+                    }
+                }, 100);
+                
+                utterance.onend = () => {
+                    clearInterval(checkCancel);
+                    resolve();
+                };
+            });
+        }
+        
+        async function toggleDemo() {
+            const btn = document.getElementById('btn-demo-toggle');
+            
+            if (isDemoRunning) {
+                isDemoRunning = false;
+                showDemoVolumeControl(false);
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                }
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+                if(document.getElementById('demo-alert')) document.getElementById('demo-alert').remove();
+                return;
+            }
+            
+            isDemoRunning = true;
+            showDemoVolumeControl(true);
+            const vs = document.getElementById('demo-volume-slider'); if (vs) { vs.value = 50; demoVolume = 0.5; }
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa-solid fa-stop"></i> DEMO RUNNING';
+
+            const alertBox = document.createElement('div');
+            alertBox.id = 'demo-alert';
+            alertBox.style.position = 'fixed';
+            alertBox.style.bottom = '20px';
+            alertBox.style.right = '20px';
+            alertBox.style.background = 'rgba(0,0,0,0.8)';
+            alertBox.style.border = '1px solid #ff4757';
+            alertBox.style.color = 'white';
+            alertBox.style.padding = '1rem';
+            alertBox.style.borderRadius = '8px';
+            alertBox.style.zIndex = '9999';
+            alertBox.innerHTML = '<i class="fa-solid fa-microphone-lines" style="color: #ff4757; margin-right: 10px;"></i> Guided Tour Active. Use the volume slider to adjust.';
+            document.body.appendChild(alertBox);
+
+            await speak("Welcome to Sherpa Swarm. This guided tour will explain how the distributed AI network operates.");
+            if (!isDemoRunning) return;
+            await demoDelay(500);
+            
+            await speak("Running massive enterprise Language Models usually requires incredibly expensive GPU hardware. But Sherpa Swarm changes that.");
+            if (!isDemoRunning) return;
+            await demoDelay(500);
+            
+            await speak("By pooling idle graphics cards across the community, we can split the AI pipeline into encrypted pieces. You provide the compute power, and in return, you get access to the hive mind.");
+            if (!isDemoRunning) return;
+            await demoDelay(500);
+            
+            networkSelector.value = "wan";
+            openModal();
+            await speak("I have just initiated the Swarm Matchmaker for the Global Wide Area Network. Right now, it is pinging the central tracker to discover high-bandwidth peers.");
+            if (!isDemoRunning) return;
+            
+            await demoDelay(3500);
+            if (!isDemoRunning) return;
+            
+            await speak("The tracker has found 10 peers with excellent ping and VRAM capacity. They have been sorted by an aggregate score. You can manually uncheck any nodes you don't want to use.");
+            if (!isDemoRunning) return;
+            await demoDelay(500);
+            
+            await speak("All node-to-node communications are protected by TLS 1.3 encryption. When you are ready, just click Establish Pipeline to connect.");
+            if (!isDemoRunning) return;
+            
+            isDemoRunning = false;
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> DEMO OFF';
+            showDemoVolumeControl(false);
+            if(document.getElementById('demo-alert')) document.getElementById('demo-alert').remove();
+        }
+
+        // --- MODEL DOWNLOAD MODAL LOGIC ---
+        const modelSelect = document.getElementById('llm-model');
+        const downloadModal = document.getElementById('model-download-modal');
+        const closeDownloadBtn = document.getElementById('close-download-modal');
+        const confirmDownloadBtn = document.getElementById('confirm-download');
+        const downloadProgressContainer = document.getElementById('download-progress-container');
+        const downloadProgressBar = document.getElementById('download-progress-bar');
+        const downloadPercentage = document.getElementById('download-percentage');
+        const downloadStatusText = document.getElementById('download-status-text');
+        const downloadModelName = document.getElementById('download-model-name');
+        const downloadSizeReq = document.getElementById('download-size-req');
+        const cacheDirInput = document.getElementById('cache-dir-input');
+
+        let currentActiveModel = modelSelect.value;
+        let isDownloading = false;
+
+        const modelSizes = {
+            'llama3-70b': '~4.2 GB',
+            'mixtral-8x22b': '~8.5 GB',
+            'falcon-180b': '~11.0 GB',
+            'command-r-plus': '~6.1 GB'
+        };
+
+        modelSelect.addEventListener('change', (e) => {
+            const newModel = e.target.value;
+            const newModelText = e.target.options[e.target.selectedIndex].text;
+            
+            // Revert selection until confirmed
+            modelSelect.value = currentActiveModel;
+            
+            // Populate modal
+            downloadModelName.textContent = newModelText;
+            downloadSizeReq.textContent = modelSizes[newModel] || '~5.0 GB';
+            
+            // Reset modal state
+            downloadProgressContainer.style.display = 'none';
+            downloadProgressBar.style.width = '0%';
+            downloadPercentage.textContent = '0%';
+            confirmDownloadBtn.style.display = 'block';
+            confirmDownloadBtn.textContent = 'Allocate & Download';
+            confirmDownloadBtn.disabled = false;
+            cacheDirInput.disabled = false;
+            isDownloading = false;
+            
+            // Store pending model
+            downloadModal.dataset.pendingModel = newModel;
+            
+            downloadModal.style.display = 'flex';
+        });
+
+        closeDownloadBtn.addEventListener('click', () => {
+            if (isDownloading) return; // Prevent closing while downloading
+            downloadModal.style.display = 'none';
+        });
+
+        confirmDownloadBtn.addEventListener('click', () => {
+            if (isDownloading) return;
+            isDownloading = true;
+            
+            confirmDownloadBtn.disabled = true;
+            cacheDirInput.disabled = true;
+            downloadProgressContainer.style.display = 'block';
+            
+            // Simulate download progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                // Random progress jumps
+                progress += Math.random() * 8 + 2;
+                if (progress > 100) progress = 100;
+                
+                downloadProgressBar.style.width = `${progress}%`;
+                downloadPercentage.textContent = `${Math.floor(progress)}%`;
+                
+                if (progress < 30) {
+                    downloadStatusText.textContent = "Allocating local cache directory...";
+                } else if (progress < 70) {
+                    downloadStatusText.textContent = "Fetching DHT routing tables...";
+                } else if (progress < 99) {
+                    downloadStatusText.textContent = "Downloading embedding layers...";
+                }
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    downloadStatusText.textContent = "Verification complete. Node ready.";
+                    downloadStatusText.style.color = "#4ade80";
+                    confirmDownloadBtn.textContent = "Download Complete";
+                    
+                    setTimeout(() => {
+                        // Apply the new model
+                        currentActiveModel = downloadModal.dataset.pendingModel;
+                        modelSelect.value = currentActiveModel;
+                        
+                        // Add system message to chat
+                        const sysMsg = document.createElement('div');
+                        sysMsg.className = 'chat-msg sys';
+                        sysMsg.innerHTML = `
+                            <div class="msg-avatar"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                            <div class="msg-content" style="color: #4ade80;">Successfully cached routing data for ${downloadModelName.textContent} to ${cacheDirInput.value}. Swarm is ready.</div>
+                        `;
+                        chatHistory.appendChild(sysMsg);
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                        
+                        downloadModal.style.display = 'none';
+                        downloadStatusText.style.color = "#ccc"; // reset
+                    }, 1500);
+                }
+            }, 150); // Speed of the demo download
+        });
+    </script>
+</body>
+</html>

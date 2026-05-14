@@ -253,7 +253,7 @@ header {
     margin-bottom: 1.5rem;
     color: var(--primary);
     letter-spacing: -2px;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
     /* Ensures legibility over mountains */
 }
 
