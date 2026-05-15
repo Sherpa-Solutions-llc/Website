@@ -120,10 +120,19 @@
             .upgrade-calc { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; }
             .upgrade-result { padding: 1.5rem; }
             .calc-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .bd-content { grid-template-columns: 1fr; text-align: center; }
+            .bd-content { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
             .bird-dog-banner::before { right: 50%; transform: translateX(50%) rotate(-15deg); }
             .insurance-card { flex-direction: column; }
-            .insurance-form-wrapper { border-left: none; border-top: 1px solid rgba(255,255,255,0.05); padding: 3rem 2rem; }
+            .insurance-form-wrapper { border-left: none; border-top: 1px solid rgba(255,255,255,0.05); padding: 2rem 1.5rem; }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .hero-text h1 { font-size: 2.5rem; }
+            .bird-dog-banner { padding: 2rem 1.5rem; }
+            .bd-text h2 { font-size: 2.2rem; }
+            .insurance-content { padding: 2rem 1.5rem; }
+            .insurance-content h2 { font-size: 2.2rem; }
+            .lead-form-box { padding: 1.5rem; }
         }
         @media (max-width: 480px) {
             .result-number { font-size: 3rem; }
