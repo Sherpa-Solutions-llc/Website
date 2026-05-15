@@ -591,6 +591,7 @@
 <button class="cms-tab" data-page="view_candidates" onclick="loadEditorPage('view_candidates')">👥 Candidates</button>
 <button class="cms-tab" data-page="osint_api_docs" onclick="loadEditorPage('osint_api_docs')">📄 OSINT Docs</button>
 <button class="cms-tab" data-page="avatar" onclick="loadEditorPage('avatar')">👤 Avatar</button>
+<button class="cms-tab" data-page="dealership_marketing" onclick="loadEditorPage('dealership_marketing')">🚗 Dealership</button>
 </div>
 </div>
 <!-- DCSA Prototype Sub-branch -->
@@ -698,6 +699,7 @@
 <button class="cms-tab" data-demo-page="osint_api_docs" onclick="loadDemoConfigForPage('osint_api_docs')">📄 OSINT Docs</button>
 <button class="cms-tab" data-demo-page="avatar" onclick="loadDemoConfigForPage('avatar')">👤 Avatar</button>
 <button class="cms-tab" data-demo-page="business_model" onclick="loadDemoConfigForPage('business_model')">📊 Business Model</button>
+<button class="cms-tab" data-demo-page="dealership_marketing" onclick="loadDemoConfigForPage('dealership_marketing')">🚗 Dealership</button>
 </div>
 </div>
 <!-- DCSA Prototype Sub-branch -->
@@ -908,6 +910,10 @@
 <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
 <input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="business_model"/>
 <span style="line-height: 1.4;">📈 Business Model Simulator</span>
+</label>
+<label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-weight: 500; margin: 0;">
+<input class="deploy-project-cb" style="width: 18px; height: 18px; margin: 0; margin-top: 2px; flex-shrink: 0; padding: 0;" type="checkbox" value="dealership_marketing"/>
+<span style="line-height: 1.4;">🚗 Dealership Admin Dashboard</span>
 </label>
 </div>
 <div class="modal-actions">
@@ -1177,6 +1183,8 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ element_id: k, html_content: changes[k] })
+                    }).then(res => {
+                        if (!res.ok) throw new Error(`Server returned ${res.status}. You may need to log in again.`);
                     })
                 )).then(() => {
                     document.getElementById(iframeId).contentWindow.postMessage({ type: 'cms-saved' }, '*');

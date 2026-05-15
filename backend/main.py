@@ -74,7 +74,7 @@ async def websocket_chat(websocket: WebSocket):
                     inputs = inputs.to("cuda")
                 
                 streamer = TextIteratorStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
-                generation_kwargs = dict(inputs, streamer=streamer, max_new_tokens=100)
+                generation_kwargs = dict(inputs, streamer=streamer, max_new_tokens=100, do_sample=True, temperature=0.7, repetition_penalty=1.2)
                 
                 thread = threading.Thread(target=model.generate, kwargs=generation_kwargs)
                 thread.start()

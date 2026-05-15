@@ -37,27 +37,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             const content = await res.json();
 
             // Re-hydrate any tagged DOM elements with the authoritative text/imagse from the DB
-            document.querySelectorAll('[data-cms]').forEach(el => {
-                const key = el.getAttribute('data-cms');
+            function hydrateElements(rootNode) {
+                rootNode.querySelectorAll('[data-cms]').forEach(el => {
+                    const key = el.getAttribute('data-cms');
 
-                // If a DB override exists for this element, inject it
-                if (content[key]) {
-                    if (el.tagName === 'IMG') {
-                        // For images, we just update the src link
-                        if (el.getAttribute('src') !== content[key] && el.src !== content[key]) {
-                            el.src = content[key];
-                        }
-                    } else {
-                        // Use a temporary element to normalize the HTML from the DB
-                        // This prevents unnecessary DOM repaints and flashing caused by browser attribute formatting differences
-                        const temp = document.createElement(el.tagName);
-                        temp.innerHTML = content[key];
-                        if (el.innerHTML !== temp.innerHTML) {
-                            el.innerHTML = content[key];
+                    // If a DB override exists for this element, inject it
+                    if (content[key]) {
+                        if (el.tagName === 'IMG') {
+                            // For images, we just update the src link
+                            if (el.getAttribute('src') !== content[key] && el.src !== content[key]) {
+                                el.src = content[key];
+                            }
+                        } else {
+                            // Use a temporary element to normalize the HTML from the DB
+                            // This prevents unnecessary DOM repaints and flashing caused by browser attribute formatting differences
+                            const temp = document.createElement(el.tagName);
+                            temp.innerHTML = content[key];
+                            if (el.innerHTML !== temp.innerHTML) {
+                                el.innerHTML = content[key];
+                                // Recursively hydrate any new data-cms tags injected inside this element
+                                hydrateElements(el);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+            hydrateElements(document);
 
             // Auto-register any new data-cms tags to the backend so they show up in the Admin portal!
             setTimeout(autoRegisterTags, 1000);

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealership Dashboard</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { margin: 0; background-color: var(--bg-color); color: var(--text-dark); font-family: 'Outfit', 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 220px; background-color: var(--surface-color); border-right: 1.5px solid var(--border-color); display: flex; flex-direction: column; padding: 2rem 1.5rem; flex-shrink: 0; box-shadow: 2px 0 15px rgba(0,0,0,0.03); z-index: 1000; transition: transform 0.3s ease; }
+        .sidebar-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(2px); }
+        .sidebar-logo { margin-bottom: 2rem; font-size: 1.5rem; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+        .sidebar-menu li { margin-bottom: 0.5rem; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-dark); text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
+        .sidebar-menu a:hover { background: rgba(192, 108, 59, 0.05); color: var(--accent); }
+        .sidebar-menu a.active { background: var(--accent); color: var(--text-light); border-color: var(--accent); box-shadow: 0 4px 12px rgba(192, 108, 59, 0.25); }
+        .sidebar-menu a.active i { color: var(--text-light); }
+        .sidebar-menu a i { font-size: 1.1rem; width: 20px; text-align: center; color: var(--secondary); transition: 0.2s; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .panel { display: none; padding: 2rem; height: 100%; box-sizing: border-box; overflow-y: auto; }
+        .panel.active { display: block; }
+        #panel-cms.active { display: flex; }
+        
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.8rem; margin-bottom: 0.5rem; }
+        
+        /* Table Styles */
+        .crm-table-container { background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-top: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+        th { background: rgba(0,0,0,0.02); font-weight: 600; color: var(--secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background: rgba(0,0,0,0.01); }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .status-ok { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .status-due { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--surface-color); padding: 2rem; border-radius: 12px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { margin: 0; color: var(--primary); }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--secondary); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-dark); }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-dark); font-family: inherit; }
+        
+        .action-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 0.5rem; transition: 0.2s; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-dark); }
+        .btn-outline:hover { background: rgba(0,0,0,0.05); }
+        .btn-danger { background: #e74c3c; color: white; padding: 4px 8px; font-size: 0.8rem; }
+        
+        /* Strategy Panel Styles */
+        .strategy-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .date-picker-wrapper { display: flex; align-items: center; gap: 1rem; background: var(--bg-color); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .date-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-dark); transition: color 0.2s; }
+        .date-btn:hover { color: var(--accent); }
+        .strategy-list { display: flex; flex-direction: column; gap: 0.8rem; max-width: 800px; }
+        .strategy-item { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; transition: 0.2s; cursor: pointer; }
+        .strategy-item:hover { border-color: var(--accent); }
+        .strategy-item.completed { background: rgba(74, 222, 128, 0.05); border-color: #4ade80; }
+        .strategy-checkbox { width: 24px; height: 24px; border: 2px solid #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; transition: 0.2s; }
+        .strategy-item.completed .strategy-checkbox { background: #4ade80; border-color: #4ade80; }
+        .strategy-checkbox i { color: white; font-size: 14px; opacity: 0; transition: 0.2s; }
+        .strategy-item.completed .strategy-checkbox i { opacity: 1; }
+        .strategy-content h4 { margin: 0 0 0.25rem 0; font-size: 1.05rem; }
+        .strategy-content p { margin: 0; color: var(--secondary); font-size: 0.9rem; }
+        
+        .progress-container { max-width: 800px; margin-bottom: 2rem; background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .progress-bar-bg { height: 12px; background: var(--bg-color); border-radius: 6px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; }
+        
+        /* Profit Panel Styles */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .kpi-card { background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem; }
+        .kpi-card h3 { margin: 0; color: var(--secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-card .value { font-size: 2rem; font-weight: 700; margin: 0; }
+        .kpi-card.positive .value { color: #4ade80; }
+        .kpi-card.negative .value { color: #f87171; }
+        
+        .chart-container { background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 2rem; height: 300px; }
+        
+        .ledger-container { display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+        @media (max-width: 900px) { .ledger-container { grid-template-columns: 1fr; } }
+        .ledger-form { background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .ledger-table { background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; }
+        
+        /* Mobile Header */
+        .mobile-header { display: none; padding: 1rem 1.5rem; background: var(--surface-color); border-bottom: 1px solid var(--border-color); align-items: center; gap: 1rem; }
+        .mobile-header h2 { margin: 0; font-size: 1.2rem; }
+        .mobile-menu-btn { background: none; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer; }
+        
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100vh; transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-backdrop.active { display: block; }
+            .mobile-header { display: flex; }
+            .panel { padding: 1rem; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .ledger-container { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .panel-header-flex { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
+            .panel-header-flex button { width: 100%; justify-content: center; }
+            .strategy-header { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="static/theme.js"></script>
+</head>
+<body>
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-car-side"></i> Dealership
+        </div>
+        <ul class="sidebar-menu">
+            <li><a class="active" onclick="showPanel('crm', this)"><i class="fa-solid fa-address-book"></i> Client CRM</a></li>
+            <li><a onclick="showPanel('strategies', this)"><i class="fa-solid fa-list-check"></i> Daily Strategies</a></li>
+            <li><a onclick="showPanel('profit', this)"><i class="fa-solid fa-chart-line"></i> Profit Analysis</a></li>
+            <li><a onclick="showPanel('cms', this)"><i class="fa-solid fa-pen-to-square"></i> Site Editor</a></li>
+            <li style="margin-top: 2rem;"><a href="/dealership_marketing.html"><i class="fa-solid fa-arrow-left"></i> View Live Site</a></li>
+            <li><a class="theme-toggle" style="cursor:pointer;"><i class="fa-solid fa-moon"></i> Day/Night</a></li>
+            <li><a onclick="document.getElementById('logout-form').submit()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+        </ul>
+        <form id="logout-form" action="/api/logout" method="POST" style="display:none;"></form>
+    </aside>
+
+    <main class="main-content">
+        <div class="mobile-header">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <h2>Dealership Admin</h2>
+        </div>
+        
+        <!-- Client CRM Panel -->
+        <div id="panel-crm" class="panel active">
+            <div class="panel-header-flex" style="display: flex; gap: 2rem; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <h2>Client Manager</h2>
+                    <p style="color: var(--secondary); margin: 0;">Track your sales, follow-ups, and build your pipeline.</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add New Client</button>
+                </div>
+            </div>
+
+            <div class="crm-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Vehicle Sold</th>
+                            <th>Sale Date</th>
+                            <th>Last Contacted</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crm-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Site Editor Panel -->
+        <div id="panel-cms" class="panel" style="padding: 0; flex-direction: column;">
+            <div style="padding: 1.5rem 2rem 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h2>Live Site Editor</h2>
+                        <p style="color:var(--secondary); margin:0;">Click dashed elements below to edit them inline.</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" id="cms-save-btn" onclick="saveEditorChanges()" disabled style="opacity:0.5;"><i class="fa-solid fa-floppy-disk"></i> Save Site Changes</button>
+                    </div>
+                </div>
+                <div id="cms-status-bar" style="background:var(--bg-color); border:1px solid var(--border-color); border-bottom:none; border-radius:8px 8px 0 0; padding:0.5rem 1rem; font-size:0.8rem; margin-top:1rem; display:flex; justify-content:space-between;">
+                    <span>Orange dashed borders = editable fields.</span>
+                    <span id="cms-unsaved-badge" style="display:none; color:#e74c3c; font-weight:bold;">● Unsaved</span>
+                </div>
+            </div>
+            <iframe id="cms-iframe" sandbox="allow-scripts allow-same-origin" src="/api/edit-page/dealership_marketing" style="width:100%; flex:1; border:none; border-top:1px solid var(--border-color);"></iframe>
+        </div>
+
+        <!-- Strategies Panel -->
+        <div id="panel-strategies" class="panel">
+            <div class="strategy-header">
+                <div>
+                    <h2>Top 15 Daily Strategies</h2>
+                    <p style="color: var(--secondary); margin: 0;">Execute these plays daily to dominate the floor.</p>
+                </div>
+                <div class="date-picker-wrapper">
+                    <button class="date-btn" onclick="changeStrategyDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <input type="date" id="strategy-date" style="border: none; background: transparent; font-weight: 600; font-family: inherit; font-size: 1.1rem; outline: none; cursor: pointer;">
+                    <button class="date-btn" onclick="changeStrategyDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 0.5rem;">
+                    <span>Daily Completion</span>
+                    <span id="strategy-progress-text">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="strategy-progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="strategy-list" id="strategy-list">
+                <!-- Javascript will inject the 15 strategies here -->
+            </div>
+        </div>
+
+        <!-- Profit Analysis Panel -->
+        <div id="panel-profit" class="panel">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h2>Profit Analysis</h2>
+                <p style="color: var(--secondary); margin: 0;">Track your ledger and visualize how hustle impacts your bottom line.</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card positive">
+                    <h3>Total Credits</h3>
+                    <p class="value" id="kpi-credits">$0</p>
+                </div>
+                <div class="kpi-card negative">
+                    <h3>Total Debits</h3>
+                    <p class="value" id="kpi-debits">$0</p>
+                </div>
+                <div class="kpi-card" id="kpi-net-card">
+                    <h3>Net Profit</h3>
+                    <p class="value" id="kpi-net">$0</p>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+                <canvas id="profitChart"></canvas>
+            </div>
+
+            <!-- Ledger -->
+            <div class="ledger-container">
+                <div class="ledger-form">
+                    <h3 style="margin-top:0;">Add Transaction</h3>
+                    <form id="financial-form" style="display: flex; flex-direction: column; gap: 1rem;" onsubmit="saveFinancial(event)">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="f_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="f_type">
+                                <option value="CREDIT">Credit (+)</option>
+                                <option value="DEBIT">Debit (-)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input list="category-options" id="f_category" placeholder="Select or type..." required>
+                            <datalist id="category-options">
+                                <!-- Populated dynamically by JS -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" id="f_amount" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="f_description" placeholder="Optional notes">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="justify-content: center; margin-top: 0.5rem;">Save Transaction</button>
+                    </form>
+                </div>
+                <div class="ledger-table">
+                    <h3 style="margin-top:0;">Recent Transactions</h3>
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 0.75rem 0;">Date</th>
+                                <th style="padding: 0.75rem 0;">Category</th>
+                                <th style="padding: 0.75rem 0;">Amount</th>
+                                <th style="padding: 0.75rem 0;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financial-body">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div id="client-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Client</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="client-form" onsubmit="saveClient(event)">
+                <input type="hidden" id="client_id">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>Client Name</label>
+                        <input type="text" id="c_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone / Email</label>
+                        <input type="text" id="c_contact_info">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="c_address">
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Sold</label>
+                        <input type="text" id="c_vehicle_sold" placeholder="e.g. 2024 F-150 Lariat">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Price ($)</label>
+                        <input type="number" id="c_purchase_price" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Date</label>
+                        <input type="date" id="c_sale_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Follow-up Frequency</label>
+                        <select id="c_contact_frequency">
+                            <option value="quarterly">Quarterly (90 Days)</option>
+                            <option value="annual">Annually (365 Days)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Contacted Date</label>
+                        <input type="date" id="c_last_contacted">
+                    </div>
+                    <div class="form-group full">
+                        <label>Notes</label>
+                        <textarea id="c_notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="action-btns">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // UI Navigation
+        function showPanel(panelId, el) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + panelId).classList.add('active');
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            
+            // Close sidebar on mobile after clicking
+            if (window.innerWidth <= 900) {
+                toggleSidebar();
+            }
+
+            // Init specific panels
+            if (panelId === 'profit') initProfitAnalysis();
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebar-backdrop').classList.toggle('active');
+        }
+
+        // CRM Logic
+        let clients = [];
+
+        async function loadClients() {
+            try {
+                const res = await fetch('/api/clients');
+                clients = await res.json();
+                renderTable();
+            } catch (e) {
+                console.error("Failed to load clients", e);
+            }
+        }
+
+        function calculateStatus(lastContacted, frequency) {
+            if (!lastContacted) return { text: "NEEDS CONTACT", class: "status-due" };
+            
+            const lastDate = new Date(lastContacted);
+            const now = new Date();
+            const daysSince = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+            
+            const limit = frequency === 'annual' ? 365 : 90;
+            
+            if (daysSince > limit) {
+                return { text: "OVERDUE", class: "status-due" };
+            }
+            return { text: "UP TO DATE", class: "status-ok" };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('crm-body');
+            tbody.innerHTML = '';
+            
+            clients.forEach(c => {
+                const status = calculateStatus(c.last_contacted, c.contact_frequency);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${c.name}</strong></td>
+                    <td>${c.contact_info || '-'}</td>
+                    <td>${c.vehicle_sold || '-'}</td>
+                    <td>${c.sale_date || '-'}</td>
+                    <td>${c.last_contacted || '-'}</td>
+                    <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                    <td>
+                        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.8rem;" onclick="editClient(${c.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-danger" onclick="deleteClient(${c.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openModal(client = null) {
+            document.getElementById('modal-title').innerText = client ? 'Edit Client' : 'Add New Client';
+            document.getElementById('client_id').value = client ? client.id : '';
+            document.getElementById('c_name').value = client ? client.name : '';
+            document.getElementById('c_contact_info').value = client ? client.contact_info : '';
+            document.getElementById('c_address').value = client ? client.address : '';
+            document.getElementById('c_vehicle_sold').value = client ? client.vehicle_sold : '';
+            document.getElementById('c_purchase_price').value = client ? client.purchase_price : '';
+            document.getElementById('c_sale_date').value = client ? client.sale_date : '';
+            document.getElementById('c_contact_frequency').value = client ? client.contact_frequency : 'quarterly';
+            document.getElementById('c_last_contacted').value = client ? client.last_contacted : '';
+            document.getElementById('c_notes').value = client ? client.notes : '';
+            
+            document.getElementById('client-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('client-modal').classList.remove('active');
+        }
+
+        function editClient(id) {
+            const client = clients.find(c => c.id === id);
+            if (client) openModal(client);
+        }
+
+        async function saveClient(e) {
+            e.preventDefault();
+            const id = document.getElementById('client_id').value;
+            
+            const data = {
+                name: document.getElementById('c_name').value,
+                contact_info: document.getElementById('c_contact_info').value,
+                address: document.getElementById('c_address').value,
+                vehicle_sold: document.getElementById('c_vehicle_sold').value,
+                purchase_price: parseFloat(document.getElementById('c_purchase_price').value) || 0,
+                sale_date: document.getElementById('c_sale_date').value,
+                contact_frequency: document.getElementById('c_contact_frequency').value,
+                last_contacted: document.getElementById('c_last_contacted').value,
+                notes: document.getElementById('c_notes').value
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/clients/${id}` : '/api/clients';
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!res.ok) throw new Error('Unauthorized');
+                closeModal();
+                loadClients();
+            } catch (err) {
+                alert("Failed to save client. Your session may have expired. Please log in again.");
+            }
+        }
+
+        async function deleteClient(id) {
+            if (confirm("Are you sure you want to delete this client?")) {
+                try {
+                    const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error('Unauthorized');
+                    loadClients();
+                } catch (err) {
+                    alert("Failed to delete client. Your session may have expired. Please log in again.");
+                }
+            }
+        }
+
+        // CMS Logic
+        let _cmsChanges = {};
+        
+        window.addEventListener('message', e => {
+            if (e.data.type === 'cms-dirty') {
+                const btn = document.getElementById('cms-save-btn');
+                const badge = document.getElementById('cms-unsaved-badge');
+                if (e.data.count > 0) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    badge.style.display = 'inline';
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save (${e.data.count}) Changes`;
+                } else {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    badge.style.display = 'none';
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save Site Changes`;
+                }
+            } else if (e.data.type === 'cms-changes-data') {
+                _cmsChanges = e.data.changes;
+                saveToBackend();
+            }
+        });
+
+        function saveEditorChanges() {
+            document.getElementById('cms-iframe').contentWindow.postMessage({ type: 'cms-get-changes' }, '*');
+        }
+
+        async function saveToBackend() {
+            const btn = document.getElementById('cms-save-btn');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+            
+            try {
+                for (const [id, html] of Object.entries(_cmsChanges)) {
+                    const res = await fetch('/api/content', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ element_id: id, html_content: html })
+                    });
+                    if (!res.ok) {
+                        throw new Error(`Server returned ${res.status}`);
+                    }
+                }
+                
+                document.getElementById('cms-iframe').contentWindow.postMessage({ type: 'cms-saved' }, '*');
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> Saved!`;
+                setTimeout(() => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save Site Changes`;
+                }, 2000);
+            } catch (e) {
+                alert("Failed to save changes. Your session may have expired. Please refresh the page and log in again.");
+                btn.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Error`;
+                setTimeout(() => {
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save Site Changes`;
+                }, 3000);
+            }
+        }
+        // --- Daily Strategies Logic ---
+        const strategiesList = [
+            { id: 1, title: 'The Service Lane Shake-Down', desc: 'Pitching upgrades to customers facing high repair bills' },
+            { id: 2, title: 'The Orphan Pipeline', desc: 'Calling neglected customers of former sales reps' },
+            { id: 3, title: 'The Bird Dog Program', desc: 'Reaching out to 5 past customers for referrals' },
+            { id: 4, title: 'Equity Mining the Service Drive', desc: 'Appraising cars currently in for routine maintenance' },
+            { id: 5, title: 'Walkaround Video Texts', desc: 'Sending personalized 60-second video tours to fresh leads' },
+            { id: 6, title: 'The "Lost Deal" Resurrection', desc: 'Re-engaging customers who walked away 30-90 days ago' },
+            { id: 7, title: 'Lease-End Mining', desc: 'Contacting customers 6 months prior to lease maturity' },
+            { id: 8, title: 'Test Drive Delivery', desc: 'Offering to bring a vehicle to a prospect\'s home/office' },
+            { id: 9, title: 'Social Media Inventory Showcase', desc: 'Posting a high-value trade-in to local Facebook groups' },
+            { id: 10, title: 'Hand-Written Thank You Cards', desc: 'Mailing physical cards to yesterday\'s buyers' },
+            { id: 11, title: 'Community Partnerships', desc: 'Pitching local business owners on fleet/employee pricing' },
+            { id: 12, title: 'Squeeze Page Prospecting', desc: 'Directing traffic to the "Upgrade It" valuation tool' },
+            { id: 13, title: 'Insurance Bundling', desc: 'Using the Insurance Component to lower a buyer\'s DTI' },
+            { id: 14, title: 'The Birthday/Anniversary Call', desc: 'Relationship maintenance calls for past buyers' },
+            { id: 15, title: 'The 60-Second Appraisal', desc: 'Performing a no-obligation appraisal for a walk-in' }
+        ];
+
+        let currentStrategyDate = new Date();
+        let completedStrategyIds = new Set();
+
+        function formatDate(dateObj) {
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        async function initStrategies() {
+            const dateInput = document.getElementById('strategy-date');
+            dateInput.value = formatDate(currentStrategyDate);
+            dateInput.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    currentStrategyDate = new Date(e.target.value + 'T12:00:00');
+                    loadStrategiesForDate();
+                }
+            });
+            renderStrategyList();
+            loadStrategiesForDate();
+        }
+
+        function changeStrategyDate(days) {
+            currentStrategyDate.setDate(currentStrategyDate.getDate() + days);
+            document.getElementById('strategy-date').value = formatDate(currentStrategyDate);
+            loadStrategiesForDate();
+        }
+
+        function renderStrategyList() {
+            const container = document.getElementById('strategy-list');
+            container.innerHTML = '';
+            strategiesList.forEach(s => {
+                const el = document.createElement('div');
+                el.className = 'strategy-item';
+                el.id = `strategy-item-${s.id}`;
+                el.onclick = () => toggleStrategy(s.id);
+                el.innerHTML = `
+                    <div class="strategy-checkbox"><i class="fa-solid fa-check"></i></div>
+                    <div class="strategy-content">
+                        <h4>${s.title}</h4>
+                        <p>${s.desc}</p>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+            updateStrategyProgress();
+        }
+
+        async function loadStrategiesForDate() {
+            const dateStr = formatDate(currentStrategyDate);
+            try {
+                const res = await fetch(`/api/strategies?date=${dateStr}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    completedStrategyIds = new Set(data.completed || []);
+                    strategiesList.forEach(s => {
+                        const el = document.getElementById(`strategy-item-${s.id}`);
+                        if (completedStrategyIds.has(s.id)) el.classList.add('completed');
+                        else el.classList.remove('completed');
+                    });
+                    updateStrategyProgress();
+                }
+            } catch (e) {
+                console.error("Failed to load strategies", e);
+            }
+        }
+
+        async function toggleStrategy(id) {
+            const el = document.getElementById(`strategy-item-${id}`);
+            if (completedStrategyIds.has(id)) {
+                completedStrategyIds.delete(id);
+                el.classList.remove('completed');
+            } else {
+                completedStrategyIds.add(id);
+                el.classList.add('completed');
+            }
+            updateStrategyProgress();
+            
+            // Debounce or save immediately
+            saveStrategies();
+        }
+
+        async function saveStrategies() {
+            const dateStr = formatDate(currentStrategyDate);
+            try {
+                await fetch('/api/strategies', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        date: dateStr,
+                        completed_ids: Array.from(completedStrategyIds)
+                    })
+                });
+            } catch (e) {
+                console.error("Failed to save strategies", e);
+            }
+        }
+
+        function updateStrategyProgress() {
+            const total = strategiesList.length;
+            const completed = completedStrategyIds.size;
+            const percent = Math.round((completed / total) * 100);
+            
+            document.getElementById('strategy-progress-text').innerText = `${percent}%`;
+            document.getElementById('strategy-progress-fill').style.width = `${percent}%`;
+        }
+
+        // --- Profit Analysis Logic ---
+        let profitChartInstance = null;
+
+        async function initProfitAnalysis() {
+            document.getElementById('f_date').value = formatDate(new Date());
+            
+            // Populate datalist with the 15 daily strategies
+            const datalist = document.getElementById('category-options');
+            datalist.innerHTML = '';
+            strategiesList.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.title;
+                datalist.appendChild(opt);
+            });
+            
+            await loadFinancials();
+            await renderProfitChart();
+        }
+
+        async function loadFinancials() {
+            try {
+                const res = await fetch('/api/financials');
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                const tbody = document.getElementById('financial-body');
+                tbody.innerHTML = '';
+                
+                let totalCredits = 0;
+                let totalDebits = 0;
+                
+                data.forEach(item => {
+                    if (item.type === 'CREDIT') totalCredits += item.amount;
+                    else totalDebits += item.amount;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>
+                            <strong>${item.category}</strong><br>
+                            <small style="color:var(--secondary)">${item.description || ''}</small>
+                        </td>
+                        <td style="color: ${item.type === 'CREDIT' ? '#4ade80' : '#f87171'}; font-weight:600;">
+                            ${item.type === 'CREDIT' ? '+' : '-'}$${item.amount.toFixed(2)}
+                        </td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteFinancial(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                const net = totalCredits - totalDebits;
+                document.getElementById('kpi-credits').innerText = '$' + totalCredits.toFixed(2);
+                document.getElementById('kpi-debits').innerText = '$' + totalDebits.toFixed(2);
+                document.getElementById('kpi-net').innerText = (net >= 0 ? '$' : '-$') + Math.abs(net).toFixed(2);
+                
+                const netCard = document.getElementById('kpi-net-card');
+                netCard.className = 'kpi-card ' + (net >= 0 ? 'positive' : 'negative');
+                
+            } catch (e) {
+                console.error("Failed to load financials", e);
+            }
+        }
+
+        async function saveFinancial(e) {
+            e.preventDefault();
+            const data = {
+                date: document.getElementById('f_date').value,
+                type: document.getElementById('f_type').value,
+                category: document.getElementById('f_category').value,
+                amount: parseFloat(document.getElementById('f_amount').value) || 0,
+                description: document.getElementById('f_description').value
+            };
+            
+            try {
+                const res = await fetch('/api/financials', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    document.getElementById('f_category').value = '';
+                    document.getElementById('f_amount').value = '';
+                    document.getElementById('f_description').value = '';
+                    await loadFinancials();
+                    await renderProfitChart();
+                } else {
+                    alert("Failed to save transaction. Session may have expired.");
+                }
+            } catch (e) {
+                console.error("Save error", e);
+            }
+        }
+
+        async function deleteFinancial(id) {
+            if (!confirm("Delete this transaction?")) return;
+            try {
+                await fetch(`/api/financials/${id}`, { method: 'DELETE' });
+                await loadFinancials();
+                await renderProfitChart();
+            } catch (e) {}
+        }
+
+        async function renderProfitChart() {
+            try {
+                const res = await fetch('/api/analytics/profit-vs-strategy');
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                // Process dates (last 30 days)
+                const dates = Object.keys(data.strategies).sort();
+                
+                // Calculate net profit per day
+                const dailyProfit = {};
+                dates.forEach(d => dailyProfit[d] = 0);
+                
+                data.financials.forEach(f => {
+                    if (dailyProfit[f.date] !== undefined) {
+                        dailyProfit[f.date] += (f.type === 'CREDIT' ? f.amount : -f.amount);
+                    }
+                });
+                
+                // Projected Profit goal ($500/day as baseline)
+                const projectedProfit = dates.map(d => 500);
+                
+                const profitData = dates.map(d => dailyProfit[d]);
+                
+                // Chart.js
+                const ctx = document.getElementById('profitChart').getContext('2d');
+                if (profitChartInstance) profitChartInstance.destroy();
+                
+                profitChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Net Profit ($)',
+                                data: profitData,
+                                type: 'bar',
+                                backgroundColor: profitData.map(v => v >= 0 ? 'rgba(74, 222, 128, 0.5)' : 'rgba(248, 113, 113, 0.5)'),
+                                borderColor: profitData.map(v => v >= 0 ? '#4ade80' : '#f87171'),
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Projected Profit ($)',
+                                data: projectedProfit,
+                                type: 'line',
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'transparent',
+                                borderDash: [5, 5],
+                                tension: 0.1,
+                                fill: false,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Profit ($)' }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Chart error", e);
+            }
+        }
+
+        // Init
+        loadClients();
+        initStrategies();
+        initProfitAnalysis();
+    </script>
+</body>
+</html>

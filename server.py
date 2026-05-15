@@ -147,6 +147,8 @@ sessions = {}
 
 def get_current_user(request: Request):
     token = request.cookies.get("session_token")
+    print(f"DEBUG: get_current_user token: {token}")
+    print(f"DEBUG: sessions keys: {list(sessions.keys())}")
     if not token or token not in sessions:
         return None
         
@@ -1310,10 +1312,12 @@ async def update_police_loop():
 
 @app.get("/{page_name}.html", response_class=HTMLResponse)
 async def serve_pages(page_name: str, request: Request):
-    if page_name == "settings":
+    if page_name in ["settings", "dealership_admin"]:
         user = get_current_user(request)
         if not user:
             return RedirectResponse(url="/login.html", status_code=status.HTTP_302_FOUND)
+        if page_name == "settings" and user.lower() == "jeff":
+            return RedirectResponse(url="/dealership_admin.html", status_code=status.HTTP_302_FOUND)
     
     html_path = os.path.join(BASE_DIR, f"{page_name}.html")
     if os.path.exists(html_path):
@@ -1333,7 +1337,10 @@ async def login(response: Response, username: str = Form(...), password: str = F
             "username": username,
             "expires": datetime.now() + timedelta(days=1)
         }
-        response = RedirectResponse(url="/settings.html", status_code=status.HTTP_302_FOUND)
+        if username.lower() == 'jeff':
+            response = RedirectResponse(url="/dealership_admin.html", status_code=status.HTTP_302_FOUND)
+        else:
+            response = RedirectResponse(url="/settings.html", status_code=status.HTTP_302_FOUND)
         response.set_cookie(key="session_token", value=token, httponly=True, max_age=86400)
         return response
     
@@ -1414,10 +1421,112 @@ async def upload_image(file: UploadFile = File(...), user: str = Depends(require
     # Return the relative URL for browser use
     return {"url": f"/static/{file.filename}"}
 
+# --- CRM API Routes ---
+
+class ClientData(BaseModel):
+    name: str
+    address: str = ""
+    contact_info: str = ""
+    vehicle_sold: str = ""
+    sale_date: str = ""
+    purchase_price: float = 0.0
+    last_contacted: str = ""
+    contact_frequency: str = "quarterly"
+    notes: str = ""
+
+@app.get("/api/clients")
+async def list_clients(user: str = Depends(require_admin)):
+    try:
+        clients = await database.get_all_clients()
+        return JSONResponse(clients)
+    except Exception as e:
+        import traceback
+        return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
+
+@app.post("/api/clients")
+async def create_client(client: ClientData, user: str = Depends(require_admin)):
+    try:
+        client_id = await database.add_client(client.dict())
+        return {"status": "success", "id": client_id}
+    except Exception as e:
+        import traceback
+        return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
+
+@app.put("/api/clients/{client_id}")
+async def update_client(client_id: int, client: ClientData, user: str = Depends(require_admin)):
+    await database.update_client(client_id, client.dict())
+    return {"status": "success"}
+
+@app.delete("/api/clients/{client_id}")
+async def delete_client(client_id: int, user: str = Depends(require_admin)):
+    await database.delete_client(client_id)
+    return {"status": "success"}
+
+class DailyStrategyData(BaseModel):
+    date: str
+    completed_ids: list
+
+@app.get("/api/strategies")
+async def get_strategies(date: str, user: str = Depends(require_admin)):
+    completed = await database.get_daily_strategies(date)
+    return JSONResponse({"date": date, "completed": completed})
+
+@app.post("/api/strategies")
+async def save_strategies(data: DailyStrategyData, user: str = Depends(require_admin)):
+    await database.save_daily_strategies(data.date, data.completed_ids)
+    return {"status": "success"}
+
+class FinancialData(BaseModel):
+    date: str
+    type: str
+    category: str
+    amount: float
+    description: str
+
+@app.get("/api/financials")
+async def get_financials(user: str = Depends(require_admin)):
+    records = await database.get_financials()
+    return JSONResponse(records)
+
+@app.post("/api/financials")
+async def add_financial(data: FinancialData, user: str = Depends(require_admin)):
+    item_id = await database.add_financial(data.date, data.type, data.category, data.amount, data.description)
+    return {"status": "success", "id": item_id}
+
+@app.delete("/api/financials/{item_id}")
+async def delete_financial(item_id: int, user: str = Depends(require_admin)):
+    await database.delete_financial(item_id)
+    return {"status": "success"}
+
+@app.get("/api/analytics/profit-vs-strategy")
+async def get_profit_vs_strategy(user: str = Depends(require_admin)):
+    # Fetch all financials
+    financials = await database.get_financials()
+    
+    # Fetch strategies for the last 30 days
+    import datetime
+    strategy_data = {}
+    today = datetime.date.today()
+    for i in range(30):
+        dt = today - datetime.timedelta(days=i)
+        date_str = dt.isoformat()
+        completed = await database.get_daily_strategies(date_str)
+        strategy_data[date_str] = len(completed)
+        
+    return JSONResponse({
+        "financials": financials,
+        "strategies": strategy_data
+    })
+
 # --- Admin API Routes ---
 
+def require_superadmin(user: str = Depends(require_admin)):
+    if user.lower() == 'jeff':
+        raise HTTPException(status_code=403, detail="Not authorized for global admin routes")
+    return user
+
 @app.get("/api/users")
-async def list_users(user: str = Depends(require_admin)):
+async def list_users(user: str = Depends(require_superadmin)):
     users = await database.get_all_users()
     return JSONResponse(users)
 
@@ -1426,27 +1535,23 @@ class NewUser(BaseModel):
     password: str
 
 @app.post("/api/users")
-async def add_user(new_user: NewUser, user: str = Depends(require_admin)):
+async def add_user(new_user: NewUser, user: str = Depends(require_superadmin)):
     success = await database.add_admin_user(new_user.username, new_user.password)
     if success:
         return {"status": "success"}
     raise HTTPException(status_code=400, detail="Username already exists")
 
 @app.delete("/api/users/{user_id}")
-async def remove_user(user_id: int, user: str = Depends(require_admin)):
-    # Prevent deleting the core cricks account as a safety feature just in case
-    # In a real app we'd fetch the user first
+async def remove_user(user_id: int, user: str = Depends(require_superadmin)):
     if user_id == 1: 
         raise HTTPException(status_code=403, detail="Cannot delete root admin")
-        
     await database.remove_admin_user(user_id)
     return {"status": "success"}
 
 @app.put("/api/users/{user_id}/revoke")
-async def revoke_user(user_id: int, user: str = Depends(require_admin)):
+async def revoke_user(user_id: int, user: str = Depends(require_superadmin)):
     if user_id == 1: 
         raise HTTPException(status_code=403, detail="Cannot revoke root admin")
-        
     await database.revoke_admin_access(user_id)
     return {"status": "success"}
 
@@ -1454,9 +1559,7 @@ class PasswordUpdate(BaseModel):
     new_password: str
 
 @app.put("/api/users/{user_id}/password")
-async def update_user_password(user_id: int, update: PasswordUpdate, user: str = Depends(require_admin)):
-    # Optional: We could prevent changing root password by non-root users if we tracked roles deeper, 
-    # but for this demo any authenticated admin can change passwords.
+async def update_user_password(user_id: int, update: PasswordUpdate, user: str = Depends(require_superadmin)):
     await database.edit_admin_password(user_id, update.new_password)
     return {"status": "success"}
 import subprocess
@@ -1473,7 +1576,7 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
-SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator', 'voice-chat']
+SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator', 'voice-chat', 'dealership_marketing']
 
 @app.get("/api/edit-page/{page_name:path}")
 async def edit_page_view(page_name: str):
@@ -2143,6 +2246,8 @@ async def get_git_status(user: str = Depends(require_admin)):
                 "seo_sniper": "seo_sniper",
                 "brand_monitor": "brand_monitor",
                 "business_model": "business_model",
+                "dealership_marketing": "dealership_marketing",
+                "dealership_admin": "dealership_marketing",
                 # Core Pages
                 "index": "core_site",
                 "about": "core_site",

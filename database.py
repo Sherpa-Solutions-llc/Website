@@ -49,10 +49,44 @@ async def init_db():
         )
         ''')
         
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS dealership_clients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            address TEXT,
+            contact_info TEXT,
+            vehicle_sold TEXT,
+            sale_date TEXT,
+            purchase_price REAL,
+            last_contacted TEXT,
+            contact_frequency TEXT,
+            notes TEXT
+        )
+        ''')
+        
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS dealership_daily_strategies (
+            date TEXT PRIMARY KEY,
+            completed_json TEXT
+        )
+        ''')
+        
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS dealership_financials (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            type TEXT NOT NULL,
+            category TEXT,
+            amount REAL NOT NULL,
+            description TEXT
+        )
+        ''')
+        
         await db.commit()
         
         # Seed the requested admin user
         await seed_admin("cricks", "Friday13!")
+        await seed_admin("jeff", "jeff")
 
 async def seed_admin(username, password):
     # Hash the password with bcrypt
@@ -167,6 +201,48 @@ async def register_content_default(element_id, default_content):
 async def update_content(element_id, new_content):
     async with aiosqlite.connect(DB_NAME) as db:
         await db.execute('UPDATE content SET html_content = ? WHERE element_id = ?', (new_content, element_id))
+        await db.commit()
+
+# --- Dealership CRM Functions ---
+
+async def get_all_clients():
+    async with aiosqlite.connect(DB_NAME) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute('SELECT * FROM dealership_clients ORDER BY sale_date DESC') as cursor:
+            rows = await cursor.fetchall()
+            return [dict(r) for r in rows]
+
+async def add_client(data):
+    async with aiosqlite.connect(DB_NAME) as db:
+        cursor = await db.execute('''
+            INSERT INTO dealership_clients 
+            (name, address, contact_info, vehicle_sold, sale_date, purchase_price, last_contacted, contact_frequency, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            data.get('name'), data.get('address'), data.get('contact_info'), data.get('vehicle_sold'),
+            data.get('sale_date'), data.get('purchase_price'), data.get('last_contacted'),
+            data.get('contact_frequency'), data.get('notes')
+        ))
+        await db.commit()
+        return cursor.lastrowid
+
+async def update_client(client_id, data):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('''
+            UPDATE dealership_clients SET 
+            name=?, address=?, contact_info=?, vehicle_sold=?, sale_date=?, purchase_price=?, 
+            last_contacted=?, contact_frequency=?, notes=?
+            WHERE id=?
+        ''', (
+            data.get('name'), data.get('address'), data.get('contact_info'), data.get('vehicle_sold'),
+            data.get('sale_date'), data.get('purchase_price'), data.get('last_contacted'),
+            data.get('contact_frequency'), data.get('notes'), client_id
+        ))
+        await db.commit()
+
+async def delete_client(client_id):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('DELETE FROM dealership_clients WHERE id = ?', (client_id,))
         await db.commit()
 
 async def get_demo_config(page_url: str):
@@ -808,3 +884,49 @@ async def get_analytics_summary(limit: int = 200):
             "total_visitors": total_visitors,
             "events": events
         }
+
+# --- Daily Strategies Functions ---
+async def get_daily_strategies(date_str: str):
+    async with aiosqlite.connect(DB_NAME) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute('SELECT completed_json FROM dealership_daily_strategies WHERE date = ?', (date_str,)) as cursor:
+            row = await cursor.fetchone()
+            if row:
+                import json
+                try:
+                    return json.loads(row['completed_json'])
+                except:
+                    return []
+            return []
+
+async def save_daily_strategies(date_str: str, completed_ids: list):
+    import json
+    json_data = json.dumps(completed_ids)
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('''
+            INSERT INTO dealership_daily_strategies (date, completed_json)
+            VALUES (?, ?)
+            ON CONFLICT(date) DO UPDATE SET completed_json=excluded.completed_json
+        ''', (date_str, json_data))
+        await db.commit()
+
+# --- Profit Analysis Functions ---
+async def get_financials():
+    async with aiosqlite.connect(DB_NAME) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute('SELECT * FROM dealership_financials ORDER BY date DESC, id DESC') as cursor:
+            return [dict(row) for row in await cursor.fetchall()]
+
+async def add_financial(date: str, type: str, category: str, amount: float, description: str):
+    async with aiosqlite.connect(DB_NAME) as db:
+        cursor = await db.execute('''
+            INSERT INTO dealership_financials (date, type, category, amount, description)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (date, type, category, amount, description))
+        await db.commit()
+        return cursor.lastrowid
+
+async def delete_financial(item_id: int):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute('DELETE FROM dealership_financials WHERE id = ?', (item_id,))
+        await db.commit()
