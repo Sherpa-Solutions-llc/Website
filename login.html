@@ -285,6 +285,9 @@
 </div>
 </div>
 <script>
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
+        document.querySelector('form[action="/api/login"]').action = API_BASE + '/api/login';
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('error')) {
             document.getElementById('errorBox').classList.add('visible');

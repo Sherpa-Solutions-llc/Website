@@ -19,7 +19,7 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 
         /* Squeeze Page Hero (Strategy 5) */
-        .hero-squeeze { position: relative; padding: 6rem 2rem 8rem; background: url('static/dealership_thumbnail.png') center/cover no-repeat; overflow: hidden; }
+        .hero-squeeze { position: relative; padding: 12rem 2rem 8rem; background: url('static/dealership_thumbnail.png') center/cover no-repeat; overflow: hidden; }
         .hero-squeeze::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(10, 14, 10, 0.95) 0%, rgba(10, 14, 10, 0.7) 100%); z-index: 0; }
         .hero-content { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr; gap: 4rem; align-items: center; max-width: 1200px; margin: 0 auto; }
         
@@ -372,6 +372,11 @@
 <script src="static/cms.js"></script>
 <script src="static/analytics.js"></script>
 <script>
+        // Set API_BASE for login form dynamically
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
+        const loginForm = document.querySelector('form[action="/api/login"]');
+        if (loginForm) loginForm.action = API_BASE + '/api/login';
+
         // Simple calculator logic for the Upgrade widget
         const repairInput = document.getElementById('repair-cost');
         const tradeInput = document.getElementById('trade-value');
