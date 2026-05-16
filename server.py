@@ -1576,7 +1576,7 @@ async def sync_progress(user: str = Depends(require_admin)):
             return JSONResponse({"status": "error", "message": "Failed to read progress"})
     return JSONResponse({"status": "idle", "message": "No sync in progress", "percentage": 0})
 
-SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator', 'voice-chat', 'dealership_marketing']
+SAFE_EDIT_PAGES = ['index', 'about', 'services', 'projects', 'contact', 'merchandise', 'live_earth', 'skip_tracer', 'stock_agent', 'productivity_agent', 'osint_api', 'freeme', 'heavenly_melody', 'dcsa_dashboard', 'dcsa_personnel_vetting', 'dcsa_counterintelligence', 'dcsa_2040_threats', 'dcsa_security_training', 'dcsa_industrial_security', 'dcsa_full_integration', 'dcsa_agency_profile', 'dcsa_resource_locator', 'voice-chat', 'dealership_marketing', 'hoosier_roadside']
 
 @app.get("/api/edit-page/{page_name:path}")
 async def edit_page_view(page_name: str):
@@ -2336,6 +2336,7 @@ async def get_git_status(user: str = Depends(require_admin)):
                 "business_model": "business_model",
                 "dealership_marketing": "dealership_marketing",
                 "dealership_admin": "dealership_marketing",
+                "hoosier_roadside": "hoosier_roadside",
                 # Core Pages
                 "index": "core_site",
                 "about": "core_site",
