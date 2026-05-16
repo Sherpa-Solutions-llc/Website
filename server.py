@@ -1864,55 +1864,96 @@ async def edit_page_view(page_name: str):
             _activeEl = null; _origHTML = '';
         }
 
-        /* ---- image modal ---- */
-        let _imgEl = null, _imgTag = null;
+        /* ---- media modal ---- */
+        let _mediaEl = null, _mediaImgTag = null;
 
-        const overlay = document.createElement('div');
-        overlay.id = '_cms_img_overlay';
-        overlay.innerHTML = `
+        const mediaOverlay = document.createElement('div');
+        mediaOverlay.id = '_cms_media_overlay';
+        mediaOverlay.innerHTML = `
             <div id="_cms_img_box">
-                <h3>Update Image</h3>
-                <p>Enter a URL or upload a new file to replace this image.</p>
-                <div id="_cms_img_preview"></div>
+                <h3>Media Settings</h3>
+                <p>Update the image and optional video link.</p>
+                <div id="_cms_img_preview" style="text-align: center; margin-bottom: 1rem;"><img style="max-height: 100px; max-width: 100%; border-radius: 8px;"></div>
+                
                 <label>Image URL</label>
-                <input type="text" id="_cms_img_url" placeholder="https://... or /static/filename.jpg">
-                <label>&#8212;&nbsp; or upload a file &nbsp;&#8212;</label>
-                <input type="file" id="_cms_img_file" accept="image/*">
-                <div class="img-actions">
-                    <button class="img-btn-cancel" id="_cms_img_cancel">Cancel</button>
-                    <button class="img-btn-apply"  id="_cms_img_apply">Apply Image</button>
+                <input type="text" id="_cms_media_img_url" placeholder="https://... or /static/filename.jpg">
+                <label style="font-weight: normal; margin-top:-0.5rem; display:block;">— or upload image —</label>
+                <input type="file" id="_cms_media_img_file" accept="image/*">
+                
+                <label style="margin-top: 1rem;">Video Embed URL (Optional)</label>
+                <input type="text" id="_cms_media_vid_url" placeholder="https://www.youtube.com/embed/...">
+                <label style="font-weight: normal; margin-top:-0.5rem; display:block;">— or upload video (.mp4) —</label>
+                <input type="file" id="_cms_media_vid_file" accept="video/mp4,video/*">
+                
+                <div class="img-actions" style="margin-top: 1rem;">
+                    <button class="img-btn-cancel" id="_cms_media_cancel" style="background: #ccc;">Cancel</button>
+                    <button class="img-btn-apply"  id="_cms_media_apply">Apply Media</button>
                 </div>
             </div>`;
-        document.body.appendChild(overlay);
+        mediaOverlay.style.display = 'none';
+        mediaOverlay.style.position = 'fixed';
+        mediaOverlay.style.inset = '0';
+        mediaOverlay.style.background = 'rgba(0,0,0,0.72)';
+        mediaOverlay.style.zIndex = '2147483646';
+        mediaOverlay.style.alignItems = 'center';
+        mediaOverlay.style.justifyContent = 'center';
+        document.body.appendChild(mediaOverlay);
 
-        document.getElementById('_cms_img_cancel').onclick = () => overlay.classList.remove('open');
+        document.getElementById('_cms_media_cancel').onclick = () => mediaOverlay.style.display = 'none';
 
-        document.getElementById('_cms_img_apply').onclick = async function() {
-            const fileInput = document.getElementById('_cms_img_file');
-            const urlInput  = document.getElementById('_cms_img_url');
-            let newSrc = '';
-
+        async function getMediaInputUrl(inputId, fileId) {
+            const fileInput = document.getElementById(fileId);
+            const urlInput = document.getElementById(inputId);
             if (fileInput.files && fileInput.files.length > 0) {
                 const fd = new FormData();
                 fd.append('file', fileInput.files[0]);
                 const r = await fetch('/api/upload', { method: 'POST', body: fd });
-                if (r.ok) { newSrc = (await r.json()).url; }
-                else { toast('\u26a0 Upload failed', '#e74c3c'); return; }
-            } else if (urlInput.value.trim()) {
-                newSrc = urlInput.value.trim();
-            } else {
-                toast('Enter a URL or choose a file', '#e67e22'); return;
+                if (r.ok) return (await r.json()).url;
+            }
+            let url = urlInput.value.trim();
+            if (url.includes('youtube.com/watch?v=')) {
+                url = url.replace('youtube.com/watch?v=', 'youtube.com/embed/').split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+                url = url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0];
+            }
+            return url;
+        }
+
+        document.getElementById('_cms_media_apply').onclick = async function() {
+            toast('Processing...', 'var(--accent)');
+            const imgUrl = await getMediaInputUrl('_cms_media_img_url', '_cms_media_img_file');
+            const vidUrl = await getMediaInputUrl('_cms_media_vid_url', '_cms_media_vid_file');
+            
+            if (!imgUrl && _mediaEl && _mediaEl.tagName === 'IMG') {
+                toast('Image is required', '#e67e22'); return;
             }
 
-            if (_imgTag) _imgTag.src = newSrc;
-            const id = _imgEl && _imgEl.getAttribute('data-cms');
-            if (id) {
-                markDirty(id, newSrc);
-                toast('\u2713 Image locally updated');
-            } else {
-                toast('\u26a0 Error: Image lacks CMS ID');
+            if (_mediaEl) {
+                if (_mediaImgTag && imgUrl) _mediaImgTag.src = imgUrl;
+                
+                if (vidUrl) {
+                    _mediaEl.setAttribute('data-video-src', vidUrl);
+                    if (!_mediaEl.classList.contains('video-thumbnail') && _mediaEl.tagName !== 'IMG') {
+                        _mediaEl.classList.add('video-thumbnail');
+                    }
+                } else {
+                    _mediaEl.removeAttribute('data-video-src');
+                    _mediaEl.classList.remove('video-thumbnail');
+                }
+                
+                const id = _mediaEl.getAttribute('data-cms');
+                if (id) {
+                    let payload;
+                    if (vidUrl || _mediaEl.classList.contains('video-thumbnail')) {
+                        payload = JSON.stringify({ img: imgUrl, video: vidUrl });
+                    } else {
+                        payload = imgUrl;
+                    }
+                    markDirty(id, payload);
+                    toast('\u2713 Media widget updated');
+                }
             }
-            overlay.classList.remove('open');
+            mediaOverlay.style.display = 'none';
         };
 
         /* ---- toast ---- */
@@ -2033,8 +2074,55 @@ async def edit_page_view(page_name: str):
             });
 
             document.addEventListener('click', e => {
-                if (_activeEl && !_activeEl.contains(e.target)) commitActiveEl();
-            });
+                const el = e.target.closest('[data-cms]');
+                if (!el) {
+                    if (_activeEl && !_activeEl.contains(e.target)) commitActiveEl();
+                    return;
+                }
+                
+                if (window.__demoRecordingMode) return; // let the demo recorder handle it
+
+                // Do not prevent default if clicking a link, but we intercept other clicks
+                // Actually we will intercept click unless it's handled by other listeners.
+                // We'll process media clicks first.
+                
+                const img = el.tagName === 'IMG' ? el : el.querySelector('img');
+                if (img || el.hasAttribute('data-video-src') || el.classList.contains('video-thumbnail')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    _mediaEl = el;
+                    _mediaImgTag = img;
+                    
+                    const currentImgUrl = img ? (img.getAttribute('src') || '') : '';
+                    const currentVidUrl = el.getAttribute('data-video-src') || '';
+                    
+                    document.getElementById('_cms_media_img_url').value = currentImgUrl;
+                    document.getElementById('_cms_media_img_file').value = '';
+                    document.getElementById('_cms_media_vid_url').value = currentVidUrl;
+                    document.getElementById('_cms_media_vid_file').value = '';
+                    
+                    document.querySelector('#_cms_img_preview img').src = currentImgUrl;
+                    mediaOverlay.style.display = 'flex';
+                    return;
+                }
+
+                if (_activeEl === el) return;
+                commitActiveEl();
+
+                if (el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2' || 
+                    el.tagName === 'H3' || el.tagName === 'H4' || el.tagName === 'SPAN' || 
+                    el.tagName === 'DIV' || el.tagName === 'BUTTON' || el.tagName === 'A' ||
+                    el.tagName === 'LI') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    _activeEl = el;
+                    _origHTML = el.innerHTML;
+                    el.setAttribute('contenteditable', 'true');
+                    el.setAttribute('data-cms-active', 'true');
+                    el.focus();
+                }
+            }, true);
             document.querySelectorAll('a[href]').forEach(a => {
                 if (!a.closest('[data-cms]')) a.addEventListener('click', e => e.preventDefault());
             });

@@ -543,6 +543,7 @@
                 for (const [id, html] of Object.entries(_cmsChanges)) {
                     const res = await fetch('/api/content', {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ element_id: id, html_content: html })
                     });

@@ -48,6 +48,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                             if (el.getAttribute('src') !== content[key] && el.src !== content[key]) {
                                 el.src = content[key];
                             }
+                        } else if (el.hasAttribute('data-video-src') && content[key].startsWith('{')) {
+                            // For custom video widgets, we parse the JSON payload
+                            try {
+                                const data = JSON.parse(content[key]);
+                                const imgEl = el.querySelector('img');
+                                if (imgEl && data.img) imgEl.src = data.img;
+                                if (data.video) el.setAttribute('data-video-src', data.video);
+                            } catch (e) {
+                                console.error('Failed to parse video widget data', e);
+                            }
                         } else {
                             // Use a temporary element to normalize the HTML from the DB
                             // This prevents unnecessary DOM repaints and flashing caused by browser attribute formatting differences
@@ -108,7 +118,15 @@ async function autoRegisterTags() {
         const key = el.getAttribute('data-cms');
 
         let originalContent = el.innerHTML;
-        if (el.tagName === 'IMG') originalContent = el.getAttribute('src');
+        if (el.tagName === 'IMG') {
+            originalContent = el.getAttribute('src');
+        } else if (el.hasAttribute('data-video-src')) {
+            const imgEl = el.querySelector('img');
+            originalContent = JSON.stringify({
+                img: imgEl ? imgEl.getAttribute('src') : '',
+                video: el.getAttribute('data-video-src')
+            });
+        }
 
         // Blindly fire it to the server. The backend uses ON CONFLICT DO UPDATE
         // meaning if we already edited this via the CMS, it WON'T overwrite the DB text,
