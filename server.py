@@ -1657,9 +1657,9 @@ async def edit_page_view(page_name: str):
         #_cms_img_box input[type=text] {
             width: 100%; padding: .65rem .85rem; border: 1px solid #ddd;
             border-radius: 8px; font-size: .9rem; box-sizing: border-box; margin-bottom: .9rem;
-            font-family: inherit;
+            font-family: inherit; color: #333;
         }
-        #_cms_img_box input[type=file] { font-size: .85rem; margin-bottom: 1.2rem; }
+        #_cms_img_box input[type=file] { font-size: .85rem; margin-bottom: 1.2rem; color: #333; width: 100%; }
         #_cms_img_preview { text-align: center; margin-bottom: 1rem; }
         #_cms_img_preview img { max-height: 130px; max-width: 100%; border-radius: 8px; border: 1px solid #eee; }
         #_cms_img_box .img-actions { display: flex; gap: .75rem; justify-content: flex-end; }
