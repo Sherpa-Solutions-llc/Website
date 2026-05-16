@@ -330,6 +330,7 @@
 <script src="static/analytics.js"></script>
 <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
     let map;
     let customerMarker = null;
     let driverMarker = null;
@@ -358,14 +359,19 @@
     }
 
     function loginFlow(role) {
-        fetch('/api/roadside/login', {
+        fetch(API_BASE + '/api/roadside/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ role: role })
         }).then(res => res.json()).then(data => {
             if(data.status === 'success') {
                 setupUIForRole(role);
+            } else {
+                alert("Login rejected by server.");
             }
+        }).catch(err => {
+            console.error("Login fetch error:", err);
+            alert("Network error connecting to the Dispatch Server. Please try again.");
         });
     }
 
@@ -436,7 +442,7 @@
                     myMarker.setLatLng([myLat, myLng]);
                 }
 
-                fetch('/api/roadside/location/' + role, {
+                fetch(API_BASE + '/api/roadside/location/' + role, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat: myLat, lng: myLng })
