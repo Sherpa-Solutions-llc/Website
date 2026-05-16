@@ -473,7 +473,11 @@
                     }
                 });
             },
-            (err) => console.error(err),
+            (err) => {
+                console.error(err);
+                if (err.code === 1) alert("Location access denied. Please ensure your browser has location permissions enabled, and that you are using a secure connection (HTTPS) if on mobile.");
+                else alert("Geolocation error: " + err.message);
+            },
             { enableHighAccuracy: true }
         );
     }
