@@ -50,9 +50,32 @@ def bake_cms():
                         el['src'] = cms_data[eid]
                         changed = True
                 else:
+                    # Check if it's a JSON media payload
+                    try:
+                        if cms_data[eid].strip().startswith("{"):
+                            data = json.loads(cms_data[eid])
+                            if isinstance(data, dict) and ('img' in data or 'video' in data):
+                                if 'video' in data and data['video']:
+                                    el['data-video-src'] = data['video']
+                                else:
+                                    if el.has_attr('data-video-src'):
+                                        del el['data-video-src']
+                                    if el.has_attr('class') and 'video-thumbnail' in el['class']:
+                                        el['class'].remove('video-thumbnail')
+                                if 'img' in data and data['img']:
+                                    img_tag = el.find('img')
+                                    if not img_tag:
+                                        img_tag = soup.new_tag("img")
+                                        # Clear text because it might be the raw JSON from previous broken syncs
+                                        el.string = ""
+                                        el.append(img_tag)
+                                    img_tag['src'] = data['img']
+                                changed = True
+                                continue
+                    except json.JSONDecodeError:
+                        pass
+                    
                     # For text elements, we inject HTML
-                    # BeautifulSoup's .clear() and .append() or just .string
-                    # If it's complex HTML, use BeautifulSoup(content, 'html.parser')
                     new_content = BeautifulSoup(cms_data[eid], 'html.parser')
                     el.clear()
                     el.append(new_content)
