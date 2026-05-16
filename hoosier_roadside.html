@@ -16,6 +16,7 @@
 <meta content="https://www.sherpa-solutions-llc.com/static/hoosier_roadside_hero.png" name="twitter:image"/>
 <link href="static/styles.css" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script src="static/theme.js"></script>
 <style>
         /* Hoosier Roadside Theme System */
@@ -131,6 +132,21 @@
             .fleet-logos { padding: 3rem; border-left: none; flex-direction: row; flex-wrap: wrap; }
         }
         
+        /* Login Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .login-modal { background: var(--surface-color); padding: 3rem; border-radius: var(--panel-radius); box-shadow: var(--glow-strong); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--glass-border); position: relative; transform: translateY(-20px); transition: transform 0.3s; }
+        .modal-overlay.active .login-modal { transform: translateY(0); }
+        .login-modal h3 { color: var(--text-dark); margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif; font-size: 2rem; }
+        .login-modal p { color: var(--text-muted); margin-bottom: 2rem; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
+        .close-modal:hover { color: var(--accent); }
+        .btn-role { width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-role.customer { background: #27ae60; color: white; }
+        .btn-role.customer:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-role.driver { background: #3498db; color: white; }
+        .btn-role.driver:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        
         @media (max-width: 768px) {
             .hero-squeeze { padding: 10rem 1rem 4rem; }
             .hero-text h1 { font-size: 2.8rem; }
@@ -157,6 +173,7 @@
 </ul>
 <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
 <button aria-label="Toggle Theme" class="theme-toggle" id="theme-toggle" style="background: transparent; border: none; color: var(--text-dark); cursor: pointer; font-family: inherit; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-sun" id="theme-icon"></i> Day/Night</button>
+<button class="btn" onclick="openModal()" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold;">Login</button>
 <a class="btn btn-primary nav-cta" href="contact.html">Schedule Basecamp Consultation</a>
 </div>
 </header>
@@ -177,7 +194,7 @@
 <div class="lead-form-box" id="dispatch-form">
 <h3 data-cms="hr-lead-form-title">Request Assistance</h3>
 <p data-cms="hr-lead-form-desc">Fill out your details for immediate GPS dispatch.</p>
-<form onsubmit="event.preventDefault(); alert('Dispatch Request Received! A tow truck is en route.');">
+<form id="dispatchForm" onsubmit="startCustomerTracking(event)">
 <div class="form-group">
 <i class="fa-solid fa-user"></i>
 <input class="form-input" placeholder="Full Name" required="" type="text"/>
@@ -281,29 +298,186 @@
 <h2 data-cms="hr-tracking-title">Live Dispatch Tracking</h2>
 <p data-cms="hr-tracking-desc">Never wonder when help will arrive. Our state-of-the-art GPS dispatch system sends a live tracking link straight to your phone.</p>
 </div>
-<div class="tracking-container">
-<div class="tracking-ui">
+<div class="tracking-container" id="live-map" style="background: none; display: block;">
+<!-- Map injects here -->
+<div class="tracking-ui" id="tracking-overlay" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: none;">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-<h4 data-cms="hr-track-ui-title">Unit 14 - En Route</h4>
-<span style="background: rgba(245, 158, 11, 0.2); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">12 Mins</span>
+<h4 data-cms="hr-track-ui-title" id="eta-text">Unit 14 - En Route</h4>
+<div id="pulse-indicator" style="width: 12px; height: 12px; background: #f39c12; border-radius: 50%; box-shadow: 0 0 10px #f39c12;"></div>
 </div>
-<p data-cms="hr-track-ui-desc">Driver: Mike D. is heading to your location.</p>
-<div class="progress-bar">
-<div class="progress-fill"></div>
-</div>
-<div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
-<span>Dispatch</span>
-<span>Arrival</span>
-</div>
+<p data-cms="hr-track-ui-desc" id="last-updated">Driver: Mike D. is heading to your location.</p>
 </div>
 </div>
 </div>
 </section>
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+<div class="login-modal">
+<i class="fa-solid fa-xmark close-modal" onclick="closeModal()"></i>
+<h3>Dispatch Login</h3>
+<p>Select your role to access the tracker.</p>
+<button class="btn-role customer" onclick="handleModalLogin('customer')">I am a Customer</button>
+<button class="btn-role driver" onclick="handleModalLogin('driver')">I am a Driver</button>
+</div>
+</div>
 <footer>
 <div class="hero-badge" data-cms="hr-footer_badge" style="display: inline-flex; margin-bottom: 1rem;"><i class="fa-solid fa-shield-halved"></i> Veteran Owned &amp; Operated</div>
 <p data-cms="hr-footer_copyright">© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
 </footer>
 <script src="static/cms.js"></script>
 <script src="static/analytics.js"></script>
+<script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let map;
+    let customerMarker = null;
+    let driverMarker = null;
+    let pingInterval = null;
+    
+    const truckIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3093/3093375.png', iconSize: [40, 40], iconAnchor: [20, 20] });
+    const customerIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [30, 30], iconAnchor: [15, 30] });
+
+    function initMap() {
+        if (map) return;
+        map = L.map('live-map').setView([39.8283, -98.5795], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
+    }
+
+    function openModal() { document.getElementById('loginModal').classList.add('active'); }
+    function closeModal() { document.getElementById('loginModal').classList.remove('active'); }
+
+    function handleModalLogin(role) {
+        closeModal();
+        loginFlow(role);
+    }
+
+    function startCustomerTracking(e) {
+        e.preventDefault();
+        loginFlow('customer');
+    }
+
+    function loginFlow(role) {
+        fetch('/api/roadside/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: role })
+        }).then(res => res.json()).then(data => {
+            if(data.status === 'success') {
+                setupUIForRole(role);
+            }
+        });
+    }
+
+    function setupUIForRole(role) {
+        // Hide form and hero text
+        const heroText = document.querySelector('.hero-text');
+        if (heroText) heroText.style.display = 'none';
+        const dispatchForm = document.getElementById('dispatch-form');
+        if (dispatchForm) dispatchForm.style.display = 'none';
+        
+        // Ensure map is visible
+        const mapEl = document.getElementById('live-map');
+        if (mapEl) {
+            mapEl.style.display = 'block';
+            mapEl.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        initMap();
+
+        if (role === 'customer') {
+            document.getElementById('tracking-overlay').style.display = 'block';
+            document.getElementById('eta-text').innerText = "Waiting for dispatch...";
+            startLocationPinging('customer');
+        } else if (role === 'driver') {
+            // Modify overlay for driver
+            document.getElementById('tracking-overlay').style.display = 'block';
+            document.getElementById('tracking-overlay').innerHTML = `
+                <button onclick="startLocationPinging('driver', this)" style="width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 10px; pointer-events: auto;">Start Shift (Broadcast)</button>
+                <div id="driver-status" style="display: none; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="color:var(--text-dark); margin:0;" id="eta-text">Waiting for requests...</h4>
+                        <div id="pulse-indicator" style="width: 12px; height: 12px; background: #f39c12; border-radius: 50%; box-shadow: 0 0 10px #f39c12;"></div>
+                    </div>
+                    <p style="color:var(--text-muted); margin:0;" id="last-updated">Broadcast active.</p>
+                </div>
+            `;
+        }
+    }
+
+    function startLocationPinging(role, btnEl = null) {
+        if (!navigator.geolocation) return alert("Geolocation not supported");
+        
+        if (role === 'driver' && btnEl) {
+            btnEl.style.display = 'none';
+            document.getElementById('driver-status').style.display = 'flex';
+        }
+
+        if (pingInterval) clearInterval(pingInterval);
+        pingInterval = setInterval(() => pingLocation(role), 5000);
+        pingLocation(role);
+    }
+
+    function pingLocation(role) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const myLat = pos.coords.latitude;
+                const myLng = pos.coords.longitude;
+                
+                let myMarker = role === 'customer' ? customerMarker : driverMarker;
+                let myIcon = role === 'customer' ? customerIcon : truckIcon;
+                
+                if (!myMarker) {
+                    myMarker = L.marker([myLat, myLng], {icon: myIcon}).addTo(map);
+                    map.setView([myLat, myLng], 15);
+                    if (role === 'customer') customerMarker = myMarker;
+                    else driverMarker = myMarker;
+                } else {
+                    myMarker.setLatLng([myLat, myLng]);
+                }
+
+                fetch('/api/roadside/location/' + role, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat: myLat, lng: myLng })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.target_location) {
+                        const tLat = data.target_location.lat;
+                        const tLng = data.target_location.lng;
+                        
+                        let targetMarker = role === 'customer' ? driverMarker : customerMarker;
+                        let targetIcon = role === 'customer' ? truckIcon : customerIcon;
+                        
+                        if (!targetMarker) {
+                            targetMarker = L.marker([tLat, tLng], {icon: targetIcon}).addTo(map);
+                            if (role === 'customer') driverMarker = targetMarker;
+                            else customerMarker = targetMarker;
+                        } else {
+                            targetMarker.setLatLng([tLat, tLng]);
+                        }
+
+                        const etaText = document.getElementById('eta-text');
+                        if (etaText) etaText.innerText = role === 'customer' ? "Driver is en route!" : "Customer Located!";
+                        
+                        const secondsAgo = Math.floor((Date.now() - data.target_location.timestamp) / 1000);
+                        const lastUpdated = document.getElementById('last-updated');
+                        if (lastUpdated) lastUpdated.innerText = role === 'customer' ? `Driver updated ${secondsAgo}s ago` : `Customer updated ${secondsAgo}s ago`;
+                        
+                        let pulse = document.getElementById('pulse-indicator');
+                        if (pulse) {
+                            pulse.style.background = '#27ae60';
+                            pulse.style.boxShadow = '0 0 10px #27ae60';
+                        }
+                    }
+                });
+            },
+            (err) => console.error(err),
+            { enableHighAccuracy: true }
+        );
+    }
+    
+    // Init map in background
+    document.addEventListener("DOMContentLoaded", initMap);
+</script>
 </body>
 </html>

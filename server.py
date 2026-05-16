@@ -164,6 +164,43 @@ async def health_check():
     """Railway internal healthcheck hook"""
     return {"status": "ok", "service": "sherpa-solutions-api"}
 
+# --- Hoosier Roadside Live Tracking ---
+class RoadsideLocation(BaseModel):
+    lat: float
+    lng: float
+
+class RoadsideLoginRequest(BaseModel):
+    role: str # "driver" or "customer"
+
+roadside_db = {
+    "driver": None,
+    "customer": None
+}
+
+@app.post("/api/roadside/login")
+async def roadside_login(req: RoadsideLoginRequest):
+    if req.role not in ["driver", "customer"]:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    return {"status": "success", "role": req.role}
+
+@app.post("/api/roadside/location/{role}")
+async def roadside_update_location(role: str, loc: RoadsideLocation):
+    if role not in ["driver", "customer"]:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
+    roadside_db[role] = {
+        "lat": loc.lat,
+        "lng": loc.lng,
+        "timestamp": int(time.time() * 1000)
+    }
+    
+    target_role = "customer" if role == "driver" else "driver"
+    
+    return {
+        "status": "success",
+        "target_location": roadside_db[target_role]
+    }
+
 def require_admin(request: Request):
     user = get_current_user(request)
     if not user:
