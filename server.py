@@ -5,6 +5,8 @@ load_dotenv()
 
 import secrets
 import asyncio
+import uuid
+import math
 import sys
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -170,36 +172,175 @@ class RoadsideLocation(BaseModel):
     lng: float
 
 class RoadsideLoginRequest(BaseModel):
-    role: str # "driver" or "customer"
+    role: str  # "driver" or "customer"
+    name: str = "Unknown"
 
-roadside_db = {
-    "driver": None,
-    "customer": None
-}
+class RoadsideDriverRespond(BaseModel):
+    session_id: str
+    request_id: str
+    accept: bool
+
+class RoadsideDriverPing(BaseModel):
+    session_id: str
+    lat: float
+    lng: float
+
+class RoadsideCustomerRequest(BaseModel):
+    session_id: str
+    lat: float
+    lng: float
+
+# --- In-Memory Dispatch Engine ---
+active_drivers = {}   # session_id -> {lat, lng, timestamp, status, name}
+customer_sessions = {}  # session_id -> {lat, lng, timestamp, status, name, matched_driver_id, request_id}
+dispatch_requests = {}  # request_id -> {customer_session_id, driver_session_id, status, customer_loc}
+
+def haversine_miles(lat1, lng1, lat2, lng2):
+    R = 3958.8
+    dlat = math.radians(lat2 - lat1)
+    dlng = math.radians(lng2 - lng1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng/2)**2
+    return R * 2 * math.asin(math.sqrt(a))
 
 @app.post("/api/roadside/login")
 async def roadside_login(req: RoadsideLoginRequest):
     if req.role not in ["driver", "customer"]:
         raise HTTPException(status_code=400, detail="Invalid role")
-    return {"status": "success", "role": req.role}
+    session_id = str(uuid.uuid4())
+    if req.role == "driver":
+        active_drivers[session_id] = {
+            "lat": None, "lng": None, "timestamp": None,
+            "status": "available", "name": req.name
+        }
+    else:
+        customer_sessions[session_id] = {
+            "lat": None, "lng": None, "timestamp": None,
+            "status": "waiting", "name": req.name,
+            "matched_driver_id": None, "request_id": None
+        }
+    return {"status": "success", "role": req.role, "session_id": session_id}
 
-@app.post("/api/roadside/location/{role}")
-async def roadside_update_location(role: str, loc: RoadsideLocation):
-    if role not in ["driver", "customer"]:
-        raise HTTPException(status_code=400, detail="Invalid role")
+@app.post("/api/roadside/customer/request")
+async def customer_request(req: RoadsideCustomerRequest):
+    if req.session_id not in customer_sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
     
-    roadside_db[role] = {
-        "lat": loc.lat,
-        "lng": loc.lng,
-        "timestamp": int(time.time() * 1000)
+    c = customer_sessions[req.session_id]
+    c["lat"] = req.lat
+    c["lng"] = req.lng
+    c["timestamp"] = int(time.time() * 1000)
+
+    # Already matched — just return current status
+    if c["status"] in ["pending", "en_route"]:
+        return {"status": c["status"], "request_id": c["request_id"]}
+
+    # Find nearest available driver
+    nearest_driver_id = None
+    nearest_dist = float('inf')
+    for did, driver in active_drivers.items():
+        if driver["status"] == "available" and driver["lat"] is not None:
+            dist = haversine_miles(req.lat, req.lng, driver["lat"], driver["lng"])
+            if dist < nearest_dist:
+                nearest_dist = dist
+                nearest_driver_id = did
+
+    if nearest_driver_id is None:
+        return {"status": "no_drivers", "message": "No drivers are currently available. Please try again shortly."}
+
+    # Create dispatch request
+    request_id = str(uuid.uuid4())
+    dispatch_requests[request_id] = {
+        "customer_session_id": req.session_id,
+        "driver_session_id": nearest_driver_id,
+        "status": "pending",
+        "customer_loc": {"lat": req.lat, "lng": req.lng},
+        "customer_name": c["name"],
+        "driver_name": active_drivers[nearest_driver_id]["name"],
+        "distance_miles": round(nearest_dist, 1)
     }
-    
-    target_role = "customer" if role == "driver" else "driver"
-    
+    c["status"] = "pending"
+    c["matched_driver_id"] = nearest_driver_id
+    c["request_id"] = request_id
+    active_drivers[nearest_driver_id]["status"] = "dispatched"
+
     return {
-        "status": "success",
-        "target_location": roadside_db[target_role]
+        "status": "pending",
+        "request_id": request_id,
+        "driver_name": active_drivers[nearest_driver_id]["name"],
+        "distance_miles": round(nearest_dist, 1)
     }
+
+@app.get("/api/roadside/customer/status")
+async def customer_status(session_id: str):
+    if session_id not in customer_sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
+    c = customer_sessions[session_id]
+    response = {"status": c["status"]}
+    if c["matched_driver_id"] and c["matched_driver_id"] in active_drivers:
+        driver = active_drivers[c["matched_driver_id"]]
+        response["driver_name"] = driver["name"]
+        if driver["lat"] is not None:
+            response["driver_location"] = {"lat": driver["lat"], "lng": driver["lng"], "timestamp": driver["timestamp"]}
+            if c["lat"] and c["lng"]:
+                dist = haversine_miles(c["lat"], c["lng"], driver["lat"], driver["lng"])
+                response["distance_miles"] = round(dist, 1)
+    return response
+
+@app.post("/api/roadside/driver/ping")
+async def driver_ping(req: RoadsideDriverPing):
+    if req.session_id not in active_drivers:
+        raise HTTPException(status_code=404, detail="Driver session not found")
+    driver = active_drivers[req.session_id]
+    driver["lat"] = req.lat
+    driver["lng"] = req.lng
+    driver["timestamp"] = int(time.time() * 1000)
+
+    # Check for pending dispatch request
+    pending_request = None
+    for rid, r in dispatch_requests.items():
+        if r["driver_session_id"] == req.session_id and r["status"] == "pending":
+            pending_request = {"request_id": rid, "customer_name": r["customer_name"],
+                               "customer_loc": r["customer_loc"], "distance_miles": r["distance_miles"]}
+            break
+
+    # If on an active job, get customer location
+    active_job = None
+    for rid, r in dispatch_requests.items():
+        if r["driver_session_id"] == req.session_id and r["status"] == "accepted":
+            cid = r["customer_session_id"]
+            if cid in customer_sessions:
+                cs = customer_sessions[cid]
+                active_job = {"request_id": rid, "customer_name": r["customer_name"],
+                              "customer_loc": {"lat": cs["lat"], "lng": cs["lng"]}}
+            break
+
+    return {
+        "status": driver["status"],
+        "pending_request": pending_request,
+        "active_job": active_job
+    }
+
+@app.post("/api/roadside/driver/respond")
+async def driver_respond(req: RoadsideDriverRespond):
+    if req.request_id not in dispatch_requests:
+        raise HTTPException(status_code=404, detail="Request not found")
+    r = dispatch_requests[req.request_id]
+    if req.accept:
+        r["status"] = "accepted"
+        active_drivers[req.session_id]["status"] = "on_job"
+        cid = r["customer_session_id"]
+        if cid in customer_sessions:
+            customer_sessions[cid]["status"] = "en_route"
+        return {"status": "accepted"}
+    else:
+        r["status"] = "declined"
+        active_drivers[req.session_id]["status"] = "available"
+        cid = r["customer_session_id"]
+        if cid in customer_sessions:
+            customer_sessions[cid]["status"] = "waiting"
+            customer_sessions[cid]["matched_driver_id"] = None
+            customer_sessions[cid]["request_id"] = None
+        return {"status": "declined"}
 
 def require_admin(request: Request):
     user = get_current_user(request)

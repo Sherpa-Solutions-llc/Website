@@ -317,9 +317,10 @@
 <div class="login-modal">
 <i class="fa-solid fa-xmark close-modal" onclick="closeModal()"></i>
 <h3>Dispatch Login</h3>
-<p>Select your role to access the tracker.</p>
-<button class="btn-role customer" onclick="handleModalLogin('customer')">I am a Customer</button>
-<button class="btn-role driver" onclick="handleModalLogin('driver')">I am a Driver</button>
+<p>Enter your name and select your role.</p>
+<input class="form-input" id="loginName" placeholder="Your Name" style="margin-bottom: 1rem;" type="text"/>
+<button class="btn-role customer" onclick="handleModalLogin('customer')"><i class="fa-solid fa-triangle-exclamation"></i> I Need Help (Customer)</button>
+<button class="btn-role driver" onclick="handleModalLogin('driver')"><i class="fa-solid fa-truck-fast"></i> I am a Driver</button>
 </div>
 </div>
 <footer>
@@ -331,165 +332,302 @@
 <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '') ? '' : 'https://sherpa-solutions-api-production.up.railway.app';
-    let map;
-    let customerMarker = null;
-    let driverMarker = null;
-    let pingInterval = null;
-    
-    const truckIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3093/3093375.png', iconSize: [40, 40], iconAnchor: [20, 20] });
-    const customerIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [30, 30], iconAnchor: [15, 30] });
+
+    let map, customerMarker = null, driverMarker = null, pingInterval = null, pollInterval = null;
+    let mySessionId = null, myRole = null, myName = null;
+
+    const truckIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3093/3093375.png', iconSize: [40,40], iconAnchor: [20,20] });
+    const customerIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [30,30], iconAnchor: [15,30] });
 
     function initMap() {
-        if (map) return;
+        if (map) { setTimeout(() => map.invalidateSize(), 200); return; }
         map = L.map('live-map').setView([39.8283, -98.5795], 4);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
+        setTimeout(() => map.invalidateSize(), 300);
+    }
+
+    function showMap() {
+        document.querySelector('.hero-text').style.display = 'none';
+        document.getElementById('dispatch-form').style.display = 'none';
+        document.querySelectorAll('section:not(.hero-squeeze)').forEach(s => s.style.display = 'none');
+        document.querySelector('footer').style.display = 'none';
+        document.querySelector('.hero-squeeze').style.padding = '80px 1rem 2rem';
+        document.querySelector('.hero-squeeze').style.minHeight = '100vh';
+        const mapEl = document.getElementById('live-map');
+        mapEl.style.display = 'block';
+        mapEl.style.height = '70vh';
+        mapEl.style.borderRadius = '12px';
+        mapEl.scrollIntoView({ behavior: 'smooth' });
+        initMap();
     }
 
     function openModal() { document.getElementById('loginModal').classList.add('active'); }
     function closeModal() { document.getElementById('loginModal').classList.remove('active'); }
 
     function handleModalLogin(role) {
+        const nameInput = document.getElementById('loginName').value.trim();
+        if (!nameInput) { alert('Please enter your name before continuing.'); return; }
         closeModal();
-        loginFlow(role);
+        loginFlow(role, nameInput);
     }
 
     function startCustomerTracking(e) {
         e.preventDefault();
-        loginFlow('customer');
+        const nameInput = document.querySelector('#dispatch-form input[type="text"]');
+        loginFlow('customer', nameInput ? nameInput.value.trim() || 'Customer' : 'Customer');
     }
 
-    function loginFlow(role) {
+    function loginFlow(role, name) {
+        myRole = role;
+        myName = name;
         fetch(API_BASE + '/api/roadside/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role: role })
-        }).then(res => res.json()).then(data => {
-            if(data.status === 'success') {
-                setupUIForRole(role);
+            body: JSON.stringify({ role, name })
+        }).then(r => r.json()).then(data => {
+            if (data.status === 'success') {
+                mySessionId = data.session_id;
+                showMap();
+                if (role === 'customer') startCustomerFlow();
+                else startDriverFlow();
             } else {
-                alert("Login rejected by server.");
+                alert('Login failed. Please try again.');
             }
         }).catch(err => {
-            console.error("Login fetch error:", err);
-            alert("Network error connecting to the Dispatch Server. Please try again.");
+            console.error(err);
+            alert('Network error connecting to Dispatch Server. Please try again.');
         });
     }
 
-    function setupUIForRole(role) {
-        // Hide form and hero text
-        const heroText = document.querySelector('.hero-text');
-        if (heroText) heroText.style.display = 'none';
-        const dispatchForm = document.getElementById('dispatch-form');
-        if (dispatchForm) dispatchForm.style.display = 'none';
-        
-        // Ensure map is visible
-        const mapEl = document.getElementById('live-map');
-        if (mapEl) {
-            mapEl.style.display = 'block';
-            mapEl.scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        initMap();
-
-        if (role === 'customer') {
-            document.getElementById('tracking-overlay').style.display = 'block';
-            document.getElementById('eta-text').innerText = "Waiting for dispatch...";
-            startLocationPinging('customer');
-        } else if (role === 'driver') {
-            // Modify overlay for driver
-            document.getElementById('tracking-overlay').style.display = 'block';
-            document.getElementById('tracking-overlay').innerHTML = `
-                <button onclick="startLocationPinging('driver', this)" style="width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 10px; pointer-events: auto;">Start Shift (Broadcast)</button>
-                <div id="driver-status" style="display: none; flex-direction: column; gap: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h4 style="color:var(--text-dark); margin:0;" id="eta-text">Waiting for requests...</h4>
-                        <div id="pulse-indicator" style="width: 12px; height: 12px; background: #f39c12; border-radius: 50%; box-shadow: 0 0 10px #f39c12;"></div>
-                    </div>
-                    <p style="color:var(--text-muted); margin:0;" id="last-updated">Broadcast active.</p>
-                </div>
-            `;
-        }
-    }
-
-    function startLocationPinging(role, btnEl = null) {
-        if (!navigator.geolocation) return alert("Geolocation not supported");
-        
-        if (role === 'driver' && btnEl) {
-            btnEl.style.display = 'none';
-            document.getElementById('driver-status').style.display = 'flex';
-        }
-
-        if (pingInterval) clearInterval(pingInterval);
-        pingInterval = setInterval(() => pingLocation(role), 5000);
-        pingLocation(role);
-    }
-
-    function pingLocation(role) {
+    // ===================== CUSTOMER FLOW =====================
+    function startCustomerFlow() {
+        setOverlay(`
+            <div style="text-align:center; padding: 1rem;">
+                <div style="font-size:2rem; margin-bottom: 0.5rem;">📍</div>
+                <h4 style="color:var(--text-dark); margin:0 0 0.5rem;">Getting your location...</h4>
+                <p style="color:var(--text-muted); margin:0; font-size:0.9rem;">Please allow location access when prompted.</p>
+            </div>
+        `);
+        if (!navigator.geolocation) { alert('Geolocation not supported on this device.'); return; }
         navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const myLat = pos.coords.latitude;
-                const myLng = pos.coords.longitude;
-                
-                let myMarker = role === 'customer' ? customerMarker : driverMarker;
-                let myIcon = role === 'customer' ? customerIcon : truckIcon;
-                
-                if (!myMarker) {
-                    myMarker = L.marker([myLat, myLng], {icon: myIcon}).addTo(map);
-                    map.setView([myLat, myLng], 15);
-                    if (role === 'customer') customerMarker = myMarker;
-                    else driverMarker = myMarker;
-                } else {
-                    myMarker.setLatLng([myLat, myLng]);
-                }
-
-                fetch(API_BASE + '/api/roadside/location/' + role, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lat: myLat, lng: myLng })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.target_location) {
-                        const tLat = data.target_location.lat;
-                        const tLng = data.target_location.lng;
-                        
-                        let targetMarker = role === 'customer' ? driverMarker : customerMarker;
-                        let targetIcon = role === 'customer' ? truckIcon : customerIcon;
-                        
-                        if (!targetMarker) {
-                            targetMarker = L.marker([tLat, tLng], {icon: targetIcon}).addTo(map);
-                            if (role === 'customer') driverMarker = targetMarker;
-                            else customerMarker = targetMarker;
-                        } else {
-                            targetMarker.setLatLng([tLat, tLng]);
-                        }
-
-                        const etaText = document.getElementById('eta-text');
-                        if (etaText) etaText.innerText = role === 'customer' ? "Driver is en route!" : "Customer Located!";
-                        
-                        const secondsAgo = Math.floor((Date.now() - data.target_location.timestamp) / 1000);
-                        const lastUpdated = document.getElementById('last-updated');
-                        if (lastUpdated) lastUpdated.innerText = role === 'customer' ? `Driver updated ${secondsAgo}s ago` : `Customer updated ${secondsAgo}s ago`;
-                        
-                        let pulse = document.getElementById('pulse-indicator');
-                        if (pulse) {
-                            pulse.style.background = '#27ae60';
-                            pulse.style.boxShadow = '0 0 10px #27ae60';
-                        }
-                    }
-                });
+            pos => sendCustomerRequest(pos.coords.latitude, pos.coords.longitude),
+            err => {
+                if (err.code === 1) alert('Location denied. Please enable location access in your browser settings and try again.');
+                else alert('Location error: ' + err.message);
             },
-            (err) => {
-                console.error(err);
-                if (err.code === 1) alert("Location access denied. Please ensure your browser has location permissions enabled, and that you are using a secure connection (HTTPS) if on mobile.");
-                else alert("Geolocation error: " + err.message);
-            },
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, timeout: 15000 }
         );
     }
-    
-    // Init map in background
-    document.addEventListener("DOMContentLoaded", initMap);
+
+    function sendCustomerRequest(lat, lng) {
+        // Pin customer on map immediately
+        if (!customerMarker) {
+            customerMarker = L.marker([lat, lng], { icon: customerIcon }).addTo(map).bindPopup('Your Location');
+            map.setView([lat, lng], 14);
+        }
+        setOverlay(`
+            <div style="text-align:center; padding: 1rem;">
+                <div style="font-size:2rem; margin-bottom: 0.5rem;">🔍</div>
+                <h4 style="color:var(--text-dark); margin:0 0 0.5rem;">Searching for drivers...</h4>
+                <p style="color:var(--text-muted); margin:0; font-size:0.9rem;">Finding the nearest available driver to your location.</p>
+            </div>
+        `);
+        fetch(API_BASE + '/api/roadside/customer/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: mySessionId, lat, lng })
+        }).then(r => r.json()).then(data => {
+            if (data.status === 'no_drivers') {
+                setOverlay(`
+                    <div style="text-align:center; padding: 1rem;">
+                        <div style="font-size:2rem; margin-bottom: 0.5rem;">⚠️</div>
+                        <h4 style="color:var(--accent); margin:0 0 0.5rem;">No Drivers Available</h4>
+                        <p style="color:var(--text-muted); margin:0 0 1rem; font-size:0.9rem;">${data.message}</p>
+                        <button onclick="sendCustomerRequest(${lat}, ${lng})" style="padding:10px 20px; background:var(--accent); color:#000; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Retry</button>
+                    </div>
+                `);
+            } else if (data.status === 'pending') {
+                setOverlay(`
+                    <div style="text-align:center; padding: 1rem;">
+                        <div style="font-size:2rem; margin-bottom: 0.5rem;">⏳</div>
+                        <h4 style="color:var(--text-dark); margin:0 0 0.5rem;">Driver Found!</h4>
+                        <p style="color:var(--text-muted); margin:0; font-size:0.9rem;"><strong>${data.driver_name}</strong> is ${data.distance_miles} miles away.<br/>Waiting for driver to accept...</p>
+                    </div>
+                `);
+                pollInterval = setInterval(() => pollCustomerStatus(lat, lng), 5000);
+            }
+        }).catch(err => { console.error(err); alert('Error contacting dispatch server.'); });
+    }
+
+    function pollCustomerStatus(myLat, myLng) {
+        fetch(API_BASE + '/api/roadside/customer/status?session_id=' + mySessionId)
+        .then(r => r.json()).then(data => {
+            if (data.status === 'en_route') {
+                clearInterval(pollInterval);
+                setOverlay(`
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <h4 style="color:var(--text-dark); margin:0;" id="eta-text">🚛 ${data.driver_name || 'Driver'} is on the way!</h4>
+                        <div id="pulse-indicator" style="width:12px; height:12px; background:#27ae60; border-radius:50%; box-shadow:0 0 10px #27ae60;"></div>
+                    </div>
+                    <p style="color:var(--text-muted); margin:0; font-size:0.9rem;" id="last-updated">Tracking driver location...</p>
+                `);
+                // Start polling driver location
+                pingInterval = setInterval(() => updateDriverMarker(myLat, myLng), 5000);
+                updateDriverMarker(myLat, myLng);
+            } else if (data.status === 'waiting') {
+                // Driver declined — restart search
+                clearInterval(pollInterval);
+                sendCustomerRequest(myLat, myLng);
+            }
+        });
+    }
+
+    function updateDriverMarker(myLat, myLng) {
+        fetch(API_BASE + '/api/roadside/customer/status?session_id=' + mySessionId)
+        .then(r => r.json()).then(data => {
+            if (data.driver_location) {
+                const dl = data.driver_location;
+                if (!driverMarker) {
+                    driverMarker = L.marker([dl.lat, dl.lng], { icon: truckIcon }).addTo(map).bindPopup('Driver Location');
+                } else {
+                    driverMarker.setLatLng([dl.lat, dl.lng]);
+                }
+                if (data.distance_miles !== undefined) {
+                    const etaMin = Math.round((data.distance_miles / 40) * 60);
+                    const etaEl = document.getElementById('eta-text');
+                    if (etaEl) etaEl.innerText = `🚛 ${data.driver_name} — ${data.distance_miles} mi away (~${etaMin} min)`;
+                    const lastEl = document.getElementById('last-updated');
+                    const sec = Math.floor((Date.now() - dl.timestamp) / 1000);
+                    if (lastEl) lastEl.innerText = `Location updated ${sec}s ago`;
+                }
+                // Fit both markers on map
+                const bounds = L.latLngBounds([[myLat, myLng], [dl.lat, dl.lng]]);
+                map.fitBounds(bounds, { padding: [40, 40] });
+            }
+        });
+    }
+
+    // ===================== DRIVER FLOW =====================
+    function startDriverFlow() {
+        setOverlay(`
+            <div style="text-align:center; padding: 1rem;">
+                <button onclick="startDriverShift()" style="width:100%; padding:15px; background:#3498db; color:white; border:none; border-radius:8px; font-size:1.1rem; font-weight:bold; cursor:pointer; text-transform:uppercase; pointer-events:auto;">
+                    <i class="fa-solid fa-play"></i> Start Shift (Go Online)
+                </button>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.75rem;">You must start your shift to receive dispatch requests.</p>
+            </div>
+        `);
+    }
+
+    function startDriverShift() {
+        if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+        setOverlay(`
+            <div style="text-align:center; padding:1rem;">
+                <div id="pulse-indicator" style="width:14px; height:14px; background:#27ae60; border-radius:50%; box-shadow:0 0 12px #27ae60; display:inline-block; margin-bottom:0.5rem;"></div>
+                <h4 style="color:var(--text-dark); margin:0 0 0.3rem;">🟢 Online — Awaiting Dispatch</h4>
+                <p style="color:var(--text-muted); margin:0; font-size:0.85rem;" id="last-updated">Broadcasting location...</p>
+            </div>
+        `);
+        pingInterval = setInterval(pingDriverLocation, 5000);
+        pingDriverLocation();
+    }
+
+    function pingDriverLocation() {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude: lat, longitude: lng } = pos.coords;
+            if (!driverMarker) {
+                driverMarker = L.marker([lat, lng], { icon: truckIcon }).addTo(map).bindPopup('Your Location');
+                map.setView([lat, lng], 13);
+            } else {
+                driverMarker.setLatLng([lat, lng]);
+            }
+            fetch(API_BASE + '/api/roadside/driver/ping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: mySessionId, lat, lng })
+            }).then(r => r.json()).then(data => {
+                if (data.pending_request && !document.getElementById('dispatch-alert')) {
+                    showDispatchAlert(data.pending_request);
+                }
+                if (data.active_job && data.active_job.customer_loc && data.active_job.customer_loc.lat) {
+                    const cl = data.active_job.customer_loc;
+                    if (!customerMarker) {
+                        customerMarker = L.marker([cl.lat, cl.lng], { icon: customerIcon }).addTo(map).bindPopup(`Customer: ${data.active_job.customer_name}`);
+                    } else {
+                        customerMarker.setLatLng([cl.lat, cl.lng]);
+                    }
+                    const bounds = L.latLngBounds([[lat, lng], [cl.lat, cl.lng]]);
+                    map.fitBounds(bounds, { padding: [40, 40] });
+                    const dist = getDistanceMiles(lat, lng, cl.lat, cl.lng);
+                    const lu = document.getElementById('last-updated');
+                    if (lu) lu.innerText = `Customer is ${dist.toFixed(1)} miles away`;
+                }
+            });
+        }, err => console.error(err), { enableHighAccuracy: true });
+    }
+
+    function showDispatchAlert(req) {
+        const overlay = document.getElementById('tracking-overlay');
+        const alert = document.createElement('div');
+        alert.id = 'dispatch-alert';
+        alert.style.cssText = 'background:var(--surface-color);border:2px solid var(--accent);border-radius:12px;padding:1rem;margin-top:1rem;pointer-events:auto;';
+        alert.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:0.5rem;">
+                <span style="font-size:1.5rem;">🚨</span>
+                <strong style="color:var(--accent); font-size:1rem;">INCOMING DISPATCH!</strong>
+            </div>
+            <p style="margin:0 0 0.3rem; color:var(--text-dark); font-weight:600;">Customer: ${req.customer_name}</p>
+            <p style="margin:0 0 1rem; color:var(--text-muted); font-size:0.9rem;">Distance: ${req.distance_miles} miles</p>
+            <div style="display:flex; gap:0.75rem;">
+                <button onclick="respondToDispatch('${req.request_id}', true, this)" style="flex:1; padding:12px; background:#27ae60; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">✅ Accept</button>
+                <button onclick="respondToDispatch('${req.request_id}', false, this)" style="flex:1; padding:12px; background:#e74c3c; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">❌ Decline</button>
+            </div>
+        `;
+        overlay.appendChild(alert);
+        // Pin customer on map
+        if (req.customer_loc && req.customer_loc.lat) {
+            customerMarker = L.marker([req.customer_loc.lat, req.customer_loc.lng], { icon: customerIcon }).addTo(map).bindPopup(`Customer: ${req.customer_name}`);
+            map.setView([req.customer_loc.lat, req.customer_loc.lng], 12);
+        }
+    }
+
+    function respondToDispatch(requestId, accept, btn) {
+        btn.parentElement.querySelectorAll('button').forEach(b => b.disabled = true);
+        fetch(API_BASE + '/api/roadside/driver/respond', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: mySessionId, request_id: requestId, accept })
+        }).then(r => r.json()).then(data => {
+            const alert = document.getElementById('dispatch-alert');
+            if (alert) alert.remove();
+            if (accept) {
+                const overlay = document.getElementById('tracking-overlay');
+                const etaEl = document.getElementById('eta-text');
+                const luEl = document.getElementById('last-updated');
+                const pi = document.getElementById('pulse-indicator');
+                if (etaEl) etaEl.innerText = '🚛 Job Accepted — Navigating to Customer';
+                if (luEl) luEl.innerText = 'Location is broadcasting to customer.';
+                if (pi) { pi.style.background = '#27ae60'; pi.style.boxShadow = '0 0 12px #27ae60'; }
+            } else {
+                const luEl = document.getElementById('last-updated');
+                if (luEl) luEl.innerText = '🟢 Online — Awaiting next dispatch...';
+            }
+        });
+    }
+
+    function setOverlay(html) {
+        const overlay = document.getElementById('tracking-overlay');
+        overlay.style.display = 'block';
+        overlay.innerHTML = html;
+    }
+
+    function getDistanceMiles(lat1, lng1, lat2, lng2) {
+        const R = 3958.8;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+        return R * 2 * Math.asin(Math.sqrt(a));
+    }
 </script>
 </body>
 </html>
