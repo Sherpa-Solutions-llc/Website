@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Block admin and internal pages
+Disallow: /login.html
+Disallow: /settings.html
+Disallow: /settings_live.html
+Disallow: /dealership_admin.html
+Disallow: /view_candidates.html
+Disallow: /temp.html
+Disallow: /test_img.html
+Disallow: /services_backup.html
+
+# Sitemap location
+Sitemap: https://sherpa-solutions-llc.com/sitemap.xml

@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+
+<html data-theme="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Sherpa | Interactive AI Guide</title>
-    <!-- Deployment Detection Test -->
-    <link rel="icon" type="image/png" href="/static/Orange%20Sherpa.png?v=4">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/styles.css?v=2.0">
-    <script src="static/theme.js"></script>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Voice Sherpa | Interactive AI Guide</title><meta content="Voice Sherpa — natural language voice interface for enterprise AI agents. Features low-latency speech-to-text and text-to-speech with a mountain-themed pulse interaction design." name="description"/>
+<!-- Deployment Detection Test -->
+<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="static/styles.css?v=2.0" rel="stylesheet"/>
+<script src="static/theme.js"></script>
+<style>
         :root {
             --glow-color: rgba(210, 128, 82, 0.5);
         }
@@ -401,61 +402,52 @@
             }
         }
     </style>
-</head>
+<meta content="Voice Sherpa | Sherpa Solutions" property="og:title"/><meta content="Natural language voice interface for enterprise agents. Features low-latency STT/TTS integration and a custom mountain-themed pulse interaction." property="og:description"/><meta content="Voice Sherpa | Sherpa Solutions" name="twitter:title"/><meta content="Natural language voice interface for enterprise AI agents with low-latency STT/TTS." name="twitter:description"/></head>
 <body>
-    <a href="index.html" class="back-link">
-        <i class="fa-solid fa-arrow-left"></i> Return to Basecamp
+<a class="back-link" href="index.html">
+<i class="fa-solid fa-arrow-left"></i> Return to Basecamp
     </a>
-
-
-
-    <div class="voice-container">
-        <div id="status" class="status-badge">Standby</div>
-        
-        <div class="transcript-container">
-            <div id="user-transcript" class="transcript">Tap the mountain to start the climb...</div>
-            <div id="agent-text" class="agent-response"></div>
-        </div>
-
-        <div id="visualizer">
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        </div>
-
-        <div id="mountain-btn" class="mountain-trigger">
-            <i class="fa-solid fa-mountain-sun"></i>
-        </div>
-
-        <div id="avatar-btn" class="avatar-container">
-            <img src="/static/ultra_realistic_female_sherpa.png" alt="Sherpa Avatar">
-            <video id="avatar-video" playsinline muted></video>
-            <div class="mouth-overlay"></div>
-            <div class="scanlines"></div>
-            <div class="generation-progress">Generating High-Fidelity...</div>
-        </div>
-
-        <div class="controls">
-            <div class="audio-control-wrapper">
-                <button id="toggle-audio" class="btn btn-outline">
-                    <i class="fa-solid fa-volume-high"></i> Audio On
+<div class="voice-container">
+<div class="status-badge" id="status">Standby</div>
+<div class="transcript-container">
+<div class="transcript" id="user-transcript">Tap the mountain to start the climb...</div>
+<div class="agent-response" id="agent-text"></div>
+</div>
+<div id="visualizer">
+<div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+<div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+</div>
+<div class="mountain-trigger" id="mountain-btn">
+<i class="fa-solid fa-mountain-sun"></i>
+</div>
+<div class="avatar-container" id="avatar-btn">
+<img alt="Sherpa Avatar" src="/static/ultra_realistic_female_sherpa.png"/>
+<video id="avatar-video" muted="" playsinline=""></video>
+<div class="mouth-overlay"></div>
+<div class="scanlines"></div>
+<div class="generation-progress">Generating High-Fidelity...</div>
+</div>
+<div class="controls">
+<div class="audio-control-wrapper">
+<button class="btn btn-outline" id="toggle-audio">
+<i class="fa-solid fa-volume-high"></i> Audio On
                 </button>
-                <div class="volume-popover">
-                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
-                </div>
-            </div>
-            <button id="demo-btn" class="btn btn-outline" title="Play Demo Intro">
-                <i class="fa-solid fa-play"></i> Demo
+<div class="volume-popover">
+<input id="volume-slider" max="1" min="0" step="0.1" type="range" value="1"/>
+</div>
+</div>
+<button class="btn btn-outline" id="demo-btn" title="Play Demo Intro">
+<i class="fa-solid fa-play"></i> Demo
             </button>
-            <button id="settings-btn" class="btn btn-outline" title="Interface Settings">
-                <i class="fa-solid fa-cog"></i> Settings
+<button class="btn btn-outline" id="settings-btn" title="Interface Settings">
+<i class="fa-solid fa-cog"></i> Settings
             </button>
-            <button id="theme-toggle" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;">
-                <i class="fa-solid fa-sun"></i> Switch to Light Mode
+<button class="btn btn-outline" id="theme-toggle" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 50px; min-width: 155px; justify-content: center;">
+<i class="fa-solid fa-sun"></i> Switch to Light Mode
             </button>
-        </div>
-    </div>
-
-    <style>
+</div>
+</div>
+<style>
         .audio-control-wrapper {
             position: relative;
             display: inline-block;
@@ -485,72 +477,60 @@
             cursor: pointer;
         }
     </style>
-
-    <!-- Background Waves -->
-    <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-    viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
-        <defs>
-            <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
-        </defs>
-        <g class="parallax">
-            <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(210, 128, 82, 0.7" />
-            <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(210, 128, 82, 0.5)" />
-            <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(210, 128, 82, 0.3)" />
-            <use xlink:href="#gentle-wave" x="48" y="7" fill="var(--bg-color)" />
-        </g>
-    </svg>
-
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Sherpa Settings</h2>
-            
-            <div class="setting-group">
-                <label>Hermes API URL</label>
-                <input type="text" id="api-url-input" placeholder="http://localhost:8000/v1">
-            </div>
-
-            <div class="setting-group">
-                <label>Voice Selection</label>
-                <select id="voice-select"></select>
-            </div>
-
-            <div class="setting-group">
-                <label>Speech Rate: <span id="rate-val">1.0</span></label>
-                <input type="range" id="rate-input" min="0.5" max="2" step="0.1" value="1.0">
-            </div>
-
-            <div class="setting-group">
-                <label>Speech Pitch: <span id="pitch-val">1.0</span></label>
-                <input type="range" id="pitch-input" min="0.5" max="2" step="0.1" value="1.0">
-            </div>
-
-            <div class="setting-group">
-                <label>Interaction Mode</label>
-                <div class="mode-toggle">
-                    <button id="mode-ptt" class="mode-btn active" title="Click to speak">Push-to-Talk</button>
-                    <button id="mode-tel" class="mode-btn" title="Always listening">Telephone Mode</button>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <label>Visual Experience</label>
-                <div class="mode-toggle">
-                    <button id="visual-mode-mountain" class="mode-btn active">Mountain Icon</button>
-                    <button id="visual-mode-avatar" class="mode-btn">Realistic Avatar</button>
-                </div>
-            </div>
-
-            <div class="setting-group">
-                <label>Change UI Passkey</label>
-                <input type="password" id="ui-passkey-input" placeholder="Enter new passkey...">
-            </div>
-
-            <button id="save-settings" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Save & Calibrate</button>
-        </div>
-    </div>
-
-    <style>
+<!-- Background Waves -->
+<svg class="waves" preserveaspectratio="none" shape-rendering="auto" viewbox="0 24 150 28" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+<path d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" id="gentle-wave"></path>
+</defs>
+<g class="parallax">
+<use fill="rgba(210, 128, 82, 0.7" x="48" xlink:href="#gentle-wave" y="0"></use>
+<use fill="rgba(210, 128, 82, 0.5)" x="48" xlink:href="#gentle-wave" y="3"></use>
+<use fill="rgba(210, 128, 82, 0.3)" x="48" xlink:href="#gentle-wave" y="5"></use>
+<use fill="var(--bg-color)" x="48" xlink:href="#gentle-wave" y="7"></use>
+</g>
+</svg>
+<div class="modal" id="settings-modal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<h2>Sherpa Settings</h2>
+<div class="setting-group">
+<label>Hermes API URL</label>
+<input id="api-url-input" placeholder="http://localhost:8000/v1" type="text"/>
+</div>
+<div class="setting-group">
+<label>Voice Selection</label>
+<select id="voice-select"></select>
+</div>
+<div class="setting-group">
+<label>Speech Rate: <span id="rate-val">1.0</span></label>
+<input id="rate-input" max="2" min="0.5" step="0.1" type="range" value="1.0"/>
+</div>
+<div class="setting-group">
+<label>Speech Pitch: <span id="pitch-val">1.0</span></label>
+<input id="pitch-input" max="2" min="0.5" step="0.1" type="range" value="1.0"/>
+</div>
+<div class="setting-group">
+<label>Interaction Mode</label>
+<div class="mode-toggle">
+<button class="mode-btn active" id="mode-ptt" title="Click to speak">Push-to-Talk</button>
+<button class="mode-btn" id="mode-tel" title="Always listening">Telephone Mode</button>
+</div>
+</div>
+<div class="setting-group">
+<label>Visual Experience</label>
+<div class="mode-toggle">
+<button class="mode-btn active" id="visual-mode-mountain">Mountain Icon</button>
+<button class="mode-btn" id="visual-mode-avatar">Realistic Avatar</button>
+</div>
+</div>
+<div class="setting-group">
+<label>Change UI Passkey</label>
+<input id="ui-passkey-input" placeholder="Enter new passkey..." type="password"/>
+</div>
+<button class="btn btn-primary" id="save-settings" style="width: 100%; margin-top: 1rem;">Save &amp; Calibrate</button>
+</div>
+</div>
+<style>
         .modal {
             display: none;
             position: fixed;
@@ -653,7 +633,6 @@
             border-color: var(--accent);
         }
     </style>
-
-    <script src="static/voice-chat.js"></script>
+<script src="static/voice-chat.js"></script>
 </body>
 </html>
