@@ -2515,6 +2515,7 @@ async def get_git_status(user: str = Depends(require_admin)):
                 "dealership_marketing": "dealership_marketing",
                 "dealership_admin": "dealership_marketing",
                 "hoosier_roadside": "hoosier_roadside",
+                "avitar": "avitar",
                 # Core Pages
                 "index": "core_site",
                 "about": "core_site",
@@ -2545,6 +2546,7 @@ async def get_git_status(user: str = Depends(require_admin)):
                 elif "live_earth" in filename: project_keys.add("live_earth")
                 elif "dcsa" in filename or "resource_locator" in filename: project_keys.add("dcsa")
                 elif "voice-chat" in filename: project_keys.add("voice-chat")
+                elif "avitar" in filename or "avatar" in filename: project_keys.add("avitar")
                 elif "productivity_agent" in filename: project_keys.add("productivity_agent")
                 elif "osint_api" in filename: project_keys.add("osint_api")
                 elif "launchpad" in filename: project_keys.add("launchpad")

@@ -329,18 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Default Initialization
-    const savedConfig = localStorage.getItem('sherpa_default_avatar');
-    if (savedConfig) {
-        try {
-            const config = JSON.parse(savedConfig);
-            window.loadModel(config.url, {scale: config.scale, y: config.y, rot: config.rot});
-        } catch(e) {
-            window.loadModel("static/tomb_raider_laracroft.glb", {scale: 1.6, y: -3.5, rot: 0});
-        }
-    } else {
-        window.loadModel("static/tomb_raider_laracroft.glb", {scale: 1.6, y: -3.5, rot: 0});
-    }
+    // NOTE: Default model boot is handled exclusively by avitar.html's loadDefaultAvatar().
+    // Do NOT call window.loadModel() here — doing so causes two avatars to load simultaneously.
 
     // Responsive Canvas Resize Hook
     window.addEventListener( 'resize', () => {
