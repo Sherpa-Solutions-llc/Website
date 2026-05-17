@@ -335,16 +335,20 @@
 
     let map, customerMarker = null, driverMarker = null, pingInterval = null, pollInterval = null;
     let mySessionId = null, myRole = null, myName = null;
-
-    const truckIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3093/3093375.png', iconSize: [40,40], iconAnchor: [20,20] });
-    const customerIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [30,30], iconAnchor: [15,30] });
+    let truckIcon, customerIcon;
 
     function initMap() {
         if (map) { setTimeout(() => map.invalidateSize(), 200); return; }
+        // Define icons here so Leaflet is guaranteed to be loaded
+        truckIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3093/3093375.png', iconSize: [40,40], iconAnchor: [20,20] });
+        customerIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [30,30], iconAnchor: [15,30] });
         map = L.map('live-map').setView([39.8283, -98.5795], 4);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
         setTimeout(() => map.invalidateSize(), 300);
     }
+
+    // Initialize map on page load so the tracking section shows tiles immediately
+    document.addEventListener('DOMContentLoaded', initMap);
 
     function showMap() {
         document.querySelector('.hero-text').style.display = 'none';
