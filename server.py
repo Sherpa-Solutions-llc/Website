@@ -2516,6 +2516,18 @@ async def get_git_status(user: str = Depends(require_admin)):
                 "dealership_admin": "dealership_marketing",
                 "hoosier_roadside": "hoosier_roadside",
                 "avitar": "avitar",
+                # DCSA sub-pages (also caught by dcsa_ prefix rule below)
+                "dcsa_dashboard": "dcsa",
+                "dcsa_personnel_vetting": "dcsa",
+                "dcsa_industrial_security": "dcsa",
+                "dcsa_counterintelligence": "dcsa",
+                "dcsa_security_training": "dcsa",
+                "dcsa_full_integration": "dcsa",
+                "dcsa_2040_threats": "dcsa",
+                "dcsa_agency_profile": "dcsa",
+                "dcsa_resource_locator": "dcsa",
+                # DCSA sub-pages also caught by view_candidates
+                "view_candidates": "dcsa",
                 # Core Pages
                 "index": "core_site",
                 "about": "core_site",
@@ -2545,13 +2557,22 @@ async def get_git_status(user: str = Depends(require_admin)):
                 if "open_vote" in filename: project_keys.add("open_vote")
                 elif "live_earth" in filename: project_keys.add("live_earth")
                 elif "dcsa" in filename or "resource_locator" in filename: project_keys.add("dcsa")
-                elif "voice-chat" in filename: project_keys.add("voice-chat")
-                elif "avitar" in filename or "avatar" in filename: project_keys.add("avitar")
+                elif "voice-chat" in filename or "voice_chat" in filename: project_keys.add("voice-chat")
+                elif "avitar" in filename or "avitar_3d" in filename: project_keys.add("avitar")
                 elif "productivity_agent" in filename: project_keys.add("productivity_agent")
                 elif "osint_api" in filename: project_keys.add("osint_api")
                 elif "launchpad" in filename: project_keys.add("launchpad")
                 elif "marion_va" in filename: project_keys.add("marion_va")
                 elif "food_globe" in filename: project_keys.add("food_globe")
+                elif "fun_e_stick" in filename or "fun_e" in filename: project_keys.add("fun_e_stick")
+                elif "seo_sniper" in filename: project_keys.add("seo_sniper")
+                elif "brand_monitor" in filename: project_keys.add("brand_monitor")
+                elif "hoosier" in filename or "roadside" in filename: project_keys.add("hoosier_roadside")
+                elif "heavenly_melody" in filename or "heavenly" in filename: project_keys.add("heavenly_melody")
+                elif "arbitrage" in filename: project_keys.add("arbitrage")
+                elif "b2b" in filename or "leads" in filename: project_keys.add("b2b_leads")
+                elif "train_your_brain" in filename or "brain" in filename: project_keys.add("train_your_brain")
+                elif "dealership" in filename: project_keys.add("dealership_marketing")
                 elif "styles" in filename or "theme" in filename or "cms" in filename:
                     project_keys.add("core_site")
         
