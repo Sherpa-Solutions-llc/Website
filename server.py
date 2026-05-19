@@ -116,6 +116,37 @@ async def startup_weekly_discovery_task():
 # Enable GZIP compression for all responses > 1000 bytes (CSS, JS, JSON, HTML)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+# --- Anti-Stealth Rate Limiting & Honeypot Middleware ---
+from collections import defaultdict
+import time
+
+# Simple in-memory rate limiting (IP -> [timestamps])
+ip_request_counts = defaultdict(list)
+RATE_LIMIT_REQUESTS = 100
+RATE_LIMIT_WINDOW = 60 # seconds
+
+@app.middleware("http")
+async def anti_stealth_middleware(request: Request, call_next):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    
+    # Honeypot Check (If a stealth scraper tries to hit this hidden trap)
+    if request.url.path == "/api/admin/stealth-trap":
+        return JSONResponse(status_code=403, content={"detail": "Bot detected. Access denied."})
+        
+    # Rate Limiting (Exclude static assets to prevent false positives on page load)
+    if not request.url.path.startswith("/static"):
+        now = time.time()
+        # Clean up old timestamps
+        ip_request_counts[client_ip] = [t for t in ip_request_counts[client_ip] if now - t < RATE_LIMIT_WINDOW]
+        
+        if len(ip_request_counts[client_ip]) >= RATE_LIMIT_REQUESTS:
+            return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded. Please slow down."})
+            
+        ip_request_counts[client_ip].append(now)
+    
+    response = await call_next(request)
+    return response
+
 # Allow both local dev and the live GitHub Pages site
 ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -2536,7 +2567,11 @@ async def get_git_status(user: str = Depends(require_admin)):
                 "services": "core_site",
                 "merchandise": "core_site",
                 "projects": "core_site",
-                "styles.css": "core_site"
+                "styles.css": "core_site",
+                "open_design": "core_site",
+                "server": "core_site",
+                "agent_audit": "core_site",
+                "CLAUDE": "core_site"
             }
             
             if name_no_ext in DIRECT_MAP:

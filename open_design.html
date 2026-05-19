@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Design | Sherpa Solutions</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .lead-magnet-container {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 40px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .lead-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .lead-form input {
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: white;
+        }
+        .lead-form button {
+            padding: 15px;
+            background: #FF7A00;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .lead-form button:hover {
+            background: #e66e00;
+        }
+    </style>
+</head>
+<body style="background-color: #0f1115; color: white; font-family: sans-serif;">
+
+    <div class="lead-magnet-container">
+        <h1 style="color: #FF7A00;">The Sherpa Open Design Kit</h1>
+        <p>Download our premium "Vibe Coding" boilerplate. Includes our proprietary glassmorphism CSS architecture, interactive SVG animation scripts, and the hybrid FastAPI backend blueprint.</p>
+        
+        <form class="lead-form" id="leadForm">
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Corporate Email Address" required>
+            <button type="submit">Download the Free Architecture Kit</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('leadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert("Thanks! The boilerplate download link has been sent to your email. (Mock)");
+        });
+    </script>
+</body>
+</html>
