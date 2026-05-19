@@ -2,7 +2,7 @@
 
 <html data-theme="dark" lang="en">
 <head>
-<link href="/static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
+<link href="static/Orange%20Sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Sherpa Solutions LLC | NOMATIC Travel Bag 40L</title>
@@ -252,10 +252,22 @@
 <img alt="View 6" onclick="switchImg(this)" src="static/bp_nomatic_bag_6.png?v=1772582868"/>
 </div>
 </div>
-<div>
+<div id="card-backpack-nomatic-bag">
 <div class="product-brand">NOMATIC </div>
 <h2 class="product-title-lg">NOMATIC Travel Bag 40L</h2>
 <div class="product-price-lg">$339.99</div>
+<div class="product-options" style="margin: 1rem 0; display: flex; gap: 0.5rem; justify-content: flex-start;">
+<select aria-label="Capacity" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white; font-family: inherit; color: #1a1a1a; min-width: 150px;">
+<option value="40L">Duffel 40L</option>
+<option value="30L">Duffel 30L</option>
+</select>
+</div>
+<div style="margin: 0.5rem 0; display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem; margin-bottom: 1.5rem;">
+<label style="font-size:0.85rem;color:#666;">Qty:</label>
+<input class="qty-input" max="99" min="1" style="width:60px;padding:0.4rem;border:1px solid #ddd;border-radius:4px;text-align:center;font-family:inherit;" type="number" value="1"/>
+</div>
+<a class="btn btn-outline product-btn" href="javascript:void(0)" onclick="addToCart('card-backpack-nomatic-bag','NOMATIC Travel Bag 40L',339.99,'/static/thumb_pro_nbag.png')" style="margin-bottom: 2rem;"><i class="fas fa-shopping-cart" style="margin-right: 0.5rem;"></i> Add to Cart</a>
+
 <p class="product-desc">
           One bag. Every journey, every mile. The Travel Bag 40L is built to take you further. From three-day
           getaways
@@ -321,5 +333,55 @@
 <p>© 2026 Sherpa Solutions LLC. All rights reserved. Guiding your success.</p>
 </footer>
 <script>function switchImg(el) { document.getElementById('main-img').src = el.src; document.querySelectorAll('#thumb-strip img').forEach(i => i.classList.remove('active')); el.classList.add('active'); }</script>
+<!-- Cart FAB -->
+<div id="cart-fab" onclick="openCart()" onmouseout="this.style.transform='scale(1)'" onmouseover="this.style.transform='scale(1.1)'" style="position:fixed;bottom:2rem;right:2rem;width:60px;height:60px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(192,108,59,0.4);z-index:999;transition:transform 0.2s;">
+<i class="fas fa-shopping-cart" style="color:white;font-size:1.4rem;"></i>
+<span id="cart-badge" style="position:absolute;top:-4px;right:-4px;background:var(--primary);color:white;font-size:0.7rem;font-weight:700;width:22px;height:22px;border-radius:50%;display:none;align-items:center;justify-content:center;">0</span>
+</div>
+<!-- Cart Overlay -->
+<div id="cart-overlay" onclick="closeCart()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1000;"></div>
+<!-- Cart Drawer -->
+<div id="cart-drawer" style="position:fixed;top:0;right:0;width:400px;max-width:90vw;height:100%;background:white;z-index:1001;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(0,0,0,0.1);">
+<div style="padding:1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
+<h3 style="margin:0;color:var(--primary);font-family:'Outfit',sans-serif;">Shopping Cart</h3>
+<button onclick="closeCart()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888;">×</button>
+</div>
+<div id="cart-body" style="flex:1;overflow-y:auto;padding:0 1.5rem;">
+<p style="text-align:center;color:#888;padding:2rem;">Your cart is empty.</p>
+</div>
+<div id="cart-footer" style="padding:1.5rem;border-top:1px solid #eee;"></div>
+</div>
+<!-- Checkout Modal -->
+<div id="checkout-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1002;align-items:center;justify-content:center;">
+<div id="checkout-modal-body" style="background:white;border-radius:16px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;padding:2rem;position:relative;">
+<button onclick="closeCheckout()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#888;">×</button>
+<h2 style="color:var(--primary);font-family:'Outfit',sans-serif;margin-bottom:1.5rem;"><i class="fas fa-lock" style="margin-right:0.5rem;color:var(--accent);"></i>Secure Checkout</h2>
+<div id="checkout-order-summary" style="margin-bottom:1.5rem;"></div>
+<form id="checkout-form" onsubmit="placeOrder(event)">
+<h3 style="color:var(--primary);font-size:1rem;margin-bottom:0.8rem;">Shipping Information</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1rem;">
+<input placeholder="First Name" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input placeholder="Last Name" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+</div>
+<input placeholder="Email Address" required="" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;" type="email"/>
+<input placeholder="Street Address" required="" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;"/>
+<div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.8rem;margin-bottom:1.5rem;">
+<input placeholder="City" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input maxlength="2" placeholder="State" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input maxlength="5" placeholder="ZIP" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+</div>
+<h3 style="color:var(--primary);font-size:1rem;margin-bottom:0.8rem;"><i class="fas fa-credit-card" style="margin-right:0.5rem;color:var(--accent);"></i>Payment</h3>
+<input maxlength="19" oninput="formatCard(this)" placeholder="Card Number" required="" style="width:100%;padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;margin-bottom:0.8rem;"/>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem;">
+<input maxlength="5" oninput="formatExpiry(this)" placeholder="MM/YY" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;"/>
+<input maxlength="4" placeholder="CVV" required="" style="padding:0.7rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;" type="password"/>
+</div>
+<button class="btn btn-primary" style="width:100%;justify-content:center;font-size:1.05rem;" type="submit">
+<i class="fas fa-lock" style="margin-right:0.5rem;"></i> Place Order
+</button>
+</form>
+</div>
+</div>
+<script src="static/cart.js"></script>
 </body>
 </html>

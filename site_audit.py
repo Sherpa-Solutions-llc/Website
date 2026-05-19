@@ -104,4 +104,4 @@ def audit_site(base_dir):
             print(f"    ... and {len(root_images)-5} more.")
 
 if __name__ == '__main__':
-    audit_site(r'C:\Users\choos\.gemini\antigravity\scratch\Website')
+    audit_site(os.path.dirname(os.path.abspath(__file__)))

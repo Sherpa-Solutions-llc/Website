@@ -1,5 +1,10 @@
 // ─── Sherpa Solutions Cart System ───────────────────────────────────────────
-let cart = [];
+let cart = JSON.parse(localStorage.getItem('sherpa_cart')) || [];
+
+function saveCart() {
+    localStorage.setItem('sherpa_cart', JSON.stringify(cart));
+}
+
 
 // ── Add to cart ──────────────────────────────────────────────────────────────
 function addToCart(cardId, name, basePrice, imgSrc) {
@@ -39,6 +44,7 @@ function addToCart(cardId, name, basePrice, imgSrc) {
         cart.push({ name, price, qty, opts: opts.join(', '), img: imgSrc });
     }
 
+    saveCart();
     updateCartBadge();
     openCart();
     renderCart();
@@ -112,12 +118,14 @@ function renderCart() {
 // ── Qty helpers ───────────────────────────────────────────────────────────────
 function changeQty(idx, delta) {
     cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+    saveCart();
     updateCartBadge();
     renderCart();
 }
 
 function removeFromCart(idx) {
     cart.splice(idx, 1);
+    saveCart();
     updateCartBadge();
     renderCart();
 }
@@ -167,7 +175,7 @@ function placeOrder(e) {
       <div style="font-size:4rem;margin-bottom:1rem;">🎉</div>
       <h2 style="color:var(--primary);margin-bottom:1rem;">Order Placed!</h2>
       <p style="color:#666;margin-bottom:2rem;">Thank you for your Sherpa Solutions order. You'll receive a confirmation email shortly.</p>
-      <button onclick="closeCheckout();cart=[];updateCartBadge();renderCart();" class="btn btn-primary" style="justify-content:center;">
+      <button onclick="closeCheckout();cart=[];saveCart();updateCartBadge();renderCart();" class="btn btn-primary" style="justify-content:center;">
         Continue Shopping
       </button>
     </div>`;
@@ -184,3 +192,10 @@ function formatExpiry(input) {
     if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
     input.value = v;
 }
+
+// Initialize cart state on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateCartBadge();
+    renderCart();
+});
+
