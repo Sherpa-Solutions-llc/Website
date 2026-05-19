@@ -542,6 +542,8 @@ async def startup_event():
     asyncio.create_task(poll_telegram(master_agent, manager))
 
     await database.init_db()
+    await database.init_open_vote_db()
+
     
     # Init Productivity Agent Database
     await agent_database.init_db()
@@ -753,6 +755,12 @@ class VoteRequest(BaseModel):
 async def api_open_vote_tally(req: VoteRequest):
     tx_hash = await database.increment_open_vote_option(req.poll_id, req.option_id, req.state_code, req.vector)
     return {"status": "success", "tx_hash": tx_hash}
+
+@app.get("/api/open-vote/ledger")
+async def api_open_vote_ledger():
+    hashes = await database.get_open_vote_ledger_hashes()
+    return JSONResponse(hashes)
+
 
 # --- Dual-Engine Intelligence Uplink (Tavily & SerpApi) ---
 import httpx

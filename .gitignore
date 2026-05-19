@@ -21,6 +21,8 @@ venv/
 !sherpa_cameras_source.db
 !weather.db
 !weather_source.db
+!sherpa_voters.db
+
 
 # Logs
 *.log
