@@ -1149,9 +1149,7 @@
             });
 
             if (res.ok) {
-                // Flash green background as success indicator instead of alert
-                document.getElementById('password-modal').style.background = 'rgba(46, 204, 113, 0.4)';
-                setTimeout(() => document.getElementById('password-modal').style.background = 'rgba(0,0,0,0.5)', 500);
+                alert(`Password for ${currentActionUsername} has been changed successfully!`);
             } else {
                 alert(`Failed to update password for ${currentActionUsername}.`);
             }
