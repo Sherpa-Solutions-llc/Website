@@ -23,7 +23,7 @@ import hashlib
 import base64
 from datetime import datetime, timedelta
 import traceback
-from fastapi import FastAPI, Request, Form, Response, Depends, HTTPException, status, Query
+from fastapi import FastAPI, Request, Form, Response, Depends, HTTPException, status, Query, BackgroundTasks
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -2574,6 +2574,7 @@ async def get_git_status(user: str = Depends(require_admin)):
             "merchandise": "core_site",
             "projects": "core_site",
             "styles.css": "core_site",
+            "settings": "core_site",
             "open_design": "core_site",
             "server": "core_site",
             "agent_audit": "core_site",
@@ -2650,7 +2651,10 @@ async def get_git_status(user: str = Depends(require_admin)):
                     for el in elements:
                         eid = el['data-cms']
                         if eid in cms_data:
-                            db_val = cms_data[eid].strip()
+                            db_val = cms_data[eid]
+                            if not db_val:
+                                continue
+                            db_val = db_val.strip()
                             if el.name == 'img':
                                 if el.get('src', '').strip() != db_val:
                                     file_changed = True
@@ -2702,8 +2706,40 @@ async def get_git_status(user: str = Depends(require_admin)):
     except Exception as e:
         return {"modified": [], "error": str(e)}
 
+def run_deploy_in_background():
+    import subprocess
+    import sys
+    import json
+    progress_file = "github_sync_progress.json"
+    script_path = os.path.join(BASE_DIR, "github_final_upload.py")
+    python_exe = sys.executable
+    print(f"BackgroundTasks launching: {python_exe} {script_path}")
+    try:
+        res = subprocess.run([python_exe, script_path], capture_output=True, text=True)
+        print("Deploy script stdout:", res.stdout)
+        print("Deploy script stderr:", res.stderr)
+        if res.returncode != 0:
+            with open(progress_file, 'w') as f:
+                json.dump({
+                    "current": 100,
+                    "total": 100,
+                    "status": "error",
+                    "message": f"Deployment failed: {res.stderr.strip() or 'Internal script error.'}",
+                    "percentage": 100
+                }, f)
+    except Exception as e:
+        print("Error running background deploy script:", e)
+        with open(progress_file, 'w') as f:
+            json.dump({
+                "current": 100,
+                "total": 100,
+                "status": "error",
+                "message": f"Deployment failed: {str(e)}",
+                "percentage": 100
+            }, f)
+
 @app.post("/api/sync-github")
-async def sync_github(request: SyncRequest, user: str = Depends(require_admin)):
+async def sync_github(request: SyncRequest, bg_tasks: BackgroundTasks, user: str = Depends(require_admin)):
     try:
         # Write selected projects config
         config_file = "github_sync_config.json"
@@ -2716,19 +2752,9 @@ async def sync_github(request: SyncRequest, user: str = Depends(require_admin)):
         with open(progress_file, 'w') as f:
             json.dump({"current": 0, "total": 0, "status": "starting", "message": "Initializing...", "percentage": 0}, f)
             
-        # Run the existing upload script in the background
-        # Using the same interpreter and absolute path for reliability
-        script_path = os.path.join(BASE_DIR, "github_final_upload.py")
-        python_exe = sys.executable
-        
-        # We DON'T await process.communicate() here, so the API returns immediately
-        # and allows the frontend to poll for progress while the script runs.
-        print(f"Launching sync script: {python_exe} {script_path}")
-        creation_flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0) if os.name == 'nt' else 0
-        subprocess.Popen([python_exe, script_path], 
-                         stdout=subprocess.DEVNULL, 
-                         stderr=subprocess.DEVNULL,
-                         creationflags=creation_flags)
+        # Run the existing upload script in the background via BackgroundTasks threadpool
+        print("Registering sync task to BackgroundTasks threadpool")
+        bg_tasks.add_task(run_deploy_in_background)
             
         return {"status": "success", "message": "Deployment started in background."}
     except Exception as e:

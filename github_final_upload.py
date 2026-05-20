@@ -44,16 +44,19 @@ def bake_cms():
         for el in elements:
             eid = el['data-cms']
             if eid in cms_data:
+                db_val = cms_data[eid]
+                if not db_val:
+                    continue
                 # Replace content
                 if el.name == 'img':
-                    if el.get('src') != cms_data[eid]:
-                        el['src'] = cms_data[eid]
+                    if el.get('src') != db_val:
+                        el['src'] = db_val
                         changed = True
                 else:
                     # Check if it's a JSON media payload
                     try:
-                        if cms_data[eid].strip().startswith("{"):
-                            data = json.loads(cms_data[eid])
+                        if db_val.strip().startswith("{"):
+                            data = json.loads(db_val)
                             if isinstance(data, dict) and ('img' in data or 'video' in data):
                                 if 'video' in data and data['video']:
                                     el['data-video-src'] = data['video']
@@ -76,7 +79,7 @@ def bake_cms():
                         pass
                     
                     # For text elements, we inject HTML
-                    new_content = BeautifulSoup(cms_data[eid], 'html.parser')
+                    new_content = BeautifulSoup(db_val, 'html.parser')
                     el.clear()
                     el.append(new_content)
                     changed = True

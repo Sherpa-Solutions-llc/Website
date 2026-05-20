@@ -1459,6 +1459,21 @@
                         }
                     }
 
+                    if (p.status === 'error') {
+                        clearInterval(pollInterval);
+                        progressBar.style.width = '100%';
+                        progressBar.style.background = '#e74c3c';
+                        progressText.innerText = `✗ Deployment Failed: ${p.message || 'Server error.'}`;
+                        progressText.style.color = '#e74c3c';
+                        progressPercent.innerText = 'Error';
+                        progressPercent.style.color = '#e74c3c';
+                        btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = originalText;
+                        
+                        railwayStatus.innerText = 'Failed';
+                        railwayStatus.style.color = '#e74c3c';
+                        return;
+                    }
+
                     if (p.status === 'completed') {
                         clearInterval(pollInterval);
                         progressBar.style.width = '100%';
