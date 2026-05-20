@@ -470,10 +470,10 @@
                 clearInterval(pollInterval);
                 setOverlay(`
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                        <h4 style="color:var(--text-dark); margin:0;" id="eta-text">🚛 ${data.driver_name || 'Driver'} is on the way!</h4>
-                        <div id="pulse-indicator" style="width:12px; height:12px; background:#27ae60; border-radius:50%; box-shadow:0 0 10px #27ae60;"></div>
+                        <h4 style="color:var(--text-dark); margin:0;" class="eta-text-dynamic">🚛 ${data.driver_name || 'Driver'} is on the way!</h4>
+                        <div class="pulse-indicator-dynamic" style="width:12px; height:12px; background:#27ae60; border-radius:50%; box-shadow:0 0 10px #27ae60;"></div>
                     </div>
-                    <p style="color:var(--text-muted); margin:0; font-size:0.9rem;" id="last-updated">Tracking driver location...</p>
+                    <p style="color:var(--text-muted); margin:0; font-size:0.9rem;" class="last-updated-dynamic">Tracking driver location...</p>
                 `);
                 // Start polling driver location
                 pingInterval = setInterval(() => updateDriverMarker(myLat, myLng), 5000);
@@ -498,9 +498,9 @@
                 }
                 if (data.distance_miles !== undefined) {
                     const etaMin = Math.round((data.distance_miles / 40) * 60);
-                    const etaEl = document.getElementById('eta-text');
+                    const etaEl = document.getElementById('eta-text') || document.querySelector('.eta-text-dynamic');
                     if (etaEl) etaEl.innerText = `🚛 ${data.driver_name} — ${data.distance_miles} mi away (~${etaMin} min)`;
-                    const lastEl = document.getElementById('last-updated');
+                    const lastEl = document.getElementById('last-updated') || document.querySelector('.last-updated-dynamic');
                     const sec = Math.floor((Date.now() - dl.timestamp) / 1000);
                     if (lastEl) lastEl.innerText = `Location updated ${sec}s ago`;
                 }
@@ -527,9 +527,9 @@
         if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
         setOverlay(`
             <div style="text-align:center; padding:1rem;">
-                <div id="pulse-indicator" style="width:14px; height:14px; background:#27ae60; border-radius:50%; box-shadow:0 0 12px #27ae60; display:inline-block; margin-bottom:0.5rem;"></div>
+                <div class="pulse-indicator-dynamic" style="width:14px; height:14px; background:#27ae60; border-radius:50%; box-shadow:0 0 12px #27ae60; display:inline-block; margin-bottom:0.5rem;"></div>
                 <h4 style="color:var(--text-dark); margin:0 0 0.3rem;">🟢 Online — Awaiting Dispatch</h4>
-                <p style="color:var(--text-muted); margin:0; font-size:0.85rem;" id="last-updated">Broadcasting location...</p>
+                <p style="color:var(--text-muted); margin:0; font-size:0.85rem;" class="last-updated-dynamic">Broadcasting location...</p>
             </div>
         `);
         pingInterval = setInterval(pingDriverLocation, 5000);
@@ -563,7 +563,7 @@
                     const bounds = L.latLngBounds([[lat, lng], [cl.lat, cl.lng]]);
                     map.fitBounds(bounds, { padding: [40, 40] });
                     const dist = getDistanceMiles(lat, lng, cl.lat, cl.lng);
-                    const lu = document.getElementById('last-updated');
+                    const lu = document.getElementById('last-updated') || document.querySelector('.last-updated-dynamic');
                     if (lu) lu.innerText = `Customer is ${dist.toFixed(1)} miles away`;
                 }
             });
@@ -606,14 +606,14 @@
             if (alert) alert.remove();
             if (accept) {
                 const overlay = document.getElementById('tracking-overlay');
-                const etaEl = document.getElementById('eta-text');
-                const luEl = document.getElementById('last-updated');
-                const pi = document.getElementById('pulse-indicator');
+                const etaEl = document.getElementById('eta-text') || document.querySelector('.eta-text-dynamic');
+                const luEl = document.getElementById('last-updated') || document.querySelector('.last-updated-dynamic');
+                const pi = document.getElementById('pulse-indicator') || document.querySelector('.pulse-indicator-dynamic');
                 if (etaEl) etaEl.innerText = '🚛 Job Accepted — Navigating to Customer';
                 if (luEl) luEl.innerText = 'Location is broadcasting to customer.';
                 if (pi) { pi.style.background = '#27ae60'; pi.style.boxShadow = '0 0 12px #27ae60'; }
             } else {
-                const luEl = document.getElementById('last-updated');
+                const luEl = document.getElementById('last-updated') || document.querySelector('.last-updated-dynamic');
                 if (luEl) luEl.innerText = '🟢 Online — Awaiting next dispatch...';
             }
         });

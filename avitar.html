@@ -629,7 +629,7 @@
                             if(canvas) {
                                 try {
                                     const snap = canvas.toDataURL('image/jpeg', 0.8);
-                                    this.innerHTML = `<img src="${snap}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`;
+                                    this.innerHTML = `<img src="${snap}" alt="Avatar Snapshot" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">`;
                                 } catch(e) { this.innerHTML = originalHtml; }
                             } else { this.innerHTML = originalHtml; }
                         }, 1300);

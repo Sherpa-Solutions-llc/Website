@@ -1,0 +1,629 @@
+--- SITE MAINTENANCE AUDIT ---
+
+1. LARGE ASSETS (>500KB)
+  [WARNING] thumb_pro_nbag.png: 806.0 KB
+  [WARNING] merch_shirt_polo_user.png: 642.5 KB
+  [WARNING] bp_nomatic_bag_1.png: 732.9 KB
+  [WARNING] bp_nomatic_pack_2.png: 579.3 KB
+  [WARNING] pure_nbag.png: 641.4 KB
+  [WARNING] bp_nomatic_bag_2.png: 639.9 KB
+  [WARNING] merch_shirt_button_user.png: 625.6 KB
+  [WARNING] bp_nomatic_bag_3.png: 579.9 KB
+  [WARNING] merch_nomatic_pack.png: 610.3 KB
+  [WARNING] merch_pullover_pro.png: 511.7 KB
+  [WARNING] bp_nomatic_pack_4.png: 784.6 KB
+  [WARNING] test_nomatic_pack_1.png: 576.4 KB
+  [WARNING] merch_pd_30l.png: 1614.0 KB
+  [WARNING] bp_nomatic_bag_5.png: 743.4 KB
+  [WARNING] bp_nomatic_pack_5.png: 545.8 KB
+  [WARNING] merch_socks.png: 641.1 KB
+  [WARNING] merch_nomatic_bag_alt_2.png: 639.9 KB
+  [WARNING] pristine_nbag.png: 641.4 KB
+  [WARNING] merch_pullover.png: 514.3 KB
+  [WARNING] pristine_bag.png: 639.9 KB
+  [WARNING] merch_backpack.png: 1104.7 KB
+  [WARNING] bp_nomatic_bag_4.png: 858.5 KB
+  [WARNING] thumb_nomatic_bag.png: 834.6 KB
+  [WARNING] merch_nomatic_pack_alt_1.png: 545.8 KB
+  [WARNING] merch_shirt_button_blue.png: 661.2 KB
+  [WARNING] merch_nomatic_pack_alt_3.png: 1105.6 KB
+  [WARNING] merch_pd_45l.png: 1614.0 KB
+  [WARNING] sherpa_logo_source_clean.png: 526.0 KB
+  [WARNING] bp_nomatic_pack_1.png: 626.4 KB
+  [WARNING] bp_nomatic_pack_6.png: 566.4 KB
+  [WARNING] bp_nomatic_pack_3.png: 1062.9 KB
+  [WARNING] merch_socks_pro.png: 576.3 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/tensorboard/plugins/projector/tf_projector_plugin/projector_binary.js: 1918.1 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/skimage/data/astronaut.png: 773.0 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/skimage/data/hubble_deep_field.jpg: 515.6 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/skimage/data/motorcycle_left.png: 629.6 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/skimage/data/motorcycle_right.png: 625.4 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/index-byTbEsUO.js: 1369.0 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/AltairPlot-C1hgRvD1.js: 669.5 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/PlotlyPlot-DNlIEWfx.js: 4689.8 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/embed-C0bvMD9o.js: 645.9 KB
+  [WARNING] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/Video-DAakOy65.js: 528.0 KB
+  [WARNING] static/thumb_pro_nbag.png: 806.0 KB
+  [WARNING] static/realistic_female_sherpa.png: 712.5 KB
+  [WARNING] static/simulation_b2b.png: 577.1 KB
+  [WARNING] static/business_model_thumb.png: 708.2 KB
+  [WARNING] static/Sherpa Logo High Res.png: 1009.8 KB
+  [WARNING] static/voice_sherpa_thumb.png: 793.7 KB
+  [WARNING] static/fun_e_stick_product.png: 612.9 KB
+  [WARNING] static/bp_nomatic_bag_1.png: 732.9 KB
+  [WARNING] static/pot_classic_stone.png: 764.8 KB
+  [WARNING] static/bp_nomatic_pack_2.png: 579.3 KB
+  [WARNING] static/pure_nbag.png: 641.4 KB
+  [WARNING] static/bp_nomatic_bag_2.png: 639.9 KB
+  [WARNING] static/dealership_thumbnail.png: 750.8 KB
+  [WARNING] static/simulation_arbitrage.png: 696.1 KB
+  [WARNING] static/strategic_ascent.png: 544.7 KB
+  [WARNING] static/train_your_brain_thumb.png: 740.3 KB
+  [WARNING] static/bp_nomatic_bag_3.png: 579.9 KB
+  [WARNING] static/walkaround_honda.png: 831.2 KB
+  [WARNING] static/facilityDB.js: 2370.7 KB
+  [WARNING] static/merch_nomatic_pack.png: 610.3 KB
+  [WARNING] static/merch_pullover_pro.png: 511.7 KB
+  [WARNING] static/dcsa_sherpa_logo_trans.png: 1031.8 KB
+  [WARNING] static/marion_ground_floor.png: 666.1 KB
+  [WARNING] static/bp_nomatic_pack_4.png: 784.6 KB
+  [WARNING] static/test_nomatic_pack_1.png: 576.4 KB
+  [WARNING] static/merch_pd_30l.png: 1614.0 KB
+  [WARNING] static/bp_nomatic_bag_5.png: 743.4 KB
+  [WARNING] static/bp_nomatic_pack_5.png: 545.8 KB
+  [WARNING] static/flower_tulip.png: 516.9 KB
+  [WARNING] static/flower_lotus.png: 638.5 KB
+  [WARNING] static/traku_thumb.png: 619.9 KB
+  [WARNING] static/heavenly_hero_cinematic.png: 729.7 KB
+  [WARNING] static/worldview_demo_recording_1777970202307.webp: 2123.5 KB
+  [WARNING] static/transparent_flower_sunflower.png: 667.8 KB
+  [WARNING] static/merch_socks.png: 578.0 KB
+  [WARNING] static/hoosier_roadside_thumb.png: 771.5 KB
+  [WARNING] static/simulation_seo.png: 647.1 KB
+  [WARNING] static/dcsa_sherpa_logo.png: 598.2 KB
+  [WARNING] static/open_vote.js: 512.9 KB
+  [WARNING] static/program_recovery.png: 514.2 KB
+  [WARNING] static/worldview_dashboard_bg_1777970109156.png: 745.4 KB
+  [WARNING] static/sherpa_logo.png: 606.2 KB
+  [WARNING] static/merch_nomatic_bag_alt_2.png: 639.9 KB
+  [WARNING] static/pristine_nbag.png: 641.4 KB
+  [WARNING] static/pristine_bag.png: 639.9 KB
+  [WARNING] static/simulation_brand.png: 611.5 KB
+  [WARNING] static/food_globe_thumb.png: 644.6 KB
+  [WARNING] static/gov_headshot_2.png: 623.8 KB
+  [WARNING] static/gov_headshot_1.png: 650.3 KB
+  [WARNING] static/bp_nomatic_bag_4.png: 858.5 KB
+  [WARNING] static/sherpa_swarm_thumb.png: 882.1 KB
+  [WARNING] static/thumb_nomatic_bag.png: 834.6 KB
+  [WARNING] static/walkaround_jeep.png: 891.4 KB
+  [WARNING] static/Open Vote Logo1.png: 5616.6 KB
+  [WARNING] static/hoosier_roadside_hero.png: 830.8 KB
+  [WARNING] static/walkaround_f150.png: 833.7 KB
+  [WARNING] static/live_earth_thumbnail.png: 709.3 KB
+  [WARNING] static/ultra_realistic_female_sherpa.png: 671.5 KB
+  [WARNING] static/pot_weathered_bronze.png: 735.6 KB
+  [WARNING] static/merch_nomatic_pack_alt_1.png: 545.8 KB
+  [WARNING] static/live_earth_thumb.png: 684.6 KB
+  [WARNING] static/Open Vote Logo.png: 3992.1 KB
+  [WARNING] static/jeffs_auto_hero.png: 880.4 KB
+  [WARNING] static/launchpad_thumb.png: 625.7 KB
+  [WARNING] static/flower_sunflower.png: 648.9 KB
+  [WARNING] static/merch_shirt_button_blue.png: 518.2 KB
+  [WARNING] static/marion_va_thumb.png: 1044.6 KB
+  [WARNING] static/flower_lily.png: 563.1 KB
+  [WARNING] static/flower_rose.png: 511.7 KB
+  [WARNING] static/pot_obsidian_black.png: 614.2 KB
+  [WARNING] static/freeme_thumbnail.png: 561.8 KB
+  [WARNING] static/engineering_demo.webp: 4630.8 KB
+  [WARNING] static/ultra_realistic_male_sherpa.png: 709.0 KB
+  [WARNING] static/pot_white_marble.png: 625.6 KB
+  [WARNING] static/merch_nomatic_pack_alt_3.png: 1105.6 KB
+  [WARNING] static/hoosier_roadside_social.png: 880.9 KB
+  [WARNING] static/heavenly_melody_thumb.png: 636.0 KB
+  [WARNING] static/digital_transformation.png: 531.4 KB
+  [WARNING] static/merch_pd_45l.png: 1614.0 KB
+  [WARNING] static/Open Vote 2.png: 4970.3 KB
+  [WARNING] static/sherpa_logo_source_clean.png: 526.0 KB
+  [WARNING] static/bp_nomatic_pack_1.png: 626.4 KB
+  [WARNING] static/mount_suction_kit.png: 790.0 KB
+  [WARNING] static/bp_nomatic_pack_6.png: 566.4 KB
+  [WARNING] static/cloud_strategy.png: 502.9 KB
+  [WARNING] static/open-vote-transparent.png: 3992.1 KB
+  [WARNING] static/open-vote-premium.png: 683.0 KB
+  [WARNING] static/gov_headshot_3.png: 608.3 KB
+  [WARNING] static/bp_nomatic_pack_3.png: 1062.9 KB
+  [WARNING] static/productivity_agent_thumbnail.png: 531.0 KB
+  [WARNING] static/cybersecurity.png: 517.1 KB
+  [WARNING] static/osint_api_thumbnail.png: 639.5 KB
+  [WARNING] static/stock_monitor_thumb.png: 514.9 KB
+  [WARNING] static/marion_campus.png: 509.7 KB
+  [WARNING] static/realistic_sherpa.png: 692.0 KB
+  [WARNING] static/merch_socks_pro.png: 576.3 KB
+  [WARNING] SadTalker/docs/resize_good.gif: 1688.2 KB
+  [WARNING] SadTalker/docs/example_full.gif: 1426.0 KB
+  [WARNING] SadTalker/docs/using_ref_video.gif: 7921.5 KB
+  [WARNING] SadTalker/docs/resize_no.gif: 2088.5 KB
+  [WARNING] SadTalker/docs/free_view_result.gif: 5479.8 KB
+  [WARNING] SadTalker/docs/example_crop.gif: 1512.6 KB
+  [WARNING] SadTalker/docs/example_full_enhanced.gif: 5646.8 KB
+  [WARNING] SadTalker/docs/example_crop_still.gif: 1217.8 KB
+  [WARNING] SadTalker/docs/example_full_crop.gif: 817.4 KB
+  [WARNING] SadTalker/examples/source_image/art_14.png: 635.0 KB
+  [WARNING] SadTalker/examples/source_image/art_0.png: 732.6 KB
+  [WARNING] SadTalker/examples/source_image/art_3.png: 1321.7 KB
+  [WARNING] SadTalker/examples/source_image/art_4.png: 3540.7 KB
+  [WARNING] SadTalker/examples/source_image/art_10.png: 555.7 KB
+  [WARNING] SadTalker/examples/source_image/art_20.png: 693.6 KB
+  [WARNING] SadTalker/examples/source_image/art_7.png: 509.2 KB
+  [WARNING] SadTalker/examples/source_image/art_16.png: 1445.6 KB
+  [WARNING] SadTalker/examples/source_image/art_8.png: 3046.2 KB
+  [WARNING] SadTalker/examples/source_image/art_2.png: 812.0 KB
+  [WARNING] SadTalker/examples/source_image/art_15.png: 657.3 KB
+  [WARNING] SadTalker/examples/source_image/full3.png: 617.4 KB
+  [WARNING] SadTalker/examples/source_image/art_17.png: 2043.1 KB
+  [WARNING] SadTalker/examples/source_image/art_13.png: 617.2 KB
+  [WARNING] SadTalker/examples/source_image/art_12.png: 704.2 KB
+  [WARNING] SadTalker/examples/source_image/art_9.png: 1233.4 KB
+  [WARNING] SadTalker/examples/source_image/art_5.png: 1199.2 KB
+  [WARNING] open-vote-worker/.wrangler/tmp/dev-kMaecV/index.js: 902.3 KB
+
+2. HTML STRUCTURE & BROKEN LINKS
+  [BROKEN LINK] settings_live.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_ai_automation.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] projects.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] food_globe.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] heavenly_melody.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] marion_va.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] skip_tracer.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] swarm_architecture.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_it_project_management.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_marketing_strategy.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_operational_review.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] arbitrage.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] stock_agent.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_competitor_analysis.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] train_your_brain.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] voice-chat.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_program_recovery.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] login.html: -> static/Orange%20Sherpa.png
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_2.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_3.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_4.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_45l_5.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_2.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_3.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_pd_30l_4.jpg'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_nomatic_bag_2.png'>
+  [MISSING ALT] view_candidates.html: <img src='static/bp_nomatic_bag_3.png'>
+  [BROKEN LINK] merch_backpacks.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] fun_e_stick.html: -> static/Orange%20Sherpa.png
+  [DUPLICATE IDs] backpack_pd_45l.html: theme-toggle
+  [BROKEN LINK] backpack_pd_45l.html: -> static/Orange%20Sherpa.png
+  [DUPLICATE IDs] backpack_nomatic_bag.html: theme-toggle
+  [BROKEN LINK] backpack_nomatic_bag.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] osint_api.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_cybersecurity_strategy.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] seo_sniper.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] launchpad.html: -> static/Orange%20Sherpa.png
+  [DUPLICATE IDs] hoosier_roadside.html: last-updated, pulse-indicator, eta-text
+  [DUPLICATE IDs] backpack_pd_30l.html: theme-toggle
+  [BROKEN LINK] backpack_pd_30l.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] open_vote.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] services_backup.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_counterintelligence.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] services.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_security_training.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] contact.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_leadership_coaching.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_ai_integration.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_personnel_vetting.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] merch_pens.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_full_integration.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_industrial_security.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] about.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] freeme.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_dashboard.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_cloud_strategy.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] business_model.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] osint_api_docs.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] index.html: -> static/Orange%20Sherpa.png
+  [DUPLICATE IDs] backpack_nomatic_pack.html: theme-toggle
+  [BROKEN LINK] backpack_nomatic_pack.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_2040_threats.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] dcsa_agency_profile.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] b2b_leads.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] merch_shirts.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_quality_assessment.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] live_earth2.html: -> static/Orange%20Sherpa.png
+  [MISSING ALT] test_img.html: <img src='static/medmaps_ground.png'>
+  [BROKEN LINK] merchandise.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] live_earth.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] brand_monitor.html: -> static/Orange%20Sherpa.png
+  [DUPLICATE IDs] settings.html: theme-toggle
+  [BROKEN LINK] settings.html: -> static/Orange%20Sherpa.png
+  [BROKEN LINK] service_strategy_development.html: -> static/Orange%20Sherpa.png
+  [MISSING ALT] avitar.html: <img src='${snap}'>
+  [BROKEN LINK] service_digital_transformation.html: -> static/Orange%20Sherpa.png
+  [MISSING ALT] preview_logos.html: <img src='sherpa_logo_clean.png'>
+  [MISSING ALT] preview_logos.html: <img src='sherpa_logo_new_clean.png'>
+  [MISSING ALT] preview_logos.html: <img src='sherpa_logo_true_color.png'>
+  [MISSING ALT] preview_logos.html: <img src='sherpa_logo.png'>
+  [MISSING ALT] preview_logos.html: <img src='sherpa_logo_new.jpg'>
+  [MISSING ALT] preview_logos.html: <img src='sherpa_logo_source_clean.png'>
+  [MISSING ALT] preview_logos.html: <img src='sherpa_icon.png'>
+  [BROKEN LINK] snapshot.html: -> stall.js
+
+3. UNUSED ASSETS
+  [UNUSED] thumb_pro_nbag.png
+  [UNUSED] merch_shirt_polo_user.png
+  [UNUSED] merch_pullover_black.png
+  [UNUSED] thumb_pro_pd30.jpg
+  [UNUSED] bp_nomatic_bag_1.png
+  [UNUSED] pristine_45l.jpg
+  [UNUSED] pristine_pd45.jpg
+  [UNUSED] pristine_pd30.jpg
+  [UNUSED] bp_nomatic_pack_2.png
+  [UNUSED] bp_nomatic_pack_5.jpg
+  [UNUSED] pure_nbag.png
+  [UNUSED] pure_pd45.jpg
+  [UNUSED] bp_pd_30l_5.jpg
+  [UNUSED] merch_shirt_button_user.png
+  [UNUSED] bp_nomatic_pack_1_user.jpg
+  [UNUSED] merch_nomatic_pack.png
+  [UNUSED] merch_pullover_pro.png
+  [UNUSED] grid_bp_nomatic_bag.jpg
+  [UNUSED] bp_nomatic_pack_4.png
+  [UNUSED] merch_nomatic_bag_alt_3.png
+  [UNUSED] bp_nomatic_bag_3.jpg
+  [UNUSED] test_nomatic_pack_1.png
+  [UNUSED] merch_pd_30l.png
+  [UNUSED] sherpa_logo_source.jpg
+  [UNUSED] bp_nomatic_bag_5.png
+  [UNUSED] bp_nomatic_bag_2.jpg
+  [UNUSED] bp_nomatic_pack_5.png
+  [UNUSED] merch_powerbank_pro.png
+  [UNUSED] thumb_pd_45l.jpg
+  [UNUSED] bp_nomatic_bag_4.jpg
+  [UNUSED] merch_nomatic_bag_alt_2.png
+  [UNUSED] bp_pd_45l_6.jpg
+  [UNUSED] pristine_nbag.png
+  [UNUSED] pure_pd30.jpg
+  [UNUSED] pristine_bag.png
+  [UNUSED] merch_shirt.png
+  [UNUSED] raw_shirt.jpg
+  [UNUSED] bp_nomatic_pack_5_user.jpg
+  [UNUSED] thumb_pd_30l.jpg
+  [UNUSED] bp_nomatic_bag_4.png
+  [UNUSED] thumb_nomatic_bag.png
+  [UNUSED] merch_nomatic_bag.png
+  [UNUSED] merch_shirt_pro.png
+  [UNUSED] merch_nomatic_pack_alt_1.png
+  [UNUSED] bp_pd_30l_6.jpg
+  [UNUSED] bp_nomatic_bag_6.png
+  [UNUSED] merch_shirt_button_blue.png
+  [UNUSED] ship.jpg
+  [UNUSED] thumb_pro_pd45.jpg
+  [UNUSED] bp_nomatic_pack_2.jpg
+  [UNUSED] pristine_30l.jpg
+  [UNUSED] merch_nomatic_bag_alt_1.png
+  [UNUSED] grid_bp_pd_30l.jpg
+  [UNUSED] sherpa_logo_linkedin.jpg
+  [UNUSED] merch_nomatic_pack_alt_3.png
+  [UNUSED] merch_shirt_pro.jpg
+  [UNUSED] merch_pd_45l.png
+  [UNUSED] bp_nomatic_pack_1.png
+  [UNUSED] grid_bp_nomatic_pack.jpg
+  [UNUSED] bp_pd_45l_1.jpg
+  [UNUSED] bp_nomatic_bag_1.jpg
+  [UNUSED] bp_nomatic_pack_6.png
+  [UNUSED] merch_nomatic_pack_alt_2.png
+  [UNUSED] bp_nomatic_pack_3.png
+  [UNUSED] bp_pd_30l_1.jpg
+  [UNUSED] merch_socks_pro.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/scipy/ndimage/tests/dots.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/sympy/plotting/tests/test_region_xor.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/sympy/plotting/tests/test_region_or.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/sympy/plotting/tests/test_region_not.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/sympy/plotting/tests/test_region_and.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/sklearn/datasets/images/china.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/sklearn/datasets/images/flower.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/sample_data/grace_hopper.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/sample_data/Minduka_Present_Blue_Pack.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/sample_data/logo2.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/help.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/subplots-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/filesave-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/subplots.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/zoom_to_rect_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/qt4_editor_options_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/help-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/hand.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/qt4_editor_options.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/forward.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/zoom_to_rect-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/filesave_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/forward.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/move-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/subplots.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/zoom_to_rect.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/home-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/home_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/back.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/subplots_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/matplotlib.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/move.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/matplotlib_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/qt4_editor_options.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/forward_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/back.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/matplotlib.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/home.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/filesave.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/back-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/zoom_to_rect.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/help_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/move.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/back_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/home.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/hand.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/filesave.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/help.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/forward-symbolic.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/matplotlib/mpl-data/images/move_large.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/werkzeug/debug/shared/more.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/werkzeug/debug/shared/console.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/werkzeug/debug/shared/less.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/retina.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/chessboard_RGB.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/phantom.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/moon.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/cell.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/camera.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/astronaut.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/gravel.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/logo.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/rocket.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/hubble_deep_field.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/clock_motion.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/chelsea.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/page.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/brick.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/microaneurysms.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/horse.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/coffee.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/color.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/no_time_for_that_tiny.gif
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/motorcycle_left.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/chessboard_GRAY.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/coins.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/grass.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/ihc.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/motorcycle_right.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/skimage/data/text.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/hf-logo_transpng.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/screenshot.gif
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/logo.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/lion.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/cheetah1.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/bus.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/avatar.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/tower.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/cheetah.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/media_assets/images/groot.jpeg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/test_data/rectangles.gif
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/test_data/cheetah1-copy.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/test_data/cheetah2.jpg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/test_data/test_image.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/favicon.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/api-logo.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/python.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/logo_error.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/javascript.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/logo_nosize.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/undo-solid.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/clear.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/edit.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/camera.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/static/img/logo.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/mcp-DNm9doVd.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/frontend/assets/hf-logo-8sK58_pS.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/node/build/client/_app/immutable/assets/hf-logo.8sK58_pS.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/templates/node/build/client/_app/immutable/assets/mcp.DNm9doVd.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/icons/huggingface-logo.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/icons/plus.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/gradio/icons/link.svg
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_labels_and_colors.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_shortest_path.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_house_with_colors.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_complex.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_house_with_colors.png
+  [UNUSED] venv_sadtalker/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_empty_graph.png
+  [UNUSED] static/thumb_pro_nbag.png
+  [UNUSED] static/merch_shirt_polo_user.png
+  [UNUSED] static/merch_pullover_black.png
+  [UNUSED] static/bp_nomatic_bag_2.webp
+  [UNUSED] static/realistic_female_sherpa.png
+  [UNUSED] static/world_map.svg
+  [UNUSED] static/simulation_b2b.png
+  [UNUSED] static/Orange Sherpa.png
+  [UNUSED] static/Sherpa Logo High Res.png
+  [UNUSED] static/thumb_pro_pd30.jpg
+  [UNUSED] static/bp_nomatic_bag_1.png
+  [UNUSED] static/cgi_robot.png
+  [UNUSED] static/pristine_45l.jpg
+  [UNUSED] static/pristine_pd45.jpg
+  [UNUSED] static/pristine_pd30.jpg
+  [UNUSED] static/bp_nomatic_pack_2.png
+  [UNUSED] static/bp_nomatic_pack_5.jpg
+  [UNUSED] static/pure_nbag.png
+  [UNUSED] static/pure_pd45.jpg
+  [UNUSED] static/bp_pd_30l_5.jpg
+  [UNUSED] static/simulation_arbitrage.png
+  [UNUSED] static/merch_shirt_button_user.png
+  [UNUSED] static/bp_nomatic_pack_1_user.jpg
+  [UNUSED] static/f150.jpg
+  [UNUSED] static/merch_nomatic_pack.png
+  [UNUSED] static/merch_pullover_pro.png
+  [UNUSED] static/dcsa_sherpa_logo_trans.png
+  [UNUSED] static/marion_ground_floor.png
+  [UNUSED] static/transparent_flower_lily.png
+  [UNUSED] static/grid_bp_nomatic_bag.jpg
+  [UNUSED] static/bp_nomatic_bag_3.webp
+  [UNUSED] static/bp_nomatic_pack_4.png
+  [UNUSED] static/merch_nomatic_bag_alt_3.png
+  [UNUSED] static/bp_nomatic_bag_3.jpg
+  [UNUSED] static/test_nomatic_pack_1.png
+  [UNUSED] static/heavenly_melody_logo_transparent.png
+  [UNUSED] static/merch_pd_30l.png
+  [UNUSED] static/transparent_flower_rose.png
+  [UNUSED] static/sherpa_logo_source.jpg
+  [UNUSED] static/bp_nomatic_bag_5.png
+  [UNUSED] static/bp_nomatic_bag_2.jpg
+  [UNUSED] static/bp_nomatic_pack_5.png
+  [UNUSED] static/flower_lotus.png
+  [UNUSED] static/transparent_flower_tulip.png
+  [UNUSED] static/uk_map.svg
+  [UNUSED] static/marion_ground_clean.png
+  [UNUSED] static/merch_powerbank_pro.png
+  [UNUSED] static/heavenly_hero_cinematic.png
+  [UNUSED] static/transparent_flower_sunflower.png
+  [UNUSED] static/simulation_seo.png
+  [UNUSED] static/marion_va_building.jpg
+  [UNUSED] static/thumb_pd_45l.jpg
+  [UNUSED] static/bp_nomatic_bag_4.jpg
+  [UNUSED] static/avatar_thumbnail.png
+  [UNUSED] static/office_blueprint_bg.png
+  [UNUSED] static/merch_nomatic_bag_alt_2.png
+  [UNUSED] static/bp_pd_45l_6.jpg
+  [UNUSED] static/pristine_nbag.png
+  [UNUSED] static/heavenly_melody_product.png
+  [UNUSED] static/pure_pd30.jpg
+  [UNUSED] static/pristine_bag.png
+  [UNUSED] static/simulation_brand.png
+  [UNUSED] static/merch_shirt.png
+  [UNUSED] static/sherpa_icon_embroidered.jpg
+  [UNUSED] static/raw_shirt.jpg
+  [UNUSED] static/gov_headshot_2.png
+  [UNUSED] static/bp_nomatic_pack_5_user.jpg
+  [UNUSED] static/gov_headshot_1.png
+  [UNUSED] static/thumb_pd_30l.jpg
+  [UNUSED] static/bp_nomatic_bag_4.png
+  [UNUSED] static/thumb_nomatic_bag.png
+  [UNUSED] static/france_map.svg
+  [UNUSED] static/merch_nomatic_bag.png
+  [UNUSED] static/Open Vote Logo1.png
+  [UNUSED] static/hoosier_roadside_hero.png
+  [UNUSED] static/ship_transparent.png
+  [UNUSED] static/walkaround_f150.png
+  [UNUSED] static/live_earth_thumbnail.png
+  [UNUSED] static/merch_shirt_pro.png
+  [UNUSED] static/merch_nomatic_pack_alt_1.png
+  [UNUSED] static/merch_socks.webp
+  [UNUSED] static/bp_pd_30l_6.jpg
+  [UNUSED] static/Open Vote Logo.png
+  [UNUSED] static/bp_nomatic_bag_6.png
+  [UNUSED] static/jeffs_auto_hero.png
+  [UNUSED] static/merch_shirt_button_blue.png
+  [UNUSED] static/flower_lily.png
+  [UNUSED] static/us_map.svg
+  [UNUSED] static/thumb_pro_pd45.jpg
+  [UNUSED] static/bp_nomatic_pack_2.jpg
+  [UNUSED] static/pristine_30l.jpg
+  [UNUSED] static/merch_nomatic_bag_alt_1.png
+  [UNUSED] static/grid_bp_pd_30l.jpg
+  [UNUSED] static/1773876248687.png
+  [UNUSED] static/live_earth_thumbnail.webp
+  [UNUSED] static/ultra_realistic_male_sherpa.png
+  [UNUSED] static/merch_nomatic_pack_alt_3.png
+  [UNUSED] static/police_shield.png
+  [UNUSED] static/merch_shirt_pro.jpg
+  [UNUSED] static/hoosier_roadside_social.png
+  [UNUSED] static/heavenly_melody_thumb.png
+  [UNUSED] static/cyber_snake.png
+  [UNUSED] static/merch_pd_45l.png
+  [UNUSED] static/satellite.png
+  [UNUSED] static/Open Vote 2.png
+  [UNUSED] static/bp_nomatic_pack_1.png
+  [UNUSED] static/heavenly_melody_logo.png
+  [UNUSED] static/grid_bp_nomatic_pack.jpg
+  [UNUSED] static/bp_pd_45l_1.jpg
+  [UNUSED] static/bp_nomatic_bag_1.jpg
+  [UNUSED] static/bp_nomatic_pack_6.png
+  [UNUSED] static/open-vote-transparent.png
+  [UNUSED] static/open-vote-premium.png
+  [UNUSED] static/gov_headshot_3.png
+  [UNUSED] static/merch_nomatic_pack_alt_2.png
+  [UNUSED] static/bp_nomatic_pack_3.png
+  [UNUSED] static/Sherpa Solutions Logo Small.jpg
+  [UNUSED] static/marion_floors_1_2_3.png
+  [UNUSED] static/cyber_dog.png
+  [UNUSED] static/bp_pd_30l_1.jpg
+  [UNUSED] static/cyber_human.png
+  [UNUSED] static/marion_campus.png
+  [UNUSED] static/realistic_sherpa.png
+  [UNUSED] static/merch_socks_pro.png
+  [UNUSED] static/Sherpa Solutions Logo Small.png
+  [UNUSED] SadTalker/docs/resize_good.gif
+  [UNUSED] SadTalker/docs/example_full.gif
+  [UNUSED] SadTalker/docs/sadtalker_logo.png
+  [UNUSED] SadTalker/docs/using_ref_video.gif
+  [UNUSED] SadTalker/docs/resize_no.gif
+  [UNUSED] SadTalker/docs/free_view_result.gif
+  [UNUSED] SadTalker/docs/example_crop.gif
+  [UNUSED] SadTalker/docs/example_full_enhanced.gif
+  [UNUSED] SadTalker/docs/example_crop_still.gif
+  [UNUSED] SadTalker/docs/example_full_crop.gif
+  [UNUSED] SadTalker/examples/source_image/art_14.png
+  [UNUSED] SadTalker/examples/source_image/art_0.png
+  [UNUSED] SadTalker/examples/source_image/sad.png
+  [UNUSED] SadTalker/examples/source_image/happy1.png
+  [UNUSED] SadTalker/examples/source_image/full_body_1.png
+  [UNUSED] SadTalker/examples/source_image/art_3.png
+  [UNUSED] SadTalker/examples/source_image/happy.png
+  [UNUSED] SadTalker/examples/source_image/full4.jpeg
+  [UNUSED] SadTalker/examples/source_image/art_4.png
+  [UNUSED] SadTalker/examples/source_image/art_18.png
+  [UNUSED] SadTalker/examples/source_image/art_10.png
+  [UNUSED] SadTalker/examples/source_image/art_1.png
+  [UNUSED] SadTalker/examples/source_image/art_20.png
+  [UNUSED] SadTalker/examples/source_image/art_7.png
+  [UNUSED] SadTalker/examples/source_image/art_16.png
+  [UNUSED] SadTalker/examples/source_image/art_8.png
+  [UNUSED] SadTalker/examples/source_image/art_2.png
+  [UNUSED] SadTalker/examples/source_image/full_body_2.png
+  [UNUSED] SadTalker/examples/source_image/art_15.png
+  [UNUSED] SadTalker/examples/source_image/full3.png
+  [UNUSED] SadTalker/examples/source_image/art_19.png
+  [UNUSED] SadTalker/examples/source_image/art_11.png
+  [UNUSED] SadTalker/examples/source_image/art_17.png
+  [UNUSED] SadTalker/examples/source_image/sad1.png
+  [UNUSED] SadTalker/examples/source_image/people_0.png
+  [UNUSED] SadTalker/examples/source_image/art_13.png
+  [UNUSED] SadTalker/examples/source_image/art_12.png
+  [UNUSED] SadTalker/examples/source_image/art_6.png
+  [UNUSED] SadTalker/examples/source_image/art_9.png
+  [UNUSED] SadTalker/examples/source_image/art_5.png
+  [UNUSED] temp_results/2026_05_03_11.30.16/first_frame_dir/realistic_female_sherpa.png
+  [UNUSED] temp_results/2026_05_03_11.30.48/first_frame_dir/realistic_female_sherpa.png
+  [UNUSED] venv/lib/python3.12/site-packages/playwright/driver/package/lib/server/chromium/appIcon.png
+  [UNUSED] venv/lib/python3.12/site-packages/playwright/driver/package/lib/vite/traceViewer/playwright-logo.svg
+  [UNUSED] venv/lib/python3.12/site-packages/playwright/driver/package/lib/vite/recorder/playwright-logo.svg
+  [UNUSED] venv/lib/python3.12/site-packages/sympy/plotting/tests/test_region_xor.png
+  [UNUSED] venv/lib/python3.12/site-packages/sympy/plotting/tests/test_region_or.png
+  [UNUSED] venv/lib/python3.12/site-packages/sympy/plotting/tests/test_region_not.png
+  [UNUSED] venv/lib/python3.12/site-packages/sympy/plotting/tests/test_region_and.png
+  [UNUSED] venv/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_labels_and_colors.png
+  [UNUSED] venv/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_shortest_path.png
+  [UNUSED] venv/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_house_with_colors.png
+  [UNUSED] venv/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_complex.png
+  [UNUSED] venv/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_house_with_colors.png
+  [UNUSED] venv/lib/python3.12/site-packages/networkx/drawing/tests/baseline/test_display_empty_graph.png
+
+4. ROOT DIRECTORY CLUTTER
+  [WARNING] Found 88 image files in the root directory. Should be moved to /static/.
+    - thumb_pro_nbag.png
+    - sherpa_logo_true_color.png
+    - bp_pd_30l_3.jpg
+    - merch_shirt_polo_user.png
+    - bp_pd_30l_4.jpg
+    ... and 83 more.

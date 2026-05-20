@@ -77,7 +77,9 @@ class ConnectionManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
 
     async def broadcast(self, message: dict):
         if message.get("type") in ["chat", "question"] and hasattr(self, "session_id"):
@@ -532,7 +534,12 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.send_text(json.dumps({"type": "pong"}))
                 
     except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+    finally:
         manager.disconnect(websocket)
+
 
 @app.on_event("startup")
 async def startup_event():
