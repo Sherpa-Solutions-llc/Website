@@ -2,7 +2,7 @@ import os
 import re
 import time
 
-base = r'C:\Users\choos\Documents\Antigravity\sherpa_solutions'
+base = os.path.dirname(os.path.abspath(__file__))
 
 targets = {
     "backpack_pd_45l.html": [

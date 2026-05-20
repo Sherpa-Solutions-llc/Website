@@ -78,4 +78,5 @@ ngrok.tgz
 cloudflared.log
 server_output_*.log
 ngrok.log
-
+github_sync_progress.json
+github_sync_config.json

@@ -95,7 +95,14 @@ def git_push():
         update_progress(70, "Committing changes...")
         # Check if there are changes to commit and count them
         status_res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
-        lines = [l for l in status_res.stdout.splitlines() if l.strip()]
+        lines = []
+        for l in status_res.stdout.splitlines():
+            l_strip = l.strip()
+            if not l_strip:
+                continue
+            if "github_sync_progress.json" in l_strip or "github_sync_config.json" in l_strip:
+                continue
+            lines.append(l_strip)
         file_count = len(lines)
         
         if file_count == 0:

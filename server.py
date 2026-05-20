@@ -2522,72 +2522,73 @@ async def generate_avatar_sad(req: AvatarRequest):
 async def get_git_status(user: str = Depends(require_admin)):
     try:
         import subprocess
-        # Get list of modified files in a format we can parse
-        res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
         
         project_keys = set()
         
-        # Mapping rules
+        # 1. Direct Project Matches Map
+        DIRECT_MAP = {
+            "heavenly_melody": "heavenly_melody",
+            "open_vote": "open_vote",
+            "live_earth": "live_earth",
+            "live_earth2": "live_earth",
+            "skip_tracer": "traku",
+            "stock_agent": "stock_agent",
+            "productivity_agent": "productivity_agent",
+            "osint_api": "osint_api",
+            "osint_api_docs": "osint_api",
+            "freeme": "freeme",
+            "voice-chat": "voice-chat",
+            "sadtalker_worker": "voice-chat",
+            "arbitrage": "arbitrage",
+            "b2b_leads": "b2b_leads",
+            "launchpad": "launchpad",
+            "marion_va": "marion_va",
+            "train_your_brain": "train_your_brain",
+            "food_globe": "food_globe",
+            "fun_e_stick": "fun_e_stick",
+            "seo_sniper": "seo_sniper",
+            "brand_monitor": "brand_monitor",
+            "business_model": "business_model",
+            "dealership_marketing": "dealership_marketing",
+            "dealership_admin": "dealership_marketing",
+            "hoosier_roadside": "hoosier_roadside",
+            "avitar": "avitar",
+            # DCSA sub-pages (also caught by dcsa_ prefix rule below)
+            "dcsa_dashboard": "dcsa",
+            "dcsa_personnel_vetting": "dcsa",
+            "dcsa_industrial_security": "dcsa",
+            "dcsa_counterintelligence": "dcsa",
+            "dcsa_security_training": "dcsa",
+            "dcsa_full_integration": "dcsa",
+            "dcsa_2040_threats": "dcsa",
+            "dcsa_agency_profile": "dcsa",
+            "dcsa_resource_locator": "dcsa",
+            # DCSA sub-pages also caught by view_candidates
+            "view_candidates": "dcsa",
+            # Core Pages
+            "index": "core_site",
+            "about": "core_site",
+            "contact": "core_site",
+            "login": "core_site",
+            "services": "core_site",
+            "merchandise": "core_site",
+            "projects": "core_site",
+            "styles.css": "core_site",
+            "open_design": "core_site",
+            "server": "core_site",
+            "agent_audit": "core_site",
+            "CLAUDE": "core_site"
+        }
+
+        # Check list of git modified files
+        res = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
+        
+        # Mapping rules for git status
         for line in res.stdout.splitlines():
             # git status --porcelain output: " M path/to/file.html" or "?? newfile.html"
             path = line[3:].strip()
             filename = os.path.basename(path)
             name_no_ext = os.path.splitext(filename)[0]
-            
-            # 1. Direct Project Matches
-            DIRECT_MAP = {
-                "heavenly_melody": "heavenly_melody",
-                "open_vote": "open_vote",
-                "live_earth": "live_earth",
-                "live_earth2": "live_earth",
-                "skip_tracer": "traku",
-                "stock_agent": "stock_agent",
-                "productivity_agent": "productivity_agent",
-                "osint_api": "osint_api",
-                "osint_api_docs": "osint_api",
-                "freeme": "freeme",
-                "voice-chat": "voice-chat",
-                "sadtalker_worker": "voice-chat",
-                "arbitrage": "arbitrage",
-                "b2b_leads": "b2b_leads",
-                "launchpad": "launchpad",
-                "marion_va": "marion_va",
-                "train_your_brain": "train_your_brain",
-                "food_globe": "food_globe",
-                "fun_e_stick": "fun_e_stick",
-                "seo_sniper": "seo_sniper",
-                "brand_monitor": "brand_monitor",
-                "business_model": "business_model",
-                "dealership_marketing": "dealership_marketing",
-                "dealership_admin": "dealership_marketing",
-                "hoosier_roadside": "hoosier_roadside",
-                "avitar": "avitar",
-                # DCSA sub-pages (also caught by dcsa_ prefix rule below)
-                "dcsa_dashboard": "dcsa",
-                "dcsa_personnel_vetting": "dcsa",
-                "dcsa_industrial_security": "dcsa",
-                "dcsa_counterintelligence": "dcsa",
-                "dcsa_security_training": "dcsa",
-                "dcsa_full_integration": "dcsa",
-                "dcsa_2040_threats": "dcsa",
-                "dcsa_agency_profile": "dcsa",
-                "dcsa_resource_locator": "dcsa",
-                # DCSA sub-pages also caught by view_candidates
-                "view_candidates": "dcsa",
-                # Core Pages
-                "index": "core_site",
-                "about": "core_site",
-                "contact": "core_site",
-                "login": "core_site",
-                "services": "core_site",
-                "merchandise": "core_site",
-                "projects": "core_site",
-                "styles.css": "core_site",
-                "open_design": "core_site",
-                "server": "core_site",
-                "agent_audit": "core_site",
-                "CLAUDE": "core_site"
-            }
             
             if name_no_ext in DIRECT_MAP:
                 project_keys.add(DIRECT_MAP[name_no_ext])
@@ -2625,6 +2626,77 @@ async def get_git_status(user: str = Depends(require_admin)):
                 elif "dealership" in filename: project_keys.add("dealership_marketing")
                 elif "styles" in filename or "theme" in filename or "cms" in filename:
                     project_keys.add("core_site")
+
+        # Check for pending CMS changes in the database
+        try:
+            import sqlite3
+            from bs4 import BeautifulSoup
+            cms_db_path = os.path.join(BASE_DIR, "sherpa_cms.db")
+            if os.path.exists(cms_db_path):
+                conn = sqlite3.connect(cms_db_path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT element_id, html_content FROM content")
+                cms_data = {row[0]: row[1] for row in cursor.fetchall()}
+                conn.close()
+                
+                html_files = [f for f in os.listdir(BASE_DIR) if f.endswith('.html')]
+                for filename in html_files:
+                    filepath = os.path.join(BASE_DIR, filename)
+                    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                        soup = BeautifulSoup(f.read(), 'html.parser')
+                    
+                    elements = soup.find_all(attrs={"data-cms": True})
+                    file_changed = False
+                    for el in elements:
+                        eid = el['data-cms']
+                        if eid in cms_data:
+                            db_val = cms_data[eid].strip()
+                            if el.name == 'img':
+                                if el.get('src', '').strip() != db_val:
+                                    file_changed = True
+                                    break
+                            else:
+                                is_json = False
+                                if db_val.startswith("{"):
+                                    try:
+                                        data = json.loads(db_val)
+                                        if isinstance(data, dict) and ('img' in data or 'video' in data):
+                                            is_json = True
+                                            current_video = el.get('data-video-src', '').strip()
+                                            db_video = (data.get('video') or '').strip()
+                                            if current_video != db_video:
+                                                file_changed = True
+                                                break
+                                            
+                                            img_tag = el.find('img')
+                                            current_img = img_tag.get('src', '').strip() if img_tag else ''
+                                            db_img = (data.get('img') or '').strip()
+                                            if current_img != db_img:
+                                                file_changed = True
+                                                break
+                                    except:
+                                        pass
+                                
+                                if not is_json:
+                                    current_content = el.decode_contents().strip()
+                                    db_soup = BeautifulSoup(db_val, 'html.parser')
+                                    db_normalized = db_soup.decode_contents().strip()
+                                    if current_content != db_normalized:
+                                        file_changed = True
+                                        break
+                    if file_changed:
+                        # Map to project keys
+                        name_no_ext = os.path.splitext(filename)[0]
+                        if name_no_ext in DIRECT_MAP:
+                            project_keys.add(DIRECT_MAP[name_no_ext])
+                        elif filename in DIRECT_MAP:
+                            project_keys.add(DIRECT_MAP[filename])
+                        elif filename.startswith("dcsa_"):
+                            project_keys.add("dcsa")
+                        elif filename.startswith("service_") or filename.startswith("merch_") or filename.startswith("backpack_"):
+                            project_keys.add("core_site")
+        except Exception as cms_e:
+            print(f"Error checking pending CMS changes: {cms_e}")
         
         return {"modified": list(project_keys)}
     except Exception as e:
@@ -2652,10 +2724,11 @@ async def sync_github(request: SyncRequest, user: str = Depends(require_admin)):
         # We DON'T await process.communicate() here, so the API returns immediately
         # and allows the frontend to poll for progress while the script runs.
         print(f"Launching sync script: {python_exe} {script_path}")
+        creation_flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0) if os.name == 'nt' else 0
         subprocess.Popen([python_exe, script_path], 
                          stdout=subprocess.DEVNULL, 
                          stderr=subprocess.DEVNULL,
-                         creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+                         creationflags=creation_flags)
             
         return {"status": "success", "message": "Deployment started in background."}
     except Exception as e:
