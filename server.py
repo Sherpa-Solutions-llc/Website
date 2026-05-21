@@ -2575,7 +2575,6 @@ async def get_git_status(user: str = Depends(require_admin)):
             "projects": "core_site",
             "styles.css": "core_site",
             "settings": "core_site",
-            "open_design": "core_site",
             "server": "core_site",
             "agent_audit": "core_site",
             "CLAUDE": "core_site"
