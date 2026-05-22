@@ -2,6 +2,19 @@
 
 <html data-theme="dark" lang="en">
 <head>
+<!-- Offline Mermaid Failsafe Mock -->
+<script>
+if (typeof mermaid === 'undefined') {
+    const makeMock = () => new Proxy(function() {}, {
+        get(target, prop) {
+            if (prop === 'then') return undefined;
+            return makeMock();
+        },
+        construct() { return makeMock(); }
+    });
+    window.mermaid = makeMock();
+}
+</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Productivity Agent | Command Center</title>

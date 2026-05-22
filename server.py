@@ -141,7 +141,11 @@ async def anti_stealth_middleware(request: Request, call_next):
         # Clean up old timestamps
         ip_request_counts[client_ip] = [t for t in ip_request_counts[client_ip] if now - t < RATE_LIMIT_WINDOW]
         
-        if len(ip_request_counts[client_ip]) >= RATE_LIMIT_REQUESTS:
+        # Relax rate limits for local development and loopback connections to prevent blocking local testing
+        is_loopback = client_ip in ("127.0.0.1", "::1", "localhost")
+        effective_limit = 10000 if is_loopback else RATE_LIMIT_REQUESTS
+        
+        if len(ip_request_counts[client_ip]) >= effective_limit:
             return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded. Please slow down."})
             
         ip_request_counts[client_ip].append(now)

@@ -579,7 +579,8 @@
 <script>
         document.addEventListener("DOMContentLoaded", () => {
             const tsPath = document.getElementById('ts-path');
-            const totalLength = tsPa
+            if (!tsPath) return;
+            const totalLength = tsPath.getTotalLength();
             const fractions = [0.0, 0.13, 0.26, 0.41, 0.55, 0.70, 0.85, 0.95];
             const out = [];
             for (let f of fractions) {

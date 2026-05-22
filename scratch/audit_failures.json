@@ -1,0 +1,905 @@
+{
+  "about.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "antigravity_showcase.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "arbitrage.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "https://sherpa-dashboards.streamlit.app/arbitrage?embed=true&theme=dark&env=sim -> net::ERR_FAILED"
+    ]
+  },
+  "avatar.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "avitar.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "[GroupMarkerNotSet(crbug.com/242999)!:A0B00F00A4080000]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[.WebGL-0x1fcc008a0e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x1fcc008a0e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x1fcc008a0e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x1fcc008a0e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ],
+    "failed_network_requests": []
+  },
+  "b2b_leads.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "https://sherpa-dashboards.streamlit.app/b2b_leads?embed=true&theme=dark&env=sim -> net::ERR_FAILED"
+    ]
+  },
+  "backpack_nomatic_bag.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "backpack_nomatic_pack.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "backpack_pd_30l.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "backpack_pd_45l.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "brand_monitor.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "https://sherpa-dashboards.streamlit.app/brand_monitor?embed=true&theme=dark&env=sim -> net::ERR_FAILED"
+    ]
+  },
+  "business_model.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "contact.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_2040_threats.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_agency_profile.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_counterintelligence.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_dashboard.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_full_integration.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_industrial_security.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_personnel_vetting.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dcsa_resource_locator.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Could not load 3D Buildings. TypeError: Cesium.createOsmBuildings is not a function\n    at initCesium (http://127.0.0.1:8001/static/resource_locator.js:212:44)\n    at script.onload (http://127.0.0.1:8001/static/resource_locator.js:975:25)",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "[GroupMarkerNotSet(crbug.com/242999)!:A0F0A601A4080000]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/2/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/2/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/3/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/3/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/1/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/1/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/2/0 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/2/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/3/0 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/3/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/4/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/4/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/1/0 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/1/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/4/0 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/3/4/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/6/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/6/4 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/5/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/5/4 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/4 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/6/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/6/5 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/5/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/5/5 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/5 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/4/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/4/4 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/8/3 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/8/4 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/4/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/4/5 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/6/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/6/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/8/2 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/8/5 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/5/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/5/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/4/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/4/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/8/1 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/8/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/8 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/9 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/11/8 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/11/9 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/13/8 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/13/9 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/7 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/10 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/11/7 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/11/10 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/13/7 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/13/10 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/10/8 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/10/9 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/14/8 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/14/9 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/10/7 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/10/10 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/11 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/14/7 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/14/10 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/11/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/11/11 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/13/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/13/11 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/10/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/10/11 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/14/6 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/14/11 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/18 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/18 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/17 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/19 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/18 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/17 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/19 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/17 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/19 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/18 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/16 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/20 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/18 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/17 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/19 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/16 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/20 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/16 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/20 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/17 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/19 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/16 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/20 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/16 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/20 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6289/4673 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6289/4674 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6288/4673 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6288/4674 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6290/4673 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6290/4674 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6289/4672 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6289/4675 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6288/4672 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6288/4675 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6290/4672 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6290/4675 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6287/4673 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6287/4674 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6291/4673 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6291/4674 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6287/4672 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6287/4675 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6289/4671 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6289/4676 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6291/4672 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6291/4675 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6288/4671 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6288/4676 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6290/4671 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6290/4676 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6287/4671 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6287/4676 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6291/4671 -> net::ERR_FAILED",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6291/4676 -> net::ERR_FAILED"
+    ]
+  },
+  "dcsa_security_training.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dealership_admin.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "dealership_marketing.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "http://example.com/thumb.png -> net::ERR_FAILED"
+    ]
+  },
+  "engineering_demo.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "food_globe.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Cesium library not loaded.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Weather init failed TypeError: Failed to fetch\n    at initWeather (http://127.0.0.1:8001/static/food_globe.js?v=2:188:29)\n    at window.onload (http://127.0.0.1:8001/static/food_globe.js?v=2:137:5)"
+    ],
+    "failed_network_requests": [
+      "https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css -> net::ERR_FAILED",
+      "https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js -> net::ERR_FAILED",
+      "https://api.rainviewer.com/public/weather-maps.json -> net::ERR_FAILED"
+    ]
+  },
+  "freeme.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "fun_e_stick.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "failed_network_requests": []
+  },
+  "genai_demo.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "heavenly_melody.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "failed_network_requests": []
+  },
+  "hoosier_roadside.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "https://a.tile.openstreetmap.org/4/3/6.png -> net::ERR_FAILED",
+      "https://c.tile.openstreetmap.org/4/3/5.png -> net::ERR_FAILED",
+      "https://c.tile.openstreetmap.org/4/2/6.png -> net::ERR_FAILED",
+      "https://b.tile.openstreetmap.org/4/4/6.png -> net::ERR_FAILED",
+      "https://b.tile.openstreetmap.org/4/3/7.png -> net::ERR_FAILED",
+      "https://b.tile.openstreetmap.org/4/2/5.png -> net::ERR_FAILED",
+      "https://a.tile.openstreetmap.org/4/4/5.png -> net::ERR_FAILED",
+      "https://a.tile.openstreetmap.org/4/2/7.png -> net::ERR_FAILED",
+      "https://c.tile.openstreetmap.org/4/4/7.png -> net::ERR_FAILED",
+      "https://b.tile.openstreetmap.org/4/1/6.png -> net::ERR_FAILED",
+      "https://c.tile.openstreetmap.org/4/5/6.png -> net::ERR_FAILED",
+      "https://a.tile.openstreetmap.org/4/1/5.png -> net::ERR_FAILED",
+      "https://b.tile.openstreetmap.org/4/5/5.png -> net::ERR_FAILED",
+      "https://c.tile.openstreetmap.org/4/1/7.png -> net::ERR_FAILED",
+      "https://a.tile.openstreetmap.org/4/5/7.png -> net::ERR_FAILED"
+    ]
+  },
+  "index.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "launchpad.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "live_earth.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Cesium library failed to load. Injecting offline mocks.",
+      "Failed to load resource: net::ERR_FAILED",
+      "[Weather] Failed to apply weather layer: TypeError: Failed to fetch\n    at applyWeatherLayer (http://127.0.0.1:8001/static/live_earth.js?v=10050:2283:31)\n    at updateWeatherLayer (http://127.0.0.1:8001/static/live_earth.js?v=10050:2257:55)\n    at window.toggleLayer (http://127.0.0.1:8001/static/live_earth.js?v=10050:366:39)\n    at HTMLDivElement.onclick (http://127.0.0.1:8001/live_earth.html:267:84)"
+    ],
+    "failed_network_requests": [
+      "https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css -> net::ERR_FAILED",
+      "https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js -> net::ERR_FAILED",
+      "https://api.rainviewer.com/public/weather-maps.json -> net::ERR_FAILED"
+    ]
+  },
+  "live_earth2.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Cesium library failed to load. Injecting offline mocks.",
+      "Failed to load resource: net::ERR_FAILED",
+      "[Weather] Failed to apply weather layer: TypeError: Failed to fetch\n    at applyWeatherLayer (http://127.0.0.1:8001/static/live_earth.js?v=26:2325:27)\n    at updateWeatherLayer (http://127.0.0.1:8001/static/live_earth.js?v=26:2257:55)\n    at window.toggleLayer (http://127.0.0.1:8001/static/live_earth.js?v=26:366:39)\n    at HTMLDivElement.onclick (http://127.0.0.1:8001/live_earth2.html:165:77)"
+    ],
+    "failed_network_requests": [
+      "https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css -> net::ERR_FAILED",
+      "https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js -> net::ERR_FAILED",
+      "https://api.rainviewer.com/public/weather-maps.json -> net::ERR_FAILED"
+    ]
+  },
+  "live_projects.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "login.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "marion_va.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "A bad HTTP response code (404) was received when fetching the script."
+    ],
+    "failed_network_requests": []
+  },
+  "merch_backpacks.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "merch_pens.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "merch_shirts.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "merchandise.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "next_steps.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "open_vote.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "[GroupMarkerNotSet(crbug.com/242999)!:A020A701A4080000]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "osint_api.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "osint_api_docs.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "productivity_agent.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "projects.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "seo_sniper.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Sherpa Cloud unreachable. Failing over to seo_sniper simulation.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "https://sherpa-dashboards.streamlit.app/seo_sniper?embed=true&theme=dark&env=sim -> net::ERR_FAILED"
+    ]
+  },
+  "service_ai_automation.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_ai_integration.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_cloud_strategy.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_competitor_analysis.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_cybersecurity_strategy.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_digital_transformation.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_it_project_management.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_leadership_coaching.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_marketing_strategy.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_operational_review.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_program_recovery.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_quality_assessment.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "service_strategy_development.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "services.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "settings.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "settings_live.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": [
+      "http://127.0.0.1:8001/static/theme.js -> net::ERR_ABORTED",
+      "http://127.0.0.1:8001/static/cms.js -> net::ERR_ABORTED",
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css -> net::ERR_ABORTED",
+      "http://127.0.0.1:8001/static/sherpa_logo.png -> net::ERR_ABORTED",
+      "http://127.0.0.1:8001/static/styles.css?v=2.0 -> net::ERR_ABORTED",
+      "http://127.0.0.1:8001/api/users -> net::ERR_ABORTED",
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2 -> net::ERR_ABORTED"
+    ]
+  },
+  "skip_tracer.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "stock_agent.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "swarm_architecture.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "sysadmin_demo.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "train_your_brain.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Mic denied NotSupportedError: Not supported",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "failed_network_requests": []
+  },
+  "voice-chat.html": {
+    "js_exceptions": [],
+    "console_warnings_errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Speech error: SpeechSynthesisErrorEvent"
+    ],
+    "failed_network_requests": []
+  }
+}

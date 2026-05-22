@@ -87,6 +87,13 @@ let selectedNodeId = null;
 const pf = new Pathfinder(MAP_DATA);
 
 function init() {
+    if (typeof THREE === 'undefined' || window.THREE_OFFLINE) {
+        const container = document.getElementById('map-canvas-container');
+        if (container) {
+            container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:2rem; font-size:0.9rem;">3D WebGL Map Offline</div>';
+        }
+        return;
+    }
     const container = document.getElementById('map-canvas-container');
     if (!container) return;
 

@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="static/theme.js?v=3"></script>
+<script src="static/simulation_engine.js"></script>
 <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #0e1117; }
         iframe { width: 100%; height: calc(100vh - 180px); border: none; margin-top: 180px; }
@@ -65,6 +66,10 @@
             }
             const iframe = document.getElementById('sherpa-frame');
             iframe.src = host + iframe.getAttribute('data-path') + '?embed=true&theme=' + (document.documentElement.getAttribute('data-theme') || 'dark') + '&env=' + flag;
+            
+            if (window.SherpaSimulation) {
+                window.SherpaSimulation.init('seo_sniper');
+            }
         });
 
         function toggleDemo() {
@@ -82,10 +87,14 @@
                 audio.playbackRate = 1.25;
                 audio.play();
 
-                // Streamlit Macro Injections (Scaled 1.25x for audio speed, mapping "best crm software")
-                setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'FILL', index: 0, value: 'best crm software'}, '*'); }, 2400);
-                setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'FILL', index: 1, value: 'sherpa-solutions'}, '*'); }, 4000);
-                setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'CLICK', text: 'Generate'}, '*'); }, 6800);
+                if (window.SherpaSimulation && window.SherpaSimulation.isSimulation) {
+                    window.SherpaSimulation.runVirtualDemo('seo_sniper', audio);
+                } else {
+                    // Streamlit Macro Injections (Scaled 1.25x for audio speed, mapping "best crm software")
+                    setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'FILL', index: 0, value: 'best crm software'}, '*'); }, 2400);
+                    setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'FILL', index: 1, value: 'sherpa-solutions'}, '*'); }, 4000);
+                    setTimeout(() => { iframe.contentWindow.postMessage({target: 'SHERPA_DEMO', action: 'CLICK', text: 'Generate'}, '*'); }, 6800);
+                }
 
                 audio.onended = function() {
                     btn.classList.remove('active');

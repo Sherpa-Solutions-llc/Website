@@ -1,5 +1,54 @@
 // sherpa_solutions/static/food_globe.js
 
+if (typeof Cesium === 'undefined') {
+    console.error("Cesium library not loaded.");
+    const container = document.getElementById('globe-container');
+    if (container) {
+        container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:2rem; font-size:0.9rem; display:flex; align-items:center; justify-content:center; height:100%;">Cesium Live Globe Offline</div>';
+    }
+    window.viewer = {
+        scene: {
+            globe: {},
+            skyAtmosphere: {},
+            screenSpaceCameraController: {},
+            canvas: document.createElement('canvas')
+        },
+        screenSpaceEventHandler: {
+            removeInputAction: () => {}
+        },
+        entities: {
+            add: () => ({}),
+            remove: () => {}
+        },
+        camera: {
+            flyTo: () => {}
+        },
+        imageryLayers: {
+            addImageryProvider: () => ({}),
+            remove: () => {}
+        }
+    };
+    window.Cesium = {
+        Viewer: function() { return window.viewer; },
+        ArcGisMapServerImageryProvider: function() {},
+        ScreenSpaceEventHandler: function() {
+            return { setInputAction: () => {} };
+        },
+        ScreenSpaceEventType: { LEFT_CLICK: 0, LEFT_DOUBLE_CLICK: 1 },
+        defined: () => false,
+        Color: { 
+            YELLOW: {}, BLACK: {}, RED: {}, GOLD: {}, ORANGE: {}, 
+            ORANGERED: { withAlpha: () => ({}) },
+            fromCssColorString: () => ({ withAlpha: () => ({}) })
+        },
+        Cartesian3: { fromDegrees: () => ({}), lerp: () => ({}), add: () => ({}), multiplyByScalar: () => ({}), normalize: () => ({}) },
+        CallbackProperty: function() {},
+        PolylineDashMaterialProperty: function() {},
+        ColorMaterialProperty: function() {},
+        CatmullRomSpline: function() { return { evaluate: () => ({}) }; }
+    };
+}
+
 let API_BASE = 'https://sherpa-solutions-api-production.up.railway.app';
 if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
     API_BASE = 'http://127.0.0.1:8001';
@@ -162,7 +211,7 @@ async function initWeather() {
 
         attachWeather();
         layerWeatherCheck.addEventListener('change', attachWeather);
-    } catch(e) { console.error("Weather init failed", e); }
+    } catch(e) { console.log("Weather init failed (offline/unreachable):", e.message || e); }
 }
 
 // --- Vessel Integration (Simulated AIS Stream) ---

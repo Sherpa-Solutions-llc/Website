@@ -2,7 +2,27 @@
 
 <html data-theme="dark" lang="en">
 <head>
-<link href="static/orange_sherpa.png?v=4" rel="icon" type="image/png"/>
+<!-- Offline Three.js / resetIdle Failsafe Mock -->
+<script>
+if (typeof THREE === 'undefined') {
+    window.THREE_OFFLINE = true;
+    const makeMock = () => new Proxy(function() {}, {
+        get(target, prop) {
+            if (prop === 'then') return undefined;
+            if (prop === 'DoubleSide') return 2;
+            if (prop === 'sRGBEncoding') return 3001;
+            if (prop === 'domElement') return document.createElement('canvas');
+            return makeMock();
+        },
+        construct() { return makeMock(); }
+    });
+    window.THREE = makeMock();
+}
+if (typeof window.resetIdle === 'undefined') {
+    window.resetIdle = function() {};
+}
+</script>
+<link href="/static/orange_sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <meta content="Marion VA Medical Center 3D Wayfinding and Navigation. Offline capable navigation inside the facility." name="description"/>
@@ -28,9 +48,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <!-- Base Styles -->
-<link href="static/styles.css?v=20" rel="stylesheet"/>
-<link href="static/marion_va.css?v=20" rel="stylesheet"/>
-<script src="static/theme.js?v=20"></script>
+<link href="/static/styles.css?v=20" rel="stylesheet"/>
+<link href="/static/marion_va.css?v=20" rel="stylesheet"/>
+<script src="/static/theme.js?v=20"></script>
 <style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
@@ -58,7 +78,7 @@
 <header>
 <div class="logo-container">
 <a href="index.html">
-<img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png"/>
+<img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/>
 </a>
 </div>
 <div class="menu-toggle" id="mobile-menu-btn">
@@ -215,13 +235,13 @@
 </div>
 <!-- Scripts -->
 <!-- Application Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="/static/three.min.js"></script>
+<script src="/static/OrbitControls.js"></script>
 <!-- Brutally defeat ServiceWorker ignoreSearch cache rules by changing physical file names -->
-<script src="static/marion_db.js"></script>
-<script src="static/marion_engine.js"></script>
-<script src="static/marion_core.js"></script>
-<script src="static/cms.js"></script>
+<script src="/static/marion_db.js"></script>
+<script src="/static/marion_engine.js"></script>
+<script src="/static/marion_core.js"></script>
+<script src="/static/cms.js"></script>
 <!-- Service Worker Registration -->
 <script>
       if ('serviceWorker' in navigator) {

@@ -1,6 +1,15 @@
 // avitar-3d.js - The WebGL Hologram matrix powered by Three.js
 // Mounts physical skeletal models with dynamic animation rendering
 
+if (typeof THREE === 'undefined' || window.THREE_OFFLINE) {
+    console.error("Three.js library not loaded.");
+    window.loadModel = function() { console.warn("loadModel called but Three.js is offline."); };
+    window.playRobotAnimation = function() { console.warn("playRobotAnimation called but Three.js is offline."); };
+    window.fadeToAction = function() { };
+    window.playRandomMovement = function() { return 'Idle'; };
+    window.avatarGreetSequence = function() { };
+}
+
 window.robotMixer = null;
 window.robotActions = {};
 window.activeRobotAction = null;
@@ -10,6 +19,13 @@ window.loader = null;
 let scene, camera, renderer, clock;
 
 document.addEventListener("DOMContentLoaded", () => {
+    if (typeof THREE === 'undefined' || window.THREE_OFFLINE) {
+        const container = document.getElementById('webgl-container');
+        if (container) {
+            container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:2rem; font-size:0.9rem;">3D WebGL Hologram Offline</div>';
+        }
+        return;
+    }
     const container = document.getElementById('webgl-container');
     if (!container) return;
 
@@ -319,11 +335,11 @@ document.addEventListener("DOMContentLoaded", () => {
             //      setTimeout(() => window.fadeToAction('Idle', 0.5), 2000);
             // }, 500); 
         }, undefined, function ( e ) {
-            console.error( "CRITICAL: GLTF Framework Load Failure", e );
+            console.log( "GLTF Framework Load Info:", e );
             // Failsafe auto-recovery for dead Blob urls in localStorage cache
-            const defaultRobot = "static/tomb_raider_laracroft.glb";
+            const defaultRobot = "/static/tomb_raider_laracroft.glb";
             if (url !== defaultRobot) {
-                console.warn("Autonomously booting fallback Failsafe Matrix.");
+                console.log("Autonomously booting fallback Failsafe Matrix.");
                 window.loadModel(defaultRobot, {scale: 1.6, y: -3.5, rot: 0});
             }
         });

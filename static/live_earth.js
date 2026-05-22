@@ -1,3 +1,197 @@
+if (typeof Cesium === 'undefined') {
+    console.error("Cesium library failed to load. Injecting offline mocks.");
+    const container = document.getElementById('globe-container');
+    if (container) {
+        container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:2rem; font-size:1.1rem; display:flex; align-items:center; justify-content:center; height:100%;">Cesium Live Telemetry Globe Offline</div>';
+    }
+    
+    const createMockEntityCollection = () => {
+        const entitiesMap = new Map();
+        const valuesArray = [];
+        return {
+            add: (entity) => {
+                const id = entity.id || Math.random().toString();
+                if (!entity.id) entity.id = id;
+                entitiesMap.set(id, entity);
+                if (!valuesArray.includes(entity)) valuesArray.push(entity);
+                return entity;
+            },
+            remove: (entity) => {
+                const id = entity ? entity.id : null;
+                if (id) {
+                    entitiesMap.delete(id);
+                    const idx = valuesArray.findIndex(e => e.id === id);
+                    if (idx !== -1) valuesArray.splice(idx, 1);
+                }
+            },
+            removeById: (id) => {
+                entitiesMap.delete(id);
+                const idx = valuesArray.findIndex(e => e.id === id);
+                if (idx !== -1) valuesArray.splice(idx, 1);
+            },
+            removeAll: () => {
+                entitiesMap.clear();
+                valuesArray.length = 0;
+            },
+            getById: (id) => {
+                return entitiesMap.get(id);
+            },
+            suspendEvents: () => {},
+            resumeEvents: () => {},
+            values: valuesArray
+        };
+    };
+
+    window.viewer = {
+        scene: {
+            globe: {},
+            skyAtmosphere: {},
+            screenSpaceCameraController: {},
+            canvas: document.createElement('canvas'),
+            primitives: {
+                add: (x) => x
+            },
+            preUpdate: {
+                addEventListener: () => {}
+            },
+            preRender: {
+                addEventListener: () => {}
+            },
+            requestRender: () => {}
+        },
+        screenSpaceEventHandler: {
+            removeInputAction: () => {}
+        },
+        entities: createMockEntityCollection(),
+        camera: {
+            flyTo: () => {},
+            moveEnd: {
+                addEventListener: () => {}
+            }
+        },
+        imageryLayers: {
+            addImageryProvider: () => ({}),
+            remove: () => {}
+        },
+        dataSources: {
+            add: (ds) => Promise.resolve(ds),
+            remove: () => {}
+        },
+        cesiumWidget: {
+            screenSpaceEventHandler: {
+                removeInputAction: () => {}
+            }
+        }
+    };
+    
+    const mockCartesian2 = function(x, y) {
+        return { x: x||0, y: y||0 };
+    };
+    
+    const mockCartesian3 = function(x, y, z) {
+        return { x: x||0, y: y||0, z: z||0 };
+    };
+    mockCartesian3.fromDegrees = () => ({});
+    mockCartesian3.fromDegreesArray = () => [];
+    mockCartesian3.fromDegreesArrayHeights = () => [];
+    mockCartesian3.lerp = () => ({});
+    mockCartesian3.add = () => ({});
+    mockCartesian3.multiplyByScalar = () => ({});
+    mockCartesian3.normalize = () => ({});
+    mockCartesian3.distance = () => 0;
+    mockCartesian3.zero = { x: 0, y: 0, z: 0 };
+    mockCartesian3.ZERO = { x: 0, y: 0, z: 0 };
+
+    const mockColorConstructor = function(r, g, b, a) {
+        return {
+            red: r || 0,
+            green: g || 0,
+            blue: b || 0,
+            alpha: a || 1,
+            withAlpha: function(alpha) {
+                return { red: r||0, green: g||0, blue: b||0, alpha: alpha };
+            }
+        };
+    };
+    mockColorConstructor.fromHsl = () => ({ withAlpha: () => ({}) });
+    mockColorConstructor.fromCssColorString = () => ({ withAlpha: () => ({}) });
+    mockColorConstructor.fromRandom = () => ({ withAlpha: () => ({}) });
+    mockColorConstructor.fromBytes = () => ({ withAlpha: () => ({}) });
+
+    window.Cesium = {
+        Viewer: function() { return window.viewer; },
+        CustomDataSource: function(name) {
+            return {
+                clustering: {
+                    clusterEvent: { addEventListener: () => {} }
+                },
+                entities: createMockEntityCollection()
+            };
+        },
+        ArcGisMapServerImageryProvider: function() {},
+        ScreenSpaceEventHandler: function() {
+            return { setInputAction: () => {} };
+        },
+        ScreenSpaceEventType: { LEFT_CLICK: 0, LEFT_DOUBLE_CLICK: 1, MOUSE_MOVE: 2 },
+        defined: (x) => typeof x !== 'undefined' && x !== null,
+        Color: new Proxy(mockColorConstructor, {
+            get: (target, prop) => {
+                if (prop in target) {
+                    return target[prop];
+                }
+                return {
+                    withAlpha: function(alpha) {
+                        return { alpha: alpha };
+                    }
+                };
+            }
+        }),
+        Cartesian2: mockCartesian2,
+        Cartesian3: mockCartesian3,
+        VerticalOrigin: { CENTER: 0, BOTTOM: 1, TOP: 2 },
+        HorizontalOrigin: { CENTER: 0, LEFT: 1, RIGHT: 2 },
+        LabelStyle: { FILL_AND_OUTLINE: 0, FILL: 1, OUTLINE: 2 },
+        HeightReference: { CLAMP_TO_GROUND: 0, RELATIVE_TO_GROUND: 1 },
+        PointPrimitiveCollection: function() {
+            return {
+                add: () => ({}),
+                removeAll: () => {},
+                remove: () => {}
+            };
+        },
+        UrlTemplateImageryProvider: function() {},
+        JulianDate: {
+            now: () => ({}),
+            fromDate: () => ({}),
+            toIsoString: () => ""
+        },
+        Math: {
+            toRadians: (val) => val * (Math.PI / 180),
+            toDegrees: (val) => val * (180 / Math.PI),
+            PI_OVER_TWO: Math.PI / 2
+        },
+        CallbackProperty: function(callback, isConstant) {
+            return {
+                getValue: () => callback(),
+                isConstant: isConstant || false
+            };
+        },
+        DistanceDisplayCondition: function(near, far) {
+            return { near: near||0, far: far||0 };
+        },
+        PolylineGlowMaterialProperty: function(options) {
+            return {
+                color: options ? options.color : undefined,
+                glowPower: options ? options.glowPower : undefined,
+                taperPower: options ? options.taperPower : undefined
+            };
+        },
+        PolygonHierarchy: function(positions, holes) {
+            return { positions: positions || [], holes: holes || [] };
+        }
+    };
+}
+
 // ----- UI & STATE MANAGEMENT -----
 let isMobile = window.innerWidth <= 768;
 window.addEventListener('resize', () => { isMobile = window.innerWidth <= 768; });
@@ -72,6 +266,10 @@ let _fetchingSatellites = false;
 let _fetchingEarthquakes = false;
 let _fetchingPolice = false;
 let _fetchingScanners = false;
+let _fetchingSAR = false;
+let _fetchingWildfires = false;
+let _fetchingDeformation = false;
+let _fetchingCellTowers = false;
 
 // Global DataSources for efficient entity tracking
 const flightsDataSource = new Cesium.CustomDataSource('flights');
@@ -181,13 +379,14 @@ window.toggleLayer = function (layerName) {
 window.toggleLayersPanel = function () {
     const panel = document.getElementById('layers-panel');
     const icon = document.getElementById('layers-toggle-icon');
+    if (!panel) return;
     
     if (panel.classList.contains('collapsed')) {
         panel.classList.remove('collapsed');
-        icon.className = 'fa-solid fa-chevron-down';
+        if (icon) icon.className = 'fa-solid fa-chevron-down';
     } else {
         panel.classList.add('collapsed');
-        icon.className = 'fa-solid fa-chevron-up';
+        if (icon) icon.className = 'fa-solid fa-chevron-up';
     }
 };
 
@@ -2058,7 +2257,7 @@ function updateWeatherLayer() {
                 if (_weatherLastType !== weatherType) applyWeatherLayer(weatherType);
             }
         } catch (e) {
-            console.error('[Globe] Weather fail:', e.name || 'Error', e.message || e, e.stack);
+            console.log('[Globe] Weather fail (offline/unreachable):', e.message || e);
         } finally {
             weatherDataSource.entities.resumeEvents();
         }
@@ -3465,7 +3664,6 @@ async function runDemoCycle() {
 }
 
 // ----- NEW COMPONENT HOOKS (SAR, Wildfires, Deformation) -----
-let _fetchingSAR = false;
 async function fetchSAR() {
     if (_fetchingSAR) return;
     _fetchingSAR = true;
@@ -3621,7 +3819,6 @@ function updateSARLayer() {
     sarDataSource.entities.resumeEvents();
 };
 
-let _fetchingWildfires = false;
 async function fetchWildfires() {
     if (_fetchingWildfires) return;
     _fetchingWildfires = true;
@@ -3662,7 +3859,6 @@ function updateWildfireLayer() {
     wildfiresDataSource.entities.resumeEvents();
 };
 
-let _fetchingDeformation = false;
 async function fetchDeformation() {
     if (_fetchingDeformation) return;
     _fetchingDeformation = true;
@@ -3704,7 +3900,6 @@ function updateDeformationLayer() {
     deformationDataSource.entities.resumeEvents();
 };
 
-let _fetchingCellTowers = false;
 async function fetchCellTowers() {
     if (_fetchingCellTowers) return;
     _fetchingCellTowers = true;

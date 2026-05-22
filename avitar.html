@@ -2,17 +2,41 @@
 
 <html data-theme="dark" lang="en">
 <head>
+<!-- Offline resetIdle Failsafe Mock -->
+<script>
+if (typeof window.resetIdle === 'undefined') {
+    window.resetIdle = function() {};
+}
+</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>AI Avatar OS | Sherpa Solutions</title><meta content="AI Avatar Agent by Sherpa Solutions — a fully customizable AI workspace companion that moves, works, and notifies you in a simulated digital environment. Built on Three.js WebGL." name="description"/>
 <!-- Use the new Cyberpunk CSS -->
-<link href="static/cyber.css" rel="stylesheet"/>
+<link href="/static/cyber.css" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="static/favicon.ico" rel="icon" type="image/x-icon"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="static/avitar-3d.js"></script>
+<link href="/static/favicon.ico" rel="icon" type="image/x-icon"/>
+<script src="/static/three.min.js"></script>
+<script src="/static/GLTFLoader.js"></script>
+<script src="/static/OrbitControls.js"></script>
+<script>
+if (typeof THREE === 'undefined') {
+    window.THREE_OFFLINE = true;
+    const makeMock = () => new Proxy(function() {}, {
+        get(target, prop) {
+            if (prop === 'then') return undefined;
+            if (prop === 'DoubleSide') return 2;
+            if (prop === 'sRGBEncoding') return 3001;
+            if (prop === 'domElement') return document.createElement('canvas');
+            return makeMock();
+        },
+        construct() { return makeMock(); }
+    });
+    window.THREE = makeMock();
+} else {
+    window.THREE_OFFLINE = false;
+}
+</script>
+<script src="/static/avitar-3d.js"></script>
 <style data-cms="custom-theme-colors">
 :root[data-theme="light"], :root[data-theme="light"] body {
     --primary: #2d3f2e !important;
@@ -96,7 +120,7 @@
 <header>
 <div class="logo-container" style="display:flex; align-items:center; gap:15px;">
 <a href="index.html">
-<img alt="Sherpa Solutions LLC" src="static/sherpa_logo.png"/>
+<img alt="Sherpa Solutions LLC" src="/static/sherpa_logo.png"/>
 </a>
 <span style="color:var(--cyber-cyan); font-weight:bold; letter-spacing:2px; font-size:1.2rem;">SHERPA | AGENT OS</span>
 </div>
@@ -265,23 +289,23 @@
 </div>
 <div class="cyber-tab-pane active" id="tab-gallery">
 <div class="avatar-gallery" id="picker-gallery" style="grid-template-columns: repeat(5, 1fr);">
-<div class="gallery-item selected" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb" data-rot="0" data-scale="1.6" data-y="-3.5">
-<img alt="Robot Expressive" src="static/yellow_robot_thumb.png"/>
+<div class="gallery-item selected" data-model="/static/RobotExpressive.glb" data-rot="0" data-scale="1.6" data-y="-3.5">
+<img alt="Robot Expressive" src="/static/yellow_robot_thumb.png"/>
 </div>
-<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Soldier.glb" data-rot="3.14159" data-scale="3.5" data-y="-3.5">
-<img alt="Tactical Soldier" src="static/tactical_soldier_thumb.png"/>
+<div class="gallery-item" data-model="/static/Soldier.glb" data-rot="3.14159" data-scale="3.5" data-y="-3.5">
+<img alt="Tactical Soldier" src="/static/tactical_soldier_thumb.png"/>
 </div>
 <!-- 8 New Injectable Presets -->
-<div class="gallery-item" data-model="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb" data-rot="0" data-scale="0.04" data-y="-3.5">
+<div class="gallery-item" data-model="/static/Fox.glb" data-rot="0" data-scale="0.04" data-y="-3.5">
 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-dog fa-2x"></i><br/><b style="font-size:0.6rem;">Dog / K-9</b></div>
 </div>
-<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Flamingo.glb" data-rot="0" data-scale="0.04" data-y="0">
+<div class="gallery-item" data-model="/static/Flamingo.glb" data-rot="0" data-scale="0.04" data-y="0">
 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-cat fa-2x"></i><br/><b style="font-size:0.6rem;">Feline Cat</b></div>
 </div>
-<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Parrot.glb" data-rot="0" data-scale="0.08" data-y="0">
+<div class="gallery-item" data-model="/static/Parrot.glb" data-rot="0" data-scale="0.08" data-y="0">
 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-orange);"><i class="fa-solid fa-fish fa-2x"></i><br/><b style="font-size:0.6rem;">Aquatic Fish</b></div>
 </div>
-<div class="gallery-item" data-model="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/Horse.glb" data-rot="0" data-scale="0.02" data-y="-3.5">
+<div class="gallery-item" data-model="/static/Horse.glb" data-rot="0" data-scale="0.02" data-y="-3.5">
 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--cyber-cyan);"><i class="fa-solid fa-horse fa-2x"></i><br/><b style="font-size:0.6rem;">Steed</b></div>
 </div>
 <!-- 6 Authentic Sketchfab Hardcoded Persistent Imports -->
@@ -519,7 +543,7 @@
 
                         // Wipe the active infected 3D scene cleanly out of their memory buffer
                         if (window.loadModel) {
-                            window.loadModel("https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb", {scale: 1.6, y: -3.5, rot: 0});
+                            window.loadModel("/static/RobotExpressive.glb", {scale: 1.6, y: -3.5, rot: 0});
                             logTerm("[SYS] Base yellow diagnostic geometry mounted securely in WebGL Array.");
                         }
                     }
@@ -577,7 +601,7 @@
             // Always boot with the Robot avatar unless the user has saved a custom default.
             function loadDefaultAvatar() {
                 const ROBOT_CONFIG = {
-                    url: "https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/models/gltf/RobotExpressive/RobotExpressive.glb",
+                    url: "/static/RobotExpressive.glb",
                     scale: 1.6, y: -3.5, rot: 0
                 };
                 const saved = localStorage.getItem('sherpa_default_avatar');
@@ -719,6 +743,11 @@
                 if(window.playRobotAnimation) window.playRobotAnimation('Idle');
                 resetIdle(); // Begin 10 second countdown until Dance resumes after speech
             }
+
+            function resetIdle() {
+                resetActionTimer();
+            }
+            window.resetIdle = resetIdle;
 
             // Animation State Machine & Idle Entertainment Loop
             window.idleDanceTimer = null;

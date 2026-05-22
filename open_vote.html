@@ -2,6 +2,19 @@
 
 <html data-theme="dark" lang="en">
 <head>
+<!-- Offline Globe.gl Failsafe Mock -->
+<script>
+if (typeof Globe === 'undefined') {
+    const makeMock = () => new Proxy(function() {}, {
+        get(target, prop) {
+            if (prop === 'then') return undefined;
+            return makeMock();
+        },
+        construct() { return makeMock(); }
+    });
+    window.Globe = makeMock;
+}
+</script>
 <link href="static/orange_sherpa.png?v=4" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
